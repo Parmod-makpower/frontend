@@ -10,13 +10,9 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
- const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
   e.preventDefault();
-
-  if (!mobileOrId.trim() || !password.trim()) {
-    setError("Mobile/ID और पासवर्ड दोनों भरना ज़रूरी है।");
-    return;
-  }
+  console.log("Login input:", mobileOrId, password); // ← Add this
 
   try {
     const data = await loginUser(mobileOrId, password);
@@ -27,7 +23,6 @@ export default function LoginPage() {
     setError(backendError);
   }
 };
-
 
 
   return (
