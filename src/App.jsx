@@ -12,7 +12,7 @@ import UserHierarchy from "./pages/UserHierarchy";
 import ProductPage from "./pages/ProductPage";
 import SchemePage from "./pages/SchemePage";
 import CartPage from "./pages/CartPage";
-import MoreOptionsPage from "./Layout/MoreOptionsPage";
+import MoreOptionsPage from "./Layout/MoreOptionPage";
 import CategoryPage from "./pages/CategoryPage";
 import CRMOrderVerifyPage from "./pages/CRMOrderVerifyPage";
 import CRMOrderHistoryPage from "./pages/CRMOrderHistoryPage";

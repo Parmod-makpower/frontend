@@ -1,3 +1,4 @@
+// pages/ProductPage.jsx
 import { useEffect, useState, useRef, useCallback } from "react";
 import { fetchFilteredProducts } from "../auth/useProducts";
 import { fetchSchemes } from "../auth/useSchemes";
@@ -8,7 +9,6 @@ import {
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
 import debounce from "lodash.debounce";
 
 export default function ProductPage() {
@@ -74,7 +74,6 @@ export default function ProductPage() {
     debouncedSearch(term, 1);
   };
 
-  // 👇 Infinite Scroll Observer
   const lastProductRef = useCallback(
     (node) => {
       if (observer.current) observer.current.disconnect();
@@ -171,20 +170,6 @@ export default function ProductPage() {
           })}
         </div>
       )}
-
-      {/* 🛒 Floating Cart */}
-      <NavLink
-        to="/cart"
-        className="fixed bottom-5 right-5 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700"
-        title="Go to Cart"
-      >
-        <FaShoppingCart />
-        {selectedProducts.length > 0 && (
-          <span className="ml-1 text-xs bg-red-500 rounded-full px-2 py-0.5 text-white absolute -top-2 -right-2">
-            {selectedProducts.length}
-          </span>
-        )}
-      </NavLink>
     </div>
   );
 }

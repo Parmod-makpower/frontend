@@ -1,35 +1,71 @@
 // components/ResponsiveSidebar.js
 
-import { FaHome, FaUsers, FaBox, FaList, FaGift, FaHistory, FaShoppingCart } from "react-icons/fa";
+import {
+  FaHome,
+  FaUsers,
+  FaBox,
+  FaList,
+  FaGift,
+  FaHistory,
+  FaShoppingCart,
+} from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useEffect, useState } from "react";
 
 export default function ResponsiveSidebar({ isOpen, setIsOpen }) {
   const { user } = useAuth();
+  const [cartCount, setCartCount] = useState(0);
+
+  // 🔁 Keep cart count updated every 500ms
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem("selectedProducts");
+      const parsed = saved ? JSON.parse(saved) : [];
+      setCartCount(parsed.length);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
 
   const navItems = [
     { label: "Dashboard", path: "/", icon: <FaHome /> },
     { label: "Schemes", path: "/schemes", icon: <FaGift /> },
-   
-    
   ];
 
   if (user.role === "ADMIN") {
-    navItems.push({ label: "CRM", path: "/admin/crm", icon: <FaUsers /> },
-       { label: "All Orders", path: "/admin/order-audit", icon: <FaBox /> },
+    navItems.push(
+      { label: "CRM", path: "/admin/crm", icon: <FaUsers /> },
+      { label: "All Orders", path: "/admin/order-audit", icon: <FaBox /> }
     );
   }
+
   if (user.role === "CRM") {
-    navItems.push({ label: "Super Stockist", path: "/crm/ss", icon: <FaUsers />  },
-      { label: "New Orders", path: "/crm/orders/verify", icon: <FaBox />  },
-      { label: "History", path: "/crm/orders/history", icon: <FaHistory /> },
+    navItems.push(
+      { label: "Super Stockist", path: "/crm/ss", icon: <FaUsers /> },
+      { label: "New Orders", path: "/crm/orders/verify", icon: <FaBox /> },
+      { label: "History", path: "/crm/orders/history", icon: <FaHistory /> }
     );
   }
+
   if (user.role === "SS") {
-    navItems.push({ label: "Distributer", path: "/ss/ds", icon: <FaUsers /> },
-       { label: "Cart", path: "/cart", icon: <FaShoppingCart /> },
-       { label: "Orders", path: "/products", icon: <FaBox /> },
-      { label: "Categories", path: "/categories", icon: <FaList /> },
+    navItems.push(
+      { label: "Distributer", path: "/ss/ds", icon: <FaUsers /> },
+      {
+        label: "Cart",
+        path: "/cart",
+        icon: (
+          <div className="relative">
+            <FaShoppingCart />
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                {cartCount}
+              </span>
+            )}
+          </div>
+        ),
+      },
+      { label: "Orders", path: "/products", icon: <FaBox /> },
+      { label: "Categories", path: "/categories", icon: <FaList /> }
     );
   }
 
