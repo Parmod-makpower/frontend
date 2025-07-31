@@ -1,10 +1,9 @@
-// components/BottomNav.js
+// 📁 Updated: BottomNav.jsx
 import { NavLink } from "react-router-dom";
 import {
   FaHome,
   FaGift,
   FaShoppingCart,
-  FaUser,
   FaListUl,
   FaBox,
 } from "react-icons/fa";
@@ -20,8 +19,7 @@ export default function BottomNav() {
       const saved = localStorage.getItem("selectedProducts");
       const parsed = saved ? JSON.parse(saved) : [];
       setCartCount(parsed.length);
-    }, 500); // Updates every 500ms
-
+    }, 500);
     return () => clearInterval(interval);
   }, []);
 
@@ -58,7 +56,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <div className="flex justify-around items-center py-2">
+    <div className="flex justify-around items-center py-2 px-3 bg-white">
       {allItems.map(
         (item, idx) =>
           item.path && (
@@ -66,13 +64,13 @@ export default function BottomNav() {
               key={idx}
               to={item.path}
               className={({ isActive }) =>
-                `flex flex-col items-center text-xs text-gray-600 hover:text-blue-600 ${
-                  isActive ? "text-blue-600 font-semibold" : ""
+                `flex flex-col items-center text-[11px] text-gray-600 hover:text-purple-600 transition-colors duration-150 ${
+                  isActive ? "text-purple-600 font-semibold" : ""
                 }`
               }
             >
-              <div className="text-xl">{item.icon}</div>
-              {item.label}
+              <div className="text-xl mb-0.5">{item.icon}</div>
+              <span className="leading-none">{item.label}</span>
             </NavLink>
           )
       )}

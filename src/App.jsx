@@ -13,11 +13,13 @@ import ProductPage from "./pages/ProductPage";
 import SchemePage from "./pages/SchemePage";
 import CartPage from "./pages/CartPage";
 import MoreOptionsPage from "./Layout/MoreOptionPage";
-import CategoryPage from "./pages/CategoryPage";
 import CRMOrderVerifyPage from "./pages/CRMOrderVerifyPage";
 import CRMOrderHistoryPage from "./pages/CRMOrderHistoryPage";
 import CRMOrderDetailPage from "./pages/CRMOrderDetailPage";
 import AdminOrderHistoryPage from "./pages/AdminOrderHistoryPage";
+import CategoryProductList from "./pages/CategoryProductList";
+import HomePage from "./pages/HomePage";
+import HomeRedirector from "./routes/HomeRedirector";
 
 
 export default function App() {
@@ -27,10 +29,11 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-            <Route path="" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute ><ProductPage /></ProtectedRoute>} />
-            <Route path="/categories" element={<CategoryPage />} />
+            <Route path="" element={<HomeRedirector />} />
+            <Route path="/category/:category" element={<CategoryProductList />} />
             <Route path="/admin/orders/:id/detail" element={<CRMOrderDetailPage />} />
+            <Route path="/dashboard" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
 
           
             <Route path="/cart" element={<ProtectedRoute ><CartPage /></ProtectedRoute>} />
@@ -46,6 +49,7 @@ export default function App() {
             <Route path="/crm/orders/history" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderHistoryPage /></ProtectedRoute>} />
             <Route path="/crm-orders/:id/detail" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
             <Route path="/ss/ds" element={<ProtectedRoute allowedRoles={['SS']}><SSDSPage /></ProtectedRoute>} />
+            <Route path="/ss-page" element={<ProtectedRoute allowedRoles={['SS']}><HomePage /></ProtectedRoute>} />
           </Route>
 
           <Route path="/no-permission" element={<NoPermission />} />

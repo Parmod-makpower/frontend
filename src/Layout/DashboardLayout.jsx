@@ -36,7 +36,7 @@ export default function DashboardLayout() {
 
       <main className="flex-1 flex flex-col">
         {/* Top NavBar for Desktop Only */}
-        <header className="hidden md:flex justify-between items-center bg-white shadow-md px-4 py-4">
+        {/* <header className="hidden md:flex justify-between items-center bg-white shadow-md px-4 py-4">
           <div className="flex items-center gap-4">
             <button
               className="text-2xl text-gray-700 cursor-pointer md:hidden"
@@ -69,10 +69,10 @@ export default function DashboardLayout() {
               </div>
             )}
           </div>
-        </header>
+        </header> */}
 
         {/* Page Content */}
-        <div className="flex-1 p-4 pb-20 md:pb-6 overflow-y-auto">
+        <div className="flex-1 p-0 pb-20 md:pb-6 overflow-y-auto">
           <Outlet />
         </div>
 

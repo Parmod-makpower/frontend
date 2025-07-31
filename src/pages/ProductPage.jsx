@@ -1,5 +1,5 @@
-// pages/ProductPage.jsx
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { fetchFilteredProducts } from "../auth/useProducts";
 import { fetchSchemes } from "../auth/useSchemes";
 import {
@@ -8,11 +8,15 @@ import {
   FaGift,
   FaCheckCircle,
   FaTimesCircle,
+  FaCheck,
 } from "react-icons/fa";
 import debounce from "lodash.debounce";
 
 export default function ProductPage() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get("search") || "";
+
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState(() => {
     const saved = localStorage.getItem("selectedProducts");
@@ -27,6 +31,7 @@ export default function ProductPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef();
+  const searchRef = useRef();
 
   useEffect(() => {
     localStorage.setItem("selectedProducts", JSON.stringify(selectedProducts));
@@ -43,16 +48,21 @@ export default function ProductPage() {
         console.error("Failed to fetch schemes", error);
       }
     };
-
     loadSchemes();
   }, []);
+
+  useEffect(() => {
+    if (initialSearch.trim()) {
+      debouncedSearch(initialSearch.trim(), 1);
+    }
+    searchRef.current?.focus();
+  }, [initialSearch]);
 
   const debouncedSearch = debounce(async (term, page = 1) => {
     if (term.trim().length < 1) {
       setFilteredProducts([]);
       return;
     }
-
     try {
       const data = await fetchFilteredProducts(term.trim(), page, 10);
       if (page === 1) {
@@ -90,6 +100,8 @@ export default function ProductPage() {
   const addProduct = (product) => {
     if (!selectedProducts.some((p) => p.id === product.id)) {
       setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
+      // ❌ Don't remove item from list
+      // setFilteredProducts((prev) => prev.filter((p) => p.id !== product.id));
     }
   };
 
@@ -101,21 +113,30 @@ export default function ProductPage() {
     );
   };
 
-  return (
-    <div className="p-3 sm:p-6 max-w-5xl mx-auto pb-24 sm:pb-8">
-      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center text-gray-700 flex items-center justify-center gap-2">
-        <FaShoppingCart className="text-blue-600" />
-        Product Order
-      </h2>
+  const isAdded = (id) => {
+    return selectedProducts.some((p) => p.id === id);
+  };
 
-      {/* 🔍 Search Input */}
-      <input
-        type="text"
-        value={searchTerm}
-        onChange={handleSearch}
-        placeholder="Search by product name or category..."
-        className="w-full mb-4 px-4 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
-      />
+  return (
+    <div className="sm:p-6 max-w-5xl mx-auto pb-24 sm:pb-8">
+      {/* Search bar with back button */}
+      <div className="flex items-center gap-2 mb-4 px-3 py-2 border-b border-gray-300 shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)] bg-white sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out">
+        <button
+          onClick={() => window.history.back()}
+          className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
+          aria-label="Back"
+        >
+          &#8249;
+        </button>
+        <input
+          ref={searchRef}
+          type="text"
+          value={searchTerm}
+          onChange={handleSearch}
+          placeholder="Search by product or category..."
+          className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
+        />
+      </div>
 
       {filteredProducts.length > 0 && (
         <div className="space-y-1">
@@ -125,11 +146,10 @@ export default function ProductPage() {
               <div
                 key={`${p.id}-${p.product_id}-${p.sale_name}`}
                 ref={isLast ? lastProductRef : null}
-                className="flex items-center justify-between px-3 py-2 bg-white rounded-md hover:bg-gray-50 transition-all border border-gray-200"
+                className="flex items-center justify-between px-3 py-2 border-b border-gray-300 hover:bg-gray-100 transition-all"
               >
-                {/* Product Info */}
                 <div className="flex-grow flex flex-col gap-1 text-xs sm:text-sm text-gray-700">
-                  <div className="flex items-center gap-2 font-medium text-gray-800 truncate">
+                  <div className="flex items-center gap-2 font-medium truncate text-gray-800">
                     {p.sale_name}
                     {hasScheme(p.product_id) && (
                       <FaGift
@@ -140,7 +160,9 @@ export default function ProductPage() {
                   </div>
 
                   <div className="flex items-center gap-4 text-gray-500 text-[11px] sm:text-xs">
-                    <span className="truncate text-gray-400 font-medium">{p.category}</span>
+                    <span className="truncate text-gray-400 font-medium">
+                      {p.category}
+                    </span>
                     <span className="flex items-center gap-1">
                       {p.live_stock > 0 ? (
                         <>
@@ -157,13 +179,16 @@ export default function ProductPage() {
                   </div>
                 </div>
 
-                {/* Add Button */}
                 <button
                   onClick={() => addProduct(p)}
-                  className="ml-3 text-blue-600 hover:text-blue-800 p-1"
+                  className="ml-3 text-blue-600 hover:text-blue-800 pe-3 transition-transform duration-150 hover:scale-110"
                   title="Add to cart"
                 >
-                  <FaPlus className="text-sm" />
+                  {isAdded(p.id) ? (
+                    <FaCheck className="text-green-600 text-sm" />
+                  ) : (
+                    <FaPlus className="text-sm" />
+                  )}
                 </button>
               </div>
             );

@@ -28,12 +28,14 @@ export default function ResponsiveSidebar({ isOpen, setIsOpen }) {
   }, []);
 
   const navItems = [
-    { label: "Dashboard", path: "/", icon: <FaHome /> },
-    { label: "Schemes", path: "/schemes", icon: <FaGift /> },
+  
+  
   ];
 
   if (user.role === "ADMIN") {
     navItems.push(
+       { label: "Dashboard", path: "/", icon: <FaHome /> },
+         { label: "Schemes", path: "/schemes", icon: <FaGift /> },
       { label: "CRM", path: "/admin/crm", icon: <FaUsers /> },
       { label: "All Orders", path: "/admin/order-audit", icon: <FaBox /> }
     );
@@ -41,6 +43,8 @@ export default function ResponsiveSidebar({ isOpen, setIsOpen }) {
 
   if (user.role === "CRM") {
     navItems.push(
+      { label: "Dashboard", path: "/", icon: <FaHome /> },
+        { label: "Schemes", path: "/schemes", icon: <FaGift /> },
       { label: "Super Stockist", path: "/crm/ss", icon: <FaUsers /> },
       { label: "New Orders", path: "/crm/orders/verify", icon: <FaBox /> },
       { label: "History", path: "/crm/orders/history", icon: <FaHistory /> }
@@ -49,6 +53,8 @@ export default function ResponsiveSidebar({ isOpen, setIsOpen }) {
 
   if (user.role === "SS") {
     navItems.push(
+      { label: "Dashboard", path: "/home", icon: <FaHome /> },
+        { label: "Schemes", path: "/schemes", icon: <FaGift /> },
       { label: "Distributer", path: "/ss/ds", icon: <FaUsers /> },
       {
         label: "Cart",
