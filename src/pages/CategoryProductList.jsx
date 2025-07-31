@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { fetchFilteredProducts } from "../auth/useProducts";
 import { fetchSchemes } from "../auth/useSchemes";
 import { FaPlus, FaGift, FaCheckCircle, FaTimesCircle, FaCheck } from "react-icons/fa";
+import { IoChevronBack } from "react-icons/io5";
 import debounce from "lodash.debounce";
 
 export default function CategoryProductList() {
@@ -13,6 +14,7 @@ export default function CategoryProductList() {
   const [addedProductIds, setAddedProductIds] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(false); // ✅ loading state added
 
   const observer = useRef();
 
@@ -43,6 +45,7 @@ export default function CategoryProductList() {
 
   const loadProducts = debounce(async (term, currentPage) => {
     try {
+      setLoading(true); // ✅ show spinner
       const res = await fetchFilteredProducts(term, currentPage);
       if (currentPage === 1) {
         setProducts(res.results);
@@ -53,6 +56,8 @@ export default function CategoryProductList() {
       setHasMore(!!res.next);
     } catch (err) {
       console.error("Error loading category products:", err);
+    } finally {
+      setLoading(false); // ✅ hide spinner
     }
   }, 300);
 
@@ -73,18 +78,21 @@ export default function CategoryProductList() {
 
   return (
     <div className="">
-     
-       <div className="fixed top-0 left-0 right-0 z-50 bg-white px-3 py-2 border-b border-gray-300 shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)] sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out">
-        <button
-          onClick={() => window.history.back()}
-          className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
-          aria-label="Back"
-        >
-          &#8249;
-        </button>
-        Products {category}
-      </div>
+      {/* 🔙 Top Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white px-3 py-2 border-b border-gray-300 shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)] sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out">
+  <div className="flex items-center gap-2">
+    <button
+      onClick={() => window.history.back()}
+      className="text-gray-700 hover:text-blue-600 text-xl sm:text-xl font-bold px-1  transition-transform hover:scale-105"
+      aria-label="Back"
+    >
+     <IoChevronBack  />
+    </button>
+    <span className="text-lg sm:text-xl font-semibold text-gray-800">{category}</span>
+  </div>
+</div>
 
+      {/* 📦 Product List */}
       <div className="pt-[60px] sm:pt-0 space-y-2 px-1">
         {products.map((p, index) => {
           const isLast = index === products.length - 1;
@@ -106,24 +114,24 @@ export default function CategoryProductList() {
                   )}
                 </div>
 
-                 <div className="flex  gap-4 text-gray-500 text-[11px] sm:text-xs">
-                    <span className="truncate text-gray-400 font-medium">
-                      {p.category}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      {p.live_stock > 0 ? (
-                        <>
-                          <FaCheckCircle className="text-green-500 text-[10px]" />
-                          <span className="text-green-600">In Stock</span>
-                        </>
-                      ) : (
-                        <>
-                          <FaTimesCircle className="text-red-500 text-[10px]" />
-                          <span className="text-red-600">Out of Stock</span>
-                        </>
-                      )}
-                    </span>
-                  </div>
+                <div className="flex gap-4 text-gray-500 text-[11px] sm:text-xs">
+                  <span className="truncate text-gray-400 font-medium">
+                    {p.category}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    {p.live_stock > 0 ? (
+                      <>
+                        <FaCheckCircle className="text-green-500 text-[10px]" />
+                        <span className="text-green-600">In Stock</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaTimesCircle className="text-red-500 text-[10px]" />
+                        <span className="text-red-600">Out of Stock</span>
+                      </>
+                    )}
+                  </span>
+                </div>
               </div>
 
               <button
@@ -141,6 +149,13 @@ export default function CategoryProductList() {
             </div>
           );
         })}
+
+        {/* 🌀 Spinner when loading */}
+        {loading && (
+          <div className="flex justify-center items-center py-6">
+            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
       </div>
     </div>
   );

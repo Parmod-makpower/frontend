@@ -95,8 +95,7 @@ export default function HomePage() {
       </div>
 
       {/* 📂 Categories */}
-    {/* 📂 Categories */}
-<h2 className="text-lg font-semibold text-gray-800 mb-4 text-center">Browse Categories</h2>
+   
 <div className="grid grid-cols-4 sm:flex sm:flex-wrap justify-center gap-4 mb-10">
   {categories.map((cat) => (
     <div

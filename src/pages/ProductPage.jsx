@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { fetchFilteredProducts } from "../auth/useProducts";
 import { fetchSchemes } from "../auth/useSchemes";
+import { IoChevronBack } from "react-icons/io5";
 import {
   FaPlus,
   FaShoppingCart,
@@ -11,6 +12,15 @@ import {
   FaCheck,
 } from "react-icons/fa";
 import debounce from "lodash.debounce";
+
+// ✅ Loader Component
+function Loader() {
+  return (
+    <div className="flex justify-center items-center py-10">
+      <div className="w-6 h-6 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+    </div>
+  );
+}
 
 export default function ProductPage() {
   const [searchParams] = useSearchParams();
@@ -30,6 +40,7 @@ export default function ProductPage() {
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false); // ✅ loader state
   const observer = useRef();
   const searchRef = useRef();
 
@@ -64,6 +75,7 @@ export default function ProductPage() {
       return;
     }
     try {
+      setLoading(true); // ✅ start loading
       const data = await fetchFilteredProducts(term.trim(), page, 10);
       if (page === 1) {
         setFilteredProducts(data.results);
@@ -74,6 +86,8 @@ export default function ProductPage() {
       setPage(page);
     } catch (err) {
       console.error("Search failed:", err);
+    } finally {
+      setLoading(false); // ✅ stop loading
     }
   }, 400);
 
@@ -100,8 +114,6 @@ export default function ProductPage() {
   const addProduct = (product) => {
     if (!selectedProducts.some((p) => p.id === product.id)) {
       setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
-      // ❌ Don't remove item from list
-      // setFilteredProducts((prev) => prev.filter((p) => p.id !== product.id));
     }
   };
 
@@ -119,14 +131,14 @@ export default function ProductPage() {
 
   return (
     <div className="sm:p-6 max-w-5xl mx-auto pb-24 sm:pb-8">
-      {/* Search bar with back button */}
+      {/* Search bar */}
       <div className="flex items-center gap-2 mb-4 px-3 py-2 border-b border-gray-300 shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)] bg-white sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out">
         <button
           onClick={() => window.history.back()}
           className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
           aria-label="Back"
         >
-          &#8249;
+          <IoChevronBack  />
         </button>
         <input
           ref={searchRef}
@@ -137,6 +149,9 @@ export default function ProductPage() {
           className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
         />
       </div>
+
+      {/* ✅ Loader shown while loading */}
+      {loading && <Loader />}
 
       {filteredProducts.length > 0 && (
         <div className="space-y-1">
