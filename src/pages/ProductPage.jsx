@@ -132,29 +132,31 @@ export default function ProductPage() {
   return (
     <div className="sm:p-6 max-w-5xl mx-auto pb-24 sm:pb-8">
       {/* Search bar */}
-      <div className="flex items-center gap-2 mb-4 px-3 py-2 border-b border-gray-300 shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)] bg-white sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out">
-        <button
-          onClick={() => window.history.back()}
-          className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
-          aria-label="Back"
-        >
-          <IoChevronBack  />
-        </button>
-        <input
-          ref={searchRef}
-          type="text"
-          value={searchTerm}
-          onChange={handleSearch}
-          placeholder="Search by product or category..."
-          className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
-        />
-      </div>
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)] sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out flex items-center gap-2">
+  <button
+    onClick={() => window.history.back()}
+    className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
+    aria-label="Back"
+  >
+    <IoChevronBack />
+  </button>
+
+  <input
+    ref={searchRef}
+    type="text"
+    value={searchTerm}
+    onChange={handleSearch}
+    placeholder="Search by product or category..."
+    className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
+  />
+</div>
+
 
       {/* ✅ Loader shown while loading */}
       {loading && <Loader />}
 
       {filteredProducts.length > 0 && (
-        <div className="space-y-1">
+        <div className="pt-[60px] sm:pt-0 space-y-2 px-1">
           {filteredProducts.map((p, index) => {
             const isLast = index === filteredProducts.length - 1;
             return (
@@ -196,7 +198,7 @@ export default function ProductPage() {
 
                 <button
                   onClick={() => addProduct(p)}
-                  className="ml-3 text-blue-600 hover:text-blue-800 pe-3 transition-transform duration-150 hover:scale-110"
+                  className="ml-3 text-blue-600 hover:text-blue-800 pe-4 transition-transform duration-150 hover:scale-110"
                   title="Add to cart"
                 >
                   {isAdded(p.id) ? (

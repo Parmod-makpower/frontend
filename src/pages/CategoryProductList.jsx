@@ -79,7 +79,7 @@ export default function CategoryProductList() {
   return (
     <div className="">
       {/* 🔙 Top Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white px-3 py-2 border-b border-gray-300 shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)] sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)] sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out">
   <div className="flex items-center gap-2">
     <button
       onClick={() => window.history.back()}
@@ -137,7 +137,7 @@ export default function CategoryProductList() {
               <button
                 onClick={() => addProduct(p.id)}
                 disabled={isAdded}
-                className="ml-2 text-blue-600 hover:text-blue-800 p-1 rounded-full transition-all duration-200 active:scale-95"
+                className="ml-2 text-blue-600 hover:text-blue-800 p-1 pe-2 rounded-full transition-all duration-200 active:scale-95"
                 title={isAdded ? "Added" : "Add to cart"}
               >
                 {isAdded ? (

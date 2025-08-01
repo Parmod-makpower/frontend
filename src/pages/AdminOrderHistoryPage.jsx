@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import { IoChevronBack } from "react-icons/io5";
+import { FaFilter } from "react-icons/fa";
 
 export default function AdminOrderHistoryPage() {
   const [orders, setOrders] = useState([]);
@@ -91,17 +93,39 @@ export default function AdminOrderHistoryPage() {
 
   return (
    <div className="max-w-5xl mx-auto px-4 py-2 space-y-4 bg-gray-50 min-h-screen">
+ {/* Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-200 shadow-sm sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border transition-all duration-200 ease-in-out">
+        <div className="flex items-center justify-between">
 
-  {/* 🔹 Header + Mobile Filter Button */}
-  <div className="flex justify-between items-center mb-2">
-    <h2 className="text-lg font-bold text-indigo-700">📊 Admin Order History</h2>
-    <button
-      onClick={() => setShowFilterModal(true)}
-      className="md:hidden text-xs px-3 py-1 border border-indigo-600 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
-    >
-      🔍 Filters
-    </button>
-  </div>
+          {/* Back Button + Title */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.history.back()}
+              className="text-gray-700 hover:text-blue-600 text-xl px-1 transition-transform hover:scale-105"
+              aria-label="Back"
+            >
+              <IoChevronBack />
+            </button>
+            <span className="text-lg sm:text-xl font-semibold text-gray-800">
+              History
+            </span>
+          </div>
+
+          {/* Filter Button (mobile only) */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setShowFilterModal(true)}
+              className="flex items-center gap-1 text-sm px-3 py-1 border rounded bg-blue-50 text-blue-700 hover:bg-blue-100 transition"
+            >
+              <FaFilter className="text-sm" />
+              Filters
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+ <div className="pt-[60px]">
 
   {/* 🧰 Desktop Filters */}
   <div className="hidden md:flex flex-wrap gap-3 items-center text-sm bg-white px-4 py-3 rounded border shadow-sm">
@@ -169,7 +193,7 @@ export default function AdminOrderHistoryPage() {
 
   {/* 📱 Mobile Filter Modal */}
   {showFilterModal && (
-    <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
+    <div className="fixed inset-0  bg-opacity-30 z-50 flex items-center justify-center">
       <div className="bg-white rounded-md shadow-lg p-4 w-11/12 max-w-sm space-y-3">
         <h3 className="text-base font-semibold text-indigo-700">🔍 Filter Orders</h3>
 
@@ -208,6 +232,7 @@ export default function AdminOrderHistoryPage() {
       </div>
     </div>
   )}
+  </div>
 </div>
 
   );

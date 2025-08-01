@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import API from "../api/axios";
+import { IoChevronBack } from "react-icons/io5";
+
 
 export default function CRMOrderDetailPage() {
   const { id } = useParams();
@@ -29,8 +31,21 @@ export default function CRMOrderDetailPage() {
 
   return (
     <div className="  space-y-6">
-      <h2 className="text-2xl font-bold text-blue-700 text-center">📦 CRM Order Full Details</h2>
-
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-200 shadow-sm sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border transition-all duration-200 ease-in-out">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.history.back()}
+                  className="text-gray-700 hover:text-blue-600 text-xl px-1 transition-transform hover:scale-105"
+                  aria-label="Back"
+                >
+                  <IoChevronBack />
+                </button>
+                <span className="text-lg sm:text-xl font-semibold text-gray-800">
+                  Details
+                </span>
+              </div>
+            </div>
+    <div className="pt-[60px]">
       {/* Order Summary */}
       <div className="bg-white shadow rounded p-5 space-y-2 border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-700 mb-2">🧾 {ssOrder.party_name}</h3>
@@ -161,6 +176,7 @@ export default function CRMOrderDetailPage() {
           <div><span className="font-medium">Verified At:</span> {formatDateTime(order.verified_at)}</div>
           <div><span className="font-medium">Notes:</span> {order.notes || "-"}</div>
         </div>
+      </div>
       </div>
     </div>
   );

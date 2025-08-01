@@ -77,7 +77,7 @@ export default function DashboardLayout() {
         </div>
 
         {/* Mobile Bottom Navigation */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-inner border-t z-50">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-inner z-50">
           <BottomNav />
         </div>
       </main>

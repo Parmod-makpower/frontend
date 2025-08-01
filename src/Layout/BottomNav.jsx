@@ -1,4 +1,3 @@
-// 📁 Updated: BottomNav.jsx
 import { NavLink } from "react-router-dom";
 import {
   FaHome,
@@ -6,6 +5,8 @@ import {
   FaShoppingCart,
   FaListUl,
   FaBox,
+  FaUsers,
+  FaHistory
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
@@ -23,10 +24,15 @@ export default function BottomNav() {
     return () => clearInterval(interval);
   }, []);
 
+  const isAdmin = user?.role === "ADMIN";
+  const isCrm = user?.role === "CRM";
+
   const commonItems = [
     { path: "/", icon: <FaHome />, label: "Home" },
     { path: "/schemes", icon: <FaGift />, label: "Schemes" },
-    {
+
+    // 👇 Cart for all except ADMIN
+    !isAdmin && !isCrm && {
       path: "/cart",
       icon: (
         <div className="relative">
@@ -40,8 +46,21 @@ export default function BottomNav() {
       ),
       label: "Cart",
     },
+
+    // 👇 Only for ADMIN
+    isAdmin && {
+      path: "/users",
+      icon: <FaUsers />,
+      label: "Users",
+    },
+    isCrm && {
+      path: "/crm/orders/history",
+      icon: <FaHistory />,
+      label: "Users",
+    },
+
     { path: "/more", icon: <FaListUl />, label: "More" },
-  ];
+  ].filter(Boolean); // removes `false` values
 
   const roleSpecific = {
     SS: { path: "/products", icon: <FaBox />, label: "Orders" },
@@ -56,7 +75,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <div className="flex justify-around items-center py-2 px-3 bg-white">
+    <div className="flex justify-around items-center py-2 px-3 bg-white border-t shadow-sm">
       {allItems.map(
         (item, idx) =>
           item.path && (

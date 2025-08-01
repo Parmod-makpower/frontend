@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import API from "../api/axios";
 import { fetchFilteredProducts } from "../auth/useProducts";
 import { FaCheck, FaTrash, FaArrowLeft } from "react-icons/fa";
+import { IoChevronBack } from "react-icons/io5";
 
 export default function CRMOrderVerifyPage() {
   const [orders, setOrders] = useState([]);
@@ -169,7 +170,23 @@ export default function CRMOrderVerifyPage() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto text-sm space-y-6">
+    <div className="p-4 max-w-4xl mx-auto text-sm space-y-6 max-w-md mx-auto  px-4 relative">
+            {/* Header */}
+            <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-200 shadow-sm sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border transition-all duration-200 ease-in-out">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.history.back()}
+                  className="text-gray-700 hover:text-blue-600 text-xl px-1 transition-transform hover:scale-105"
+                  aria-label="Back"
+                >
+                  <IoChevronBack />
+                </button>
+                <span className="text-lg sm:text-xl font-semibold text-gray-800">
+                  Orders
+                </span>
+              </div>
+            </div>
+    <div className="pt-[60px]">
       {!selectedOrder ? (
         orders.length === 0 ? (
           <p className="text-gray-500 text-center">No Order Found!</p>
@@ -179,7 +196,7 @@ export default function CRMOrderVerifyPage() {
               <li
                 key={order.id}
                 onClick={() => handleSelectOrder(order)}
-                className="p-4 border rounded shadow-sm flex justify-between items-center bg-white hover:bg-gray-50 transition cursor-pointer"
+                className="p-4 rounded shadow-sm flex justify-between items-center bg-white hover:bg-gray-50 transition cursor-pointer"
               >
                 <div>
                   <div className="font-medium">
@@ -341,6 +358,7 @@ export default function CRMOrderVerifyPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
