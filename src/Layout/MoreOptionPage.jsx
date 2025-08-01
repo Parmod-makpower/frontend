@@ -75,7 +75,7 @@ export default function MoreOptionsPage() {
   
   <div className="bg-white border border-gray-200 rounded-xl  p-4 flex items-start gap-4">
     <div className="relative">
-      <FaUserCircle className="text-6xl text-purple-600" />
+      <FaUserCircle className="text-6xl text-[#fc250c]" />
       {/* Optional badge or edit icon */}
       <div className="absolute top-1 right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white" />
     </div>
@@ -97,7 +97,7 @@ export default function MoreOptionsPage() {
     onClick={action}
     className={`w-full flex items-center gap-4 p-4 rounded-lg border shadow-sm transition-all duration-150 ${
       danger
-        ? "bg-red-50 border-red-200 text-red-600 hover:bg-red-100 active:bg-red-200"
+        ? "bg-red-50 border-red-200 text-[#fc250c] hover:bg-red-100 active:bg-red-200"
         : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 active:bg-gray-100"
     }`}
   >

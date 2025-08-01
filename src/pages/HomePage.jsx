@@ -63,7 +63,7 @@ export default function HomePage() {
       {/* 🔝 Top Bar */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-blue-700"><img src="https://makpowerindia.com/cdn/shop/files/MakPower_Mobile_Accessories_370x.webp?v=1735378281" className="w-35" /></h1>
-        <div className="block sm:hidden text-xl text-blue-700">
+        <div className="block sm:hidden text-xl text-[#fc250c]">
           <FaBell />
         </div>
       </div>
@@ -80,7 +80,7 @@ export default function HomePage() {
         />
         <button
           onClick={handleRedirect}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#fc250c] hover:text-blue-800"
         >
           <FaSearch />
         </button>
@@ -104,7 +104,7 @@ export default function HomePage() {
       className="flex flex-col items-center cursor-pointer"
     >
       <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center bg-white rounded-full shadow hover:shadow-lg hover:scale-105 transition-all duration-200">
-        <div className="text-lg sm:text-xl text-blue-600">{cat.icon}</div>
+        <div className="text-lg sm:text-xl text-[#fc250c]">{cat.icon}</div>
       </div>
       <span className="mt-1 text-[10px] sm:text-xs text-center text-gray-700 font-medium">
         {cat.label}

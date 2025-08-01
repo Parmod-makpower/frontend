@@ -84,7 +84,7 @@ export default function BottomNav() {
               to={item.path}
               className={({ isActive }) =>
                 `flex flex-col items-center text-[11px] text-gray-600 hover:text-purple-600 transition-colors duration-150 ${
-                  isActive ? "text-purple-600 font-semibold" : ""
+                  isActive ? "text-red-500 font-semibold" : ""
                 }`
               }
             >
