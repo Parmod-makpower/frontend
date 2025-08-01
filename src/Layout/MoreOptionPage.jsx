@@ -10,6 +10,7 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { IoChevronBack } from "react-icons/io5";
+import InstallButtons from "../components/InstallButtons";
 
 export default function MoreOptionsPage() {
   const { user, logout } = useAuth();
@@ -67,9 +68,11 @@ export default function MoreOptionsPage() {
         </div>
       </div>
 
+
       {/* User Info */}
      {/* Profile Section */}
 <div className="relative mb-6 pt-[60px] sm:pt-4 ">
+  
   <div className="bg-white border border-gray-200 rounded-xl  p-4 flex items-start gap-4">
     <div className="relative">
       <FaUserCircle className="text-6xl text-purple-600" />
@@ -102,6 +105,8 @@ export default function MoreOptionsPage() {
     <span className="text-base font-medium">{label}</span>
   </button>
 ))}
+
+      <InstallButtons />
 
       </div>
     </div>

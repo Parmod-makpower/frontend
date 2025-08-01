@@ -93,7 +93,7 @@ export default function HomePage() {
           <img src="https://www.planhub.ca/blog/wp-content/uploads/2021/11/Mixing-and-Matching-Mobile-Accessories-1.jpg" alt="banner3" className="w-full h-48 object-cover" />
         </Slider>
       </div>
-
+    
       {/* 📂 Categories */}
    
 <div className="grid grid-cols-4 sm:flex sm:flex-wrap justify-center gap-4 mb-10">
