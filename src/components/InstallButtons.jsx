@@ -44,7 +44,7 @@ export default function InstallButtons() {
 
   const handleIOSInstall = () => {
     alert(
-      "iPhone में ऐप install करने के लिए:\n\n1. Safari में ऊपर या नीचे Share बटन दबाएं\n2. 'Add to Home Screen' चुनें\n3. फिर 'Add' दबाएं"
+      "To install the app on iPhone\n\n1. In Safari, tap the Share button (at the top or bottom)\n2. Select 'Add to Home Screen'"
     );
   };
 
@@ -70,14 +70,7 @@ export default function InstallButtons() {
         </button>
         
       )}
-
-       <button
-          onClick={handleAndroidInstall}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-700 transition"
-        >
-          <FaAndroid className="text-xl" />
-          Install on Android1
-        </button>
+      
     </div>
   );
 }

@@ -1,17 +1,17 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { VitePWA } from 'vite-plugin-pwa';
+import { VitePWA } from 'vite-plugin-pwa'
 
-
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(),tailwindcss(),
+  plugins: [
+    react(),
+    tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
         name: 'eShop App',
-        short_name: 'eShop',
+        short_name: 'Makpower',
         description: 'Mera eCommerce PWA App',
         theme_color: '#ffffff',
         background_color: '#ffffff',
@@ -30,7 +30,37 @@ export default defineConfig({
           },
         ],
       },
+      workbox: {
+        runtimeCaching: [
+          {
+            // cache HTML pages (like /, /home etc.)
+            urlPattern: ({ request }) => request.destination === 'document',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+            },
+          },
+          {
+            // cache JS, CSS, workers
+            urlPattern: ({ request }) =>
+              ['script', 'style', 'worker'].includes(request.destination),
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'asset-cache',
+            },
+          },
+          {
+            // cache other routes like /products etc.
+            urlPattern: ({ url }) => url.pathname.startsWith('/'),
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'route-cache',
+            },
+          },
+        ],
+        navigateFallback: '/index.html',
+      },
     }),
   ],
-  base: "/",
+  base: '/',
 })
