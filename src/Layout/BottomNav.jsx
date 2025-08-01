@@ -56,7 +56,7 @@ export default function BottomNav() {
     isCrm && {
       path: "/crm/orders/history",
       icon: <FaHistory />,
-      label: "Users",
+      label: "History",
     },
 
     { path: "/more", icon: <FaListUl />, label: "More" },
@@ -75,7 +75,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <div className="flex justify-around items-center py-2 px-3 bg-white border-t shadow-sm">
+    <div className="flex justify-around items-center py-2 px-3 bg-white shadow-sm">
       {allItems.map(
         (item, idx) =>
           item.path && (

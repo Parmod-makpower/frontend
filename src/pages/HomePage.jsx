@@ -62,7 +62,7 @@ export default function HomePage() {
     <div className="max-w-7xl mx-auto p-4 pb-16">
       {/* 🔝 Top Bar */}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-blue-700">eShope</h1>
+        <h1 className="text-2xl font-bold text-blue-700"><img src="https://makpowerindia.com/cdn/shop/files/MakPower_Mobile_Accessories_370x.webp?v=1735378281" className="w-35" /></h1>
         <div className="block sm:hidden text-xl text-blue-700">
           <FaBell />
         </div>
