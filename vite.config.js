@@ -4,6 +4,13 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+   theme: {
+    extend: {
+      colors: {
+        primary: "#fc250c",
+      },
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),

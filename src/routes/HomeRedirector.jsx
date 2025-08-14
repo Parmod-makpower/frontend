@@ -12,11 +12,11 @@ export default function HomeRedirector() {
   const role = user.role?.toLowerCase();
 
   if (role === "admin") {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/home" replace />;
   } else if (role === "crm") {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/home" replace />;
   } else if (role === "ss") {
-    return <Navigate to="/ss-page" replace />;
+    return <Navigate to="/home" replace />;
   } else {
     return <div className="p-4 text-red-600"> (Unauthorized User)</div>;
   }

@@ -9,7 +9,7 @@ import {
   FaHistory,
   FaUsers,
 } from "react-icons/fa";
-import { IoChevronBack } from "react-icons/io5";
+import MobilePageHeader from "../components/MobilePageHeader";
 import InstallButtons from "../components/InstallButtons";
 
 export default function MoreOptionsPage() {
@@ -53,23 +53,7 @@ export default function MoreOptionsPage() {
   return (
     <div className="max-w-md mx-auto  px-4 relative">
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-200 shadow-sm sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border transition-all duration-200 ease-in-out">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => window.history.back()}
-            className="text-gray-700 hover:text-blue-600 text-xl px-1 transition-transform hover:scale-105"
-            aria-label="Back"
-          >
-            <IoChevronBack />
-          </button>
-          <span className="text-lg sm:text-xl font-semibold text-gray-800">
-            More Options
-          </span>
-        </div>
-      </div>
-
-
-      {/* User Info */}
+      <MobilePageHeader title="More Options" />
      {/* Profile Section */}
 <div className="relative mb-6 pt-[60px] sm:pt-4 ">
   

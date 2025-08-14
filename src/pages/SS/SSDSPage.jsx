@@ -4,10 +4,10 @@ import {
   createDSUser,
   updateDSUser,
   toggleDSStatus,
-} from "../auth/useDS";
-import ChangePasswordModal from "../components/ChangePasswordModal";
-import UserForm from "../components/UserForm";
-import UserTable from "../components/UserTable";
+} from "../../auth/useDS";
+import ChangePasswordModal from "../../components/ChangePasswordModal";
+import UserForm from "../../components/UserForm";
+import UserTable from "../../components/UserTable";
 
 export default function SSDSPage() {
   const [dsList, setDSList] = useState([]);

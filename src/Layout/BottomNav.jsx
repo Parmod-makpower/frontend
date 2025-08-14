@@ -63,7 +63,7 @@ export default function BottomNav() {
   ].filter(Boolean); // removes `false` values
 
   const roleSpecific = {
-    SS: { path: "/products", icon: <FaBox />, label: "Orders" },
+    SS: { path: "/ss/history", icon: <FaBox />, label: "Orders" },
     CRM: { path: "/crm/orders/verify", icon: <FaBox />, label: "Orders" },
     ADMIN: { path: "/admin/order-audit", icon: <FaBox />, label: "Orders" },
   };
@@ -88,8 +88,8 @@ export default function BottomNav() {
                 }`
               }
             >
-              <div className="text-xl mb-0.5">{item.icon}</div>
-              <span className="leading-none">{item.label}</span>
+              <div className="text-2xl mb-0.5">{item.icon}</div>
+              <span className="leading-none ">{item.label}</span>
             </NavLink>
           )
       )}

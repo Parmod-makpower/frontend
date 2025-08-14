@@ -15,6 +15,12 @@ export const updateSSUser = async (id, data) => {
   return res.data;
 };
 
+export const deleteSSUser = async (id) => {
+  const res = await API.delete(`/accounts/ss-users/${id}/`);
+  return res.data;
+};
+
+
 export const toggleSSStatus = async (id, is_active) => {
   const res = await API.patch(`/accounts/ss-users/${id}/`, { is_active });
   return res.data;

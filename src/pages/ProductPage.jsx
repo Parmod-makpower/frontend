@@ -1,217 +1,401 @@
-import { useEffect, useState, useRef, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
-import { fetchFilteredProducts } from "../auth/useProducts";
-import { fetchSchemes } from "../auth/useSchemes";
-import { IoChevronBack } from "react-icons/io5";
-import {
-  FaPlus,
-  FaShoppingCart,
-  FaGift,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaCheck,
-} from "react-icons/fa";
-import debounce from "lodash.debounce";
+import { useState } from "react";
+import API from "../api/axios";
+import useFuseSearch from "../hooks/useFuseSearch";
+import { useCachedProducts } from "../hooks/useCachedProducts";
+import { useAddProduct, useDeleteProduct, useUpdateProduct } from "../hooks/useProducts";
+import { uploadProductImage } from "../api/productApi";
+import { toast } from "react-toastify";
+import { FiUpload, FiEdit, FiTrash2, FiPlus, FiDownload } from "react-icons/fi";
 
-// ✅ Loader Component
-function Loader() {
-  return (
-    <div className="flex justify-center items-center py-10">
-      <div className="w-6 h-6 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
-    </div>
-  );
-}
+import "react-toastify/dist/ReactToastify.css";
+import { downloadProductTemplate, bulkUploadProducts } from "../api/productApi";
+
+const ITEMS_PER_PAGE = 12;
 
 export default function ProductPage() {
-  const [searchParams] = useSearchParams();
-  const initialSearch = searchParams.get("search") || "";
+  const { data: allProducts = [], isLoading } = useCachedProducts();
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState(() => {
-    const saved = localStorage.getItem("selectedProducts");
-    return saved ? JSON.parse(saved) : [];
+  const [showModal, setShowModal] = useState(false);
+  const [editData, setEditData] = useState(null);
+  const [form, setForm] = useState({
+    product_id: "",
+    product_name: "",
+    sub_category: "",
+    cartoon_size: "",
+    price: "",
+    live_stock: ""
   });
 
-  const [schemes, setSchemes] = useState(() => {
-    const saved = localStorage.getItem("activeSchemes");
-    return saved ? JSON.parse(saved) : [];
+  const [uploading, setUploading] = useState(false); // 🔹 Upload loader state
+
+  const { mutate: addProduct } = useAddProduct();
+  const { mutate: deleteProduct } = useDeleteProduct();
+  const { mutate: updateProduct } = useUpdateProduct();
+
+  const filteredProducts = useFuseSearch(allProducts, search, {
+    keys: ["product_name", "sub_category", "product_id"],
+    threshold: 0.3,
   });
+  const productsToShow = search ? filteredProducts : allProducts;
 
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false); // ✅ loader state
-  const observer = useRef();
-  const searchRef = useRef();
-
-  useEffect(() => {
-    localStorage.setItem("selectedProducts", JSON.stringify(selectedProducts));
-  }, [selectedProducts]);
-
-  useEffect(() => {
-    const loadSchemes = async () => {
-      try {
-        const data = await fetchSchemes();
-        const active = data.filter((s) => s.is_active);
-        setSchemes(active);
-        localStorage.setItem("activeSchemes", JSON.stringify(active));
-      } catch (error) {
-        console.error("Failed to fetch schemes", error);
-      }
-    };
-    loadSchemes();
-  }, []);
-
-  useEffect(() => {
-    if (initialSearch.trim()) {
-      debouncedSearch(initialSearch.trim(), 1);
-    }
-    searchRef.current?.focus();
-  }, [initialSearch]);
-
-  const debouncedSearch = debounce(async (term, page = 1) => {
-    if (term.trim().length < 1) {
-      setFilteredProducts([]);
-      return;
-    }
-    try {
-      setLoading(true); // ✅ start loading
-      const data = await fetchFilteredProducts(term.trim(), page, 10);
-      if (page === 1) {
-        setFilteredProducts(data.results);
-      } else {
-        setFilteredProducts((prev) => [...prev, ...data.results]);
-      }
-      setHasMore(!!data.next);
-      setPage(page);
-    } catch (err) {
-      console.error("Search failed:", err);
-    } finally {
-      setLoading(false); // ✅ stop loading
-    }
-  }, 400);
-
-  const handleSearch = (e) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-    setPage(1);
-    debouncedSearch(term, 1);
-  };
-
-  const lastProductRef = useCallback(
-    (node) => {
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          debouncedSearch(searchTerm, page + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [hasMore, searchTerm, page]
+  const totalPages = Math.ceil(productsToShow.length / ITEMS_PER_PAGE);
+  const paginatedProducts = productsToShow.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
   );
 
-  const addProduct = (product) => {
-    if (!selectedProducts.some((p) => p.id === product.id)) {
-      setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
+  // Submit handler for add/edit
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (editData) {
+      updateProduct(
+        { productId: editData.product_id, updatedData: form },
+        {
+          onSuccess: () => {
+            toast.success("Product updated");
+            setShowModal(false);
+          },
+          onError: () => toast.error("Update failed")
+        }
+      );
+    } else {
+      addProduct(form, {
+        onSuccess: () => {
+          toast.success("Product added");
+          setShowModal(false);
+        },
+        onError: () => toast.error("Add failed")
+      });
     }
   };
 
-  const hasScheme = (productId) => {
-    return schemes.some(
-      (scheme) =>
-        Array.isArray(scheme.conditions) &&
-        scheme.conditions.some((cond) => cond.product_id === productId)
-    );
+  // Delete product
+  const handleDelete = (id) => {
+    if (window.confirm("Delete this product?")) {
+      deleteProduct(id, {
+        onSuccess: () => toast.success("Product deleted"),
+        onError: () => toast.error("Delete failed"),
+      });
+    }
   };
 
-  const isAdded = (id) => {
-    return selectedProducts.some((p) => p.id === id);
+  // Image Upload
+  const handleImageUpload = async (productId, file) => {
+    try {
+      const response = await uploadProductImage({ productId, imageFile: file });
+      toast.success("Image uploaded successfully ✅");
+      console.log("Uploaded Image URL:", response.url);
+    } catch (error) {
+      toast.error("Image upload failed ❌");
+      console.error("Upload error:", error);
+    }
   };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const res = await downloadProductTemplate();
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "product_template.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      toast.success("Template downloaded ✅");
+    } catch {
+      toast.error("Failed to download template ❌");
+    }
+  };
+
+  const handleBulkUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true); // 🔹 Start loader
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await bulkUploadProducts(formData);
+      toast.success(`✅ Upload Completed: ${res.data.created} Created, ${res.data.updated} Updated`);
+    } catch {
+      toast.error("Bulk upload failed ❌");
+    } finally {
+      setUploading(false); // 🔹 Stop loader
+      e.target.value = ""; // Reset file input
+    }
+  };
+
+  const handleFileChange = (e, productId) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleImageUpload(productId, file);
+    }
+  };
+
+  if (isLoading) return <p className="p-4">Loading...</p>;
 
   return (
-    <div className="sm:p-6 max-w-5xl mx-auto pb-24 sm:pb-8">
-      {/* Search bar */}
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)] sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out flex items-center gap-2">
-  <button
-    onClick={() => window.history.back()}
-    className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
-    aria-label="Back"
-  >
-    <IoChevronBack />
-  </button>
+    <div className="p-4">
 
-  <input
-    ref={searchRef}
-    type="text"
-    value={searchTerm}
-    onChange={handleSearch}
-    placeholder="Search by product or category..."
-    className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
-  />
-</div>
+      <div className="flex flex-col sm:flex-row justify-between gap-3 mb-4">
+        {/* Search Bar */}
+        <input
+          type="text"
+          placeholder="🔍 Search by name, category, ID..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded flex-1 min-w-[200px] shadow-sm focus:ring-2 focus:ring-blue-400"
+        />
 
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-2">
+          {/* Add Product */}
+          <button
+            onClick={() => {
+              setEditData(null);
+              setForm({
+                product_id: "",
+                product_name: "",
+                sub_category: "",
+                cartoon_size: "",
+                price: "",
+                live_stock: ""
+              });
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow cursor-pointer"
+          >
+            <FiPlus className="text-lg" /> Add Product
+          </button>
 
-      {/* ✅ Loader shown while loading */}
-      {loading && <Loader />}
+          {/* Download Template */}
+          <button
+            onClick={handleDownloadTemplate}
+            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow cursor-pointer"
+          >
+            <FiDownload className="text-lg" /> Download Template
+          </button>
 
-      {filteredProducts.length > 0 && (
-        <div className="pt-[60px] sm:pt-0 space-y-2 px-1">
-          {filteredProducts.map((p, index) => {
-            const isLast = index === filteredProducts.length - 1;
-            return (
-              <div
-                key={`${p.id}-${p.product_id}-${p.sale_name}`}
-                ref={isLast ? lastProductRef : null}
-                className="flex items-center justify-between px-3 py-2 border-b border-gray-300 hover:bg-gray-100 transition-all"
-              >
-                <div className="flex-grow flex flex-col gap-1 text-xs sm:text-sm text-gray-700">
-                  <div className="flex items-center gap-2 font-medium truncate text-gray-800">
-                    {p.sale_name}
-                    {hasScheme(p.product_id) && (
-                      <FaGift
-                        title="Scheme Available"
-                        className="text-pink-500 text-xs animate-pulse"
-                      />
-                    )}
-                  </div>
+          {/* Upload Sheet */}
+          <label
+            className={`flex items-center gap-2 ${uploading ? "bg-purple-400" : "bg-purple-500 hover:bg-purple-600"} text-white px-4 py-2 rounded shadow cursor-pointer`}
+          >
+            {uploading ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 00-8 8h4z"
+                  ></path>
+                </svg>
+                Uploading...
+              </span>
+            ) : (
+              <>
+                <FiUpload className="text-lg" /> Upload Sheet
+              </>
+            )}
+            <input
+              type="file"
+              accept=".xlsx"
+              onChange={handleBulkUpload}
+              className="hidden"
+              disabled={uploading} // 🔹 Prevent multiple uploads at once
+            />
+          </label>
+        </div>
+      </div>
 
-                  <div className="flex items-center gap-4 text-gray-500 text-[11px] sm:text-xs">
-                    <span className="truncate text-gray-400 font-medium">
-                      {p.category}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      {p.live_stock > 0 ? (
-                        <>
-                          <FaCheckCircle className="text-green-500 text-[10px]" />
-                          <span className="text-green-600">In Stock</span>
-                        </>
-                      ) : (
-                        <>
-                          <FaTimesCircle className="text-red-500 text-[10px]" />
-                          <span className="text-red-600">Out of Stock</span>
-                        </>
-                      )}
-                    </span>
-                  </div>
-                </div>
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full border">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="px-4 py-2 border">ID</th>
+              <th className="px-4 py-2 border">Category</th>
+              <th className="px-4 py-2 border">Product Name</th>
+              <th className="px-4 py-2 border">Stock</th>
+              <th className="px-4 py-2 border">Price</th>
+              <th className="px-4 py-2 border">Cartoon</th>
+              <th className="px-4 py-2 border">Image</th>
+              <th className="px-4 py-2 border">Edit</th>
+              <th className="px-4 py-2 border">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedProducts.map((prod) => (
+              <tr key={prod.product_id} className="hover:bg-gray-50">
+                <td className="px-4 py-2 border">{prod.product_id}</td>
+                <td className="px-4 py-2 border">{prod.sub_category}</td>
+                <td className="px-4 py-2 border">{prod.product_name}</td>
+                <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
+                <td className="px-4 py-2 border">{prod.price}</td>
+                <td className="px-4 py-2 border">{prod.cartoon_size}</td>
+                <td className="px-4 py-2 border"> <label className="cursor-pointer">
+                    <FiUpload className="text-blue-600 hover:text-blue-800" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, prod.product_id)}
+                      className="hidden"
+                    />
+                  </label></td>
+                <td className="px-4 py-2 border"> <button
+                    onClick={() => {
+                      setEditData(prod);
+                      setForm(prod);
+                      setShowModal(true);
+                    }}
+                    className="text-blue-600 hover:text-blue-800  "
+                  >
+                    <FiEdit />
+                  </button></td>
+                <td className="px-4 py-2 border"> <button
+                    onClick={() => handleDelete(prod.product_id)}
+                    className="text-red-600 hover:text-red-800 "
+                  >
+                    <FiTrash2 />
+                  </button></td>
+               
+              </tr>
+            ))}
+            {paginatedProducts.length === 0 && (
+              <tr>
+                <td colSpan="7" className="text-center p-4 text-gray-500">
+                  Product Not Found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-                <button
-                  onClick={() => addProduct(p)}
-                  className="ml-3 text-blue-600 hover:text-blue-800 pe-4 transition-transform duration-150 hover:scale-110"
-                  title="Add to cart"
-                >
-                  {isAdded(p.id) ? (
-                    <FaCheck className="text-green-600 text-sm" />
-                  ) : (
-                    <FaPlus className="text-sm" />
-                  )}
-                </button>
-              </div>
-            );
-          })}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-4">
+          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-1 border rounded disabled:opacity-50">⬅️ Prev</button>
+          <span>Page {currentPage} / {totalPages}</span>
+          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="px-3 py-1 border rounded disabled:opacity-50">Next ➡️</button>
         </div>
       )}
+
+      {/* Add/Edit Modal */}
+     {showModal && (
+  <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+      <h2 className="text-xl font-bold mb-4">
+        {editData ? "Edit Product" : "Add Product"}
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Product ID</label>
+          <input
+            name="product_id"
+            value={form.product_id}
+            onChange={(e) => setForm({ ...form, product_id: e.target.value })}
+            placeholder="Enter Product ID"
+            className="border p-2 w-full rounded"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Product Name</label>
+          <input
+            name="product_name"
+            value={form.product_name}
+            onChange={(e) => setForm({ ...form, product_name: e.target.value })}
+            placeholder="Enter Product Name"
+            className="border p-2 w-full rounded"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Category</label>
+          <input
+            name="sub_category"
+            value={form.sub_category}
+            onChange={(e) => setForm({ ...form, sub_category: e.target.value })}
+            placeholder="Enter Category"
+            className="border p-2 w-full rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Cartoon Size</label>
+          <input
+            name="cartoon_size"
+            value={form.cartoon_size}
+            onChange={(e) => setForm({ ...form, cartoon_size: e.target.value })}
+            placeholder="Enter Cartoon Size"
+            className="border p-2 w-full rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Price</label>
+          <input
+            name="price"
+            value={form.price}
+            onChange={(e) => setForm({ ...form, price: e.target.value })}
+            placeholder="Enter Price"
+            className="border p-2 w-full rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Stock</label>
+          <input
+            name="live_stock"
+            type="number"
+            value={form.live_stock}
+            onChange={(e) => setForm({ ...form, live_stock: e.target.value })}
+            placeholder="Enter Stock"
+            className="border p-2 w-full rounded"
+          />
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={() => setShowModal(false)}
+            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-black rounded"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+          >
+            {editData ? "Update" : "Add"}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
     </div>
   );
 }
+  
