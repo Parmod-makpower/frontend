@@ -1,10 +1,11 @@
-// src/pages/ConfirmOrderPage.jsx
+// 📁 src/pages/ConfirmOrderPage.jsx
 import { useState } from "react";
 import { useSelectedProducts } from "../../hooks/useSelectedProducts";
 import { useSchemes } from "../../hooks/useSchemes";
 import { useAuth } from "../../context/AuthContext";
 import { usePlaceOrder } from "../../hooks/usePlaceOrder";
 import { useNavigate } from "react-router-dom";
+import { FaCheckCircle, FaShoppingCart, FaBoxOpen } from "react-icons/fa";
 
 export default function ConfirmOrderPage() {
   const { selectedProducts, setSelectedProducts } = useSelectedProducts();
@@ -13,21 +14,22 @@ export default function ConfirmOrderPage() {
   const navigate = useNavigate();
 
   const placeOrderMutation = usePlaceOrder();
-
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false); // ✅ local state
 
-  const checkSchemeEligibility = (scheme) => {
-    return scheme.conditions.every((cond) => {
+  const checkSchemeEligibility = (scheme) =>
+    scheme.conditions.every((cond) => {
       const matched = selectedProducts.find(
         (p) => p.id === cond.product || p.product_name === cond.product_name
       );
       return matched && matched.quantity >= cond.min_quantity;
     });
-  };
 
   const eligibleSchemes = schemes.filter(checkSchemeEligibility);
 
   const handlePlaceOrder = () => {
+    setIsPlacingOrder(true); // ✅ start animation
+
     const order = {
       user_id: user?.id,
       crm_id: user?.crm,
@@ -53,11 +55,13 @@ export default function ConfirmOrderPage() {
     };
 
     placeOrderMutation.mutate(order, {
-     onSuccess: (data) => {
-  setSelectedProducts([]);
-  setShowSuccess(data.order.order_id); // order_id save
-},
+      onSuccess: (data) => {
+        setIsPlacingOrder(false); // ✅ stop animation
+        setSelectedProducts([]);
+        setShowSuccess(data.order.order_id);
+      },
       onError: (error) => {
+        setIsPlacingOrder(false); // ✅ stop animation
         console.error("❌ Order failed:", error);
         alert("Order failed, please try again.");
       },
@@ -65,79 +69,143 @@ export default function ConfirmOrderPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <h2 className="text-2xl font-bold mb-4">🧾 Confirm Your Order</h2>
-
-      <div className="border p-4 rounded bg-gray-50">
-        <h3 className="font-semibold mb-2">📦 Products:</h3>
-        <ul className="list-disc ml-6 space-y-1">
-          {selectedProducts.map((item) => (
-            <li key={item.id}>
-              {item.product_name} × {item.quantity} @ ₹{item.price} = ₹
-              {(item.price || 0) * item.quantity}
-            </li>
-          ))}
-        </ul>
+    <div className="max-w-4xl mx-auto bg-white  p-8">
+      {/* Header */}
+      <div className="border-b pb-4 mb-6 flex justify-between items-center">
+        <h2 className="text-2xl font-bold">🧾 Order Confirmation</h2>
+        <span className="text-gray-500">Customer: {user?.name}</span>
       </div>
 
-      {eligibleSchemes.length > 0 && (
-        <div className="border p-4 rounded bg-green-50 text-green-800">
-          <h3 className="font-semibold mb-2">🎁 Eligible Schemes:</h3>
-          <ul className="list-disc ml-6 space-y-1">
-            {eligibleSchemes.map((scheme) => (
-              <li key={scheme.id}>
-                {scheme.conditions
-                  .map(
-                    (c) =>
-                      `Buy ${c.min_quantity} ${c.product_name || c.product}`
-                  )
-                  .join(", ")}{" "}
-                →{" "}
-                {scheme.rewards
-                  .map(
-                    (r) => `Get ${r.quantity} ${r.product_name || r.product}`
-                  )
-                  .join(", ")}
-              </li>
+      {/* Products Table */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-3">📦 Ordered Products</h3>
+        <table className="w-full border-collapse border">
+          <thead>
+            <tr className="bg-gray-100 text-left">
+              <th className="border p-2">#</th>
+              <th className="border p-2">Product</th>
+              <th className="border p-2">Quantity</th>
+              <th className="border p-2">Price</th>
+              <th className="border p-2">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {selectedProducts.map((item, index) => (
+              <tr key={item.id} className="hover:bg-gray-50">
+                <td className="border p-2">{index + 1}</td>
+                <td className="border p-2">{item.product_name}</td>
+                <td className="border p-2">{item.quantity}</td>
+                <td className="border p-2">₹{item.price || 0}</td>
+                <td className="border p-2">
+                  ₹{(item.price || 0) * (item.quantity || 1)}
+                </td>
+              </tr>
             ))}
-          </ul>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Eligible Schemes */}
+      {eligibleSchemes.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">🎁 Eligible Schemes</h3>
+          <table className="w-full border-collapse border">
+            <thead>
+              <tr className="bg-green-100 text-left">
+                <th className="border p-2">Conditions</th>
+                <th className="border p-2">Rewards</th>
+              </tr>
+            </thead>
+            <tbody>
+              {eligibleSchemes.map((scheme) => (
+                <tr key={scheme.id}>
+                  <td className="border p-2">
+                    {scheme.conditions
+                      .map(
+                        (c) =>
+                          `Buy ${c.min_quantity} ${c.product_name || c.product}`
+                      )
+                      .join(", ")}
+                  </td>
+                  <td className="border p-2">
+                    {scheme.rewards
+                      .map(
+                        (r) =>
+                          `Get ${r.quantity} ${r.product_name || r.product}`
+                      )
+                      .join(", ")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
+      {/* Total */}
+      <div className="flex justify-end mb-6">
+        <div className="text-right">
+          <p className="text-lg font-semibold">
+            Total: ₹
+            {selectedProducts.reduce(
+              (sum, p) => sum + (p.price || 0) * (p.quantity || 1),
+              0
+            )}
+          </p>
+        </div>
+      </div>
+
+      {/* Place Order Button */}
       <div className="text-right">
         <button
           onClick={handlePlaceOrder}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+          disabled={isPlacingOrder}
+          className={`px-6 py-2 rounded-lg transition text-white ${
+            isPlacingOrder
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
-          ✅ Place Order
+          {isPlacingOrder ? "Placing Order..." : "✅ Confirm & Place Order"}
         </button>
       </div>
 
-     {showSuccess && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full text-center">
-      <h3 className="text-lg font-semibold text-green-600 mb-2">
-        🎉 Order Placed Successfully!
-      </h3>
-      <p className="text-gray-600 mb-2">
-        Order ID: <span className="font-mono">{showSuccess}</span>
-      </p>
-      <p className="text-gray-600 mb-4">
-        You can track it in your order history.
-      </p>
-      <button
-        onClick={() => {
-          setShowSuccess(false);
-          navigate("/ss/history");
-        }}
-        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-      >
-        OK
-      </button>
-    </div>
-  </div>
-)}
+      {/* Loading Animation */}
+      {isPlacingOrder && (
+        <div className="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-50">
+          <FaShoppingCart className="text-white text-6xl animate-bounce mb-4" />
+          <p className="text-white text-lg animate-pulse">
+            Placing your order, please wait...
+          </p>
+        </div>
+      )}
 
+      {/* Success Modal */}
+      {showSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center animate-fadeIn">
+            <FaCheckCircle className="text-green-500 text-5xl mx-auto mb-4 animate-bounce" />
+            <h3 className="text-xl font-bold text-green-600 mb-2">
+              Order Placed Successfully!
+            </h3>
+            <p className="text-gray-700 mb-2">
+              Order ID: <span className="font-mono">{showSuccess}</span>
+            </p>
+            <p className="text-gray-500 mb-6">
+              You can track your order in the history section.
+            </p>
+            <button
+              onClick={() => {
+                setShowSuccess(false);
+                navigate("/");
+              }}
+              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2 mx-auto"
+            >
+              <FaBoxOpen /> Go to Orders
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,20 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+// useSSOrderHistory.jsx
+import { useInfiniteQuery } from "@tanstack/react-query";
 import API from "../api/axios";
 
-const fetchSSOrderHistory = async () => {
-  const res = await API.get("/ss-orders/history/");
-  const data = res.data;
-
-  // Safe fallback
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data.orders)) return data.orders;
-
-  throw new Error("Invalid response format from server.");
+const fetchSSOrderHistory = async ({ pageParam = 1 }) => {
+  const res = await API.get(`/ss-orders/history/?page=${pageParam}`);
+  return res.data;
 };
 
 export const useSSOrderHistory = () => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["ssOrderHistory"],
     queryFn: fetchSSOrderHistory,
+    getNextPageParam: (lastPage, pages) => lastPage.next_page ?? undefined,
   });
 };

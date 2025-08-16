@@ -1,40 +1,45 @@
 // 📁 src/pages/SSHistoryPage.jsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSSOrderHistory } from "../../hooks/useSSOrderHistory";
-import MobilePageHeader from "../../components/MobilePageHeader";
+import { useInView } from "react-intersection-observer";
 import { FaShoppingBag, FaRupeeSign, FaCalendarAlt } from "react-icons/fa";
+
+import MobilePageHeader from "../../components/MobilePageHeader";
+import Loader from "../../components/Loader";
+import { useSSOrderHistory } from "../../hooks/useSSOrderHistory";
 
 const SSHistoryPage = () => {
   const navigate = useNavigate();
   const {
-    data: orders,
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isLoading,
     isError,
     error,
   } = useSSOrderHistory();
 
+  const { ref } = useInView({
+    onChange: (inView) => {
+      if (inView && hasNextPage) fetchNextPage();
+    },
+  });
+
   useEffect(() => {
     document.title = "My Order History";
   }, []);
 
-  if (isLoading)
-    return <div className="p-4 text-center">⏳ Loading your orders...</div>;
+  if (isLoading) return <Loader message="Loading your orders..." />;
 
   if (isError)
     return (
       <div className="p-4 text-center text-red-500">
-        ❌ Error: {error.message || "Failed to load order history."}
+        ❌ Error: {error?.message || "Failed to load order history."}
       </div>
     );
 
-  if (!Array.isArray(orders)) {
-    return (
-      <div className="p-4 text-center text-red-500">
-        Unexpected response format. Please contact support.
-      </div>
-    );
-  }
+  const orders = data?.pages.flatMap((page) => page.results) ?? [];
 
   return (
     <div className="p-2 max-w-5xl mx-auto">
@@ -48,7 +53,7 @@ const SSHistoryPage = () => {
             <div
               key={order.id}
               onClick={() => navigate(`/orders/${order.id}/track`)}
-              className="borde rounded-xl shadow-sm p-4 bg-white hover:shadow-lg hover:scale-[1.01] transition cursor-pointer"
+              className="rounded-xl shadow-sm p-4 bg-white hover:shadow-lg hover:scale-[1.01] transition cursor-pointer"
             >
               {/* Header */}
               <div className="flex justify-between items-center mb-2">
@@ -65,13 +70,14 @@ const SSHistoryPage = () => {
               <div className="flex items-center gap-1 text-gray-700">
                 <FaRupeeSign className="text-green-600" /> {order.total_amount}
               </div>
-
-              
-
-             
             </div>
           ))
         )}
+      </div>
+
+      {/* Infinite scroll loader */}
+      <div ref={ref} className="p-4 text-center">
+        {isFetchingNextPage && <Loader message="Loading more orders..." />}
       </div>
     </div>
   );

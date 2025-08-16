@@ -53,7 +53,7 @@ export default function DashboardLayout() {
   const allProducts = allProductsRaw.map(normalizeProduct);
 
   const fuseResults = useFuseSearch(allProducts, searchTerm, {
-    keys: ["sub_category", "sale_names"],
+    keys: ["sub_category", "sale_names","product_name"],
     threshold: 0.3,
   });
 

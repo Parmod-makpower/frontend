@@ -31,7 +31,7 @@ export default function BottomNav() {
 
   // Common items sabko milेंगे
   const baseItems = [
-    { path: "/", icon: <FaHome />, label: "Home" },
+    { path: "/home", icon: <FaHome />, label: "Home" },
     
     { path: "/more", icon: <FaListUl />, label: "More" },
   ];
@@ -44,7 +44,7 @@ export default function BottomNav() {
         <div className="relative">
           <FaShoppingCart />
           {cartCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+            <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
               {cartCount}
             </span>
           )}
@@ -80,7 +80,7 @@ export default function BottomNav() {
   ].filter(Boolean);
 
   return (
-    <div className="flex justify-around items-center py-2 px-3 bg-white shadow-sm">
+    <div className="flex justify-around items-center py-2 px-3 bg-white shadow-lg ">
       {finalMenu.map((item, idx) => (
         <NavLink
           key={idx}

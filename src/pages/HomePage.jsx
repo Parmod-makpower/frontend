@@ -74,7 +74,7 @@ export default function HomePage() {
           className="w-32"
           alt="MakPower Logo"
         />
-        <div className="block sm:hidden text-xl text-[#fc250c]">
+        <div className="block sm:hidden text-xl text-[var(--primary-color)]">
           <FaBell />
         </div>
       </div>
@@ -91,7 +91,7 @@ export default function HomePage() {
         />
         <button
           onClick={handleRedirect}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#fc250c] hover:text-blue-800"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--primary-color)] hover:text-blue-800"
         >
           <FaSearch />
         </button>
