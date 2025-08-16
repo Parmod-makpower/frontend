@@ -211,7 +211,69 @@ export default function CRMVerifiedOrdersPage() {
             {viewLoading ? (
               <p>Loading details...</p>
             ) : (
-              <div> {/* आपका पुराना compare वाला code यहाँ रहेगा */} </div>
+              <div> {/* Compare View Modal */}
+      {viewData && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-100">
+          <div className="bg-white p-4 rounded w-[900px] max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between mb-3">
+              <h2 className="text-lg font-bold">Order Compare</h2>
+              <button className="px-3 py-1 bg-gray-200 rounded" onClick={() => setViewData(null)}>Close</button>
+            </div>
+
+            {/* Comparison Blocks */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="border rounded p-3">
+                <h3 className="font-semibold mb-2">SS Original Order</h3>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <div><span className="font-medium">Order ID:</span> {viewData?.original_order_detail?.id}</div>
+                  <div><span className="font-medium">SS Name:</span> {viewData?.original_order_detail?.ss_user_name}</div>
+                  <div><span className="font-medium">Created:</span> {new Date(viewData?.original_order_detail?.created_at).toLocaleString()}</div>
+                  <div><span className="font-medium">Total:</span> ₹{viewData?.original_order_detail?.total_amount}</div>
+                </div>
+              </div>
+              <div className="border rounded p-3">
+                <h3 className="font-semibold mb-2">CRM Verified Order</h3>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <div><span className="font-medium">Verified ID:</span> {viewData?.verified_order_detail?.id}</div>
+                  <div><span className="font-medium">CRM:</span> {viewData?.verified_order_detail?.crm_name}</div>
+                  <div><span className="font-medium">Status:</span> {viewData?.verified_order_detail?.status}</div>
+                  <div><span className="font-medium">Verified:</span> {viewData?.verified_order_detail?.verified_at ? new Date(viewData?.verified_order_detail?.verified_at).toLocaleString() : "-"}</div>
+                  <div><span className="font-medium">Notes:</span> {viewData?.verified_order_detail?.notes || "-"}</div>
+                  <div><span className="font-medium">Total:</span> ₹{viewData?.verified_order_detail?.total_amount}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Product-wise Comparison Table */}
+            <div className="border rounded">
+              <div className="px-3 py-2 font-semibold bg-gray-50 border-b">Product-wise Comparison</div>
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="border px-3 py-2 text-left">Product</th>
+                    <th className="border px-3 py-2 text-right">SS Qty</th>
+                    <th className="border px-3 py-2 text-right">CRM Qty</th>
+                    <th className="border px-3 py-2 text-right">Δ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {viewData?.compare?.map((row) => (
+                    <tr key={row.product} className="hover:bg-gray-50">
+                      <td className="border px-3 py-2">{row.product_name}</td>
+                      <td className="border px-3 py-2 text-right">{row.ss_qty}</td>
+                      <td className="border px-3 py-2 text-right">{row.crm_qty}</td>
+                      <td className={`border px-3 py-2 text-right ${row.delta > 0 ? "text-green-600" : row.delta < 0 ? "text-red-600" : ""}`}>
+                        {row.delta}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      )} </div>
             )}
           </div>
         </div>
