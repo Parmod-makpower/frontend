@@ -4,10 +4,11 @@ import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSchemes } from "../hooks/useSchemes";
 import useFuseSearch from "../hooks/useFuseSearch";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
-import { FaGift } from "react-icons/fa";
 import categories from "../data/categoryData";
 import MobilePageHeader from "../components/MobilePageHeader";
 import { useAuth } from "../context/AuthContext";
+import { FaGift, FaPlus, FaMinus, FaShoppingCart, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+
 
 
 const ITEMS_PER_PAGE = 15;
@@ -94,7 +95,7 @@ export default function CategoryProductListPage() {
       <MobilePageHeader title={categoryKeyword} />
 
       {/* 📦 Products Section */}
-      <main className="md:col-span-3 md:ml-60 pt-[60px] sm:pt-0">
+      <main className="md:col-span-3 md:ml-60 pt-[60px] sm:pt-0 pb-16">
         {/* 🔍 Search Box */}
         <input
           type="text"
@@ -115,7 +116,8 @@ export default function CategoryProductListPage() {
             No matching products found.
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
             {paginatedProducts.map((prod) => {
               const prodId = prod.id ?? prod.product_id;
               const isInCart = selectedProducts.some((p) => p.id === prodId);
@@ -142,81 +144,109 @@ export default function CategoryProductListPage() {
               };
 
               return (
-                <div
-                  key={prodId}
-                  className="bg-white shadow rounded-lg p-3 hover:shadow-md transition flex flex-col justify-between"
-                >
-                  <img
-                    src={
-                      prod?.image
-                        ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
-                        : "https://makpowerindia.com/cdn/shop/files/Makpower_45W_PD_Charger.webp?v=1746862914"
-                    }
-                    alt={prod.product_name}
-                    className="w-full aspect-square object-cover rounded-lg mb-2"
-                  />
-                  <h3 className="text-sm font-bold text-gray-800 truncate flex items-center gap-1">
-                    {prod.product_name}
-                    {hasScheme(prodId) && (
-                      <FaGift
-                        title="Scheme Available"
-                        className="text-pink-500 text-xs animate-pulse"
-                      />
-                    )}
-                  </h3>
-                  <div className="text-xs font-semibold text-gray-500 mb-1">
-                    {prod.sub_category}
-                  </div>
-                  <p className="text-gray-600 text-sm">
-                    {prod.live_stock > 1 ? (
-                      <span className="text-green-600 text-[10px] px-1 py-[1px] rounded">
-                        In Stock
-                      </span>
-                    ) : (
-                      <span className="bg-red-100 text-red-600 text-[10px] px-1 py-[1px] rounded">
-                        Out of Stock
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-blue-600 font-semibold mt-1">
-                    ₹{prod.price || 0}
-                  </p>
-                 <div className="mt-3">
-  {user?.role === "SS" && (
-    isInCart ? (
-      <div className="flex items-center justify-center mx-auto space-x-1">
-        <button
-          onClick={handleDecrease}
-          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-lg"
-        >
-          −
-        </button>
-        <input
-          type="number"
-          value={quantity}
-          onChange={handleManualInput}
-          className="w-12 text-center border rounded py-1"
-          min={1}
-        />
-        <button
-          onClick={handleIncrease}
-          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-lg"
-        >
-          +
-        </button>
-      </div>
-    ) : (
-      <button
-        className="w-full mt-2 bg-[var(--primary-color)] hover:bg-gray-500 text-white text-sm font-semibold py-1.5 px-3 rounded transition"
-        onClick={handleAddToCart}
-      >
-        Add to Cart
-      </button>
-    )
-  )}
+
+
+<div
+  key={prodId}
+  onClick={() => navigate(`/product/${prodId}`)}
+  className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group"
+>
+  {/* Image Section */}
+  <div className="relative w-full h-40 md:h-55 overflow-hidden bg-gray-50">
+    <img
+      src={
+        prod?.image
+          ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
+          : "https://makpowerindia.com/cdn/shop/files/Makpower_45W_PD_Charger.webp?v=1746862914"
+      }
+      alt={prod.product_name}
+      className="w-full h-full object-cover transform group-hover:scale-105 transition duration-300"
+    />
+
+    {/* Scheme Icon */}
+    {hasScheme(prodId) && (
+      <span className="absolute top-2 right-2 bg-pink-100 p-2 rounded-full shadow">
+        <FaGift className="text-[#f43f5e] animate-bounce" title="Scheme Available" />
+      </span>
+    )}
+  </div>
+
+  {/* Content Section */}
+  <div className="flex flex-col flex-1 p-4">
+   <h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-800 truncate flex items-center gap-2">
+  {prod.product_name}
+</h3>
+
+
+    <div className="flex items-center gap-2 mt-1">
+      {prod.live_stock > 1 ? (
+        <span className="flex items-center gap-1 text-[#16a34a] text-xs font-semibold">
+          <FaCheckCircle /> In Stock
+        </span>
+      ) : (
+        <span className="flex items-center gap-1 text-[#dc2626] text-xs font-semibold">
+          <FaTimesCircle /> Out of Stock
+        </span>
+      )}
+    </div>
+
+    <p className="text-[#2563eb]  text-sm mt-2 flex items-center gap-2">
+      {prod.price || 0}
+    </p>
+
+    {/* Cart Section */}
+    <div className="mt-auto">
+      {user?.role === "SS" && (
+        isInCart ? (
+          <div className="flex items-center justify-center gap-2 mt-3">
+           <button
+  onClick={(e) => {
+    e.stopPropagation();
+    handleDecrease();
+  }}
+  className="p-1 sm:p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition text-xs sm:text-sm"
+>
+  <FaMinus />
+</button>
+<input
+  type="number"
+  value={quantity}
+  onChange={handleManualInput}
+  className="w-10 sm:w-14 text-center border rounded-md py-1 text-xs sm:text-sm"
+  min={1}
+/>
+<button
+onClick={(e) => {
+    e.stopPropagation();
+    handleIncrease();
+  }}
+ 
+  className="p-1 sm:p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition text-xs sm:text-sm"
+>
+  <FaPlus />
+</button>
+
+          </div>
+        ) : (
+          <button
+          
+  onClick={(e) => {
+    e.stopPropagation();   // Card click रोकेगा
+    handleAddToCart();
+  }}
+  className="w-full mt-2 flex items-center justify-center gap-1 bg-[#2563eb] hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold py-1 sm:py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow"
+>
+  <FaShoppingCart className="text-xs sm:text-sm" /> Add
+</button>
+
+        )
+      )}
+    </div>
+  </div>
 </div>
 
-                </div>
+
+
               );
             })}
           </div>

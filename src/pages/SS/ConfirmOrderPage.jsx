@@ -5,7 +5,8 @@ import { useSchemes } from "../../hooks/useSchemes";
 import { useAuth } from "../../context/AuthContext";
 import { usePlaceOrder } from "../../hooks/usePlaceOrder";
 import { useNavigate } from "react-router-dom";
-import { FaCheckCircle, FaShoppingCart, FaBoxOpen } from "react-icons/fa";
+import { FaCheckCircle, FaShoppingCart, FaBoxOpen, FaGift } from "react-icons/fa";
+import MobilePageHeader from "../../components/MobilePageHeader";
 
 export default function ConfirmOrderPage() {
   const { selectedProducts, setSelectedProducts } = useSelectedProducts();
@@ -69,24 +70,22 @@ export default function ConfirmOrderPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white  p-8">
+    <div className="max-w-4xl mx-auto bg-white  px-3 pb-16">
       {/* Header */}
-      <div className="border-b pb-4 mb-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">🧾 Order Confirmation</h2>
-        <span className="text-gray-500">Customer: {user?.name}</span>
-      </div>
+      <MobilePageHeader title="Order Confirmation"/>
+      
 
       {/* Products Table */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3">📦 Ordered Products</h3>
-        <table className="w-full border-collapse border">
+      <div className="mb-6 sm:pt-0 pt-[60px]">
+        {/* <h3 className="text-lg font-semibold my-3">📦 Ordered Products</h3> */}
+        <table className="w-full border-collapse my-3 border">
           <thead>
             <tr className="bg-gray-100 text-left">
-              <th className="border p-2">#</th>
+              <th className="border p-2">No</th>
               <th className="border p-2">Product</th>
               <th className="border p-2">Quantity</th>
               <th className="border p-2">Price</th>
-              <th className="border p-2">Subtotal</th>
+             
             </tr>
           </thead>
           <tbody>
@@ -95,9 +94,9 @@ export default function ConfirmOrderPage() {
                 <td className="border p-2">{index + 1}</td>
                 <td className="border p-2">{item.product_name}</td>
                 <td className="border p-2">{item.quantity}</td>
-                <td className="border p-2">₹{item.price || 0}</td>
+                
                 <td className="border p-2">
-                  ₹{(item.price || 0) * (item.quantity || 1)}
+                  {(item.price || 0) * (item.quantity || 1)}
                 </td>
               </tr>
             ))}
@@ -108,7 +107,10 @@ export default function ConfirmOrderPage() {
       {/* Eligible Schemes */}
       {eligibleSchemes.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-3">🎁 Eligible Schemes</h3>
+        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+  <FaGift className="text-pink-500" /> Eligible Schemes
+</h3>
+
           <table className="w-full border-collapse border">
             <thead>
               <tr className="bg-green-100 text-left">

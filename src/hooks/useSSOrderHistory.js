@@ -11,6 +11,13 @@ export const useSSOrderHistory = () => {
   return useInfiniteQuery({
     queryKey: ["ssOrderHistory"],
     queryFn: fetchSSOrderHistory,
-    getNextPageParam: (lastPage, pages) => lastPage.next_page ?? undefined,
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.next) {
+        // next से page number निकालना होगा
+        const url = new URL(lastPage.next);
+        return url.searchParams.get("page"); 
+      }
+      return undefined;
+    },
   });
 };

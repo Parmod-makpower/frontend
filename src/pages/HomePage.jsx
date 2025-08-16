@@ -6,6 +6,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import categories from "../data/categoryData";
+import { useSchemes } from "../hooks/useSchemes";
 
 const trendingProducts = [
   {
@@ -42,7 +43,15 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
+  const { data: schemes = [] } = useSchemes();
+  const schemeProducts = schemes.flatMap(s => 
+    s.rewards.map(r => ({
+      id: r.id,
+      name: r.product_name || `Product #${r.product}`,
+      price: "Free / Scheme",   // scheme में price नहीं है तो tag डालो
+      image: r.product_image || "https://via.placeholder.com/150"
+    }))
+  );
   // Responsive listener
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -185,7 +194,7 @@ export default function HomePage() {
       </div>
 
       {/* Desktop Grid */}
-      <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
         {trendingProducts.map((product) => (
           <div
             key={product.id}
@@ -208,6 +217,41 @@ export default function HomePage() {
           </div>
         ))}
       </div>
+      {/* 🎁 Scheme Products */}
+      {schemeProducts.length > 0 && (
+        <>
+        
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Special Scheme Products
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {schemeProducts.map((product) => (
+              <div
+                key={product.id}
+                className="bg-gradient-to-b from-pink-50 to-white border border-pink-200 rounded-xl shadow hover:shadow-lg transition-all p-3 flex flex-col"
+              >
+                
+                
+                <img
+                 src="https://ovista.in/cdn/shop/files/WhatsApp_Image_2025-01-20_at_6.06.21_PM_1.jpg?v=1737377240"
+                  alt={product.name}
+                  className="w-full aspect-square object-cover rounded-lg mb-2"
+                />
+                <h3 className="text-sm font-semibold text-gray-800 line-clamp-1">
+                  {product.name}
+                </h3>
+                <p className="text-pink-600 font-bold text-sm mb-2">
+                  {product.price}
+                </p>
+                <span className="bg-pink-500 text-white text-xs px-2 py-1 rounded-full text-center">
+                  🎁 Scheme Offer
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
