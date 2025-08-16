@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from "react";
+// 📁 src/pages/SearchBarPage.jsx
+import { useEffect, useState, useRef, useMemo } from "react";
 import { IoChevronBack } from "react-icons/io5";
 import { FaPlus, FaGift, FaCheck } from "react-icons/fa";
 import { useCachedProducts } from "../hooks/useCachedProducts";
@@ -7,7 +8,6 @@ import { FixedSizeList as List } from "react-window";
 import useFuseSearch from "../hooks/useFuseSearch";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
 
 function Loader() {
   return (
@@ -36,22 +36,29 @@ export default function SearchBarPage() {
   const { data: allProductsRaw = [], isLoading } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
 
+  // localStorage में cart save करना
   useEffect(() => {
     localStorage.setItem("selectedProducts", JSON.stringify(selectedProducts));
   }, [selectedProducts]);
 
+  // auto focus on search
   useEffect(() => {
     searchRef.current?.focus();
   }, []);
 
-  const allProducts = allProductsRaw.map(normalizeProduct);
+  const allProducts = useMemo(
+    () => allProductsRaw.map(normalizeProduct),
+    [allProductsRaw]
+  );
 
+  // 🔍 Debounced Fuse search
   const fuseResults = useFuseSearch(allProducts, searchTerm, {
-    keys: ["sub_category", "sale_names"],
+    keys: ["sub_category", "sale_names", "product_name"],
     threshold: 0.3,
   });
 
-  const searchResults = fuseResults.flatMap((product) => {
+  const searchResults = useMemo(() => {
+  return fuseResults.flatMap((product) => {
     const matchedSaleNames =
       product.sale_names?.filter((name) =>
         name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -59,16 +66,28 @@ export default function SearchBarPage() {
 
     const results = [];
 
-    matchedSaleNames.forEach((sale_name) => {
+    // अगर sale_name मिले तो उन्हें अलग से जोड़ें
+    if (matchedSaleNames.length > 0) {
+      matchedSaleNames.forEach((sale_name) => {
+        results.push({
+          ...product,
+          _matchType: "sale_name",
+          _displayName: sale_name,
+        });
+      });
+    } else {
+      // वरना product_name या sub_category के मैच को दिखाएं
       results.push({
         ...product,
-        _matchType: "sale_name",
-        _displayName: sale_name,
+        _matchType: "product_or_category",
+        _displayName: product.product_name,
       });
-    });
+    }
 
     return results;
   });
+}, [fuseResults, searchTerm]);
+
 
   const hasScheme = (productId) =>
     schemes.some(
@@ -133,20 +152,19 @@ export default function SearchBarPage() {
           </div>
         </div>
 
-       {user?.role === "SS" && (
-  <button
-    onClick={() => addProduct(p)}
-    className="ml-3 text-blue-600 hover:text-blue-800 pe-4 transition-transform duration-150 hover:scale-110"
-    title="Add to cart"
-  >
-    {isAdded(p.id) ? (
-      <FaCheck className="text-green-600 text-sm" />
-    ) : (
-      <FaPlus className="text-sm" />
-    )}
-  </button>
-)}
-
+        {user?.role === "SS" && (
+          <button
+            onClick={() => addProduct(p)}
+            className="ml-3 text-blue-600 hover:text-blue-800 pe-4 transition-transform duration-150 hover:scale-110"
+            title="Add to cart"
+          >
+            {isAdded(p.id) ? (
+              <FaCheck className="text-green-600 text-sm" />
+            ) : (
+              <FaPlus className="text-sm" />
+            )}
+          </button>
+        )}
       </div>
     );
   };
@@ -178,9 +196,13 @@ export default function SearchBarPage() {
         {isLoading ? (
           <Loader />
         ) : searchTerm.trim().length === 0 ? (
-          <p className="text-center text-gray-500 py-10">Search to see results</p>
+          <p className="text-center text-gray-500 py-10">
+            Search to see results
+          </p>
         ) : searchResults.length === 0 ? (
-          <p className="text-center text-gray-500 py-10">No matching products found.</p>
+          <p className="text-center text-gray-500 py-10">
+            No matching products found.
+          </p>
         ) : (
           <List
             height={window.innerHeight - 100}

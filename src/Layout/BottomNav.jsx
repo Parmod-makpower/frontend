@@ -1,3 +1,4 @@
+// 📁 src/components/BottomNav.jsx
 import { NavLink } from "react-router-dom";
 import {
   FaHome,
@@ -6,7 +7,7 @@ import {
   FaListUl,
   FaBox,
   FaUsers,
-  FaHistory
+  FaHistory,
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
@@ -26,13 +27,18 @@ export default function BottomNav() {
 
   const isAdmin = user?.role === "ADMIN";
   const isCrm = user?.role === "CRM";
+  const isSs = user?.role === "SS";
 
-  const commonItems = [
+  // Common items sabko milेंगे
+  const baseItems = [
     { path: "/", icon: <FaHome />, label: "Home" },
-    { path: "/schemes", icon: <FaGift />, label: "Schemes" },
+    
+    { path: "/more", icon: <FaListUl />, label: "More" },
+  ];
 
-    // 👇 Cart for all except ADMIN
-    !isAdmin && !isCrm && {
+  // Cart सिर्फ SS को (Admin & CRM को नहीं)
+  const cartItem =
+    isSs && {
       path: "/cart",
       icon: (
         <div className="relative">
@@ -45,54 +51,50 @@ export default function BottomNav() {
         </div>
       ),
       label: "Cart",
-    },
+    };
 
-    // 👇 Only for ADMIN
-    isAdmin && {
-      path: "/users",
-      icon: <FaUsers />,
-      label: "Users",
-    },
-    isCrm && {
-      path: "/crm/orders/history",
-      icon: <FaHistory />,
-      label: "History",
-    },
-
-    { path: "/more", icon: <FaListUl />, label: "More" },
-  ].filter(Boolean); // removes `false` values
-
-  const roleSpecific = {
-    SS: { path: "/ss/history", icon: <FaBox />, label: "Orders" },
-    CRM: { path: "/crm/orders/verify", icon: <FaBox />, label: "Orders" },
-    ADMIN: { path: "/admin/order-audit", icon: <FaBox />, label: "Orders" },
+  // Role-specific items
+  const roleItems = {
+    SS: [
+      { path: "/user-schemes", icon: <FaGift />, label: "Schemes" },
+      { path: "/ss/history", icon: <FaBox />, label: "Orders" },
+      cartItem,
+    ],
+    CRM: [
+       { path: "/user-schemes", icon: <FaGift />, label: "Schemes" },
+      { path: "/crm/orders/verify", icon: <FaBox />, label: "Orders" },
+      { path: "/crm/orders/history", icon: <FaHistory />, label: "History" },
+    ],
+    ADMIN: [
+      { path: "/schemes", icon: <FaGift />, label: "Schemes" },
+      { path: "/admin/crm-orders", icon: <FaBox />, label: "Orders" },
+      { path: "/admin/crm", icon: <FaUsers />, label: "Users" },
+    ],
   };
 
-  const allItems = [
-    ...commonItems.slice(0, 2),
-    roleSpecific[user?.role] || {},
-    ...commonItems.slice(2),
-  ];
+  // Final items = base + role-specific
+  const finalMenu = [
+    baseItems[0], // Home
+    ...(roleItems[user?.role] || []),
+    ...baseItems.slice(1), // Schemes + More
+  ].filter(Boolean);
 
   return (
     <div className="flex justify-around items-center py-2 px-3 bg-white shadow-sm">
-      {allItems.map(
-        (item, idx) =>
-          item.path && (
-            <NavLink
-              key={idx}
-              to={item.path}
-              className={({ isActive }) =>
-                `flex flex-col items-center text-[11px] text-gray-600 hover:text-purple-600 transition-colors duration-150 ${
-                  isActive ? "text-red-500 font-semibold" : ""
-                }`
-              }
-            >
-              <div className="text-2xl mb-0.5">{item.icon}</div>
-              <span className="leading-none ">{item.label}</span>
-            </NavLink>
-          )
-      )}
+      {finalMenu.map((item, idx) => (
+        <NavLink
+          key={idx}
+          to={item.path}
+          className={({ isActive }) =>
+            `flex flex-col items-center text-[11px] text-gray-600 hover:text-purple-600 transition-colors duration-150 ${
+              isActive ? "text-red-500 font-semibold" : ""
+            }`
+          }
+        >
+          <div className="text-2xl mb-0.5">{item.icon}</div>
+          <span className="leading-none">{item.label}</span>
+        </NavLink>
+      ))}
     </div>
   );
 }
