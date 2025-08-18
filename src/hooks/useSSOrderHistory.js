@@ -11,13 +11,24 @@ export const useSSOrderHistory = () => {
   return useInfiniteQuery({
     queryKey: ["ssOrderHistory"],
     queryFn: fetchSSOrderHistory,
-    getNextPageParam: (lastPage, pages) => {
+    getNextPageParam: (lastPage) => {
       if (lastPage.next) {
-        // next से page number निकालना होगा
         const url = new URL(lastPage.next);
-        return url.searchParams.get("page"); 
+        return url.searchParams.get("page");
       }
       return undefined;
+    },
+    select: (data) => {
+      // सिर्फ first page (latest orders) की first 20 entries रखें
+      if (!data?.pages) return data;
+
+      const firstPage = data.pages[0];
+      const trimmed = {
+        ...firstPage,
+        results: firstPage.results.slice(0, 20),
+      };
+
+      return { pages: [trimmed], pageParams: [1] };
     },
   });
 };

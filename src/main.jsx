@@ -7,6 +7,7 @@ import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { FaBolt } from "react-icons/fa";
 import { getAllProducts } from "./api/productApi";
+import { getSchemes } from "./api/schemeApi";
 
 const queryClient = new QueryClient();
 
@@ -50,7 +51,11 @@ function Root() {
       queryFn: getAllProducts,
       staleTime: 0, // Force fresh
     });
-
+    queryClient.fetchQuery({
+          queryKey: ["schemes"],
+          queryFn: getSchemes,
+          staleTime: 0, // Force fresh
+        });
     // ✅ Step 2: Show UI
     setIsReady(true);
   }, []);
