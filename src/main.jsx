@@ -1,10 +1,11 @@
-// 📁 main.jsx
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { persistQueryClient } from "@tanstack/react-query-persist-client";
+import {
+  persistQueryClient,
+} from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { FaBolt } from "react-icons/fa";
 import { getAllProducts } from "./api/productApi";
@@ -12,21 +13,15 @@ import { getAllProducts } from "./api/productApi";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 7, // 7 minutes fresh
-      cacheTime: 1000 * 60 * 60 * 24, // 24 hrs keep in cache
+      staleTime: 1000 * 60 * 7,
+      cacheTime: 1000 * 60 * 60 * 24,
+      refetchOnWindowFocus: false,
     },
   },
 });
 
-// Persistor using localStorage
 const localStoragePersister = createSyncStoragePersister({
   storage: window.localStorage,
-});
-
-// Link queryClient with localStorage
-persistQueryClient({
-  queryClient,
-  persister: localStoragePersister,
 });
 
 function SplashScreen() {
@@ -49,34 +44,28 @@ function SplashScreen() {
 }
 
 function Root() {
-  const [ready, setReady] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const cached = queryClient.getQueryData(["all-products"]);
+  persistQueryClient({
+    queryClient,
+    persister: localStoragePersister,
+    maxAge: 1000 * 60 * 60 * 24,
+  });
 
-    if (cached) {
-      // Cache मिला → तुरंत app दिखाओ
-      setReady(true);
+  // ✅ Step 1: Immediately fetch fresh data silently
+  queryClient.fetchQuery({
+    queryKey: ["all-products"],
+    queryFn: getAllProducts,
+    staleTime: 0, // 👈 force fresh
+  });
 
-      // Background refresh करा दो
-      queryClient.fetchQuery({
-        queryKey: ["all-products"],
-        queryFn: getAllProducts,
-      });
-    } else {
-      // पहली बार → splash दिखेगा जब तक data नहीं आता
-      queryClient
-        .prefetchQuery({
-          queryKey: ["all-products"],
-          queryFn: getAllProducts,
-        })
-        .then(() => setReady(true));
-    }
-  }, []);
+  // ✅ Step 2: Show UI
+  setIsReady(true);
+}, []);
 
-  if (!ready) {
-    return <SplashScreen />;
-  }
+
+  if (!isReady) return <SplashScreen />;
 
   return (
     <QueryClientProvider client={queryClient}>
