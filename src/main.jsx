@@ -3,22 +3,12 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  persistQueryClient,
-} from "@tanstack/react-query-persist-client";
+import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { FaBolt } from "react-icons/fa";
 import { getAllProducts } from "./api/productApi";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 7,
-      cacheTime: 1000 * 60 * 60 * 24,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 const localStoragePersister = createSyncStoragePersister({
   storage: window.localStorage,
@@ -47,23 +37,23 @@ function Root() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-  persistQueryClient({
-    queryClient,
-    persister: localStoragePersister,
-    maxAge: 1000 * 60 * 60 * 24,
-  });
+    // 🟢 Persist whole cache, but without global maxAge
+    persistQueryClient({
+      queryClient,
+      persister: localStoragePersister,
+      // maxAge हटाया ताकि हर query अपने rule follow करे
+    });
 
-  // ✅ Step 1: Immediately fetch fresh data silently
-  queryClient.fetchQuery({
-    queryKey: ["all-products"],
-    queryFn: getAllProducts,
-    staleTime: 0, // 👈 force fresh
-  });
+    // ✅ Step 1: Immediately fetch fresh products
+    queryClient.fetchQuery({
+      queryKey: ["all-products"],
+      queryFn: getAllProducts,
+      staleTime: 0, // Force fresh
+    });
 
-  // ✅ Step 2: Show UI
-  setIsReady(true);
-}, []);
-
+    // ✅ Step 2: Show UI
+    setIsReady(true);
+  }, []);
 
   if (!isReady) return <SplashScreen />;
 
