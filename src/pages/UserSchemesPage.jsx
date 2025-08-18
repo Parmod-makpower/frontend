@@ -1,6 +1,6 @@
 // 📁 src/pages/UserSchemesPage.jsx
 import { useSchemes } from "../hooks/useSchemes";
-import { FaGift, FaCalendarAlt, FaClipboardList } from "react-icons/fa";
+import { FaGift } from "react-icons/fa";
 import { MdProductionQuantityLimits } from "react-icons/md";
 import MobilePageHeader from "../components/MobilePageHeader";
 
@@ -21,29 +21,19 @@ export default function UserSchemesPage() {
             {schemes.map((scheme) => (
               <div
                 key={scheme.id}
-                className="border hover:bg-gray-200 rounded transition bg-white p-5 flex flex-col justify-between"
+                className="border hover:bg-gray-100 rounded transition bg-white p-5 flex flex-col justify-between"
               >
-                {/* Title */}
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <FaGift className="text-pink-500" />
-                    {/* {scheme.name} */}
-                  </h3>
-
-                  {/* Dates */}
-                  <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
-                    <FaCalendarAlt className="text-blue-500" />
-                    {scheme.start_date} → {scheme.end_date}
-                  </p>
-                </div>
+                {/* Created By */}
+                <p className="text-xs text-gray-500 mb-2">
+                  Created by: <span className="font-medium">{scheme.created_by}</span>
+                </p>
 
                 {/* Conditions */}
-                <div className="mt-4">
-                  <p className="font-semibold text-gray-700 flex items-center gap-1">
-                    <FaClipboardList className="text-green-500" />
-                    Conditions:
+                <div className="mt-2">
+                  <p className="font-semibold text-gray-700 flex items-center gap-1 mb-1">
+                    🛒 Conditions:
                   </p>
-                  <ul className="list-disc ml-6 text-sm text-gray-600 mt-1">
+                  <ul className="list-disc ml-6 text-sm text-gray-600 space-y-1">
                     {scheme.conditions.map((c) => (
                       <li key={c.id} className="flex items-center gap-1">
                         <MdProductionQuantityLimits className="text-gray-500" />
@@ -56,14 +46,13 @@ export default function UserSchemesPage() {
 
                 {/* Rewards */}
                 <div className="mt-4">
-                  <p className="font-semibold text-gray-700 flex items-center gap-1">
-                    <FaGift className="text-yellow-500" />
-                    Rewards:
+                  <p className="font-semibold text-gray-700 flex items-center gap-1 mb-1">
+                    🎁 Rewards:
                   </p>
-                  <ul className="list-disc ml-6 text-sm text-gray-600 mt-1">
+                  <ul className="list-disc ml-6 text-sm text-gray-600 space-y-1">
                     {scheme.rewards.map((r) => (
                       <li key={r.id} className="flex items-center gap-1">
-                        <MdProductionQuantityLimits className="text-gray-500" />
+                        <FaGift className="text-gray-500" />
                         Get {r.quantity} of{" "}
                         {r.product_name || `Product #${r.product}`}
                       </li>

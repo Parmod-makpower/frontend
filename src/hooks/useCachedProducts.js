@@ -11,15 +11,9 @@ export const useCachedProducts = () => {
   return useQuery({
     queryKey: ["all-products"],
     queryFn: getAllProducts,
-
-    // पुराना data 6 मिनट तक valid रहेगा
-    staleTime: 1000 * 60 * 6,
-
-    // हर 5 मिनट में background fetch होगा
-    refetchInterval: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 7,       // 7 minutes तक fresh माना जाएगा
+    refetchInterval: 1000 * 60 * 5, // हर 5 min background refresh
     refetchIntervalInBackground: true,
-
-    // Slow network में भी पुराना data दिखाने के लिए
     keepPreviousData: true,
   });
 };
