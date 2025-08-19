@@ -74,7 +74,7 @@ export default function TrendingProducts({ trendingIds = [] }) {
               <div
                 key={prodId}
                 onClick={() => navigate(`/product/${prodId}`)}
-                className="flex-shrink-0 w-40 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group"
+                className="flex-shrink-0 w-40 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group mb-2"
               >
                 {/* Image */}
                 <div className="relative w-full h-36 overflow-hidden bg-gray-50">
