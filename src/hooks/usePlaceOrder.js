@@ -1,4 +1,5 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+// usePlaceOrder.js
+import { useMutation, useQueryClient } from "@tanstack/react-query"; 
 import API from '../api/axios';
 
 export const usePlaceOrder = () => {
@@ -10,33 +11,17 @@ export const usePlaceOrder = () => {
       return res.data;
     },
     onSuccess: (newOrder) => {
-      // ✅ Correct queryKey
+      // ✅ तुरंत history invalidate करके fresh लाओ
       queryClient.invalidateQueries(["ssOrderHistory"]);
 
-      // ✅ Optional: तुरंत दिखाने के लिए local cache update
+      // ✅ Local cache में तुरंत नया order inject करो
       queryClient.setQueryData(["ssOrderHistory"], (oldData) => {
-        if (!oldData?.pages) {
-          return {
-            pages: [
-              {
-                results: [newOrder],
-                next: null,
-              },
-            ],
-            pageParams: [1],
-          };
+        if (!oldData?.results) {
+          return { results: [newOrder] };
         }
-
-        // पहले page को update करो और 20 तक limit रखो
-        const firstPage = oldData.pages[0];
-        const updatedFirstPage = {
-          ...firstPage,
-          results: [newOrder, ...firstPage.results].slice(0, 20),
-        };
-
         return {
           ...oldData,
-          pages: [updatedFirstPage, ...oldData.pages.slice(1)],
+          results: [newOrder, ...oldData.results].slice(0, 20),
         };
       });
     },

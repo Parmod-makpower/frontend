@@ -8,6 +8,7 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { FaBolt } from "react-icons/fa";
 import { getAllProducts } from "./api/productApi";
 import { getSchemes } from "./api/schemeApi";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,8 @@ function SplashScreen() {
 
 function Root() {
   const [isReady, setIsReady] = useState(false);
+  const { user } = useAuth(); // get current user
+  
 
   useEffect(() => {
     // 🟢 Persist whole cache, but without global maxAge
@@ -45,7 +48,8 @@ function Root() {
       // maxAge हटाया ताकि हर query अपने rule follow करे
     });
 
-    // ✅ Step 1: Immediately fetch fresh products
+    if (user) {
+       // ✅ Step 1: Immediately fetch fresh products
     queryClient.fetchQuery({
       queryKey: ["all-products"],
       queryFn: getAllProducts,
@@ -56,6 +60,10 @@ function Root() {
           queryFn: getSchemes,
           staleTime: 0, // Force fresh
         });
+
+    }
+
+   
     // ✅ Step 2: Show UI
     setIsReady(true);
   }, []);
@@ -72,6 +80,8 @@ function Root() {
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
+    <AuthProvider>
     <Root />
+    </AuthProvider>
   </React.StrictMode>
 );

@@ -1,7 +1,6 @@
 // 📁 src/pages/SSHistoryPage.jsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useInView } from "react-intersection-observer";
 import { FaShoppingBag, FaRupeeSign, FaCalendarAlt } from "react-icons/fa";
 
 import MobilePageHeader from "../../components/MobilePageHeader";
@@ -10,21 +9,7 @@ import { useSSOrderHistory } from "../../hooks/useSSOrderHistory";
 
 const SSHistoryPage = () => {
   const navigate = useNavigate();
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isError,
-    error,
-  } = useSSOrderHistory();
-
-  const { ref } = useInView({
-    onChange: (inView) => {
-      if (inView && hasNextPage) fetchNextPage();
-    },
-  });
+  const { data, isLoading, isError, error } = useSSOrderHistory();
 
   useEffect(() => {
     document.title = "My Order History";
@@ -39,7 +24,7 @@ const SSHistoryPage = () => {
       </div>
     );
 
-  const orders = data?.pages.flatMap((page) => page.results) ?? [];
+  const orders = data?.results ?? [];
 
   return (
     <div className="p-2 max-w-5xl mx-auto">
@@ -73,11 +58,6 @@ const SSHistoryPage = () => {
             </div>
           ))
         )}
-      </div>
-
-      {/* Infinite scroll loader */}
-      <div ref={ref} className="p-4 text-center">
-        {isFetchingNextPage && <Loader message="Loading more orders..." />}
       </div>
     </div>
   );

@@ -1,57 +1,19 @@
-// HomePage.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaSearch, FaBell, FaShoppingCart } from "react-icons/fa";
+import { FaSearch, FaBell } from "react-icons/fa";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import categories from "../data/categoryData";
-import { useSchemes } from "../hooks/useSchemes";
 
-const trendingProducts = [
-  {
-    id: 1,
-    name: "CH88 Fast Charger",
-    price: "₹399",
-    image:
-      "https://makpowerindia.com/cdn/shop/files/10000mAh_power_bank_with_digital_display.webp?v=1753350124",
-  },
-  {
-    id: 2,
-    name: "Bass Earbuds",
-    price: "₹699",
-    image:
-      "https://makpowerindia.com/cdn/shop/files/Best_Wireless_Earbuds_Crystal-Clear_Sound_Deep_Bass_amp_Long_Battery_Life.webp?v=1739610452",
-  },
-  {
-    id: 3,
-    name: "Tempered Glass Pro",
-    price: "₹199",
-    image:
-      "https://makpowerindia.com/cdn/shop/files/Best_Fast_Dual_USB_Car_Charger_Black.webp?v=1742636246",
-  },
-  {
-    id: 4,
-    name: "Charger",
-    price: "₹19",
-    image:
-      "https://makpowerindia.com/cdn/shop/files/Makpower_45W_PD_Charger.webp?v=1746862914",
-  },
-];
+import categories from "../data/categoryData";
+import SpecialSchemeProducts from "../components/SpecialSchemeProducts";
+import TrendingProducts from "../components/TrendingProducts";
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const { data: schemes = [] } = useSchemes();
-  const schemeProducts = schemes.flatMap(s => 
-    s.rewards.map(r => ({
-      id: r.id,
-      name: r.product_name || `Product #${r.product}`,
-      price: "Free / Scheme",   // scheme में price नहीं है तो tag डालो
-      image: r.product_image || "https://via.placeholder.com/150"
-    }))
-  );
+
   // Responsive listener
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -73,6 +35,10 @@ export default function HomePage() {
     slidesToScroll: 1,
     arrows: false,
   };
+
+  // यहाँ आप IDs की लिस्ट रखेंगे
+  const trendingIds = [344, 67,33,56];
+  const schemeIds = [1,200,205,878];
 
   return (
     <div className="mx-auto p-4 pb-16">
@@ -107,41 +73,41 @@ export default function HomePage() {
       </div>
 
       {/* 📂 Categories */}
-<div className="overflow-x-auto no-scrollbar flex gap-4 mb-6 px-1 sm:flex-wrap sm:justify-center">
-  {categories.slice(0, isMobile ? 5 : 8).map((cat) => (
-    <div
-      key={cat.label}
-      onClick={() =>
-        navigate(`/category/${encodeURIComponent(cat.keyword)}`)
-      }
-      className="flex-shrink-0 flex flex-col items-center cursor-pointer w-20 md:w-28 lg:w-32 group"
-    >
-      <div className="overflow-hidden rounded-lg shadow transition-all duration-300 group-hover:shadow-lg">
-        <img
-          src={cat.image}
-          alt={cat.label}
-          className="w-16 h-16 md:w-24 md:h-24 lg:w-25 lg:h-25 object-cover transform group-hover:scale-150 transition duration-300"
-        />
-      </div>
-      <span className="mt-1 text-[12px] md:text-sm lg:text-base text-center text-gray-700 font-medium group-hover:text-[var(--primary-color)] transition">
-        {cat.label}
-      </span>
-    </div>
-  ))}
-  {/* ➕ View All button */}
-  <div
-    onClick={() => navigate("/all-categories")}
-    className="flex-shrink-0 flex flex-col items-center cursor-pointer w-20 md:w-28 lg:w-32"
-  >
-    <div className="w-16 h-16 md:w-24 md:h-24 lg:w-25 lg:h-25 rounded border flex items-center justify-center text-sm text-gray-500 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-      View All
-    </div>
-    <span className="mt-1 text-[10px] md:text-sm text-center text-gray-500 font-medium">
-      More
-    </span>
-  </div>
-</div>
+      <div className="overflow-x-auto no-scrollbar flex gap-4 mb-6 px-1 sm:flex-wrap sm:justify-center">
+        {categories.slice(0, isMobile ? 5 : 8).map((cat) => (
+          <div
+            key={cat.label}
+            onClick={() =>
+              navigate(`/category/${encodeURIComponent(cat.keyword)}`)
+            }
+            className="flex-shrink-0 flex flex-col items-center cursor-pointer w-20 md:w-28 lg:w-32 group"
+          >
+            <div className="overflow-hidden rounded-lg shadow transition-all duration-300 group-hover:shadow-lg">
+              <img
+                src={cat.image}
+                alt={cat.label}
+                className="w-16 h-16 md:w-24 md:h-24 lg:w-25 lg:h-25 object-cover transform group-hover:scale-150 transition duration-300"
+              />
+            </div>
+            <span className="mt-1 text-[12px] md:text-sm lg:text-base text-center text-gray-700 font-medium group-hover:text-[var(--primary-color)] transition">
+              {cat.label}
+            </span>
+          </div>
+        ))}
 
+        {/* ➕ View All button */}
+        <div
+          onClick={() => navigate("/all-categories")}
+          className="flex-shrink-0 flex flex-col items-center cursor-pointer w-20 md:w-28 lg:w-32"
+        >
+          <div className="w-16 h-16 md:w-24 md:h-24 lg:w-25 lg:h-25 rounded border flex items-center justify-center text-sm text-gray-500 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            View All
+          </div>
+          <span className="mt-1 text-[10px] md:text-sm text-center text-gray-500 font-medium">
+            More
+          </span>
+        </div>
+      </div>
 
       {/* 🎞️ Image Slider */}
       <div className="mb-8 rounded-xl overflow-hidden">
@@ -164,94 +130,10 @@ export default function HomePage() {
         </Slider>
       </div>
 
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        Trending Products
-      </h2>
+      {/* ⭐ Trending Products Component */}
+      <TrendingProducts trendingIds={trendingIds} />
 
-      {/* Mobile Slider */}
-      <div className="block md:hidden overflow-x-auto no-scrollbar -mx-2 px-2">
-        <div className="flex gap-3">
-          {trendingProducts.map((product) => (
-            <div
-              key={product.id}
-              className="flex-shrink-0 w-36 bg-white rounded-xl shadow hover:shadow-lg transition-all p-2 flex flex-col"
-            >
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full aspect-square object-cover rounded-lg mb-1"
-              />
-              <h3 className="text-[11px] font-semibold text-gray-800 line-clamp-1">
-                {product.name}
-              </h3>
-              <p className="text-blue-600 font-bold text-xs">{product.price}</p>
-              <button className="mt-auto bg-[#fc250c] text-white text-[10px] px-2 py-1 rounded-full hover:bg-blue-700 transition-all flex items-center gap-1 justify-center">
-                <FaShoppingCart className="text-[10px]" /> Add
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Desktop Grid */}
-      <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-        {trendingProducts.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white rounded-xl shadow hover:shadow-lg transition-all p-3 flex flex-col"
-          >
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full aspect-square object-cover rounded-lg mb-2"
-            />
-            <h3 className="text-sm font-semibold text-gray-800 line-clamp-1">
-              {product.name}
-            </h3>
-            <p className="text-blue-600 font-bold text-sm mb-2">
-              {product.price}
-            </p>
-            <button className="mt-auto bg-[var(--primary-color)] text-white text-xs px-3 py-1 rounded-full hover:bg-blue-700 transition-all flex items-center gap-1 justify-center">
-              <FaShoppingCart className="text-xs" /> Add to Cart
-            </button>
-          </div>
-        ))}
-      </div>
-      {/* 🎁 Scheme Products */}
-      {schemeProducts.length > 0 && (
-        <>
-        
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            Special Scheme Products
-          </h2>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {schemeProducts.map((product) => (
-              <div
-                key={product.id}
-                className="bg-gradient-to-b from-pink-50 to-white border border-pink-200 rounded-xl shadow hover:shadow-lg transition-all p-3 flex flex-col"
-              >
-                
-                
-                <img
-                 src="https://ovista.in/cdn/shop/files/WhatsApp_Image_2025-01-20_at_6.06.21_PM_1.jpg?v=1737377240"
-                  alt={product.name}
-                  className="w-full aspect-square object-cover rounded-lg mb-2"
-                />
-                <h3 className="text-sm font-semibold text-gray-800 line-clamp-1">
-                  {product.name}
-                </h3>
-                <p className="text-pink-600 font-bold text-sm mb-2">
-                  {product.price}
-                </p>
-                <span className="bg-pink-500 text-white text-xs px-2 py-1 rounded-full text-center">
-                  🎁 Scheme Offer
-                </span>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+      <SpecialSchemeProducts trendingIds={schemeIds} />
     </div>
   );
 }
