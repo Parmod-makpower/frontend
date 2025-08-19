@@ -36,18 +36,18 @@ export default function UserSchemesPage() {
         {schemes.length === 0 ? (
           <p className="text-gray-500 text-center">No schemes available.</p>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-1 sm:gap-6 grid-cols-2 lg:grid-cols-4">
             {schemes.map((scheme) => (
               <div
                 key={scheme.id}
-                className="borde shadow rounded transition bg-white p-5 flex flex-col"
+                className="borde shadow rounded transition bg-pink-200 p-2 sm:p-5 flex flex-col"
               >
                
 
                 {/* Conditions */}
-                <div className="mt-2">
+                <div className="mt-2 ">
                  
-                  <div className="grid gap-4">
+                  <div className="grid gap-2 ">
                     {scheme.conditions.map((c) => {
                       const prod = getProduct(c.product);
                       const prodId = prod?.id ?? prod?.product_id;
@@ -76,12 +76,12 @@ export default function UserSchemesPage() {
                           className="bg-gray-100 rounded overflow-hidden flex flex-col group cursor-pointer transition"
                         >
                           {/* Product Image */}
-                          <div className="relative w-full h-32 overflow-hidden">
+                          <div className="relative w-full  overflow-hidden">
                             <img
                               src={
                                 prod?.image
                                   ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
-                                  : "https://makpowerindia.com/cdn/shop/files/Makpower_45W_PD_Charger.webp?v=1746862914"
+                                  : "https://makpowerindia.com/cdn/shop/files/n5vztvamttsxyetzghsd.webp?v=1752562212"
                               }
                               alt={prod?.product_name || "Product"}
                               className="w-full h-full object-cover transform group-hover:scale-105 transition duration-300"

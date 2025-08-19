@@ -44,7 +44,7 @@ export default function TrendingProducts({ trendingIds = [] }) {
 
       {/* 📱 Mobile Horizontal Scroll */}
       <div className="block md:hidden overflow-x-auto no-scrollbar -mx-2 px-2">
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           {trendingProducts.map((prod) => {
             const prodId = prod.id ?? prod.product_id;
             const isInCart = selectedProducts.some((p) => p.id === prodId);
@@ -74,7 +74,7 @@ export default function TrendingProducts({ trendingIds = [] }) {
               <div
                 key={prodId}
                 onClick={() => navigate(`/product/${prodId}`)}
-                className="flex-shrink-0 w-40 bg-white rounded shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group"
+                className="flex-shrink-0 w-40 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group"
               >
                 {/* Image */}
                 <div className="relative w-full h-36 overflow-hidden bg-gray-50">
@@ -82,7 +82,7 @@ export default function TrendingProducts({ trendingIds = [] }) {
                     src={
                       prod?.image
                         ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
-                        : "https://makpowerindia.com/cdn/shop/files/Makpower_45W_PD_Charger.webp?v=1746862914"
+                        : "https://makpowerindia.com/cdn/shop/files/10000mAh_power_bank_with_digital_display.webp?v=1753350124"
                     }
                     alt={prod.product_name}
                     className="w-full h-full object-cover transform group-hover:scale-105 transition duration-300"

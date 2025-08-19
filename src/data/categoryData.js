@@ -6,8 +6,8 @@ const categories = [
     image: "https://makpowerindia.com/cdn/shop/files/Makpower_45W_PD_Charger.webp?v=1746862914"
   },
   {
-    label: "Earbuds",
-    keyword: "earbuds",
+    label: "TWS",
+    keyword: "tws",
     image: "https://makpowerindia.com/cdn/shop/files/Best_Wireless_Earbuds_Crystal-Clear_Sound_Deep_Bass_amp_Long_Battery_Life.webp?v=1739610452"
   },
   {
