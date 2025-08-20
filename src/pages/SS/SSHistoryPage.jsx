@@ -27,7 +27,7 @@ const SSHistoryPage = () => {
   const orders = data?.results ?? [];
 
   return (
-    <div className="p-2 max-w-5xl mx-auto">
+    <div className="p-2 max-w-5xl mx-auto pb-20">
       <MobilePageHeader title="My Orders" />
 
       <div className="pt-[60px] sm:pt-0 space-y-4">

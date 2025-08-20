@@ -97,19 +97,33 @@ export default function CartPage() {
                   <input
                     type="number"
                     min={1}
-                    value={item.quantity}
-                    onChange={(e) =>
-                      updateQuantity(item.id, Math.max(1, parseInt(e.target.value)))
-                    }
+                    value={item.quantity === "" ? "" : Number(item.quantity)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const parsed = parseInt(val);
+
+                      if (!isNaN(parsed)) {
+                        updateQuantity(item.id, Math.max(1, parsed));
+                      } else if (val === "") {
+                        updateQuantity(item.id, ""); // allow temporarily empty
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (isNaN(val) || val < 1) {
+                        updateQuantity(item.id, 1);
+                      }
+                    }}
                     className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                   />
+
                 </div>
 
                 {/* Schemes */}
                 {relatedSchemes.length > 0 && (
                   <div className="mt-4">
                     <div className="flex items-center gap-2 font-medium text-green-700 mb-2">
-                      
+
                     </div>
                     <div className="space-y-2">
                       {relatedSchemes.map((scheme) => {

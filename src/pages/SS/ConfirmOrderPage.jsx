@@ -70,79 +70,73 @@ export default function ConfirmOrderPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white  px-3 pb-16">
+    <div className="max-w-4xl mx-auto bg-white  px-3 pb-20">
       {/* Header */}
       <MobilePageHeader title="Order Confirmation"/>
       
 
-      {/* Products Table */}
-      <div className="mb-6 sm:pt-0 pt-[60px]">
-        {/* <h3 className="text-lg font-semibold my-3">📦 Ordered Products</h3> */}
-        <table className="w-full border-collapse my-3 border">
-          <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="border p-2">No</th>
-              <th className="border p-2">Product</th>
-              <th className="border p-2">Quantity</th>
-              <th className="border p-2">Price</th>
-             
+     {/* Products Table */}
+<div className="my-6 pt-[60px] sm:pt-0">
+  <div className="overflow-auto rounded-lg shadow">
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">No</th>
+          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Product</th>
+          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Quantity</th>
+          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Price</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-100 bg-white">
+        {selectedProducts.map((item, index) => (
+          <tr key={item.id} className="hover:bg-gray-50 transition">
+            <td className="px-4 py-2 text-sm text-gray-700">{index + 1}</td>
+            <td className="px-4 py-2 text-sm text-gray-800">{item.product_name}</td>
+            <td className="px-4 py-2 text-sm text-gray-700">{item.quantity}</td>
+            <td className="px-4 py-2 text-sm text-gray-700">
+              ₹{(item.price || 0) * (item.quantity || 1)}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{/* Eligible Schemes */}
+{eligibleSchemes.length > 0 && (
+  <div className="mb-6">
+   
+
+    <div className="overflow-auto rounded-lg shadow">
+      <table className="min-w-full divide-y divide-green-200">
+        <thead className="bg-pink-100">
+          <tr>
+            <th className="px-4 py-2 text-left text-sm font-semibold ">Schemes</th>
+            <th className="px-4 py-2 text-left text-sm font-semibold ">Rewards</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-green-100 bg-white">
+          {eligibleSchemes.map((scheme) => (
+            <tr key={scheme.id} className="hover:bg-green-50 transition">
+              <td className="px-4 py-2 text-sm text-gray-700">
+                {scheme.conditions
+                  .map((c) => `Buy ${c.min_quantity} ${c.product_name || c.product}`)
+                  .join(", ")}
+              </td>
+              <td className="px-4 py-2 text-sm text-gray-700">
+                {scheme.rewards
+                  .map((r) => `Get ${r.quantity} ${r.product_name || r.product}`)
+                  .join(", ")}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {selectedProducts.map((item, index) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                <td className="border p-2">{index + 1}</td>
-                <td className="border p-2">{item.product_name}</td>
-                <td className="border p-2">{item.quantity}</td>
-                
-                <td className="border p-2">
-                  {(item.price || 0) * (item.quantity || 1)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
 
-      {/* Eligible Schemes */}
-      {eligibleSchemes.length > 0 && (
-        <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-  <FaGift className="text-pink-500" /> Eligible Schemes
-</h3>
-
-          <table className="w-full border-collapse border">
-            <thead>
-              <tr className="bg-green-100 text-left">
-                <th className="border p-2">Conditions</th>
-                <th className="border p-2">Rewards</th>
-              </tr>
-            </thead>
-            <tbody>
-              {eligibleSchemes.map((scheme) => (
-                <tr key={scheme.id}>
-                  <td className="border p-2">
-                    {scheme.conditions
-                      .map(
-                        (c) =>
-                          `Buy ${c.min_quantity} ${c.product_name || c.product}`
-                      )
-                      .join(", ")}
-                  </td>
-                  <td className="border p-2">
-                    {scheme.rewards
-                      .map(
-                        (r) =>
-                          `Get ${r.quantity} ${r.product_name || r.product}`
-                      )
-                      .join(", ")}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
 
       {/* Total */}
       <div className="flex justify-end mb-6">
@@ -158,7 +152,7 @@ export default function ConfirmOrderPage() {
       </div>
 
       {/* Place Order Button */}
-      <div className="text-right">
+      <div className="text-center">
         <button
           onClick={handlePlaceOrder}
           disabled={isPlacingOrder}
@@ -168,7 +162,7 @@ export default function ConfirmOrderPage() {
               : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
-          {isPlacingOrder ? "Placing Order..." : "✅ Confirm & Place Order"}
+          {isPlacingOrder ? "Placing Order..." : "Place Order"}
         </button>
       </div>
 

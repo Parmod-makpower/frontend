@@ -281,13 +281,7 @@ export default function DashboardLayout() {
           )}
 
           {/* Logout button directly in header */}
-          <button
-            onClick={logout}
-            className="flex items-center gap-1 text-red-600 hover:text-red-800"
-            title="Logout"
-          >
-            <FaSignOutAlt />
-          </button>
+         
 
           {/* Profile Dropdown */}
           <div className="relative" ref={profileRef}>
@@ -296,12 +290,21 @@ export default function DashboardLayout() {
               className="flex items-center gap-2 text-gray-700 hover:text-blue-600"
             >
               <FaUserCircle className="text-2xl" />
-              <span className="font-medium hidden md:inline">{user?.role}</span>
+              <span className="font-medium hidden md:inline cursor-pointer">{user?.name}</span>
             </button>
             {profileDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-50 animate-fade-in-down">
                 <div className="px-4 py-2 text-sm text-gray-800 border-b">
                   ID: {user?.user_id}
+                </div>
+                <div className="px-4 py-2 text-sm text-gray-800 border-b">
+                   <button
+            onClick={logout}
+            className="flex items-center gap-1 text-red-600 hover:text-red-800 cursor-pointer"
+            title="Logout"
+          >
+            <FaSignOutAlt /> Logout
+          </button>
                 </div>
               </div>
             )}

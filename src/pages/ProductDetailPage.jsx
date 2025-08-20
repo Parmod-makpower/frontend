@@ -53,10 +53,17 @@ export default function ProductDetailPage() {
     updateQuantity(product.id, newQty);
   };
   const handleManualInput = (e) => {
-    const val = Math.max(1, parseInt(e.target.value) || 1);
-    setQuantity(val);
-    updateQuantity(product.id, val);
+    const val = e.target.value;
+    const parsed = parseInt(val);
+
+    if (!isNaN(parsed)) {
+      setQuantity(parsed);
+      updateQuantity(product.id, Math.max(1, parsed));
+    } else if (val === "") {
+      setQuantity(""); // temporarily allow empty string
+    }
   };
+
 
   return (
     <div className="max-w-3xl mx-auto pb-16 h-full">
@@ -94,7 +101,7 @@ export default function ProductDetailPage() {
               </span>
             )}
           </div>
-            <p className="text-[#2563eb] text-lg font-semibold">₹{product.price || "N/A"}</p>
+          <p className="text-[#2563eb] text-lg font-semibold">₹{product.price || "N/A"}</p>
 
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
@@ -120,11 +127,18 @@ export default function ProductDetailPage() {
                   </button>
                   <input
                     type="number"
-                    value={quantity}
+                    value={quantity === "" ? "" : Number(quantity)}
                     onChange={handleManualInput}
+                    onBlur={() => {
+                      if (quantity === "" || isNaN(quantity) || quantity < 1) {
+                        setQuantity(1);
+                        updateQuantity(product.id, 1);
+                      }
+                    }}
                     className="w-14 text-center border rounded-md py-1 text-sm"
                     min={1}
                   />
+
                   <button
                     onClick={handleIncrease}
                     className="p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition text-sm"

@@ -55,7 +55,7 @@ export default function MoreOptionsPage() {
       {/* Header */}
       <MobilePageHeader title="More Options" />
      {/* Profile Section */}
-<div className="relative mb-6 pt-[60px] sm:pt-4 ">
+<div className="relative my-6 pt-[60px] sm:pt-4 ">
   
   <div className="bg-white border border-gray-200 rounded-xl  p-4 flex items-start gap-4">
     <div className="relative">
@@ -64,9 +64,8 @@ export default function MoreOptionsPage() {
       <div className="absolute top-1 right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white" />
     </div>
     <div className="">
-      <div className="text-lg font-bold text-gray-800">{user?.name}</div>
-      <div className="text-sm text-gray-700"> {user?.mobile}</div>
-      {/* <div className="text-sm text-gray-600">✉️ {user?.email}</div> */}
+      <div className="text-sm font-bold text-gray-800">{user?.name}</div>
+      <div className="text-xs text-gray-700"> {user?.mobile}</div>
       <div className="text-xs text-gray-400">ID {user?.user_id}</div>
     </div>
   </div>

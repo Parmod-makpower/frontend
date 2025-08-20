@@ -6,8 +6,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 import categories from "../data/categoryData";
-import SpecialSchemeProducts from "../components/SpecialSchemeProducts";
-import TrendingProducts from "../components/TrendingProducts";
+import SlidingProductsCards from "../components/SlidingProductsCards";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -37,8 +36,8 @@ export default function HomePage() {
   };
 
   // यहाँ आप IDs की लिस्ट रखेंगे
-  const trendingIds = [344, 67,33,56];
-  const schemeIds = [1,200,205,878];
+  const trendingIds = [92, 666,98,900];
+  const schemeIds = [1,200,92,878];
 
   return (
     <div className="mx-auto p-4 pb-16">
@@ -46,7 +45,7 @@ export default function HomePage() {
       <div className="md:hidden flex justify-between items-center mb-4">
         <img
           src="https://makpowerindia.com/cdn/shop/files/MakPower_Mobile_Accessories_370x.webp?v=1735378281"
-          className="w-32"
+          className="w-40"
           alt="MakPower Logo"
         />
         <div className="block sm:hidden text-xl text-[var(--primary-color)]">
@@ -55,7 +54,7 @@ export default function HomePage() {
       </div>
 
       {/* 🔍 Search */}
-      <div className="md:hidden relative mb-6">
+      <div className="md:hidden relative mb-6 ">
         <input
           type="text"
           value={searchText}
@@ -131,9 +130,9 @@ export default function HomePage() {
       </div>
 
       {/* ⭐ Trending Products Component */}
-      <TrendingProducts trendingIds={trendingIds} />
+      <SlidingProductsCards trendingIds={trendingIds} title={"Trending Products"}/>
 
-      <SpecialSchemeProducts trendingIds={schemeIds} />
+      <SlidingProductsCards trendingIds={schemeIds} title={"Special Scheme Products"}/>
     </div>
   );
 }
