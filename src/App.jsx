@@ -30,8 +30,8 @@ import CRMSSListPage from "./pages/CRM/CRMSSListPage";
 
 import CRMOrderListPage from "./pages/CRM/CRMOrderListPage";
 import UserSchemesPage from "./pages/UserSchemesPage";
-import CRMVerifiedHistoryPage from "./pages/CRMVerifiedHistoryPage";
-import CRMVerifiedDetailsPage from "./pages/CRMVerifiedDetailsPage";
+import CRMVerifiedHistoryPage from "./pages/CRM/CRMVerifiedHistoryPage";
+import CRMVerifiedDetailsPage from "./pages/CRM/CRMVerifiedDetailsPage";
 
 
 

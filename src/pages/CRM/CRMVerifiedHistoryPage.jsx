@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useVerifiedOrders } from '../hooks/useVerifiedOrders'
+import { useVerifiedOrders } from '../../hooks/useVerifiedOrders'
 
 
 export default function CRMVerifiedHistoryPage() {
     const navigate = useNavigate()
     const [page, setPage] = useState(1)
-    const [status, setStatus] = useState('ALL')
+    const [status, setStatus] = useState('APPROVED')
     const [q, setQ] = useState('')
     const [start, setStart] = useState('')
     const [end, setEnd] = useState('')
@@ -27,7 +27,7 @@ export default function CRMVerifiedHistoryPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 pb-3">
                     <input value={q} onChange={e => setQ(e.target.value)} placeholder="🔎 Search Party / Order ID" className="border rounded-xl p-2" />
                     <select value={status} onChange={e => setStatus(e.target.value)} className="border rounded-xl p-2">
-                        <option value="ALL">All Status</option>
+
                         <option value="APPROVED">Approved</option>
                         <option value="REJECTED">Rejected</option>
                         <option value="DISPATCH">Dispatch</option>
