@@ -63,11 +63,11 @@ export default function BottomNav() {
     CRM: [
        { path: "/user-schemes", icon: <FaGift />, label: "Schemes" },
       { path: "/crm/orders", icon: <FaBox />, label: "Orders" },
-      { path: "/crm/orders-history", icon: <FaHistory />, label: "History" },
+      { path: "/all/orders-history", icon: <FaHistory />, label: "History" },
     ],
     ADMIN: [
       { path: "/schemes", icon: <FaGift />, label: "Schemes" },
-      { path: "/admin/crm-orders", icon: <FaBox />, label: "Orders" },
+      { path: "/all/orders-history", icon: <FaBox />, label: "Orders" },
       { path: "/admin/crm", icon: <FaUsers />, label: "Users" },
     ],
   };

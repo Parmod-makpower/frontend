@@ -25,13 +25,13 @@ import AllCategoriesPage from "./pages/AllCategoriesPage";
 import ConfirmOrderPage from "./pages/SS/ConfirmOrderPage";
 import SSHistoryPage from "./pages/SS/SSHistoryPage";
 import SSOrderTrackingPage from "./pages/SS/SSOrderTrackingPage";
-import CRMVerifiedOrdersPage from "./pages/CRM/CRMVerifiedOrdersPage";
 import CRMSSFormPage from "./pages/CRM/CRMSSFormPage";
 import CRMSSListPage from "./pages/CRM/CRMSSListPage";
 
 import CRMOrderListPage from "./pages/CRM/CRMOrderListPage";
 import UserSchemesPage from "./pages/UserSchemesPage";
-import AdminCRMVerifiedOrdersPage from "./pages/AdminCRMVerifiedOrdersPage";
+import CRMVerifiedHistoryPage from "./pages/CRMVerifiedHistoryPage";
+import CRMVerifiedDetailsPage from "./pages/CRMVerifiedDetailsPage";
 
 
 
@@ -51,6 +51,10 @@ export default function App() {
              <Route path="/all-categories" element={<AllCategoriesPage />} /> 
             <Route path="/product/:productId" element={<ProductDetailPage />} />
             <Route path="/more" element={<MoreOptionsPage />} />
+           
+            <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
+            <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
+
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
 
 
@@ -62,15 +66,12 @@ export default function App() {
             <Route path="/schemes" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemePage /></ProtectedRoute>} />
             <Route path="/schemes/new" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
             <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm/></ProtectedRoute>} />
-            <Route path="/admin/crm-orders" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminCRMVerifiedOrdersPage/></ProtectedRoute>} />
-           
            
 
             <Route path="/crm-ss/add" element={<ProtectedRoute allowedRoles={['CRM']}><CRMSSFormPage /></ProtectedRoute>} />
             <Route path="/crm-ss/list" element={<ProtectedRoute allowedRoles={['CRM']}><CRMSSListPage /></ProtectedRoute>} />
             <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
             <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
-            <Route path="/crm/orders-history" element={<ProtectedRoute allowedRoles={['CRM']}><CRMVerifiedOrdersPage /></ProtectedRoute>} />
            
 
             <Route path="/ss/ds" element={<ProtectedRoute allowedRoles={['SS']}><SSDSPage /></ProtectedRoute>} />

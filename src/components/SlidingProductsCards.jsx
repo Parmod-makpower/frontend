@@ -33,7 +33,7 @@ export default function SlidingProductsCards({ trendingIds = [], title }) {
   return (
     <div>
       <h2 className="text-lg font-semibold text-gray-800 mt-7 mb-4 flex items-center space-x-2">
-        <span>{title}.</span>
+        <span>{title}</span>
       </h2>
 
       {/* 🔥 Mobile: horizontal scroll (scrollbar hidden) | Desktop: Grid */}

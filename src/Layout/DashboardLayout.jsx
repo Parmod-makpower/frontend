@@ -143,7 +143,7 @@ export default function DashboardLayout() {
       { label: "Sale Name", path: "/sale-name", icon: <FaBox /> },
       { label: "Schemes", path: "/schemes", icon: <FaGift /> },
       { label: "CRM", path: "/admin/crm", icon: <FaUsers /> },
-      { label: "All Orders", path: "/admin/crm-orders", icon: <FaBox /> }
+      { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> }
     );
   }
   if (user.role === "CRM") {
@@ -152,7 +152,7 @@ export default function DashboardLayout() {
       { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },
       { label: "Super Stockist", path: "/crm-ss/list", icon: <FaUsers /> },
       { label: "New Orders", path: "/crm/orders", icon: <FaBox /> },
-      { label: "History", path: "/crm/orders-history", icon: <FaHistory /> }
+      { label: "History", path: "/all/orders-history", icon: <FaHistory /> }
     );
   }
   if (user.role === "SS") {

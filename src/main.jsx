@@ -1,8 +1,9 @@
+// 📁 src/Main.jsx
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useIsRestoring } from "@tanstack/react-query";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { FaBolt } from "react-icons/fa";
@@ -10,10 +11,19 @@ import { getAllProducts } from "./api/productApi";
 import { getSchemes } from "./api/schemeApi";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
+// ✅ Create QueryClient
 const queryClient = new QueryClient();
 
+// ✅ Setup LocalStorage Persister
 const localStoragePersister = createSyncStoragePersister({
   storage: window.localStorage,
+});
+
+// ✅ Immediately hydrate cache before app renders
+persistQueryClient({
+  queryClient,
+  persister: localStoragePersister,
+  // No global maxAge; each query controls its own caching
 });
 
 function SplashScreen() {
@@ -36,39 +46,40 @@ function SplashScreen() {
 }
 
 function Root() {
-  const [isReady, setIsReady] = useState(false);
-  const { user } = useAuth(); // get current user
-  
+  const { user } = useAuth();
+  const isRestoring = useIsRestoring();
 
   useEffect(() => {
-    // 🟢 Persist whole cache, but without global maxAge
-    persistQueryClient({
-      queryClient,
-      persister: localStoragePersister,
-      // maxAge हटाया ताकि हर query अपने rule follow करे
-    });
+    const preloadData = async () => {
+      if (user) {
+        const cachedProducts = queryClient.getQueryData(["all-products"]);
+        const cachedSchemes = queryClient.getQueryData(["schemes"]);
 
-    if (user) {
-       // ✅ Step 1: Immediately fetch fresh products
-    queryClient.fetchQuery({
-      queryKey: ["all-products"],
-      queryFn: getAllProducts,
-      staleTime: 0, // Force fresh
-    });
-    queryClient.fetchQuery({
-          queryKey: ["schemes"],
-          queryFn: getSchemes,
-          staleTime: 0, // Force fresh
-        });
+        // ✅ Force fetch only if no cache exists
+        if (!cachedProducts) {
+          await queryClient.fetchQuery({
+            queryKey: ["all-products"],
+            queryFn: getAllProducts,
+            staleTime: 0,
+          });
+        }
 
-    }
+        if (!cachedSchemes) {
+          await queryClient.fetchQuery({
+            queryKey: ["schemes"],
+            queryFn: getSchemes,
+            staleTime: 0,
+          });
+        }
+      }
+    };
 
-   
-    // ✅ Step 2: Show UI
-    setIsReady(true);
-  }, []);
+    preloadData();
+  }, [user]);
 
-  if (!isReady) return <SplashScreen />;
+  // ⛔ Show Splash only while hydration is happening AND no cached data exists
+  const hasCachedProducts = queryClient.getQueryData(["all-products"]);
+  if (isRestoring && !hasCachedProducts) return <SplashScreen />;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -81,7 +92,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <AuthProvider>
-    <Root />
+      <Root />
     </AuthProvider>
   </React.StrictMode>
 );

@@ -20,5 +20,8 @@ export const useSSOrderHistory = () => {
       };
     },
     staleTime: 0, // हर बार fresh
+    keepPreviousData: true,
+    
   });
 };
+
