@@ -128,7 +128,7 @@ export default function HomePage() {
           />
         </Slider>
       </div>
-
+Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eaque, delectus autem eius illo blanditiis voluptas suscipit est, optio at minus quod omnis perferendis ea exercitationem, molestias id rerum eligendi sunt.
       {/* ⭐ Trending Products Component */}
       <SlidingProductsCards trendingIds={trendingIds} title={"Trending Products"}/>
 
