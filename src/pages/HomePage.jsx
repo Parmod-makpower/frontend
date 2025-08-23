@@ -36,8 +36,8 @@ export default function HomePage() {
   };
 
   // यहाँ आप IDs की लिस्ट रखेंगे
-  const trendingIds = [92, 666,98,900];
-  const schemeIds = [1,200,92,878];
+  const trendingIds = [943, 684,691, 626,989];
+  const schemeIds = [1,200,92, 686, 878];
 
   return (
     <div className="mx-auto p-4 pb-16">
@@ -112,12 +112,12 @@ export default function HomePage() {
       <div className="mb-8 rounded-xl overflow-hidden">
         <Slider {...sliderSettings}>
           <img
-            src="https://makpowerindia.com/cdn/shop/files/jw7nh1jetzzczvz5lev7.webp?v=1748436890&width=2000"
+            src="https://makpowerindia.com/cdn/shop/files/f7arm7foserysccse9fa.webp?v=1742894610&width=2000"
             alt="banner1"
             className="w-full h-48 md:h-64 lg:h-100 object-cover"
           />
           <img
-            src="https://makpowerindia.com/cdn/shop/files/Makpower_amazon_Marketplace.webp?v=1731835198&width=2000"
+            src="https://makpowerindia.com/cdn/shop/files/krxntlvftutoe0p5tsjd.webp?v=1744890344&width=2000"
             alt="banner2"
             className="w-full h-48 md:h-64 lg:h-100 object-cover"
           />

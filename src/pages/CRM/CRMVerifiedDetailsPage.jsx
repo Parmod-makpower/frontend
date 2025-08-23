@@ -19,7 +19,7 @@ function Table({ title, items, rightAlignPrice = false, showCopy = false }) {
   };
 
   return (
-    <div className="border rounded-2xl shadow-sm">
+    <div className="border rounded-2xl shadow-sm ">
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b font-semibold">
         <span>{title}</span>
         {showCopy && items?.length > 0 && (

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useVerifiedOrders } from '../../hooks/useVerifiedOrders'
+import MobilePageHeader from '../../components/MobilePageHeader'
 
 
 export default function CRMVerifiedHistoryPage() {
@@ -21,9 +22,10 @@ export default function CRMVerifiedHistoryPage() {
     const totalPages = useMemo(() => Math.max(1, Math.ceil(count / 20)), [count])
 
     return (
-        <div className="p-4 sm:p-6">
-            <div className="sticky top-0 z-10 bg-white/70 backdrop-blur border-b mb-4">
-                <h2 className="text-xl font-semibold py-3">CRM Verified Orders — History</h2>
+        <div className="p-4 sm:p-6 pb-20">
+            <MobilePageHeader title="Orders — History"/>
+            <div className="sticky top-0 z-10 bg-white/70 backdrop-blur border-b mb-4 pt-[60px] sm:pt-0">
+               
                 <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 pb-3">
                     <input value={q} onChange={e => setQ(e.target.value)} placeholder="🔎 Search Party / Order ID" className="border rounded-xl p-2" />
                     <select value={status} onChange={e => setStatus(e.target.value)} className="border rounded-xl p-2">
