@@ -21,7 +21,7 @@ export function useAddProduct() {
   return useMutation({
     mutationFn: addProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["all-products"] }); // ✅ Fix
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 }
@@ -32,7 +32,7 @@ export function useDeleteProduct() {
   return useMutation({
     mutationFn: deleteProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["all-products"] }); // ✅ Fix
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 }
@@ -43,7 +43,7 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: updateProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["all-products"] }); // ✅ Fix
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 }
@@ -54,7 +54,7 @@ export function useUploadProductImage() {
   return useMutation({
     mutationFn: uploadProductImage,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["all-products"] }); // ✅ Fix
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 }

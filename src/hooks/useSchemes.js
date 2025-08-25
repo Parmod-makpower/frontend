@@ -1,3 +1,4 @@
+// 📁 src/hooks/useSchemes.js
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getSchemes,
@@ -11,8 +12,12 @@ export const useSchemes = () => {
   return useQuery({
     queryKey: ["schemes"],
     queryFn: getSchemes,
-    staleTime: 1000 * 60 * 60 * 24 * 25, // 25 दिन तक fresh
-    gcTime: 1000 * 60 * 60 * 24 * 25,    // 25 दिन तक memory + localStorage
+    staleTime: 1000 * 60 * 60 * 24 , // 25 दिन तक fresh
+    gcTime: 1000 * 60 * 60 * 24 ,    // cache memory + localStorage में 25 दिन
+    refetchOnMount: false,               // Mount पर कभी दोबारा fetch ना हो
+    refetchOnWindowFocus: false,         // Tab change पर fetch ना हो
+    refetchOnReconnect: false,           // Internet reconnect पर fetch ना हो
+    retry: false,                        // Fail होने पर बार-बार retry ना हो
   });
 };
 

@@ -237,8 +237,6 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">Price</th>
               <th className="px-4 py-2 border">Cartoon</th>
               <th className="px-4 py-2 border">Image</th>
-              <th className="px-4 py-2 border">Status</th>
-
               <th className="px-4 py-2 border">Edit</th>
               <th className="px-4 py-2 border">Delete</th>
             </tr>
@@ -261,22 +259,6 @@ export default function ProductPage() {
                       className="hidden"
                     />
                   </label></td>
-                  <td className="px-4 py-2 border text-center">
-  <button
-    onClick={async () => {
-      try {
-        const res = await API.post(`/products/${prod.product_id}/toggle_active/`);
-        toast.success(`Product ${res.data.is_active ? "Activated ✅" : "Deactivated ❌"}`);
-      } catch {
-        toast.error("Failed to toggle status");
-      }
-    }}
-    className={`px-3 py-1 rounded text-white ${prod.is_active ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}`}
-  >
-    {prod.is_active ? "Active" : "Inactive"}
-  </button>
-</td>
-
                 <td className="px-4 py-2 border"> <button
                     onClick={() => {
                       setEditData(prod);
