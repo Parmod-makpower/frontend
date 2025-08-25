@@ -1,6 +1,7 @@
 // 📁 src/hooks/useCachedProducts.js
 import { useQuery } from "@tanstack/react-query";
 import API from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 
 const getAllProducts = async () => {
   const res = await API.get("/all-products/");
@@ -8,21 +9,22 @@ const getAllProducts = async () => {
 };
 
 export const useCachedProducts = () => {
+  const { user } = useAuth();
+
   return useQuery({
     queryKey: ["all-products"],
     queryFn: getAllProducts,
 
-    // पुराना data 5 मिनट तक fresh माना जाएगा
-    staleTime: 1000 * 60 * 5,
+    // ✅ केवल तभी चले जब user.role === "SS"
+    enabled: user?.role === "SS",
 
-    gcTime: 1000 * 60 * 60 * 24 * 5,    // 5 दिन तक memory + localStorage
+    staleTime: 1000 * 60 * 1,          // 1 मिनट तक fresh
+    gcTime: 1000 * 60 * 60 * 24 * 5,   // 5 दिन तक cache
 
-    // हर 10 मिनट में background में silently refresh होगा
     refetchInterval: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
 
-    // नया आने तक पुराना data दिखाते रहो
     keepPreviousData: true,
   });
 };

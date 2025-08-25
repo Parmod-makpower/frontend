@@ -52,10 +52,10 @@ function Root() {
   useEffect(() => {
     const preloadData = async () => {
       if (user) {
-        const cachedProducts = queryClient.getQueryData(["all-products"]);
         const cachedSchemes = queryClient.getQueryData(["schemes"]);
 
-        // ✅ Force fetch only if no cache exists
+       if (user.role === "SS") {
+        const cachedProducts = queryClient.getQueryData(["all-products"]);
         if (!cachedProducts) {
           await queryClient.fetchQuery({
             queryKey: ["all-products"],
@@ -63,6 +63,7 @@ function Root() {
             staleTime: 0,
           });
         }
+      }
 
         if (!cachedSchemes) {
           await queryClient.fetchQuery({
