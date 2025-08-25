@@ -12,14 +12,15 @@ export const useCachedProducts = () => {
     queryKey: ["all-products"],
     queryFn: getAllProducts,
 
-    // पुराना data 12 मिनट तक fresh माना जाएगा
-    staleTime: 1000 * 60 * 12,
+    // पुराना data 5 मिनट तक fresh माना जाएगा
+    staleTime: 1000 * 60 * 5,
 
-    gcTime: 1000 * 60 * 60 * 24,    // 5 दिन तक memory + localStorage
+    gcTime: 1000 * 60 * 60 * 24 * 5,    // 5 दिन तक memory + localStorage
 
     // हर 10 मिनट में background में silently refresh होगा
-    refetchInterval: 1000 * 60 * 10,
-    refetchIntervalInBackground: true,
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
 
     // नया आने तक पुराना data दिखाते रहो
     keepPreviousData: true,
