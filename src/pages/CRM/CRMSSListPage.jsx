@@ -5,6 +5,7 @@ import ChangePasswordModal from "../../components/ChangePasswordModal";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FaPlus } from "react-icons/fa";
+import MobilePageHeader from "../../components/MobilePageHeader";
 
 export default function CRMSSListPage() {
   const [ssList, setSSList] = useState([]);
@@ -41,8 +42,8 @@ export default function CRMSSListPage() {
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Super Stockist List</h2>
+        <MobilePageHeader title="Super Stockist"/>
+      <div className="flex justify-between items-center mb-4 sm:pt-0 pt-[60px]">
         <button
           onClick={() => navigate("/crm-ss/add")}
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"

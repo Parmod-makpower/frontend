@@ -2,6 +2,7 @@ import { useState } from "react";
 import API from "../api/axios";
 import useFuseSearch from "../hooks/useFuseSearch";
 import { useCachedProducts } from "../hooks/useCachedProducts";
+import { useToggleProductStatus } from "../hooks/useProducts";
 import { useAddProduct, useDeleteProduct, useUpdateProduct } from "../hooks/useProducts";
 import { uploadProductImage } from "../api/productApi";
 import { toast } from "react-toastify";
@@ -33,6 +34,7 @@ export default function ProductPage() {
   const { mutate: addProduct } = useAddProduct();
   const { mutate: deleteProduct } = useDeleteProduct();
   const { mutate: updateProduct } = useUpdateProduct();
+    const { mutate: toggleStatus } = useToggleProductStatus();
 
   const filteredProducts = useFuseSearch(allProducts, search, {
     keys: ["product_name", "sub_category", "product_id"],
@@ -237,55 +239,82 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">Price</th>
               <th className="px-4 py-2 border">Cartoon</th>
               <th className="px-4 py-2 border">Image</th>
+               <th className="px-4 py-2 border">Active</th>
               <th className="px-4 py-2 border">Edit</th>
               <th className="px-4 py-2 border">Delete</th>
             </tr>
           </thead>
-          <tbody>
-            {paginatedProducts.map((prod) => (
-              <tr key={prod.product_id} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border">{prod.product_id}</td>
-                <td className="px-4 py-2 border">{prod.sub_category}</td>
-                <td className="px-4 py-2 border">{prod.product_name}</td>
-                <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
-                <td className="px-4 py-2 border">{prod.price}</td>
-                <td className="px-4 py-2 border">{prod.cartoon_size}</td>
-                <td className="px-4 py-2 border"> <label className="cursor-pointer">
-                    <FiUpload className="text-blue-600 hover:text-blue-800" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, prod.product_id)}
-                      className="hidden"
-                    />
-                  </label></td>
-                <td className="px-4 py-2 border"> <button
-                    onClick={() => {
-                      setEditData(prod);
-                      setForm(prod);
-                      setShowModal(true);
-                    }}
-                    className="text-blue-600 hover:text-blue-800  "
-                  >
-                    <FiEdit />
-                  </button></td>
-                <td className="px-4 py-2 border"> <button
-                    onClick={() => handleDelete(prod.product_id)}
-                    className="text-red-600 hover:text-red-800 "
-                  >
-                    <FiTrash2 />
-                  </button></td>
-               
-              </tr>
-            ))}
-            {paginatedProducts.length === 0 && (
-              <tr>
-                <td colSpan="7" className="text-center p-4 text-gray-500">
-                  Product Not Found
-                </td>
-              </tr>
-            )}
-          </tbody>
+         <tbody>
+  {paginatedProducts.map((prod) => (
+    <tr key={prod.product_id} className="hover:bg-gray-50">
+      <td className="px-4 py-2 border">{prod.product_id}</td>
+      <td className="px-4 py-2 border">{prod.sub_category}</td>
+      <td className="px-4 py-2 border">{prod.product_name}</td>
+      <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
+      <td className="px-4 py-2 border">{prod.price}</td>
+      <td className="px-4 py-2 border">{prod.cartoon_size}</td>
+      <td className="px-4 py-2 border">
+        <label className="cursor-pointer">
+          <FiUpload className="text-blue-600 hover:text-blue-800" />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleFileChange(e, prod.product_id)}
+            className="hidden"
+          />
+        </label>
+      </td>
+
+      {/* ✅ Toggle Active/Inactive */}
+      <td className="px-4 py-2 border text-center">
+      
+
+<input
+  type="checkbox"
+  checked={prod.is_active}
+  onChange={() =>
+    toggleStatus(
+      { productId: prod.product_id, isActive: !prod.is_active },
+      {
+        onSuccess: () =>
+          toast.success(
+            `Product ${!prod.is_active ? "Activated ✅" : "Deactivated ❌"}`
+          ),
+        onError: () => toast.error("Failed to update status"),
+      }
+    )
+  }
+/>
+
+      </td>
+
+      {/* Edit */}
+      <td className="px-4 py-2 border">
+        <button
+          onClick={() => {
+            setEditData(prod);
+            setForm(prod);
+            setShowModal(true);
+          }}
+          className="text-blue-600 hover:text-blue-800"
+        >
+          <FiEdit />
+        </button>
+      </td>
+
+      {/* Delete */}
+      <td className="px-4 py-2 border">
+        <button
+          onClick={() => handleDelete(prod.product_id)}
+          className="text-red-600 hover:text-red-800"
+        >
+          <FiTrash2 />
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
         </table>
       </div>
 

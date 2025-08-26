@@ -4,7 +4,7 @@ import {
   addProduct,
   deleteProduct,
   updateProduct,
-  uploadProductImage,
+  uploadProductImage,toggleProductStatus,fetchInactiveProducts
 } from "../api/productApi";
 
 // ⬇️ Fetch all products
@@ -56,5 +56,24 @@ export function useUploadProductImage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
+  });
+}
+
+// ⬇️ Toggle product active/inactive
+export function useToggleProductStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: toggleProductStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+}
+
+// ⬇️ Inactive products fetch hook
+export function useInactiveProducts() {
+  return useQuery({
+    queryKey: ["inactiveProducts"],
+    queryFn: fetchInactiveProducts,
   });
 }

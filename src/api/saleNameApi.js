@@ -1,7 +1,6 @@
-// 📁 src/api/saleNameApi.js
 import API from "./axios";
 
-export const fetchSaleNames = async (page = 1, pageSize = 10, productId = "") => {
+export const fetchSaleNames = async ({ page = 1, pageSize = 10, productId = "" }) => {
   let url = `/sale-names/?page=${page}&page_size=${pageSize}`;
   if (productId) url += `&product_id=${productId}`;
   const res = await API.get(url);
@@ -15,6 +14,11 @@ export const addSaleName = async (data) => {
 
 export const deleteSaleNameById = async (id) => {
   const res = await API.delete(`/sale-names/${id}/`);
+  return res.data;
+};
+
+export const deleteAllSaleNames = async () => {
+  const res = await API.delete("/sale-names/delete-all/");
   return res.data;
 };
 

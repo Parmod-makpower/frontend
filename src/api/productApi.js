@@ -25,6 +25,20 @@ export const updateProduct = async ({ productId, updatedData }) => {
   return response.data;
 };
 
+// ✅ केवल is_active update करने के लिए PATCH
+export const toggleProductStatus = async ({ productId, isActive }) => {
+  const response = await API.patch(`/products/${productId}/`, {
+    is_active: isActive,
+  });
+  return response.data;
+};
+
+// ✅ Inactive products fetch करने के लिए
+export const fetchInactiveProducts = async () => {
+  const response = await API.get("/products/inactive/");
+  return response.data;
+};
+
 // 🔹 Delete a product
 export const deleteProduct = async (productId) => {
   const response = await API.delete(`/products/${productId}/`);

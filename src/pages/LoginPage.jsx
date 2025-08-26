@@ -2,6 +2,7 @@ import { useState } from "react";
 import { loginUser } from "../auth/useLogin";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import InstallButtons from "../components/InstallButtons";
 
 export default function LoginPage() {
   const [mobileOrId, setMobileOrId] = useState("");
@@ -30,6 +31,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+  <div className=" p-6  w-full max-w-sm">
+    
+    {/* Install Button - Login के ऊपर */}
+    <div className="mb-4 flex justify-center mb-10 sm:hidden">
+      <InstallButtons />
+    </div>
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-lg p-6 rounded-xl w-full max-w-sm"
@@ -93,7 +100,9 @@ export default function LoginPage() {
             "Login"
           )}
         </button>
+       
       </form>
+    </div>
     </div>
   );
 }

@@ -32,6 +32,7 @@ import CRMOrderListPage from "./pages/CRM/CRMOrderListPage";
 import UserSchemesPage from "./pages/UserSchemesPage";
 import CRMVerifiedHistoryPage from "./pages/CRM/CRMVerifiedHistoryPage";
 import CRMVerifiedDetailsPage from "./pages/CRM/CRMVerifiedDetailsPage";
+import InactiveProductsPage from "./pages/InactiveProductsPage";
 
 
 
@@ -56,8 +57,9 @@ export default function App() {
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
 
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
+            <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
 
-z
+
             <Route path="/ad" element={<CRMOrderDetailPage />} />
             <Route path="/users-all" element={<ProtectedRoute allowedRoles={['ADMIN']}><UserHierarchy /></ProtectedRoute>} />
             <Route path="/admin/crm" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminCRMPage /></ProtectedRoute>} />
