@@ -11,6 +11,11 @@ export const useVerifiedOrders = ({ page, pageSize, status, q, start_date, end_d
       const { data } = await API.get("/crm/verified/", { params });
       return data;
     },
-    keepPreviousData: true,
+    keepPreviousData: true,   // 🔹 नया data आने तक पुराना दिखाओ
+    staleTime: 0,             // 🔹 हर बार mount पर fresh मानो
+    refetchOnMount: true,     // 🔹 हर बार component mount होने पर backend से लाओ
+    refetchOnWindowFocus: false, // (optional) window focus पर auto refresh ना हो
+
+   
   });
 };

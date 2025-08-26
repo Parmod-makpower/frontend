@@ -53,9 +53,8 @@ function Root() {
     const preloadData = async () => {
       if (user) {
         const cachedSchemes = queryClient.getQueryData(["schemes"]);
-
-       if (user.role === "SS") {
         const cachedProducts = queryClient.getQueryData(["all-products"]);
+
         if (!cachedProducts) {
           await queryClient.fetchQuery({
             queryKey: ["all-products"],
@@ -63,7 +62,6 @@ function Root() {
             staleTime: 0,
           });
         }
-      }
 
         if (!cachedSchemes) {
           await queryClient.fetchQuery({

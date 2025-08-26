@@ -253,14 +253,14 @@ export default function DashboardLayout() {
 
                     </div>
                   ))}
-                  {searchResults.length > 6 && (
+                  {/* {searchResults.length > 6 && (
                     <div
                       className="p-2 text-blue-600 text-center text-sm cursor-pointer hover:bg-gray-50"
                       onClick={() => navigate(`/search?query=${searchTerm}`)}
                     >
                       View all results
                     </div>
-                  )}
+                  )} */}
                 </>
               )}
             </div>
