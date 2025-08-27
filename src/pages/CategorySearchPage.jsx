@@ -112,7 +112,7 @@ export default function CategoryProductListPage() {
             No matching products found.
           </p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
             {paginatedProducts.map((prod) => {
               const prodId = prod.id ?? prod.product_id;
               const isInCart = selectedProducts.some((p) => p.id === prodId);

@@ -138,11 +138,11 @@ const keywords = [
 
 // Images
 const images = [
-  "https://makpowerindia.com/cdn/shop/files/Makpower_45W_PD_Charger.webp?v=1746862914",
-  "https://makpowerindia.com/cdn/shop/files/Best_Wireless_Earbuds_Crystal-Clear_Sound_Deep_Bass_amp_Long_Battery_Life.webp?v=1739610452",
+  "https://makpowerindia.com/cdn/shop/files/Mak_Power_DJ_MINI_60W_Bluetooth_Floor_Standing_Speaker.webp?v=1753438499",
+  "https://makpowerindia.com/cdn/shop/files/Makpower_45W_Type-C_USB_Cable.webp?v=1744276422",
   "https://makpowerindia.com/cdn/shop/files/Best_Fast_Dual_USB_Car_Charger_Black.webp?v=1742636246",
+  "https://makpowerindia.com/cdn/shop/files/Mak_Power_Arctic_Tones_Neckband_Blue_with_100_Hours_of_Playtime.webp?v=1751536772",
   "https://makpowerindia.com/cdn/shop/files/10000mAh_power_bank_with_digital_display.webp?v=1753350124",
-  "https://makpowerindia.com/cdn/shop/files/irii2fisadlfkmal0hpn.webp?v=1753181679",
   "https://makpowerindia.com/cdn/shop/files/Makpower_amazon_Marketplace.webp?v=1731835198",
   "https://makpowerindia.com/cdn/shop/files/Makpower_45W_PD_Charger.webp?v=1746862914",
   "https://makpowerindia.com/cdn/shop/files/Best_Fast_Dual_USB_Car_Charger_Black.webp?v=1742636246",

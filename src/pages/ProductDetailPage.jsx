@@ -121,44 +121,54 @@ export default function ProductDetailPage() {
 
           {/* Add to Cart Section */}
           {user?.role === "SS" && (
-            <div className="mt-2">
-              {isInCart ? (
-                <div className="flex items-center gap-3 mt-3">
-                  <button
-                    onClick={handleDecrease}
-                    className="p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition"
-                  >
-                    <FaMinus />
-                  </button>
-                  <input
-                    type="number"
-                    value={quantity === "" ? "" : Number(quantity)}
-                    onChange={handleManualInput}
-                    onBlur={() => {
-                      if (quantity === "" || isNaN(quantity) || quantity < 1) {
-                        setQuantity(1);
-                        updateQuantity(product.id, 1);
-                      }
-                    }}
-                    className="w-16 text-center border rounded-md py-2 text-base"
-                    min={1}
-                  />
-                  <button
-                    onClick={handleIncrease}
-                    className="p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition"
-                  >
-                    <FaPlus />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={handleAddToCart}
-                  className="w-full md:w-auto px-6 py-3 mt-2 flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow"
-                >
-                  <FaShoppingCart /> Add to Cart
-                </button>
-              )}
-            </div>
+          <div className="mt-2">
+  {isInCart ? (
+    <div className="flex items-center justify-center gap-3 mt-3">
+      <button
+        onClick={handleDecrease}
+        className="p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition"
+      >
+        <FaMinus />
+      </button>
+      <input
+        type="number"
+        value={quantity === "" ? "" : Number(quantity)}
+        onChange={handleManualInput}
+        onBlur={() => {
+          if (quantity === "" || isNaN(quantity) || quantity < 1) {
+            setQuantity(1);
+            updateQuantity(product.id, 1);
+          }
+        }}
+        className="w-16 text-center border rounded-md py-2 text-base"
+        min={1}
+      />
+      <button
+        onClick={handleIncrease}
+        className="p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition"
+      >
+        <FaPlus />
+      </button>
+    </div>
+  ) : (
+    <div className="flex justify-center">
+      <button
+        onClick={handleAddToCart}
+       className="w-full mt-2 flex items-center justify-center gap-2 
+             bg-gradient-to-r from-orange-500 via-red-500 to-pink-600
+             hover:from-pink-600 hover:via-red-500 hover:to-orange-500
+             text-white text-[11px] md:text-sm font-semibold 
+             py-2 md:py-3 rounded-xl shadow-lg 
+             transition-all duration-500 ease-in-out 
+             transform hover:scale-105 hover:shadow-2xl"
+>
+  <FaShoppingCart className="text-sm md:text-base animate-bounce" />
+  Add to Cart
+      </button>
+    </div>
+  )}
+</div>
+
           )}
 
           {/* Schemes Section */}

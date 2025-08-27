@@ -80,7 +80,7 @@ export default function ProductCard({
           src={
             prod?.image
               ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
-              : "https://makpowerindia.com/cdn/shop/files/10000mAh_power_bank_with_digital_display.webp?v=1753350124"
+              : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIFcuUSKmRmixJj0-A71Di3ql9H1_CFTA54A&s"
           }
           alt={prod.product_name}
           className="w-full md:h-full object-cover transform group-hover:scale-105 transition duration-300"
@@ -111,7 +111,7 @@ export default function ProductCard({
           )}
         </div>
 
-        <p className="text-[#2563eb] font-semibold text-sm mt-1">
+        <p className=" font-semibold text-sm mt-1">
           ₹{prod.price || 0}
         </p>
 
@@ -151,15 +151,23 @@ export default function ProductCard({
                 </button>
               </div>
             ) : (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAddToCart();
-                }}
-                className="w-full mt-2 flex items-center justify-center gap-1 bg-[#2563eb] hover:bg-blue-700 text-white text-[10px] md:text-xs font-semibold py-1 md:py-2 rounded-lg transition-all duration-300 hover:scale-105 shadow"
-              >
-                <FaShoppingCart /> Add
-              </button>
+             <button
+  onClick={(e) => {
+    e.stopPropagation();
+    handleAddToCart();
+  }}
+  className="w-full mt-2 flex items-center justify-center gap-2 
+             bg-gradient-to-r from-orange-500 via-red-500 to-pink-600
+             hover:from-pink-600 hover:via-red-500 hover:to-orange-500
+             text-white text-[11px] md:text-sm font-semibold 
+             py-2 md:py-3 rounded-xl shadow-lg 
+             transition-all duration-500 ease-in-out 
+             transform hover:scale-105 hover:shadow-2xl"
+>
+  <FaShoppingCart className="text-sm md:text-base animate-bounce" />
+  Add to Cart
+</button>
+
             ))}
         </div>
       </div>

@@ -72,7 +72,7 @@ export default function HomePage() {
       </div>
 
       {/* 📂 Categories */}
-      <div className="overflow-x-auto no-scrollbar flex gap-4 mb-6 px-1 sm:flex-wrap sm:justify-center">
+      <div className="overflow-x-auto no-scrollbar flex gap-2 mb-6 px-1 sm:flex-wrap sm:justify-center">
         {categories.slice(0, isMobile ? 5 : 8).map((cat) => (
           <div
             key={cat.label}
@@ -81,11 +81,11 @@ export default function HomePage() {
             }
             className="flex-shrink-0 flex flex-col items-center cursor-pointer w-20 md:w-28 lg:w-32 group"
           >
-            <div className="overflow-hidden rounded-lg shadow transition-all duration-300 group-hover:shadow-lg">
+            <div className="overflow-hidden rounded-full shadow transition-all duration-300 group-hover:shadow-lg">
               <img
                 src={cat.image}
                 alt={cat.label}
-                className="w-16 h-16 md:w-24 md:h-24 lg:w-25 lg:h-25 object-cover transform group-hover:scale-150 transition duration-300"
+                className="w-16 h-16 md:w-24 md:h-24 lg:w-25 lg:h-25 object-cover transform group-hover:scale-150 transition duration-300 rounded-full"
               />
             </div>
             <span className="mt-1 text-[12px] md:text-sm lg:text-base text-center text-gray-700 font-medium group-hover:text-[var(--primary-color)] transition">
