@@ -46,7 +46,7 @@ export default function ProductSearchSelect({ value, onChange }) {
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
       />
       {showDropdown && results.length > 0 && (
-        <ul className="absolute z-20 bg-white border w-full max-h-48 overflow-auto rounded shadow text-sm">
+        <ul className="absolute z-20 bg-white border w-full max-h-48 overflow-auto rounded shadow text-smz">
           {results.map((product) => (
             <li
               key={product.product_id}

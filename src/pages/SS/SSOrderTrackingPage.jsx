@@ -83,7 +83,7 @@ export default function SSOrderTrackingPage() {
     );
 
   return (
-    <div className="p-4 max-w-5xl mx-auto space-y-6 text-xs sm:text-sm">
+    <div className="p-4 max-w-5xl mx-auto space-y-6 text-xs sm:text-sm pb-20">
       {/* Order Header */}
       <div className="bg-white p-4 rounded-lg shadow-md border border-gray-100">
         <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2 mb-1">
@@ -95,7 +95,7 @@ export default function SSOrderTrackingPage() {
       </div>
 
       {/* Progress Bar */}
-      <div className=" ">
+      {/* <div className=" ">
         <div className="flex justify-between mb-2 text-[10px] sm:text-xs font-medium text-gray-600">
           {steps.map((step) => (
             <div key={step} className="flex-1 text-center capitalize">
@@ -118,7 +118,7 @@ export default function SSOrderTrackingPage() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Items Table */}
       <div className="bg-white p-4 rounded-lg shadow-md border border-gray-100">
@@ -186,7 +186,7 @@ export default function SSOrderTrackingPage() {
                     <tr>
                       <th className="border px-2 py-1 text-left">Product</th>
                       <th className="border px-2 py-1 text-center">Quantity</th>
-                      <th className="border px-2 py-1 text-center">Scheme</th>
+                      
                     </tr>
                   </thead>
                   <tbody>
@@ -196,13 +196,7 @@ export default function SSOrderTrackingPage() {
                         <td className="border px-2 py-1 text-center">
                           {it.quantity}
                         </td>
-                        <td className="border px-2 py-1 text-center">
-                          {it.is_scheme_item ? (
-                            <span className="text-green-600 font-medium">Yes</span>
-                          ) : (
-                            "No"
-                          )}
-                        </td>
+                       
                       </tr>
                     ))}
                   </tbody>

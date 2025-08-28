@@ -1,10 +1,8 @@
-// useSSOrderHistory.js
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import API from "../api/axios";
 
 const fetchSSOrderHistory = async () => {
-  const res = await API.get(`/ss-orders/history/?limit=20`); 
-  // 🔹 backend में अगर limit param नहीं है तो slice कर देंगे
+  const res = await API.get(`/ss-orders/history/?limit=20`);
   return res.data;
 };
 
@@ -13,15 +11,14 @@ export const useSSOrderHistory = () => {
     queryKey: ["ssOrderHistory"],
     queryFn: fetchSSOrderHistory,
     select: (data) => {
-      // 🔹 सिर्फ 20 orders रखें
       return {
         ...data,
         results: data?.results?.slice(0, 20) || [],
       };
     },
-    staleTime: 0, // हर बार fresh
-    keepPreviousData: true,
-    
+    // 🔹 पुराना data दिखाते रहो जब तक नया नहीं आता
+    placeholderData: keepPreviousData,
+    refetchOnMount: true,  // mount होते ही refetch होगा
+    refetchOnWindowFocus: false, // window focus पे बार-बार call avoid करने के लिए
   });
 };
-

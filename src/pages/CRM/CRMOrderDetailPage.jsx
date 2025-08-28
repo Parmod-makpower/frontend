@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { verifyCRMOrder } from "../../hooks/useCRMOrders";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 import ProductSearchSelect from "../../components/ProductSearchSelect";
-import { Loader2 } from "lucide-react"; // spinner icon
+import { Loader2, Plus, Trash2 } from "lucide-react";
+import { FaGift } from "react-icons/fa";
 
 export default function CRMOrderDetailPage() {
   const { orderId } = useParams();
@@ -12,14 +13,17 @@ export default function CRMOrderDetailPage() {
 
   const passedOrder = location.state?.order;
   const [order, setOrder] = useState(passedOrder || null);
-  const [editedItems, setEditedItems] = useState(passedOrder?.items || []);
+
+  const [editedItems, setEditedItems] = useState(
+    (passedOrder?.items || []).map((item) => ({
+      ...item,
+      original_quantity: item.quantity,
+    }))
+  );
   const [notes, setNotes] = useState(passedOrder?.notes || "");
   const { data: allProducts = [] } = useCachedProducts();
-
-  const [newProductId, setNewProductId] = useState(null);
-  const [newProductQty, setNewProductQty] = useState(1);
-
-  const [loading, setLoading] = useState(false); // for button + spinner
+  const [loading, setLoading] = useState(false);
+  const [newRow, setNewRow] = useState(null);
 
   useEffect(() => {
     if (!passedOrder) {
@@ -39,28 +43,33 @@ export default function CRMOrderDetailPage() {
     setEditedItems((prev) => prev.filter((item) => item.product !== productId));
   };
 
-  const handleAddItem = () => {
-    if (!newProductId || newProductQty <= 0) return;
-    const existing = editedItems.find((item) => item.product === newProductId);
+  const handleAddRow = () => {
+    setNewRow({ product: null, quantity: 1 });
+  };
+
+  const handleSaveNewRow = () => {
+    if (!newRow?.product || newRow.quantity <= 0) return;
+
+    const existing = editedItems.find((i) => i.product === newRow.product);
     if (existing) {
       alert("Product already in the list.");
       return;
     }
-    const productData = allProducts.find(
-      (p) => p.product_id === newProductId
-    );
+
+    const productData = allProducts.find((p) => p.product_id === newRow.product);
     if (!productData) return;
+
     setEditedItems((prev) => [
       ...prev,
       {
         product: productData.product_id,
         product_name: productData.product_name,
-        quantity: newProductQty,
+        quantity: newRow.quantity,
+        original_quantity: newRow.quantity,
         price: productData.price,
       },
     ]);
-    setNewProductId(null);
-    setNewProductQty(1);
+    setNewRow(null);
   };
 
   const handleVerify = async (status) => {
@@ -105,34 +114,37 @@ export default function CRMOrderDetailPage() {
     );
 
   return (
-    <div className="p-4 max-w-5xl mx-auto pb-20">
-      {/* Order Header */}
+    <div className="p-4 max-w-6xl mx-auto">
+      {/* Header */}
       <div className="mb-6 border-b pb-3">
-        <h2 className="text-2xl font-bold text-gray-800">{order.order_id}</h2>
+        <h2 className="text-2xl font-bold">{order.order_id}</h2>
         <p className="text-gray-600">{order.ss_party_name}</p>
       </div>
 
-     
-
-      {/* Items Table */}
-      <div className="overflow-x-auto mb-6 bg-white shadow rounded-2xl">
-        <table className="w-full table-auto border-collapse">
-          <thead className="bg-gray-100">
+      {/* Table */}
+      <div className="overflow-x-auto bg-white shadow rounded-2xl">
+        <table className="w-full border border-gray-200 text-sm text-left">
+          <thead className="bg-gray-100 text-gray-700 uppercase">
             <tr>
-              <th className="p-3 text-left font-semibold">Product</th>
-              <th className="p-3 text-left font-semibold">Quantity</th>
-              <th className="p-3 text-left font-semibold">Price</th>
-              <th className="p-3 text-left font-semibold">Actions</th>
+              <th className="px-4 py-3  border border-gray-300">Product</th>
+              <th className="px-4 py-3 text-center border border-gray-300">SS Order</th>
+              <th className="px-4 py-3 text-center border border-gray-300">Verify</th>
+              <th className="px-4 py-3 text-center border border-gray-300">Price</th>
+              <th className="px-4 py-3 text-center border border-gray-300">Actions</th>
             </tr>
           </thead>
           <tbody>
             {editedItems.map((item) => (
-              <tr
-                key={item.product}
-                className="border-t hover:bg-gray-50 transition"
-              >
-                <td className="p-3">{item.product_name}</td>
-                <td className="p-3">
+              <tr key={item.product} className="hover:bg-gray-50">
+                <td className="px-4 py-2 border border-gray-200 ">
+                  <div className="flex">{item.product_name} 
+                    {item.is_scheme_item ? (
+                      <FaGift className=" mx-2 text-orange-500"/>
+                      
+                    ) : ( "")}</div>
+                  </td>
+                <td className="px-4 py-2 border border-gray-200 text-center">{item.original_quantity}</td>
+                <td className="px-4 py-2 border border-gray-200 text-center">
                   <input
                     type="number"
                     min="1"
@@ -143,60 +155,79 @@ export default function CRMOrderDetailPage() {
                     className="border rounded-lg p-1 w-20 text-center"
                   />
                 </td>
-                <td className="p-3 font-medium">₹{item.price}</td>
-                <td className="p-3">
+                <td className="px-4 py-2 border border-gray-200 font-medium text-center">{item.price}</td>
+                <td className="px-4 py-2 border border-gray-200 text-center">
                   <button
                     onClick={() => handleDeleteItem(item.product)}
-                    className="text-red-600 hover:text-red-800 transition"
+                    className="text-red-600 hover:text-red-800"
                   >
-                    Delete
+                    <Trash2 size={18} />
                   </button>
                 </td>
               </tr>
             ))}
-            {editedItems.length === 0 && (
-              <tr>
-                <td
-                  colSpan="4"
-                  className="text-center p-6 text-gray-500 italic"
-                >
-                  No items added.
+
+            {/* New Row */}
+            {newRow && (
+              <tr className="bg-gray-100">
+                <td className="px-4 py-2 border border-gray-200">
+                  <ProductSearchSelect
+                    value={newRow.product}
+                    onChange={(id) =>
+                      setNewRow((prev) => ({ ...prev, product: id }))
+                    }
+                  />
+                </td>
+                <td className="px-4 py-2 border border-gray-200 text-center">—</td>
+                <td className="px-4 py-2 border border-gray-200 text-center">
+                  <input
+                    type="number"
+                    min="1"
+                    value={newRow.quantity}
+                    onChange={(e) =>
+                      setNewRow((prev) => ({
+                        ...prev,
+                        quantity: +e.target.value,
+                      }))
+                    }
+                    className="border rounded-lg p-1 w-20 text-center"
+                  />
+                </td>
+                <td className="px-4 py-2 border border-gray-200 text-center text-gray-400 italic">—</td>
+                <td className="px-4 py-2 border border-gray-200 text-center">
+                  <button
+                    onClick={handleSaveNewRow}
+                    className="text-green-600 hover:text-green-800 mr-2"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setNewRow(null)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </td>
               </tr>
             )}
+
+            {/* Add Row */}
+            <tr>
+              <td colSpan="5" className="text-center p-4">
+                <button
+                  onClick={handleAddRow}
+                  className="flex items-center justify-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  <Plus size={18} /> Add Row
+                </button>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
- {/* Add New Item */}
-      <div className="mb-6  rounded-2xl p-4">
-        <h3 className="text-lg font-semibold mb-3 text-gray-800">
-        Add New Item
-        </h3>
-        <div className="flex flex-col md:flex-row items-center gap-3">
-          <div className="w-full md:w-1/2">
-            <ProductSearchSelect
-              value={newProductId}
-              onChange={(id) => setNewProductId(id)}
-            />
-          </div>
-          <input
-            type="number"
-            min="1"
-            value={newProductQty}
-            onChange={(e) => setNewProductQty(+e.target.value)}
-            className="border rounded-lg p-2 w-full md:w-28 focus:ring focus:ring-blue-200"
-          />
-          <button
-            onClick={handleAddItem}
-            className="bg-blue-600 hover:bg-blue-700 transition text-white px-5 py-2 rounded-lg shadow-md w-full md:w-auto"
-          >
-            Add
-          </button>
-        </div>
-      </div>
 
       {/* Notes */}
-      <div className="mb-6">
+      <div className="mt-6">
         <label className="block font-semibold mb-1">Notes</label>
         <textarea
           className="border rounded-lg p-3 w-full focus:ring focus:ring-blue-200"
@@ -208,7 +239,7 @@ export default function CRMOrderDetailPage() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="mt-6 flex flex-col sm:flex-row gap-4">
         <button
           onClick={() => handleVerify("APPROVED")}
           disabled={loading}
