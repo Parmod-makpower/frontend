@@ -22,7 +22,6 @@ export default function CRMOrderDetailPage() {
   );
   const [notes, setNotes] = useState(passedOrder?.notes || "");
   const { data: allProducts = [] } = useCachedProducts();
-  const [loading, setLoading] = useState(false);
   const [newRow, setNewRow] = useState(null);
 
   useEffect(() => {
@@ -31,13 +30,16 @@ export default function CRMOrderDetailPage() {
     }
   }, [passedOrder, navigate]);
 
-  const handleEditQuantity = (productId, qty) => {
+  const handleEditQuantity = (productId, value) => {
     setEditedItems((prev) =>
       prev.map((item) =>
-        item.product === productId ? { ...item, quantity: qty } : item
+        item.product === productId
+          ? { ...item, quantity: value === "" ? "" : Number(value) }
+          : item
       )
     );
   };
+
 
   const handleDeleteItem = (productId) => {
     setEditedItems((prev) => prev.filter((item) => item.product !== productId));
@@ -65,15 +67,23 @@ export default function CRMOrderDetailPage() {
         product: productData.product_id,
         product_name: productData.product_name,
         quantity: newRow.quantity,
-        original_quantity: newRow.quantity,
+        original_quantity: "Added",
         price: productData.price,
       },
     ]);
     setNewRow(null);
   };
 
+  const [loadingApprove, setLoadingApprove] = useState(false);
+  const [loadingReject, setLoadingReject] = useState(false);
+
   const handleVerify = async (status) => {
     if (!order) return;
+
+    // जिस button पर click हुआ है, उसी का loading true करो
+    if (status === "APPROVED") setLoadingApprove(true);
+    if (status === "REJECTED") setLoadingReject(true);
+
     const payload = {
       status,
       notes,
@@ -81,20 +91,20 @@ export default function CRMOrderDetailPage() {
         status === "REJECTED"
           ? 0
           : editedItems.reduce(
-              (sum, item) => sum + (item.price || 0) * item.quantity,
-              0
-            ),
+            (sum, item) => sum + (item.price || 0) * item.quantity,
+            0
+          ),
       items:
         status === "REJECTED"
           ? []
           : editedItems.map((item) => ({
-              product: item.product,
-              quantity: item.quantity,
-              price: item.price || 0,
-            })),
+            product: item.product,
+            quantity: item.quantity,
+            price: item.price || 0,
+          })),
     };
+
     try {
-      setLoading(true);
       await verifyCRMOrder(order.id, payload);
       alert(`Order ${status.toLowerCase()} successfully`);
       navigate("/crm/orders");
@@ -102,9 +112,11 @@ export default function CRMOrderDetailPage() {
       console.error("❌ Error verifying order:", error);
       alert("Failed to verify order");
     } finally {
-      setLoading(false);
+      setLoadingApprove(false);
+      setLoadingReject(false);
     }
   };
+
 
   if (!order)
     return (
@@ -114,11 +126,11 @@ export default function CRMOrderDetailPage() {
     );
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
+    <div className="p-4  mx-auto sm:border rounded">
       {/* Header */}
       <div className="mb-6 border-b pb-3">
-        <h2 className="text-2xl font-bold">{order.order_id}</h2>
-        <p className="text-gray-600">{order.ss_party_name}</p>
+        <h2 className="text-sm font-bold">{order.order_id}</h2>
+        <p className="text-gray-600 ">{order.ss_party_name}</p>
       </div>
 
       {/* Table */}
@@ -137,29 +149,28 @@ export default function CRMOrderDetailPage() {
             {editedItems.map((item) => (
               <tr key={item.product} className="hover:bg-gray-50">
                 <td className="px-4 py-2 border border-gray-200 ">
-                  <div className="flex">{item.product_name} 
+                  <div className="flex">{item.product_name}
                     {item.is_scheme_item ? (
-                      <FaGift className=" mx-2 text-orange-500"/>
-                      
-                    ) : ( "")}</div>
-                  </td>
+                      <FaGift className=" mx-2 text-orange-500" />
+
+                    ) : ("")}</div>
+                </td>
                 <td className="px-4 py-2 border border-gray-200 text-center">{item.original_quantity}</td>
                 <td className="px-4 py-2 border border-gray-200 text-center">
                   <input
-                    type="number"
-                    min="1"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      handleEditQuantity(item.product, +e.target.value)
-                    }
+                    type="text"
+                    inputMode="numeric"
+                    value={item.quantity === 0 ? "" : item.quantity}
+                    onChange={(e) => handleEditQuantity(item.product, e.target.value)}
                     className="border rounded-lg p-1 w-20 text-center"
                   />
+
                 </td>
                 <td className="px-4 py-2 border border-gray-200 font-medium text-center">{item.price}</td>
                 <td className="px-4 py-2 border border-gray-200 text-center">
                   <button
                     onClick={() => handleDeleteItem(item.product)}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 cursor-pointer"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -170,7 +181,7 @@ export default function CRMOrderDetailPage() {
             {/* New Row */}
             {newRow && (
               <tr className="bg-gray-100">
-                <td className="px-4 py-2 border border-gray-200">
+                <td className="px-4 py-2 border border-gray-200 relative overflow-visible z-50">
                   <ProductSearchSelect
                     value={newRow.product}
                     onChange={(id) =>
@@ -197,13 +208,13 @@ export default function CRMOrderDetailPage() {
                 <td className="px-4 py-2 border border-gray-200 text-center">
                   <button
                     onClick={handleSaveNewRow}
-                    className="text-green-600 hover:text-green-800 mr-2"
+                    className="text-green-600 hover:text-green-800 mr-2 cursor-pointer"
                   >
                     Save
                   </button>
                   <button
                     onClick={() => setNewRow(null)}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 cursor-pointer"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -216,9 +227,9 @@ export default function CRMOrderDetailPage() {
               <td colSpan="5" className="text-center p-4">
                 <button
                   onClick={handleAddRow}
-                  className="flex items-center justify-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                  className="flex items-center rounded border p-2 cursor-pointer justify-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
                 >
-                  <Plus size={18} /> Add Row
+                  <Plus size={18} /> Add Item
                 </button>
               </td>
             </tr>
@@ -242,28 +253,28 @@ export default function CRMOrderDetailPage() {
       <div className="mt-6 flex flex-col sm:flex-row gap-4">
         <button
           onClick={() => handleVerify("APPROVED")}
-          disabled={loading}
-          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md transition ${
-            loading
+          disabled={loadingApprove}
+          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md transition ${loadingApprove
               ? "bg-green-400 cursor-not-allowed"
               : "bg-green-500 hover:bg-green-600"
-          }`}
+            }`}
         >
-          {loading && <Loader2 className="animate-spin w-4 h-4" />}
+          {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
           Approve
         </button>
+
         <button
           onClick={() => handleVerify("REJECTED")}
-          disabled={loading}
-          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md transition ${
-            loading
+          disabled={loadingReject}
+          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md transition ${loadingReject
               ? "bg-red-400 cursor-not-allowed"
               : "bg-red-500 hover:bg-red-600"
-          }`}
+            }`}
         >
-          {loading && <Loader2 className="animate-spin w-4 h-4" />}
+          {loadingReject && <Loader2 className="animate-spin w-4 h-4" />}
           Reject
         </button>
+
       </div>
     </div>
   );

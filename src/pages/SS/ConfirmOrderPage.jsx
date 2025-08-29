@@ -5,7 +5,8 @@ import { useSchemes } from "../../hooks/useSchemes";
 import { useAuth } from "../../context/AuthContext";
 import { usePlaceOrder } from "../../hooks/usePlaceOrder";
 import { useNavigate } from "react-router-dom";
-import { FaCheckCircle, FaShoppingCart, FaBoxOpen, FaGift } from "react-icons/fa";
+import { FaCheckCircle, FaShoppingCart, FaBoxOpen, FaBan } from "react-icons/fa";
+import {FaIndianRupeeSign} from "react-icons/fa6"
 import MobilePageHeader from "../../components/MobilePageHeader";
 
 export default function ConfirmOrderPage() {
@@ -16,7 +17,7 @@ export default function ConfirmOrderPage() {
 
   const placeOrderMutation = usePlaceOrder();
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isPlacingOrder, setIsPlacingOrder] = useState(false); // ✅ local state
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const checkSchemeEligibility = (scheme) =>
     scheme.conditions.every((cond) => {
@@ -29,7 +30,7 @@ export default function ConfirmOrderPage() {
   const eligibleSchemes = schemes.filter(checkSchemeEligibility);
 
   const handlePlaceOrder = () => {
-    setIsPlacingOrder(true); // ✅ start animation
+    setIsPlacingOrder(true);
 
     const order = {
       user_id: user?.id,
@@ -37,7 +38,7 @@ export default function ConfirmOrderPage() {
       items: selectedProducts.map((p) => ({
         id: p.id,
         quantity: p.quantity,
-        price: p.price || 0,
+        price: Number(p.price) || 0,
       })),
       eligibleSchemes: eligibleSchemes.map((scheme) => ({
         ...scheme,
@@ -50,19 +51,19 @@ export default function ConfirmOrderPage() {
         })),
       })),
       total: selectedProducts.reduce(
-        (sum, p) => sum + (p.price || 0) * (p.quantity || 1),
+        (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
         0
       ),
     };
 
     placeOrderMutation.mutate(order, {
       onSuccess: (data) => {
-        setIsPlacingOrder(false); // ✅ stop animation
+        setIsPlacingOrder(false);
         setSelectedProducts([]);
         setShowSuccess(data.order.order_id);
       },
       onError: (error) => {
-        setIsPlacingOrder(false); // ✅ stop animation
+        setIsPlacingOrder(false);
         console.error("❌ Order failed:", error);
         alert("Order failed, please try again.");
       },
@@ -70,73 +71,78 @@ export default function ConfirmOrderPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white  px-3 pb-20">
+    <div className="max-w-4xl mx-auto bg-white px-3 pb-20">
       {/* Header */}
-      <MobilePageHeader title="Order Confirmation"/>
-      
+      <MobilePageHeader title="Order Confirmation" />
 
-     {/* Products Table */}
-<div className="my-6 pt-[60px] sm:pt-0">
-  <div className="overflow-auto rounded-lg shadow">
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">No</th>
-          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Product</th>
-          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Quantity</th>
-          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Price</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-100 bg-white">
-        {selectedProducts.map((item, index) => (
-          <tr key={item.id} className="hover:bg-gray-50 transition">
-            <td className="px-4 py-2 text-sm text-gray-700">{index + 1}</td>
-            <td className="px-4 py-2 text-sm text-gray-800">{item.product_name}</td>
-            <td className="px-4 py-2 text-sm text-gray-700">{item.quantity}</td>
-            <td className="px-4 py-2 text-sm text-gray-700">
-              ₹{(item.price || 0) * (item.quantity || 1)}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+      {/* Products Table */}
+      <div className="my-6 pt-[60px] sm:pt-0">
+        <div className="overflow-auto rounded-lg shadow">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">No</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Product</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Quantity</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Price</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 bg-white">
+              {selectedProducts.map((item, index) => (
+                <tr key={item.id} className="hover:bg-gray-50 transition">
+                  <td className="px-4 py-2 text-sm text-gray-700">{index + 1}</td>
+                  <td className="px-4 py-2 text-sm text-gray-800">{item.product_name}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">{item.quantity}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">
+                    {!isNaN(Number(item.price)) ? (
+                      <span className="flex items-center gap-1 text-gray-700">
+                        <FaIndianRupeeSign className="text-gray-400" />
+                        {(Number(item.price) || 0) * (item.quantity || 1)}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-red-500 text-xs">
+                        <FaBan /> Price
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-{/* Eligible Schemes */}
-{eligibleSchemes.length > 0 && (
-  <div className="mb-6">
-   
-
-    <div className="overflow-auto rounded-lg shadow">
-      <table className="min-w-full divide-y divide-green-200">
-        <thead className="bg-pink-100">
-          <tr>
-            <th className="px-4 py-2 text-left text-sm font-semibold ">Schemes</th>
-            <th className="px-4 py-2 text-left text-sm font-semibold ">Rewards</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-green-100 bg-white">
-          {eligibleSchemes.map((scheme) => (
-            <tr key={scheme.id} className="hover:bg-green-50 transition">
-              <td className="px-4 py-2 text-sm text-gray-700">
-                {scheme.conditions
-                  .map((c) => `Buy ${c.min_quantity} ${c.product_name || c.product}`)
-                  .join(", ")}
-              </td>
-              <td className="px-4 py-2 text-sm text-gray-700">
-                {scheme.rewards
-                  .map((r) => `Get ${r.quantity} ${r.product_name || r.product}`)
-                  .join(", ")}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-)}
-
+      {/* Eligible Schemes */}
+      {eligibleSchemes.length > 0 && (
+        <div className="mb-6">
+          <div className="overflow-auto rounded-lg shadow">
+            <table className="min-w-full divide-y divide-green-200">
+              <thead className="bg-pink-100">
+                <tr>
+                  <th className="px-4 py-2 text-left text-sm font-semibold ">Schemes</th>
+                  <th className="px-4 py-2 text-left text-sm font-semibold ">Rewards</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-green-100 bg-white">
+                {eligibleSchemes.map((scheme) => (
+                  <tr key={scheme.id} className="hover:bg-green-50 transition">
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      {scheme.conditions
+                        .map((c) => `Buy ${c.min_quantity} ${c.product_name || c.product}`)
+                        .join(", ")}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      {scheme.rewards
+                        .map((r) => `Get ${r.quantity} ${r.product_name || r.product}`)
+                        .join(", ")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Total */}
       <div className="flex justify-end mb-6">
@@ -144,7 +150,7 @@ export default function ConfirmOrderPage() {
           <p className="text-lg font-semibold">
             Total: ₹
             {selectedProducts.reduce(
-              (sum, p) => sum + (p.price || 0) * (p.quantity || 1),
+              (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
               0
             )}
           </p>
