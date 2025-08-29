@@ -4,7 +4,8 @@ import { verifyCRMOrder } from "../../hooks/useCRMOrders";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 import ProductSearchSelect from "../../components/ProductSearchSelect";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { FaGift } from "react-icons/fa";
+import { FaGift, FaBan } from "react-icons/fa";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 export default function CRMOrderDetailPage() {
   const { orderId } = useParams();
@@ -39,7 +40,6 @@ export default function CRMOrderDetailPage() {
       )
     );
   };
-
 
   const handleDeleteItem = (productId) => {
     setEditedItems((prev) => prev.filter((item) => item.product !== productId));
@@ -80,7 +80,6 @@ export default function CRMOrderDetailPage() {
   const handleVerify = async (status) => {
     if (!order) return;
 
-    // जिस button पर click हुआ है, उसी का loading true करो
     if (status === "APPROVED") setLoadingApprove(true);
     if (status === "REJECTED") setLoadingReject(true);
 
@@ -91,17 +90,17 @@ export default function CRMOrderDetailPage() {
         status === "REJECTED"
           ? 0
           : editedItems.reduce(
-            (sum, item) => sum + (item.price || 0) * item.quantity,
-            0
-          ),
+              (sum, item) => sum + (isNaN(item.price) ? 0 : item.price) * item.quantity,
+              0
+            ),
       items:
         status === "REJECTED"
           ? []
           : editedItems.map((item) => ({
-            product: item.product,
-            quantity: item.quantity,
-            price: item.price || 0,
-          })),
+              product: item.product,
+              quantity: item.quantity,
+              price: isNaN(item.price) ? 0 : item.price,
+            })),
     };
 
     try {
@@ -117,7 +116,6 @@ export default function CRMOrderDetailPage() {
     }
   };
 
-
   if (!order)
     return (
       <div className="flex justify-center items-center h-64">
@@ -126,11 +124,11 @@ export default function CRMOrderDetailPage() {
     );
 
   return (
-    <div className="p-4  mx-auto sm:border rounded">
+    <div className="p-4 mx-auto sm:border rounded">
       {/* Header */}
       <div className="mb-6 border-b pb-3">
         <h2 className="text-sm font-bold">{order.order_id}</h2>
-        <p className="text-gray-600 ">{order.ss_party_name}</p>
+        <p className="text-gray-600">{order.ss_party_name}</p>
       </div>
 
       {/* Table */}
@@ -138,7 +136,7 @@ export default function CRMOrderDetailPage() {
         <table className="w-full border border-gray-200 text-sm text-left">
           <thead className="bg-gray-100 text-gray-700 uppercase">
             <tr>
-              <th className="px-4 py-3  border border-gray-300">Product</th>
+              <th className="px-4 py-3 border border-gray-300">Product</th>
               <th className="px-4 py-3 text-center border border-gray-300">SS Order</th>
               <th className="px-4 py-3 text-center border border-gray-300">Verify</th>
               <th className="px-4 py-3 text-center border border-gray-300">Price</th>
@@ -148,14 +146,19 @@ export default function CRMOrderDetailPage() {
           <tbody>
             {editedItems.map((item) => (
               <tr key={item.product} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border border-gray-200 ">
-                  <div className="flex">{item.product_name}
+                <td className="px-4 py-2 border border-gray-200">
+                  <div className="flex">
+                    {item.product_name}
                     {item.is_scheme_item ? (
-                      <FaGift className=" mx-2 text-orange-500" />
-
-                    ) : ("")}</div>
+                      <FaGift className="mx-2 text-orange-500" />
+                    ) : (
+                      ""
+                    )}
+                  </div>
                 </td>
-                <td className="px-4 py-2 border border-gray-200 text-center">{item.original_quantity}</td>
+                <td className="px-4 py-2 border border-gray-200 text-center">
+                  {item.original_quantity}
+                </td>
                 <td className="px-4 py-2 border border-gray-200 text-center">
                   <input
                     type="text"
@@ -164,9 +167,18 @@ export default function CRMOrderDetailPage() {
                     onChange={(e) => handleEditQuantity(item.product, e.target.value)}
                     className="border rounded-lg p-1 w-20 text-center"
                   />
-
                 </td>
-                <td className="px-4 py-2 border border-gray-200 font-medium text-center">{item.price}</td>
+                <td className="px-4 py-2 border border-gray-200 font-medium text-center">
+                  {!isNaN(item.price) ? (
+                    <span className="flex items-center justify-center gap-1 text-gray-700">
+                      <FaIndianRupeeSign className="text-gray-400" /> {item.price}
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-1 text-red-500 text-xs">
+                      <FaBan /> Price
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-2 border border-gray-200 text-center">
                   <button
                     onClick={() => handleDeleteItem(item.product)}
@@ -204,20 +216,17 @@ export default function CRMOrderDetailPage() {
                     className="border rounded-lg p-1 w-20 text-center"
                   />
                 </td>
-                <td className="px-4 py-2 border border-gray-200 text-center text-gray-400 italic">—</td>
+                <td className="px-4 py-2 border border-gray-200 text-center text-gray-400 italic">
+                  —
+                </td>
                 <td className="px-4 py-2 border border-gray-200 text-center">
                   <button
                     onClick={handleSaveNewRow}
-                    className="text-green-600 hover:text-green-800 mr-2 cursor-pointer"
+                    className="text-green-600 border px-2 rounded p-1 hover:bg-gray-300 mr-2 cursor-pointer"
                   >
                     Save
                   </button>
-                  <button
-                    onClick={() => setNewRow(null)}
-                    className="text-red-600 hover:text-red-800 cursor-pointer"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                  
                 </td>
               </tr>
             )}
@@ -254,10 +263,11 @@ export default function CRMOrderDetailPage() {
         <button
           onClick={() => handleVerify("APPROVED")}
           disabled={loadingApprove}
-          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md transition ${loadingApprove
+          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md transition ${
+            loadingApprove
               ? "bg-green-400 cursor-not-allowed"
               : "bg-green-500 hover:bg-green-600"
-            }`}
+          }`}
         >
           {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
           Approve
@@ -266,15 +276,15 @@ export default function CRMOrderDetailPage() {
         <button
           onClick={() => handleVerify("REJECTED")}
           disabled={loadingReject}
-          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md transition ${loadingReject
+          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md transition ${
+            loadingReject
               ? "bg-red-400 cursor-not-allowed"
               : "bg-red-500 hover:bg-red-600"
-            }`}
+          }`}
         >
           {loadingReject && <Loader2 className="animate-spin w-4 h-4" />}
           Reject
         </button>
-
       </div>
     </div>
   );

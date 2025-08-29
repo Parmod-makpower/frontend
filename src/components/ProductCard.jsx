@@ -9,6 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { FaBan } from "react-icons/fa6";
+import makpower_image from "../assets/images/makpower_image.jpg"
 
 export default function ProductCard({
   prod,
@@ -81,7 +82,7 @@ export default function ProductCard({
           src={
             prod?.image
               ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
-              : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIFcuUSKmRmixJj0-A71Di3ql9H1_CFTA54A&s"
+              : makpower_image
           }
           alt={prod.product_name}
           className="w-full md:h-full object-cover transform group-hover:scale-105 transition duration-300"

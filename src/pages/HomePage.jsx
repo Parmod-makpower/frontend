@@ -99,7 +99,7 @@ export default function HomePage() {
           onClick={() => navigate("/all-categories")}
           className="flex-shrink-0 flex flex-col items-center cursor-pointer w-20 md:w-28 lg:w-32"
         >
-          <div className="w-16 h-16 md:w-24 md:h-24 lg:w-25 lg:h-25 rounded border flex items-center justify-center text-sm text-gray-500 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+          <div className="w-16 h-16 md:w-24 md:h-24 lg:w-25 lg:h-25 rounded-full border flex items-center justify-center text-sm text-gray-500 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
             View All
           </div>
           <span className="mt-1 text-[10px] md:text-sm text-center text-gray-500 font-medium">

@@ -152,7 +152,7 @@ export default function SearchBarPage() {
           </div>
         </div>
 
-        {user?.role === "SS" && (
+        {user?.role === "koi nahi" && (
           <button
             onClick={() => addProduct(p)}
             className="ml-3 text-blue-600 hover:text-blue-800 pe-4 transition-transform duration-150 hover:scale-110"
