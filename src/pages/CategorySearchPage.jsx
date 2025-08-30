@@ -9,8 +9,6 @@ import MobilePageHeader from "../components/MobilePageHeader";
 import { useAuth } from "../context/AuthContext";
 import ProductCard from "../components/ProductCard";
 
-const ITEMS_PER_PAGE = 15;
-
 export default function CategoryProductListPage() {
   const { user } = useAuth();
   const { categoryKeyword } = useParams();
@@ -20,7 +18,6 @@ export default function CategoryProductListPage() {
   const { selectedProducts, addProduct, updateQuantity } = useSelectedProducts();
 
   const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredByCategory = allProducts.filter((product) =>
     product.sub_category?.toLowerCase().includes(categoryKeyword.toLowerCase())
@@ -32,20 +29,9 @@ export default function CategoryProductListPage() {
   });
 
   const productsToShow = search ? filteredProducts : filteredByCategory;
-  const totalPages = Math.ceil(productsToShow.length / ITEMS_PER_PAGE);
-  const paginatedProducts = productsToShow.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  const goToPage = (page) => {
-    if (page < 1 || page > totalPages) return;
-    setCurrentPage(page);
-  };
 
   useEffect(() => {
     setSearch("");
-    setCurrentPage(1);
   }, [categoryKeyword]);
 
   const hasScheme = (productId) =>
@@ -99,7 +85,6 @@ export default function CategoryProductListPage() {
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
-            setCurrentPage(1);
           }}
           className="border p-2 w-full mb-4 rounded"
         />
@@ -107,17 +92,15 @@ export default function CategoryProductListPage() {
         {/* Product List */}
         {isLoading ? (
           <p>Loading...</p>
-        ) : paginatedProducts.length === 0 ? (
+        ) : productsToShow.length === 0 ? (
           <p className="text-center text-gray-500 py-8">
             No matching products found.
           </p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
-            {paginatedProducts.map((prod) => {
+            {productsToShow.map((prod) => {
               const prodId = prod.id ?? prod.product_id;
-              const isInCart = selectedProducts.some((p) => p.id === prodId);
               const existing = selectedProducts.find((p) => p.id === prodId);
-              const quantity = existing?.quantity || 1;
 
               return (
                 <ProductCard
@@ -132,29 +115,6 @@ export default function CategoryProductListPage() {
                 />
               );
             })}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-2 mt-6">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              ⬅ Prev
-            </button>
-            <span className="text-sm">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Next ➡
-            </button>
           </div>
         )}
       </main>

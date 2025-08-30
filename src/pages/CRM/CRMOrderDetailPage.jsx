@@ -124,7 +124,7 @@ export default function CRMOrderDetailPage() {
     );
 
   return (
-    <div className="p-4 mx-auto sm:border rounded">
+    <div className="p-4 mx-auto sm:border rounded pb-20">
       {/* Header */}
       <div className="mb-6 border-b pb-3">
         <h2 className="text-sm font-bold">{order.order_id}</h2>

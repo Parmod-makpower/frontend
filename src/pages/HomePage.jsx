@@ -72,8 +72,8 @@ export default function HomePage() {
       </div>
 
       {/* 📂 Categories */}
-      <div className="overflow-x-auto no-scrollbar flex gap-2 mb-6 px-1 sm:flex-wrap sm:justify-center">
-        {categories.slice(0, isMobile ? 5 : 8).map((cat) => (
+      <div className="overflow-x-auto no-scrollbar flex gap-2 mb-6 px-1 ">
+        {categories.slice(0, isMobile ? 8 : 10).map((cat) => (
           <div
             key={cat.label}
             onClick={() =>
@@ -85,7 +85,7 @@ export default function HomePage() {
               <img
                 src={cat.image}
                 alt={cat.label}
-                className="w-16 h-16 md:w-24 md:h-24 lg:w-25 lg:h-25 object-cover transform group-hover:scale-150 transition duration-300 rounded-full"
+                className="w-16 h-16 md:w-24 md:h-24 lg:w-22 lg:h-22 object-cover transform group-hover:scale-150 transition duration-300 rounded-full"
               />
             </div>
             <span className="mt-1 text-[12px] md:text-sm lg:text-base text-center text-gray-700 font-medium group-hover:text-[var(--primary-color)] transition">
@@ -99,7 +99,7 @@ export default function HomePage() {
           onClick={() => navigate("/all-categories")}
           className="flex-shrink-0 flex flex-col items-center cursor-pointer w-20 md:w-28 lg:w-32"
         >
-          <div className="w-16 h-16 md:w-24 md:h-24 lg:w-25 lg:h-25 rounded-full border flex items-center justify-center text-sm text-gray-500 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+          <div className="w-16 h-16 md:w-24 md:h-24 lg:w-22 lg:h-22 rounded-full border flex items-center justify-center text-sm text-gray-500 hover:bg-gray-200 transition-all duration-300">
             View All
           </div>
           <span className="mt-1 text-[10px] md:text-sm text-center text-gray-500 font-medium">

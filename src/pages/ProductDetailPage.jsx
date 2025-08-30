@@ -6,6 +6,7 @@ import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
 import { FaGift, FaCheckCircle, FaTimesCircle, FaMinus, FaPlus, FaShoppingCart, FaBan } from "react-icons/fa";
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import makpower_image from "../assets/images/makpower_image.jpg"
 
 
 export default function ProductDetailPage() {
@@ -67,7 +68,7 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto  pb-20">
+    <div className="max-w-6xl mx-auto  pb-20 bg-white">
       {/* Responsive Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left: Product Image */}
@@ -77,10 +78,10 @@ export default function ProductDetailPage() {
             src={
               product?.image
                 ? `https://res.cloudinary.com/djyr368zj/${product.image}`
-                : "https://makpowerindia.com/cdn/shop/files/Makpower_45W_PD_Charger.webp?v=1746862914"
+                : makpower_image
             }
             alt={product.product_name}
-            className="w-full   object-contain transform hover:scale-105 transition duration-300"
+            className="w-full sm:w-100  object-contain transform hover:scale-105 transition duration-300"
           />
           {relatedSchemes.length > 0 && (
             <span className="absolute top-5 right-5 bg-pink-100 p-3 rounded-full shadow">
@@ -109,14 +110,14 @@ export default function ProductDetailPage() {
           <p className="text-[#2563eb] text-[#dc2626] font-semibold ">
             {!isNaN(product.price) ? (
               <span className="flex items-center gap-1 text-black">
-                <FaIndianRupeeSign /> {product.price }
+                <FaIndianRupeeSign /> {product.price}
               </span>
             ) : (
               <span className="flex items-center gap-1">
                 <FaBan /> Price not Available
               </span>
             )}
-            </p>
+          </p>
 
           {/* Product Meta Info */}
           <div className="grid grid-cols-2 gap-6 text-sm md:text-base">

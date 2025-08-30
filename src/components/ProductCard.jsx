@@ -79,14 +79,16 @@ export default function ProductCard({
         onClick={() => navigate(`/product/${prodId}`)}
       >
         <img
-          src={
-            prod?.image
-              ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
-              : makpower_image
-          }
-          alt={prod.product_name}
-          className="w-full md:h-full object-cover transform group-hover:scale-105 transition duration-300"
-        />
+  src={
+    prod?.image
+      ? `https://res.cloudinary.com/djyr368zj/${prod.image}?f_auto,q_auto,w_300`
+      : makpower_image
+  }
+  alt={prod.product_name}
+  loading="lazy"
+  className="w-full md:h-full object-cover transform group-hover:scale-105 transition duration-300"
+/>
+
 
         {hasScheme(prodId) && (
           <span className="absolute top-2 right-2 bg-pink-100 p-1.5 md:p-2 rounded-full shadow">
