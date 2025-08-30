@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import {FaIndianRupeeSign} from "react-icons/fa6"
 import MobilePageHeader from "../components/MobilePageHeader";
+import makpower_image from "../assets/images/makpower_image.jpg"
 
 export default function CartPage() {
   const { selectedProducts, updateQuantity, setSelectedProducts } = useSelectedProducts();
@@ -81,7 +82,7 @@ export default function CartPage() {
                   src={
                     item?.image
                       ? `https://res.cloudinary.com/djyr368zj/${item.image}`
-                      : "https://ovista.in/cdn/shop/files/WhatsApp_Image_2025-01-20_at_6.06.21_PM_1.jpg?v=1737377240"
+                      : makpower_image
                   }
                   alt={item.product_name}
                   className="w-28 h-28 object-contain bg-gray-50 rounded-lg border self-center"

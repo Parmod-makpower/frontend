@@ -71,7 +71,7 @@ export default function ProductCard({
   return (
     <div
       key={prodId}
-      className={`flex-shrink-0 ${cardWidth} md:w-full bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group mb-2`}
+      className={`flex-shrink-0 ${cardWidth} md:w-full bg-white rounded-xl shadow-md  transition-all duration-300 overflow-hidden flex flex-col group mb-2`}
     >
       {/* Image */}
       <div
@@ -79,15 +79,15 @@ export default function ProductCard({
         onClick={() => navigate(`/product/${prodId}`)}
       >
         <img
-  src={
-    prod?.image
-      ? `https://res.cloudinary.com/djyr368zj/${prod.image}?f_auto,q_auto,w_300`
-      : makpower_image
-  }
-  alt={prod.product_name}
-  loading="lazy"
-  className="w-full md:h-full object-cover transform group-hover:scale-105 transition duration-300"
-/>
+          src={
+            prod?.image
+              ? `https://res.cloudinary.com/djyr368zj/${prod.image}?f_auto,q_auto,w_300`
+              : makpower_image
+          }
+          alt={prod.product_name}
+          loading="lazy"
+          className="w-full md:h-full object-cover cursor-pointer transform group-hover:scale-105 transition duration-300"
+        />
 
 
         {hasScheme(prodId) && (
@@ -119,10 +119,10 @@ export default function ProductCard({
           {prod.price !== null && prod.price !== undefined && !isNaN(prod.price)
             ? `₹${prod.price}`
             : (
-                      <span className="flex items-center gap-1 text-red-500 text-xs">
-                        <FaBan /> Price
-                      </span>
-                    )}
+              <span className="flex items-center gap-1 text-red-500 text-xs">
+                <FaBan /> Price
+              </span>
+            )}
         </p>
 
         {/* Cart */}
@@ -172,7 +172,7 @@ export default function ProductCard({
              text-white text-[11px] md:text-sm font-semibold 
              py-2 md:py-3 rounded-xl shadow-lg 
              transition-all duration-500 ease-in-out 
-             transform hover:scale-105 hover:shadow-2xl"
+             transform hover:scale-105 hover:shadow-2xl cursor-pointer"
               >
                 <FaShoppingCart className="text-sm md:text-base animate-bounce" />
                 Add to Cart
