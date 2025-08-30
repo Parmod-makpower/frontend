@@ -17,7 +17,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'eShop App',
+        name: 'Makpower App',
         short_name: 'Makpower',
         description: 'Mera eCommerce PWA App',
         theme_color: '#ffffff',

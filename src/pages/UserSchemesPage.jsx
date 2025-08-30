@@ -6,15 +6,14 @@ import { useAuth } from "../context/AuthContext";
 
 
 import {
-  FaGift,
   FaShoppingCart,
   FaCheckCircle,
   FaTimesCircle,
   FaPlus,
   FaMinus,
+  FaGift,
 } from "react-icons/fa";
-import { MdProductionQuantityLimits } from "react-icons/md";
-
+import makpower_image from "../assets/images/makpower_image.jpg"
 import MobilePageHeader from "../components/MobilePageHeader";
 
 export default function UserSchemesPage() {
@@ -22,31 +21,31 @@ export default function UserSchemesPage() {
   const { data: allProducts = [] } = useCachedProducts();
   const { selectedProducts, addProduct, updateQuantity } = useSelectedProducts();
   const { user } = useAuth();
- 
+
 
   if (isLoading) return <div className="p-4">Loading schemes...</div>;
 
   const getProduct = (id) => allProducts.find((p) => p.product_id === id);
 
   return (
-    <div className="p-1 pb-16">
+    <div className="p-2 pb-20">
       <MobilePageHeader title="Available Schemes" />
 
       <div className="pt-[60px] sm:pt-0">
         {schemes.length === 0 ? (
           <p className="text-gray-500 text-center">No schemes available.</p>
         ) : (
-          <div className="grid gap-1 sm:gap-6 grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-2 sm:gap-6 grid-cols-2 lg:grid-cols-4">
             {schemes.map((scheme) => (
               <div
                 key={scheme.id}
-                className="borde shadow rounded transition bg-pink-200 p-2 sm:p-5 flex flex-col"
+                className="borde shadow rounded transition border bg-white p-0 flex flex-col"
               >
-               
+
 
                 {/* Conditions */}
                 <div className="mt-2 ">
-                 
+
                   <div className="grid gap-2 ">
                     {scheme.conditions.map((c) => {
                       const prod = getProduct(c.product);
@@ -72,7 +71,7 @@ export default function UserSchemesPage() {
                       return (
                         <div
                           key={c.id}
-                          
+
                           className="bg-gray-100 rounded overflow-hidden flex flex-col group cursor-pointer transition"
                         >
                           {/* Product Image */}
@@ -81,18 +80,18 @@ export default function UserSchemesPage() {
                               src={
                                 prod?.image
                                   ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
-                                  : "https://makpowerindia.com/cdn/shop/files/n5vztvamttsxyetzghsd.webp?v=1752562212"
+                                  : makpower_image
                               }
                               alt={prod?.product_name || "Product"}
                               className="w-full h-full object-cover transform group-hover:scale-105 transition duration-300"
                             />
-                            <span className="absolute top-2 left-2 bg-white/80 px-2 py-0.5 rounded text-[10px] font-semibold shadow">
+                            <span className="absolute top-2 left-2 bg-black/70 text-white px-2 py-0.5 rounded text-[10px] font-semibold shadow">
                               Buy {c.min_quantity}
                             </span>
                           </div>
 
                           {/* Content */}
-                          <div className="flex flex-col p-2 flex-1">
+                          <div className="flex flex-col p-2 px-3 flex-1 ">
                             <h3 className="text-xs font-bold truncate">
                               {prod?.product_name || `Product #${c.product}`}
                             </h3>
@@ -150,7 +149,13 @@ export default function UserSchemesPage() {
                                       e.stopPropagation();
                                       handleAddToCart();
                                     }}
-                                    className="w-full mt-2 flex items-center justify-center gap-1 bg-[#2563eb] hover:bg-blue-700 text-white text-[10px] font-semibold py-1 rounded-lg transition-all duration-300 hover:scale-105 shadow"
+                                    className="w-full mt-2 flex items-center justify-center gap-2 
+                                    bg-gradient-to-r from-orange-500 via-red-500 to-pink-600
+                                    hover:from-pink-600 hover:via-red-500 hover:to-orange-500
+                                    text-white text-[11px] md:text-sm font-semibold 
+                                    py-1 md:py-2 rounded-xl shadow-lg 
+                                    transition-all duration-500 ease-in-out 
+                                    transform hover:scale-105 hover:shadow-2xl cursor-pointer"
                                   >
                                     <FaShoppingCart /> Add
                                   </button>
@@ -165,8 +170,8 @@ export default function UserSchemesPage() {
                 </div>
 
                 {/* Rewards */}
-                <div className="mt-5">
-                  
+                <div className="mt-0 ">
+
                   <div className="grid gap-3">
                     {scheme.rewards.map((r) => {
                       const prod = getProduct(r.product);
@@ -175,17 +180,9 @@ export default function UserSchemesPage() {
                           key={r.id}
                           className="flex items-center gap-2 bg-green-50 rounded p-2"
                         >
-                          <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
-                            <img
-                              src={
-                                prod?.image
-                                  ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
-                                  : "https://makpowerindia.com/cdn/shop/files/Makpower_45W_PD_Charger.webp?v=1746862914"
-                              }
-                              alt={prod?.product_name || "Reward"}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
+                          
+                            <FaGift className="text-pink-500"/>
+                          
                           <span className="text-xs">
                             Get <b>{r.quantity}</b> of{" "}
                             {prod?.product_name || `Product #${r.product}`}
