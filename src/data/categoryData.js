@@ -244,12 +244,7 @@ const categories = [
     image:   "https://makpowerindia.com/cdn/shop/files/shcd66vwggvqiypcv7g0.webp?v=1742368147",
     subcategories: []
   },
-  {
-    label: "PROMOTIONAL ITEM",
-    keyword: "PROMOTIONAL ITEM",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIFcuUSKmRmixJj0-A71Di3ql9H1_CFTA54A&s",
-    subcategories: []
-  },
+  
   {
     label: "PENDRIVE",
     keyword: "PENDRIVE",

@@ -176,7 +176,7 @@ export default function ProductCard({
              transform hover:scale-105 hover:shadow-2xl cursor-pointer"
               >
                 <FaShoppingCart className="text-sm md:text-base animate-bounce" />
-                Add to Carts
+                Add to Cart
               </button>
             ))}
         </div>
