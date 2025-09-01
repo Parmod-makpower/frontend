@@ -6,6 +6,7 @@ import InstallButtons from "../components/InstallButtons";
 import { motion } from "framer-motion"; // 👈 animation
 import { FaUser, FaLock } from "react-icons/fa";
 import logo from "../assets/images/logo.png"
+import ResetAppButton from "../components/ResetAppButton";
 
 export default function LoginPage() {
   const [mobileOrId, setMobileOrId] = useState("");
@@ -144,6 +145,7 @@ export default function LoginPage() {
         {/* Install Buttons (mobile only) */}
         <div className="mb-4 flex justify-center sm:hidden">
           <InstallButtons />
+          <ResetAppButton />
         </div>
 
       </div>
