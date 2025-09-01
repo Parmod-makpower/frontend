@@ -150,9 +150,7 @@ export default function ConfirmOrderPage() {
           <p className="text-lg font-semibold">
             Total: ₹
             {selectedProducts.reduce(
-              (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
-              0
-            )}
+              (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),0).toFixed(2)}
           </p>
         </div>
       </div>
