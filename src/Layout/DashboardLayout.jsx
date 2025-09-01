@@ -19,7 +19,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSchemes } from "../hooks/useSchemes";
 import useFuseSearch from "../hooks/useFuseSearch";
-import logo from "../assets/images/logo.avif"
+import logo from "../assets/images/logo.png"
 
 
 

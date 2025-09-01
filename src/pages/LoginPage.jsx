@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import InstallButtons from "../components/InstallButtons";
 import { motion } from "framer-motion"; // 👈 animation
 import { FaUser, FaLock } from "react-icons/fa";
-import logo from "../assets/images/logo.avif"
+import logo from "../assets/images/logo.png"
 
 export default function LoginPage() {
   const [mobileOrId, setMobileOrId] = useState("");
