@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import BottomNav from "./BottomNav";
 import {
-  FaUserCircle, FaSearch,
+  FaUserCircle,FaSearch,
   FaHome,
   FaGift,
   FaUsers,
@@ -19,9 +19,6 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSchemes } from "../hooks/useSchemes";
 import useFuseSearch from "../hooks/useFuseSearch";
-import logo from "../assets/images/logo.png"
-
-
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
@@ -56,19 +53,19 @@ export default function DashboardLayout() {
   const allProducts = allProductsRaw.map(normalizeProduct);
 
   const fuseResults = useFuseSearch(allProducts, searchTerm, {
-    keys: ["sub_category", "sale_names", "product_name"],
+    keys: ["sub_category", "sale_names","product_name"],
     threshold: 0.3,
   });
 
-  const searchResults = useMemo(() => {
+   const searchResults = useMemo(() => {
     return fuseResults.flatMap((product) => {
       const matchedSaleNames =
         product.sale_names?.filter((name) =>
           name.toLowerCase().includes(searchTerm.toLowerCase())
         ) || [];
-
+  
       const results = [];
-
+  
       // अगर sale_name मिले तो उन्हें अलग से जोड़ें
       if (matchedSaleNames.length > 0) {
         matchedSaleNames.forEach((sale_name) => {
@@ -86,11 +83,11 @@ export default function DashboardLayout() {
           _displayName: product.product_name,
         });
       }
-
+  
       return results;
     });
   }, [fuseResults, searchTerm]);
-
+  
 
   // Limit results
   const searchResultsLimited = searchResults.slice(0, 6);
@@ -174,7 +171,7 @@ export default function DashboardLayout() {
         {/* Logo */}
         <h1 className="text-xl md:text-2xl font-bold text-blue-600">
           <img
-            src={logo}
+            src="https://makpowerindia.com/cdn/shop/files/MakPower_Mobile_Accessories_370x.webp?v=1735378281"
             className="w-35"
           />
         </h1>
@@ -189,9 +186,9 @@ export default function DashboardLayout() {
             onFocus={() => setSearchDropdownOpen(true)}
             maxLength={20}
             className="w-full  sm:p-3  rounded-full border text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400" />
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[#fc250c] hover:text-blue-800" >
-            <FaSearch />
-          </button>
+             <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[#fc250c] hover:text-blue-800" >
+                  <FaSearch />
+               </button>
 
 
           {searchDropdownOpen && searchTerm.trim() && (
@@ -206,13 +203,13 @@ export default function DashboardLayout() {
                     <div
                       key={p.id + p._displayName}
                       onClick={() => {
-                        navigate(`/product/${p.id}`);
-                        setSearchDropdownOpen(false);
-                      }}
+                          navigate(`/product/${p.id}`);
+                          setSearchDropdownOpen(false);
+                        }}
                       className="flex items-center justify-between px-3 py-4 hover:bg-gray-100 cursor-pointer"
                     >
                       <div
-
+                        
                         className="flex flex-col text-sm"
                       >
                         <span className="font-medium flex items-center gap-2">
@@ -237,22 +234,22 @@ export default function DashboardLayout() {
                           {p.product_name} — {p.sub_category}
                         </span>
                       </div>
-                      {user?.role === "SS" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            addProduct(p);
-                          }}
-                          className="ml-3 text-blue-600 hover:text-blue-800"
-                          title="Add to cart"
-                        >
-                          {isAdded(p.id) ? (
-                            <FaCheck className="text-green-600 text-sm" />
-                          ) : (
-                            <FaPlus className="text-sm" />
-                          )}
-                        </button>
-                      )}
+                     {user?.role === "SS" && (
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      addProduct(p);
+    }}
+    className="ml-3 text-blue-600 hover:text-blue-800"
+    title="Add to cart"
+  >
+    {isAdded(p.id) ? (
+      <FaCheck className="text-green-600 text-sm" />
+    ) : (
+      <FaPlus className="text-sm" />
+    )}
+  </button>
+)}
 
                     </div>
                   ))}
@@ -284,7 +281,7 @@ export default function DashboardLayout() {
           )}
 
           {/* Logout button directly in header */}
-
+         
 
           {/* Profile Dropdown */}
           <div className="relative" ref={profileRef}>
@@ -301,13 +298,13 @@ export default function DashboardLayout() {
                   ID: {user?.user_id}
                 </div>
                 <div className="px-4 py-2 text-sm text-gray-800 border-b">
-                  <button
-                    onClick={logout}
-                    className="flex items-center gap-1 text-red-600 hover:text-red-800 cursor-pointer"
-                    title="Logout"
-                  >
-                    <FaSignOutAlt /> Logout
-                  </button>
+                   <button
+            onClick={logout}
+            className="flex items-center gap-1 text-red-600 hover:text-red-800 cursor-pointer"
+            title="Logout"
+          >
+            <FaSignOutAlt /> Logout
+          </button>
                 </div>
               </div>
             )}
@@ -322,9 +319,10 @@ export default function DashboardLayout() {
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-2 px-3 py-2 rounded text-sm font-medium ${isActive
-                ? "bg-gray-100 text-[var(--primary-color)]"
-                : "text-gray-600 hover:text-[var(--primary-color)] hover:bg-gray-100"
+              `flex items-center gap-2 px-3 py-2 rounded text-sm font-medium ${
+                isActive
+                  ? "bg-gray-100 text-[var(--primary-color)]"
+                  : "text-gray-600 hover:text-[var(--primary-color)] hover:bg-gray-100"
               }`
             }
           >

@@ -6,7 +6,7 @@ import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
 import { FaGift, FaCheckCircle, FaTimesCircle, FaMinus, FaPlus, FaShoppingCart, FaBan } from "react-icons/fa";
 import { FaIndianRupeeSign } from "react-icons/fa6";
-import makpower_image from "../assets/images/makpower_image.png"
+import makpower_image from "../assets/images/makpower_image.jpg"
 
 
 export default function ProductDetailPage() {
