@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import {FaIndianRupeeSign} from "react-icons/fa6"
 import MobilePageHeader from "../components/MobilePageHeader";
-import makpower_image from "../assets/images/makpower_image.jpg"
+import makpower_image from "../assets/images/makpower_image.png"
 
 export default function CartPage() {
   const { selectedProducts, updateQuantity, setSelectedProducts } = useSelectedProducts();

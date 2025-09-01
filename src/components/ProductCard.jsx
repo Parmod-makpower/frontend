@@ -9,7 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { FaBan } from "react-icons/fa6";
-import makpower_image from "../assets/images/makpower_image.jpg"
+import makpower_image from "../assets/images/makpower_image.png";
 
 export default function ProductCard({
   prod,
@@ -27,10 +27,16 @@ export default function ProductCard({
   const existing = selectedProducts.find((p) => p.id === prodId);
   const quantity = existing?.quantity || 0;
 
-  // 👉 Local input state (string type)
+  // 👉 Local input state
   const [localInputValue, setLocalInputValue] = useState(quantity.toString());
 
-  // Sync local value when global quantity changes
+  // 👉 Image state
+  const [imgSrc, setImgSrc] = useState(
+    prod?.image
+      ? `https://res.cloudinary.com/djyr368zj/${prod.image}?f_auto,q_auto,w_300`
+      : makpower_image
+  );
+
   useEffect(() => {
     setLocalInputValue(quantity.toString());
   }, [quantity]);
@@ -50,7 +56,6 @@ export default function ProductCard({
 
   const handleInputChange = (e) => {
     const val = e.target.value;
-    // Only allow digits
     if (/^\d*$/.test(val)) {
       setLocalInputValue(val);
     }
@@ -64,14 +69,14 @@ export default function ProductCard({
 
   const handleInputKeyDown = (e) => {
     if (e.key === "Enter") {
-      e.target.blur(); // trigger blur manually
+      e.target.blur();
     }
   };
 
   return (
     <div
       key={prodId}
-      className={`flex-shrink-0 ${cardWidth} md:w-full bg-white rounded-xl shadow-md  transition-all duration-300 overflow-hidden flex flex-col group mb-2`}
+      className={`flex-shrink-0 ${cardWidth} md:w-full bg-white rounded-xl shadow-md transition-all duration-300 overflow-hidden flex flex-col group mb-2`}
     >
       {/* Image */}
       <div
@@ -79,16 +84,12 @@ export default function ProductCard({
         onClick={() => navigate(`/product/${prodId}`)}
       >
         <img
-          src={
-            prod?.image
-              ? `https://res.cloudinary.com/djyr368zj/${prod.image}?f_auto,q_auto,w_300`
-              : makpower_image
-          }
+          src={imgSrc}
           alt={prod.product_name}
           loading="lazy"
           className="w-full md:h-full object-cover cursor-pointer transform group-hover:scale-105 transition duration-300"
+          onError={() => setImgSrc(makpower_image)} // fallback on error
         />
-
 
         {hasScheme(prodId) && (
           <span className="absolute top-2 right-2 bg-pink-100 p-1.5 md:p-2 rounded-full shadow">
@@ -116,13 +117,13 @@ export default function ProductCard({
         </div>
 
         <p className="font-semibold text-sm mt-1">
-          {prod.price !== null && prod.price !== undefined && !isNaN(prod.price)
-            ? `₹${prod.price}`
-            : (
-              <span className="flex items-center gap-1 text-red-500 text-xs">
-                <FaBan /> Price
-              </span>
-            )}
+          {prod.price !== null && prod.price !== undefined && !isNaN(prod.price) ? (
+            `₹${prod.price}`
+          ) : (
+            <span className="flex items-center gap-1 text-red-500 text-xs">
+              <FaBan /> Price
+            </span>
+          )}
         </p>
 
         {/* Cart */}
@@ -177,7 +178,6 @@ export default function ProductCard({
                 <FaShoppingCart className="text-sm md:text-base animate-bounce" />
                 Add to Cart
               </button>
-
             ))}
         </div>
       </div>

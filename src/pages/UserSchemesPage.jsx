@@ -13,7 +13,7 @@ import {
   FaMinus,
   FaGift,
 } from "react-icons/fa";
-import makpower_image from "../assets/images/makpower_image.jpg"
+import makpower_image from "../assets/images/makpower_image.png"
 import MobilePageHeader from "../components/MobilePageHeader";
 
 export default function UserSchemesPage() {
