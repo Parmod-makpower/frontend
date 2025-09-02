@@ -291,7 +291,7 @@ const categories = [
   {
     label: "CONNECTOR",
     keyword: "CONNECTOR",
-    image:   "https://5.imimg.com/data5/SELLER/Default/2023/2/QT/TB/TI/64556244/1-500x500.jpg",
+    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1756792215/djiatbatx1avqankvcjl.png",
     subcategories: []
   }
  

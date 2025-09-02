@@ -37,10 +37,10 @@ export default function HomePage() {
 
   // यहाँ आप IDs की लिस्ट रखेंगे
   const trendingIds = [1123, 1582, 1145, 726, 715, 72, 692, 17, 46];
-  const schemeIds = [1,200,92, 686, 878];
+  const schemeIds = [18,28,1129,634,125,60,119];
 
   return (
-    <div className="mx-auto p-4 pb-16">
+    <div className="mx-auto p-4 pb-25">
       {/* 🔝 Top Bar */}
       <div className="md:hidden flex justify-between items-center mb-4">
         <img
