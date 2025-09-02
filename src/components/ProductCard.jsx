@@ -31,11 +31,15 @@ export default function ProductCard({
   const [localInputValue, setLocalInputValue] = useState(quantity.toString());
 
   // 👉 Image state
-  const [imgSrc, setImgSrc] = useState(
-    prod?.image
-      ? `https://res.cloudinary.com/djyr368zj/${prod.image}?f_auto,q_auto,w_300`
-      : makpower_image
-  );
+  const [loaded, setLoaded] = useState(false);
+  const cloudinaryBase = "https://res.cloudinary.com/djyr368zj/";
+  const imgSrc = prod?.image
+    ? `${cloudinaryBase}${prod.image}?f_auto,q_auto,w_300`
+    : makpower_image;
+
+  const lowQualityImg = prod?.image
+    ? `${cloudinaryBase}${prod.image}?w=20&q=10&blur=50`
+    : makpower_image;
 
   useEffect(() => {
     setLocalInputValue(quantity.toString());
@@ -83,12 +87,23 @@ export default function ProductCard({
         className="relative w-full overflow-hidden bg-gray-50"
         onClick={() => navigate(`/product/${prodId}`)}
       >
+        {/* Low quality blurred image (placeholder) */}
+        <img
+          src={lowQualityImg}
+          alt={prod.product_name}
+          className="w-full h-40 md:h-full object-cover blur-lg absolute inset-0"
+        />
+
+        {/* Main image */}
         <img
           src={imgSrc}
           alt={prod.product_name}
           loading="lazy"
-          className="w-full md:h-full object-cover cursor-pointer transform group-hover:scale-105 transition duration-300"
-          onError={() => setImgSrc(makpower_image)} // fallback on error
+          className={`w-full h-40 md:h-full object-cover cursor-pointer transform group-hover:scale-105 transition duration-300 relative ${
+            loaded ? "opacity-100" : "opacity-0"
+          }`}
+          onLoad={() => setLoaded(true)}
+          onError={(e) => (e.target.src = makpower_image)} // fallback
         />
 
         {hasScheme(prodId) && (
