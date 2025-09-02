@@ -5,13 +5,13 @@ const categories = [
     {
     label: "AUDIO",
     keyword: "AUDIO",
-    image: "https://makpowerindia.com/cdn/shop/files/Mak_Power_DJ_MINI_60W_Bluetooth_Floor_Standing_Speaker.webp?v=1753438499",
+    image: "https://makpowerindia.com/cdn/shop/files/Makpower_City_Tower_100W_360_Bluetooth_Tower_Speaker.webp?v=1748414072",
     subcategories: []
   },
     {
     label: "POWER BANK",
     keyword: "POWER BANK",
-    image: "https://makpowerindia.com/cdn/shop/files/20000mAh_power_bank_with_digital_display_1880x.webp?v=1753184413",
+    image: "https://makpowerindia.com/cdn/shop/files/10000mAh_power_bank_with_digital_display.webp?v=1753350124",
     subcategories: []
   },
    
@@ -104,7 +104,7 @@ const categories = [
   {
     label: "BATTERY",
     keyword: "BATTERY",
-    image:   "https://cdn.dotpe.in/longtail/store-items/8957493/tVaKLcpO.webp",
+    image:   "https://i.pinimg.com/736x/c2/93/f2/c293f243ed7b622065d850f02152ff7a.jpg",
     subcategories: [
       {
         label: "COPY BATTERY",
