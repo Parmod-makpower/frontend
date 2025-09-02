@@ -8,7 +8,6 @@ import {
   FaTrashAlt,
   FaBan,   // ❗ नया icon for "Not Available"
 } from "react-icons/fa";
-import {FaIndianRupeeSign} from "react-icons/fa6"
 import MobilePageHeader from "../components/MobilePageHeader";
 import makpower_image from "../assets/images/makpower_image.png"
 
@@ -31,14 +30,7 @@ export default function CartPage() {
     setSelectedProducts(updated);
   };
 
-  const checkSchemeEligibility = (scheme) => {
-    return scheme.conditions.every((cond) => {
-      const matched = selectedProducts.find(
-        (p) => p.id === cond.product || p.product_name === cond.product_name
-      );
-      return matched && matched.quantity >= cond.min_quantity;
-    });
-  };
+
 
   const handleProceed = () => {
     navigate("/confirm-order");
@@ -55,8 +47,21 @@ export default function CartPage() {
     );
   }
 
+  const getSchemeMultiplier = (scheme) => {
+    return Math.min(
+      ...scheme.conditions.map((cond) => {
+        const matched = selectedProducts.find(
+          (p) => p.id === cond.product || p.product_name === cond.product_name
+        );
+        if (!matched) return 0;
+        return Math.floor(matched.quantity / cond.min_quantity);
+      })
+    );
+  };
+
+
   return (
-    <div className="max-w-5xl mx-auto py-2 px-0  sm:p-6 space-y-6 mb-16 ">
+    <div className="max-w-5xl mx-auto py-2 px-0  sm:p-6 space-y-6 mb-25 ">
       <MobilePageHeader title="Cart" />
 
       {/* Cart Items */}
@@ -94,9 +99,9 @@ export default function CartPage() {
 
                   {/* ✅ Price / Not Available */}
                   <p className="text-gray-600 flex items-center gap-1">
-                    
+
                     {!isNaN(price) ? (
-                      <><FaIndianRupeeSign className="text-gray-400" />{price}</>
+                      <>&#8377;{price}</>
                     ) : (
                       <span className="flex items-center gap-1 text-red-500 text-xs">
                         <FaBan /> Price
@@ -105,6 +110,9 @@ export default function CartPage() {
                   </p>
 
                   <p className="text-xs text-gray-400">{item.sub_category}</p>
+                  {item.cartoon_size > 1 && (
+                    <p className="text-xs text-gray-400">1 Cartoon - {item.cartoon_size} piece</p>
+                  )}
 
                   {/* Quantity */}
                   <div className="flex items-center gap-2 mt-3">
@@ -143,51 +151,63 @@ export default function CartPage() {
                   </button>
 
                   {/* ✅ Show subtotal only if price valid */}
-                  <p className="font-bold text-lg">
-                    {!isNaN(price) ? `₹${(price * (item.quantity || 1)).toFixed(2)}` : "—"}
+                  <p className="font-bold">
+                    {!isNaN(price) ? `₹${(price * (item.quantity || 1)).toFixed(1)}` : "—"}
                   </p>
                 </div>
               </div>
 
               {/* Schemes */}
-              {relatedSchemes.length > 0 && (
-                <div className="mt-4">
-                  <div className="space-y-2">
-                    {relatedSchemes.map((scheme) => {
-                      const eligible = checkSchemeEligibility(scheme);
-                      return (
-                        <div key={scheme.id} className="flex items-center gap-2">
-                          {eligible ? (
-                            <FaGift className="text-pink-600" />
-                          ) : (
-                            <FaGift className="text-gray-600" />
-                          )}
-                          <span className="text-xs">
-                            {scheme.conditions
-                              .map(
-                                (c) =>
-                                  `Buy ${c.min_quantity} ${c.product_name || c.product}`
-                              )
-                              .join(", ")}{" "}
-                            →{" "}
-                            {scheme.rewards
-                              .map(
-                                (r) =>
-                                  `Get ${r.quantity} ${r.product_name || r.product}`
-                              )
-                              .join(", ")}
-                          </span>
-                          {eligible ? (
-                            <FaCheckCircle className="text-green-600" />
-                          ) : (
-                            <FaTimesCircle className="text-yellow-600" />
-                          )}
-                        </div>
-                      );
-                    })}
+              {relatedSchemes.map((scheme) => {
+                const multiplier = getSchemeMultiplier(scheme);
+                const eligible = multiplier > 0;
+
+                return (
+                  <div key={scheme.id} className="flex items-center gap-2 mt-4">
+                    {eligible ? (
+                      <FaGift className="text-pink-600" />
+                    ) : (
+                      <FaGift className="text-gray-600" />
+                    )}
+                    <span className="text-xs">
+                      {scheme.conditions
+                        .map(
+                          (c) =>
+                            `Buy ${c.min_quantity} ${c.product_name || c.product}`
+                        )
+                        .join(", ")}{" "}
+                      →{" "}
+                      {scheme.rewards
+                        .map(
+                          (r) =>
+                            `Get ${r.quantity} ${r.product_name || r.product}`
+                        )
+                        .join(", ")}
+                    </span>
+
+                    {/* ✅ सिर्फ यहाँ multiplier badge दिखेगा */}
+                    {eligible && (
+                      <span className="ml-2 px-2 py-0.5 text-[10px] rounded bg-green-100 text-green-700 font-semibold">
+                        x
+                        {scheme.rewards.reduce(
+                          (sum, r) => sum + r.quantity * multiplier,
+                          0
+                        )}
+                      </span>
+                    )}
+
+
+
+                    {eligible ? (
+                      <FaCheckCircle className="text-green-600" />
+                    ) : (
+                      <FaTimesCircle className="text-yellow-600" />
+                    )}
                   </div>
-                </div>
-              )}
+                );
+              })}
+
+
             </div>
           );
         })}

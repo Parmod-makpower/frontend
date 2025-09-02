@@ -4,12 +4,15 @@ import { FiArrowLeft, FiCopy, FiCheck } from "react-icons/fi";
 import { useState } from "react";
 import MobilePageHeader from "../../components/MobilePageHeader";
 
-function Table({ title, items, rightAlignPrice = false, showCopy = false }) {
+function Table({ title, items, rightAlignPrice = false, showCopy = false, orderId }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     const text = items
-      .map((i) => `${i.product_name || ""}\t${i.quantity ?? 0}`)
+      .map(
+        (i) =>
+          `${i.product || ""}\t${i.quantity ?? 0}\t${orderId || ""}`
+      )
       .join("\n");
 
     navigator.clipboard.writeText(text).then(() => {
@@ -17,6 +20,7 @@ function Table({ title, items, rightAlignPrice = false, showCopy = false }) {
       setTimeout(() => setCopied(false), 2000);
     });
   };
+
 
   return (
     <div className="border rounded-2xl shadow-sm ">
@@ -158,13 +162,14 @@ export default function CRMVerifiedDetailsPage() {
           }))}
         />
         <Table
-          title="CRM — Verified Items"
-          showCopy
-          items={(crm.items || []).map((i) => ({
-            product: i.product,
-            product_name: i.product_name,
-            quantity: i.quantity,
-          }))}
+  title="CRM — Verified Items"
+  showCopy
+  orderId={data.order_id}   // Pass order ID
+  items={(crm.items || []).map((i) => ({
+    product: i.product,         // ✅ product code
+    product_name: i.product_name,
+    quantity: i.quantity,
+  }))}
         />
       </div>
 

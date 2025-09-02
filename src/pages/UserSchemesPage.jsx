@@ -35,7 +35,7 @@ export default function UserSchemesPage() {
         {schemes.length === 0 ? (
           <p className="text-gray-500 text-center">No schemes available.</p>
         ) : (
-          <div className="grid gap-2 sm:gap-6 grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-2 sm:gap-6 grid-cols-2 lg:grid-cols-5">
             {schemes.map((scheme) => (
               <div
                 key={scheme.id}
@@ -75,7 +75,7 @@ export default function UserSchemesPage() {
                           className="bg-gray-100 rounded overflow-hidden flex flex-col group cursor-pointer transition"
                         >
                           {/* Product Image */}
-                          <div className="relative w-full  overflow-hidden">
+                          <div className="relative w-full bg-white  overflow-hidden">
                             <img
                               src={
                                 prod?.image
@@ -83,7 +83,7 @@ export default function UserSchemesPage() {
                                   : makpower_image
                               }
                               alt={prod?.product_name || "Product"}
-                              className="w-full h-full object-cover transform group-hover:scale-105 transition duration-300"
+                              className="w-full object-cover transform group-hover:scale-105 transition duration-300"
                             />
                             <span className="absolute top-2 left-2 bg-black/70 text-white px-2 py-0.5 rounded text-[10px] font-semibold shadow">
                               Buy {c.min_quantity}

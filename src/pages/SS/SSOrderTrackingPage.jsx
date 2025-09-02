@@ -95,7 +95,7 @@ export default function SSOrderTrackingPage() {
       </div>
 
       {/* Progress Bar */}
-      {/* <div className=" ">
+      <div className=" ">
         <div className="flex justify-between mb-2 text-[10px] sm:text-xs font-medium text-gray-600">
           {steps.map((step) => (
             <div key={step} className="flex-1 text-center capitalize">
@@ -118,7 +118,7 @@ export default function SSOrderTrackingPage() {
             </div>
           ))}
         </div>
-      </div> */}
+      </div>
 
       {/* Items Table */}
       <div className="bg-white p-4 rounded-lg shadow-md border border-gray-100">

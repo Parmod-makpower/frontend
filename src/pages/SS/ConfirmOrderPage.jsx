@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { usePlaceOrder } from "../../hooks/usePlaceOrder";
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaShoppingCart, FaBoxOpen, FaBan } from "react-icons/fa";
-import {FaIndianRupeeSign} from "react-icons/fa6"
+import { FaIndianRupeeSign } from "react-icons/fa6"
 import MobilePageHeader from "../../components/MobilePageHeader";
 
 export default function ConfirmOrderPage() {
@@ -19,15 +19,23 @@ export default function ConfirmOrderPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
-  const checkSchemeEligibility = (scheme) =>
-    scheme.conditions.every((cond) => {
-      const matched = selectedProducts.find(
-        (p) => p.id === cond.product || p.product_name === cond.product_name
-      );
-      return matched && matched.quantity >= cond.min_quantity;
-    });
 
-  const eligibleSchemes = schemes.filter(checkSchemeEligibility);
+
+  // helper function same as CartPage
+  const getSchemeMultiplier = (scheme) => {
+    return Math.min(
+      ...scheme.conditions.map((cond) => {
+        const matched = selectedProducts.find(
+          (p) => p.id === cond.product || p.product_name === cond.product_name
+        );
+        if (!matched) return 0;
+        return Math.floor(matched.quantity / cond.min_quantity);
+      })
+    );
+  };
+
+  // filter eligible schemes
+  const eligibleSchemes = schemes.filter((scheme) => getSchemeMultiplier(scheme) > 0);
 
   const handlePlaceOrder = () => {
     setIsPlacingOrder(true);
@@ -40,16 +48,17 @@ export default function ConfirmOrderPage() {
         quantity: p.quantity,
         price: Number(p.price) || 0,
       })),
-      eligibleSchemes: eligibleSchemes.map((scheme) => ({
-        ...scheme,
-        rewards: scheme.rewards.map((r) => ({
-          product:
-            typeof r.product === "object"
-              ? r.product.id
-              : r.product || r.product_id,
-          quantity: r.quantity,
-        })),
-      })),
+      eligibleSchemes: eligibleSchemes.map((scheme) => {
+        const multiplier = getSchemeMultiplier(scheme);
+        return {
+          ...scheme,
+          rewards: scheme.rewards.map((r) => ({
+            product: typeof r.product === "object" ? r.product.id : r.product || r.product_id,
+            quantity: r.quantity * multiplier,   // ✅ send multiplied
+          })),
+        };
+      }),
+
       total: selectedProducts.reduce(
         (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
         0
@@ -128,14 +137,19 @@ export default function ConfirmOrderPage() {
                   <tr key={scheme.id} className="hover:bg-green-50 transition">
                     <td className="px-4 py-2 text-sm text-gray-700">
                       {scheme.conditions
-                        .map((c) => `Buy ${c.min_quantity} ${c.product_name || c.product}`)
+                        .map((c) => `${c.product_name || c.product}`)
                         .join(", ")}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-700">
                       {scheme.rewards
-                        .map((r) => `Get ${r.quantity} ${r.product_name || r.product}`)
+                        .map((r) => {
+                          const multiplier = getSchemeMultiplier(scheme);
+                          const totalQty = r.quantity * multiplier;   // ✅ multiplied value
+                          return `${totalQty} ${r.product_name || r.product} Free`;
+                        })
                         .join(", ")}
                     </td>
+
                   </tr>
                 ))}
               </tbody>
@@ -150,7 +164,7 @@ export default function ConfirmOrderPage() {
           <p className="text-lg font-semibold">
             Total: ₹
             {selectedProducts.reduce(
-              (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),0).toFixed(2)}
+              (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1), 0).toFixed(2)}
           </p>
         </div>
       </div>
@@ -160,11 +174,10 @@ export default function ConfirmOrderPage() {
         <button
           onClick={handlePlaceOrder}
           disabled={isPlacingOrder}
-          className={`px-6 py-2 rounded-lg transition text-white ${
-            isPlacingOrder
+          className={`px-6 py-2 rounded-lg transition text-white ${isPlacingOrder
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
-          }`}
+            }`}
         >
           {isPlacingOrder ? "Placing Order..." : "Place Order"}
         </button>
