@@ -7,7 +7,7 @@ import { useAddProduct, useDeleteProduct, useUpdateProduct } from "../hooks/useP
 import { uploadProductImage } from "../api/productApi";
 import { toast } from "react-toastify";
 import { FiUpload, FiEdit, FiTrash2, FiPlus, FiDownload } from "react-icons/fi";
-
+import makpower_image from "../assets/images/makpower_image.png"
 import "react-toastify/dist/ReactToastify.css";
 import { downloadProductTemplate, bulkUploadProducts } from "../api/productApi";
 
@@ -34,7 +34,7 @@ export default function ProductPage() {
   const { mutate: addProduct } = useAddProduct();
   const { mutate: deleteProduct } = useDeleteProduct();
   const { mutate: updateProduct } = useUpdateProduct();
-    const { mutate: toggleStatus } = useToggleProductStatus();
+  const { mutate: toggleStatus } = useToggleProductStatus();
 
   const filteredProducts = useFuseSearch(allProducts, search, {
     keys: ["product_name", "sub_category", "product_id"],
@@ -238,82 +238,91 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">Stock</th>
               <th className="px-4 py-2 border">Price</th>
               <th className="px-4 py-2 border">Cartoon</th>
-              <th className="px-4 py-2 border">Image</th>
-               <th className="px-4 py-2 border">Active</th>
+              <th className="px-4 py-2 border">Upload</th>
+              <th className="px-4 py-2 border">Active</th>
               <th className="px-4 py-2 border">Edit</th>
               <th className="px-4 py-2 border">Delete</th>
+              <th className="px-4 py-2 border">Image</th>
             </tr>
           </thead>
-         <tbody>
-  {paginatedProducts.map((prod) => (
-    <tr key={prod.product_id} className="hover:bg-gray-50">
-      <td className="px-4 py-2 border">{prod.product_id}</td>
-      <td className="px-4 py-2 border">{prod.sub_category}</td>
-      <td className="px-4 py-2 border">{prod.product_name}</td>
-      <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
-      <td className="px-4 py-2 border">{prod.price}</td>
-      <td className="px-4 py-2 border">{prod.cartoon_size}</td>
-      <td className="px-4 py-2 border">
-        <label className="cursor-pointer">
-          <FiUpload className="text-blue-600 hover:text-blue-800" />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileChange(e, prod.product_id)}
-            className="hidden"
-          />
-        </label>
-      </td>
+          <tbody>
+            {paginatedProducts.map((prod) => (
+              <tr key={prod.product_id} className="hover:bg-gray-50">
+                <td className="px-4 py-2 border">{prod.product_id}</td>
+                <td className="px-4 py-2 border">{prod.sub_category}</td>
+                <td className="px-4 py-2 border">{prod.product_name}</td>
+                <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
+                <td className="px-4 py-2 border">{prod.price}</td>
+                <td className="px-4 py-2 border">{prod.cartoon_size}</td>
+                <td className="px-4 py-2 border">
+                  <label className="cursor-pointer">
+                    <FiUpload className="text-blue-600 hover:text-blue-800" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, prod.product_id)}
+                      className="hidden"
+                    />
+                  </label>
+                </td>
 
-      {/* ✅ Toggle Active/Inactive */}
-      <td className="px-4 py-2 border text-center">
-      
+                {/* ✅ Toggle Active/Inactive */}
+                <td className="px-4 py-2 border text-center">
 
-<input
-  type="checkbox"
-  checked={prod.is_active}
-  onChange={() =>
-    toggleStatus(
-      { productId: prod.product_id, isActive: !prod.is_active },
-      {
-        onSuccess: () =>
-          toast.success(
-            `Product ${!prod.is_active ? "Activated ✅" : "Deactivated ❌"}`
-          ),
-        onError: () => toast.error("Failed to update status"),
-      }
-    )
-  }
-/>
 
-      </td>
+                  <input
+                    type="checkbox"
+                    checked={prod.is_active}
+                    onChange={() =>
+                      toggleStatus(
+                        { productId: prod.product_id, isActive: !prod.is_active },
+                        {
+                          onSuccess: () =>
+                            toast.success(
+                              `Product ${!prod.is_active ? "Activated ✅" : "Deactivated ❌"}`
+                            ),
+                          onError: () => toast.error("Failed to update status"),
+                        }
+                      )
+                    }
+                  />
 
-      {/* Edit */}
-      <td className="px-4 py-2 border">
-        <button
-          onClick={() => {
-            setEditData(prod);
-            setForm(prod);
-            setShowModal(true);
-          }}
-          className="text-blue-600 hover:text-blue-800"
-        >
-          <FiEdit />
-        </button>
-      </td>
+                </td>
 
-      {/* Delete */}
-      <td className="px-4 py-2 border">
-        <button
-          onClick={() => handleDelete(prod.product_id)}
-          className="text-red-600 hover:text-red-800"
-        >
-          <FiTrash2 />
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
+                {/* Edit */}
+                <td className="px-4 py-2 border">
+                  <button
+                    onClick={() => {
+                      setEditData(prod);
+                      setForm(prod);
+                      setShowModal(true);
+                    }}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    <FiEdit />
+                  </button>
+                </td>
+
+                {/* Delete */}
+                <td className="px-4 py-2 border">
+                  <button
+                    onClick={() => handleDelete(prod.product_id)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <FiTrash2 />
+                  </button>
+                </td>
+                <td className="px-4 py-2 border">
+                  <img  
+                  src={
+                    prod?.image
+                      ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
+                      : makpower_image
+                  }className="w-10 h-10 object-contain bg-gray-50 rounded-lg border self-center"/>
+                </td>
+              </tr>
+            ))}
+          </tbody>
 
         </table>
       </div>
@@ -328,103 +337,102 @@ export default function ProductPage() {
       )}
 
       {/* Add/Edit Modal */}
-     {showModal && (
-  <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
-      <h2 className="text-xl font-bold mb-4">
-        {editData ? "Edit Product" : "Add Product"}
-      </h2>
+      {showModal && (
+        <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">
+              {editData ? "Edit Product" : "Add Product"}
+            </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Product ID</label>
-          <input
-            name="product_id"
-            value={form.product_id}
-            onChange={(e) => setForm({ ...form, product_id: e.target.value })}
-            placeholder="Enter Product ID"
-            className="border p-2 w-full rounded"
-            required
-          />
-        </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Product ID</label>
+                <input
+                  name="product_id"
+                  value={form.product_id}
+                  onChange={(e) => setForm({ ...form, product_id: e.target.value })}
+                  placeholder="Enter Product ID"
+                  className="border p-2 w-full rounded"
+                  required
+                />
+              </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Product Name</label>
-          <input
-            name="product_name"
-            value={form.product_name}
-            onChange={(e) => setForm({ ...form, product_name: e.target.value })}
-            placeholder="Enter Product Name"
-            className="border p-2 w-full rounded"
-            required
-          />
-        </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Product Name</label>
+                <input
+                  name="product_name"
+                  value={form.product_name}
+                  onChange={(e) => setForm({ ...form, product_name: e.target.value })}
+                  placeholder="Enter Product Name"
+                  className="border p-2 w-full rounded"
+                  required
+                />
+              </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Category</label>
-          <input
-            name="sub_category"
-            value={form.sub_category}
-            onChange={(e) => setForm({ ...form, sub_category: e.target.value })}
-            placeholder="Enter Category"
-            className="border p-2 w-full rounded"
-          />
-        </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Category</label>
+                <input
+                  name="sub_category"
+                  value={form.sub_category}
+                  onChange={(e) => setForm({ ...form, sub_category: e.target.value })}
+                  placeholder="Enter Category"
+                  className="border p-2 w-full rounded"
+                />
+              </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Cartoon Size</label>
-          <input
-            name="cartoon_size"
-            value={form.cartoon_size}
-            onChange={(e) => setForm({ ...form, cartoon_size: e.target.value })}
-            placeholder="Enter Cartoon Size"
-            className="border p-2 w-full rounded"
-          />
-        </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Cartoon Size</label>
+                <input
+                  name="cartoon_size"
+                  value={form.cartoon_size}
+                  onChange={(e) => setForm({ ...form, cartoon_size: e.target.value })}
+                  placeholder="Enter Cartoon Size"
+                  className="border p-2 w-full rounded"
+                />
+              </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Price</label>
-          <input
-            name="price"
-            value={form.price}
-            onChange={(e) => setForm({ ...form, price: e.target.value })}
-            placeholder="Enter Price"
-            className="border p-2 w-full rounded"
-          />
-        </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Price</label>
+                <input
+                  name="price"
+                  value={form.price}
+                  onChange={(e) => setForm({ ...form, price: e.target.value })}
+                  placeholder="Enter Price"
+                  className="border p-2 w-full rounded"
+                />
+              </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Stock</label>
-          <input
-            name="live_stock"
-            type="number"
-            value={form.live_stock}
-            onChange={(e) => setForm({ ...form, live_stock: e.target.value })}
-            placeholder="Enter Stock"
-            className="border p-2 w-full rounded"
-          />
-        </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Stock</label>
+                <input
+                  name="live_stock"
+                  type="number"
+                  value={form.live_stock}
+                  onChange={(e) => setForm({ ...form, live_stock: e.target.value })}
+                  placeholder="Enter Stock"
+                  className="border p-2 w-full rounded"
+                />
+              </div>
 
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={() => setShowModal(false)}
-            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-black rounded"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
-          >
-            {editData ? "Update" : "Add"}
-          </button>
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-black rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                >
+                  {editData ? "Update" : "Add"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 }
-  
