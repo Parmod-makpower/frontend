@@ -10,6 +10,7 @@ import NoPermission from "./pages/NoPermission";
 import DashboardLayout from "./Layout/DashboardLayout";
 import UserHierarchy from "./pages/UserHierarchy";
 import ProductPage from "./pages/ProductPage";
+import AvailableStock from "./pages/AvailableStock";
 import SchemePage from "./pages/SchemePage";
 import SchemeForm from "./pages/SchemeForm";
 import CartPage from "./pages/CartPage";
@@ -60,7 +61,7 @@ export default function App() {
 
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
-
+            <Route path="/available-stock" element={<ProtectedRoute ><AvailableStock /></ProtectedRoute>} />
 
             <Route path="/ad" element={<CRMOrderDetailPage />} />
             <Route path="/users-all" element={<ProtectedRoute allowedRoles={['ADMIN']}><UserHierarchy /></ProtectedRoute>} />

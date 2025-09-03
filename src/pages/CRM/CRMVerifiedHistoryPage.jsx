@@ -84,7 +84,7 @@ export default function CRMVerifiedHistoryPage() {
                                     <td className="p-3">{new Date(row.verified_at).toLocaleString()}</td>
                                     <td className="p-3 text-right">₹{Number(row.total_amount).toFixed(2)}</td>
                                     <td className="p-3 text-right">
-                                        <button onClick={() => navigate(`/crm/verified/${row.id}`)} className="px-3 py-1 rounded-xl border">View</button>
+                                        <button onClick={() => navigate(`/crm/verified/${row.id}`)} className="px-3 py-1 rounded-xl border cursor-pointer hover:bg-gray-200">View</button>
                                     </td>
                                 </tr>
                             ))

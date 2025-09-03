@@ -95,23 +95,23 @@ export default function CRMVerifiedDetailsPage() {
   return (
     <div className="p-4 sm:p-6 space-y-4 pb-20">
       {/* Header */}
-      <MobilePageHeader title={data.order_id}/>
-         <div className="hidden sm:flex items-center justify-between w-full">
-  {/* Left side - Order ID */}
-  <div className="text-xl font-semibold">
-    Order {data.order_id}
-  </div>
+      <MobilePageHeader title={data.order_id} />
+      <div className="hidden sm:flex items-center justify-between w-full">
+        {/* Left side - Order ID */}
+        <div className="text-xl font-semibold">
+          Order {data.order_id}
+        </div>
 
-  {/* Right side - Back button */}
-  <div>
-    <button
-      onClick={() => navigate(-1)}
-      className="flex items-center gap-1 px-3 py-1 rounded-xl border hover:bg-gray-100 transition"
-    >
-      <FiArrowLeft /> Back
-    </button>
-  </div>
-</div>
+        {/* Right side - Back button */}
+        <div>
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1 px-3 py-1 rounded-xl border hover:bg-gray-200 transition cursor-pointer"
+          >
+            <FiArrowLeft /> Back
+          </button>
+        </div>
+      </div>
 
       {/* Order Info */}
       <div className="grid grid-cols-2 md:grid-cols-2 gap-2 sm:gap-4 sm:pt-0 sm: pt-[60px]">
@@ -121,10 +121,10 @@ export default function CRMVerifiedDetailsPage() {
             Name : {ss.ss_user_name}
           </div>
           <div className="text-sm text-gray-600">
-            Party  : {ss.ss_party_name} 
+            Party  : {ss.ss_party_name}
           </div>
           <div className="text-sm text-gray-600">
-             {new Date(ss.created_at).toLocaleString()}
+            {new Date(ss.created_at).toLocaleString()}
           </div>
           {/* <div className="text-sm font-medium">
             Total: ₹{Number(ss.total_amount).toFixed(2)}
@@ -134,7 +134,7 @@ export default function CRMVerifiedDetailsPage() {
           <div className="font-semibold mb-2">CRM Verification</div>
           <div className="text-sm text-gray-600">CRM : {crm.crm_name}</div>
           <div className="text-sm text-gray-600">
-             {new Date(crm.verified_at).toLocaleString()}
+            {new Date(crm.verified_at).toLocaleString()}
           </div>
           <div className="text-sm text-gray-600">
             Status : {" "}
@@ -162,14 +162,14 @@ export default function CRMVerifiedDetailsPage() {
           }))}
         />
         <Table
-  title="CRM — Verified Items"
-  showCopy
-  orderId={data.order_id}   // Pass order ID
-  items={(crm.items || []).map((i) => ({
-    product: i.product,         // ✅ product code
-    product_name: i.product_name,
-    quantity: i.quantity,
-  }))}
+          title="CRM — Verified Items"
+          showCopy
+          orderId={data.order_id}   // Pass order ID
+          items={(crm.items || []).map((i) => ({
+            product: i.product,         // ✅ product code
+            product_name: i.product_name,
+            quantity: i.quantity,
+          }))}
         />
       </div>
 

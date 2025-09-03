@@ -263,7 +263,7 @@ export default function CRMOrderDetailPage() {
         <button
           onClick={() => handleVerify("APPROVED")}
           disabled={loadingApprove}
-          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md transition ${
+          className={`flex  items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${
             loadingApprove
               ? "bg-green-400 cursor-not-allowed"
               : "bg-green-500 hover:bg-green-600"
@@ -276,7 +276,7 @@ export default function CRMOrderDetailPage() {
         <button
           onClick={() => handleVerify("REJECTED")}
           disabled={loadingReject}
-          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md transition ${
+          className={`flex items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${
             loadingReject
               ? "bg-red-400 cursor-not-allowed"
               : "bg-red-500 hover:bg-red-600"

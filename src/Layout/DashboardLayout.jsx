@@ -13,7 +13,7 @@ import {
   FaList,
   FaPlus,
   FaCheck,
-  FaSignOutAlt,
+  FaSignOutAlt,FaChartLine 
 } from "react-icons/fa";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
@@ -155,7 +155,8 @@ export default function DashboardLayout() {
       { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },
       { label: "Super Stockist", path: "/crm-ss/list", icon: <FaUsers /> },
       { label: "New Orders", path: "/crm/orders", icon: <FaBox /> },
-      { label: "History", path: "/all/orders-history", icon: <FaHistory /> }
+      { label: "History", path: "/all/orders-history", icon: <FaHistory /> },
+      { label: "Stock", path: "/available-stock", icon: <FaChartLine  /> }
     );
   }
   if (user.role === "SS") {

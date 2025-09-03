@@ -9,7 +9,7 @@ import { useSSOrderHistory } from "../../hooks/useSSOrderHistory";
 
 const SSHistoryPage = () => {
   const navigate = useNavigate();
-  const { data, isLoading, isError, error } = useSSOrderHistory();
+  const { data, isLoading, isError, error } = useSSOrderHistory();    
 
   useEffect(() => {
     document.title = "My Order History";
@@ -37,7 +37,7 @@ const SSHistoryPage = () => {
           orders.map((order) => (
             <div
               key={order.id}
-              onClick={() => navigate(`/orders/${order.id}/track`)}
+              onClick={() => navigate(`/orders/${order.id}/track` , { state: { order } })}
               className="rounded-xl shadow-sm p-4 bg-white hover:shadow-lg hover:scale-[1.01] transition cursor-pointer"
             >
               {/* Header */}

@@ -1,129 +1,116 @@
-// 📁 src/pages/SSOrderTrackingPage.jsx
-import { useState, useEffect } from "react";
-import API from "../../api/axios";
-import { useParams } from "react-router-dom";
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   FaBoxOpen,
   FaRupeeSign,
+  FaClipboardCheck,
+  FaShippingFast,
   FaCheckCircle,
   FaTimesCircle,
-  FaClock,
-  FaTruck,
-  FaClipboardList,
-  FaUser,
 } from "react-icons/fa";
 
 export default function SSOrderTrackingPage() {
-  const { orderId } = useParams();
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const [order, setOrder] = useState(location.state?.order || null);
 
-  useEffect(() => {
-    if (!orderId) return;
-    const fetchOrder = async () => {
-      setLoading(true);
-      try {
-        const res = await API.get(`/ss-orders/${orderId}/track/`);
-        setOrder(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchOrder();
-  }, [orderId]);
+  // Define steps including rejected
+  const steps = order?.status?.toUpperCase() === "REJECTED"
+    ? [
+        { label: "Order Placed", icon: <FaBoxOpen /> },
+        { label: "Order Rejected", icon: <FaTimesCircle />, color: "bg-red-600" },
+      ]
+    : [
+        { label: "Order Placed", icon: <FaBoxOpen /> },
+        { label: "Verified", icon: <FaClipboardCheck /> },
+        { label: "Dispatched", icon: <FaShippingFast /> },
+        { label: "Delivered", icon: <FaCheckCircle /> },
+      ];
 
-  if (loading)
-    return (
-      <p className="p-4 text-center text-gray-500 text-sm animate-pulse">
-        ⏳ Loading order details...
-      </p>
-    );
-
-  if (!order)
-    return (
-      <p className="p-4 text-center text-red-500 text-sm">❌ Order not found</p>
-    );
-
-  const latestCRMStatus =
-    order.crm_history && order.crm_history.length > 0
-      ? order.crm_history[order.crm_history.length - 1].status.toLowerCase()
-      : "pending";
-
-  const steps = ["pending", "approved", "dispatch", "delivered"];
-
-  let currentStepIndex = steps.indexOf(latestCRMStatus);
-  if (currentStepIndex === -1) currentStepIndex = 0;
-  const progressWidth =
-    currentStepIndex === 0 ? 5 : (currentStepIndex / (steps.length - 1)) * 100;
-
-  const getStatusIcon = (status) => {
-    switch (status?.toLowerCase()) {
-      case "approved":
-        return <FaCheckCircle className="text-green-500" />;
-      case "rejected":
-        return <FaTimesCircle className="text-red-500" />;
-      case "pending":
-        return <FaClock className="text-yellow-500" />;
-      case "dispatch":
-        return <FaTruck className="text-blue-500" />;
-      case "delivered":
-        return <FaCheckCircle className="text-green-600" />;
+  // Map status to step index
+  const getStatusStepIndex = (status) => {
+    switch (status?.toUpperCase()) {
+      case "PLACED":
+        return 0;
+      case "APPROVED":
+        return 1;
+      case "DISPATCHED":
+        return 2;
+      case "DELIVERED":
+        return 3;
+      case "REJECTED":
+        return 1;
       default:
-        return <FaClock className="text-gray-400" />;
+        return 0;
     }
   };
 
-  const getVerificationIcon = (status) =>
-    status?.toLowerCase() === "rejected" ? (
-      <FaTimesCircle className="text-red-500" />
-    ) : (
-      <FaCheckCircle className="text-green-500" />
-    );
+  const currentStep = getStatusStepIndex(order?.status);
+  const isRejected = order?.status?.toUpperCase() === "REJECTED";
 
   return (
-    <div className="p-4 max-w-5xl mx-auto space-y-6 text-xs sm:text-sm pb-20">
+    <div className="p-4 max-w-5xl mx-auto space-y-6 text-xs sm:text-sm pb-20 ">
       {/* Order Header */}
-      <div className="bg-white p-4 rounded-lg shadow-md border border-gray-100">
+      <div className=" p-4  border-b">
         <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2 mb-1">
-          <FaBoxOpen className="text-blue-500" /> {order.order_id}
+          <FaBoxOpen className="text-blue-500" /> {order?.order_id}
         </h1>
         <p className="flex items-center gap-1 text-gray-700 font-medium">
-          <FaRupeeSign className="text-green-600" /> {order.total_amount}
+          <FaRupeeSign className="text-green-600" /> {order?.total_amount}
         </p>
       </div>
 
-      {/* Progress Bar */}
-      <div className=" ">
-        <div className="flex justify-between mb-2 text-[10px] sm:text-xs font-medium text-gray-600">
-          {steps.map((step) => (
-            <div key={step} className="flex-1 text-center capitalize">
-              {step}
-            </div>
-          ))}
+      {/* Order Tracking Progress Bar */}
+     
+        <div className="flex flex-wrap items-center justify-between gap-y-6 relative mb-10 ">
+          {steps.map((step, index) => {
+            const isCompleted = index <= currentStep;
+            const isCurrent = index === currentStep;
+            const circleColor = isRejected && index === 1
+              ? "bg-red-600"
+              : isCompleted
+              ? "bg-blue-600"
+              : "bg-gray-300";
+
+            return (
+              <div key={index} className="flex flex-col items-center text-center flex-1 min-w-[70px] relative z-10">
+                <div
+                  className={`flex items-center justify-center w-10 h-10 rounded-full text-white ${circleColor}`}
+                >
+                  {step.icon}
+                </div>
+                <p
+                  className={`mt-2 text-xs sm:text-sm font-medium ${
+                    isCurrent
+                      ? isRejected
+                        ? "text-red-600"
+                        : "text-blue-600"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {step.label}
+                </p>
+              </div>
+            );
+          })}
+
+          {/* Progress Line */}
+          <div className="absolute top-5 left-[5%] right-[5%] h-1 bg-gray-200 z-0">
+            <div
+              className={`h-1 ${
+                isRejected ? "bg-red-600" : "bg-blue-600"
+              } transition-all duration-500 ease-in-out`}
+              style={{
+                width: `${(currentStep / (steps.length - 1)) * 100}%`,
+              }}
+            />
+          </div>
         </div>
-        <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="absolute h-2 bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500"
-            style={{ width: `${progressWidth}%` }}
-          ></div>
-        </div>
-        <div className="flex justify-between mt-1">
-          {steps.map((step, index) => (
-            <div key={step} className="flex-1 flex justify-center">
-              {index <= currentStepIndex
-                ? getStatusIcon(step)
-                : getStatusIcon("pending")}
-            </div>
-          ))}
-        </div>
-      </div>
+     
 
       {/* Items Table */}
-      <div className="bg-white p-4 rounded-lg shadow-md border border-gray-100">
-        <h2 className="text-base sm:text-lg font-semibold mb-3 flex items-center gap-2">
-          📦 Items
+      
+        <h2 className="text-base sm:text-lg font-semibold my-3  flex items-center gap-2">
+          📦 Order Items
         </h2>
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 text-[11px] sm:text-sm">
@@ -135,7 +122,7 @@ export default function SSOrderTrackingPage() {
               </tr>
             </thead>
             <tbody>
-              {order.items.map((it) => (
+              {order?.items?.map((it) => (
                 <tr key={it.id} className="hover:bg-gray-50">
                   <td className="border px-3 py-2">{it.product_name}</td>
                   <td className="border px-3 py-2 text-center">{it.quantity}</td>
@@ -152,64 +139,6 @@ export default function SSOrderTrackingPage() {
           </table>
         </div>
       </div>
-
-     {/* Verification History Timeline */}
-
-  {(!order.crm_history || order.crm_history.length === 0) ? (
-    <p className="text-gray-500">No verification yet</p>
-  ) : (
-    <div className="relative ">
-      {order.crm_history.map((v) => (
-        <div key={v.id} className="mb-6 relative ">
-        
-          <div className="p-3 sm:p-4 bg-gray-50 rounded-lg shadow-sm">
-            {/* Header */}
-            <p className="font-semibold flex items-center gap-1 text-sm">
-              {getVerificationIcon(v.status)}
-              {v.status.toUpperCase()}
-            </p>
-            <p className="text-[11px] sm:text-xs flex items-center gap-1 text-gray-600">
-              <FaUser className="text-gray-500" /> {v.crm_name}
-            </p>
-            <p className="text-[10px] text-gray-500">
-              {new Date(v.verified_at).toLocaleString()}
-            </p>
-            <p className="mt-2 text-xs">
-              <strong>Notes:</strong> {v.notes || "-"}
-            </p>
-
-            {/* Items Table */}
-            {v.items && v.items.length > 0 && (
-              <div className="mt-3 overflow-x-auto">
-                <table className="min-w-full border border-gray-200 text-[11px] sm:text-xs">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="border px-2 py-1 text-left">Product</th>
-                      <th className="border px-2 py-1 text-center">Quantity</th>
-                      
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {v.items.map((it) => (
-                      <tr key={it.id} className="hover:bg-gray-50">
-                        <td className="border px-2 py-1">{it.product_name}</td>
-                        <td className="border px-2 py-1 text-center">
-                          {it.quantity}
-                        </td>
-                       
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-
-   
+  
   );
 }
