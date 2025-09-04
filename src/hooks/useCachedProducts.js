@@ -15,10 +15,7 @@ export const useCachedProducts = () => {
     queryKey: ["all-products"],
     queryFn: getAllProducts,
 
-    // ✅ केवल तभी चले जब user.role === "SS"
-    // enabled: user?.role === "SS",
-
-    staleTime: 1000 * 60 * 5,          // 1 मिनट तक fresh
+    staleTime: 1000 * 60 * 25,          // 1 मिनट तक fresh
     gcTime: 1000 * 60 * 60 * 24 ,   // 5 दिन तक cache
 
     refetchInterval: false,

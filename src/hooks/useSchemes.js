@@ -12,17 +12,15 @@ export const useSchemes = () => {
     queryKey: ["schemes"],
     queryFn: getSchemes,
    
-    // पुराना data 12 मिनट तक fresh माना जाएगा
-    staleTime: 1000 * 60 * 15,
+    staleTime: 1000 * 60 * 59,          
+    gcTime: 1000 * 60 * 60 * 24 ,   
 
-    gcTime: 1000 * 60 * 60 * 24,    
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
 
-    // हर 10 मिनट में background में silently refresh होगा
-    refetchInterval: 1000 * 60 * 14,
-    refetchIntervalInBackground: true,
+    keepPreviousData: true,  
 
-    // नया आने तक पुराना data दिखाते रहो
-    keepPreviousData: true,
   });
 };
 
