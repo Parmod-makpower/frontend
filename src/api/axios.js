@@ -19,7 +19,6 @@ API.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // ✅ Token expire ho gaya — logout
       localStorage.clear();
-      // alert("⚠️ आपकी session expire हो गई है। कृपया login करें।");
       window.location.href = "/login"; // ya jis route par login hai
     }
     return Promise.reject(error);

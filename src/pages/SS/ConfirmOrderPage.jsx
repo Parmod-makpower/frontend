@@ -33,54 +33,77 @@ export default function ConfirmOrderPage() {
       })
     );
   };
+  
+
+  // 📌 merge all rewards by product before sending to backend
+const mergeRewards = (eligibleSchemes) => {
+  const rewardMap = {};
+
+  eligibleSchemes.forEach((scheme) => {
+    const multiplier = getSchemeMultiplier(scheme);
+
+    scheme.rewards.forEach((r) => {
+      const productId =
+        typeof r.product === "object" ? r.product.id : r.product || r.product_id;
+      const productName = r.product_name || r.product;
+      const totalQty = r.quantity * multiplier;
+
+      if (rewardMap[productId]) {
+        rewardMap[productId].quantity += totalQty;
+      } else {
+        rewardMap[productId] = {
+          product: productId,
+          product_name: productName,
+          quantity: totalQty,
+        };
+      }
+    });
+  });
+
+  return Object.values(rewardMap); // ✅ array of merged rewards
+};
+
 
   // filter eligible schemes
   const eligibleSchemes = schemes.filter((scheme) => getSchemeMultiplier(scheme) > 0);
 
   const handlePlaceOrder = () => {
-    setIsPlacingOrder(true);
+  setIsPlacingOrder(true);
 
-    const order = {
-      user_id: user?.id,
-      crm_id: user?.crm,
-      items: selectedProducts.map((p) => ({
-        id: p.id,
-        quantity: p.quantity,
-        price: Number(p.price) || 0,
-      })),
-      eligibleSchemes: eligibleSchemes.map((scheme) => {
-        const multiplier = getSchemeMultiplier(scheme);
-        return {
-          ...scheme,
-          rewards: scheme.rewards.map((r) => ({
-            product: typeof r.product === "object" ? r.product.id : r.product || r.product_id,
-            quantity: r.quantity * multiplier,   // ✅ send multiplied
-          })),
-        };
-      }),
+  const mergedRewards = mergeRewards(eligibleSchemes);
 
-      total: selectedProducts.reduce(
-        (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
-        0
-      ),
-    };
-
-    placeOrderMutation.mutate(order, {
-      onSuccess: (data) => {
-        setIsPlacingOrder(false);
-        setSelectedProducts([]);
-        setShowSuccess(data.order.order_id);
-      },
-      onError: (error) => {
-        setIsPlacingOrder(false);
-        console.error("❌ Order failed:", error);
-        alert("Order failed, please try again.");
-      },
-    });
+  const order = {
+    user_id: user?.id,
+    crm_id: user?.crm,
+    items: selectedProducts.map((p) => ({
+      id: p.id,
+      quantity: p.quantity,
+      price: Number(p.price) || 0,
+    })),
+    eligibleSchemes: mergedRewards,  // ✅ ab merge karke bhej rahe
+    total: selectedProducts.reduce(
+      (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
+      0
+    ),
   };
 
+  placeOrderMutation.mutate(order, {
+    onSuccess: (data) => {
+      setIsPlacingOrder(false);
+      setSelectedProducts([]);
+      setShowSuccess(data.order.order_id);
+    },
+    onError: (error) => {
+      setIsPlacingOrder(false);
+      console.error("❌ Order failed:", error);
+      alert("Order failed, please try again.");
+    },
+  });
+};
+
+
   return (
-    <div className="max-w-4xl mx-auto bg-white px-3 pb-20">
+    <div className="max-w-4xl mx-auto px-3 pb-20">
       {/* Header */}
       <MobilePageHeader title="Order Confirmation" />
 

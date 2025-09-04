@@ -107,7 +107,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center transition duration-200 ${loading
+            className={`w-full py-2 rounded-lg text-white cursor-pointer font-semibold flex items-center justify-center transition duration-200 ${loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 hover:shadow-lg hover:scale-105"
               }`}

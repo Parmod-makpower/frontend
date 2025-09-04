@@ -11,7 +11,7 @@ function Table({ title, items, rightAlignPrice = false, showCopy = false, orderI
     const text = items
       .map(
         (i) =>
-          `${i.product || ""}\t${i.quantity ?? 0}\t${orderId || ""}`
+          `${i.product_name || ""}\t${i.quantity ?? 0}\t${orderId || ""}`
       )
       .join("\n");
 
