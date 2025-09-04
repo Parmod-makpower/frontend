@@ -168,13 +168,13 @@ export default function ProductCard({
                   handleAddToCart();
                 }}
                 className="w-full mt-2 flex items-center justify-center gap-2 
-             bg-gradient-to-r from-orange-500 via-red-500 to-pink-600
-             hover:from-pink-600 hover:via-red-500 hover:to-orange-500
-             text-white text-[11px] md:text-sm font-semibold 
-             py-2 md:py-3 rounded-xl shadow-lg 
-             transition-all duration-500 ease-in-out 
-             transform hover:scale-105 hover:shadow-2xl cursor-pointer"
-              >
+                  bg-gradient-to-r from-orange-500 via-red-500 to-pink-600
+                  hover:from-pink-600 hover:via-red-500 hover:to-orange-500
+                  text-white text-[11px] md:text-sm font-semibold 
+                  py-2 md:py-3 rounded-xl shadow-lg 
+                  transition-all duration-500 ease-in-out 
+                  transform hover:scale-105 hover:shadow-2xl cursor-pointer"
+                    >
                 <FaShoppingCart className="text-sm md:text-base animate-bounce" />
                 Add to Cart
               </button>
