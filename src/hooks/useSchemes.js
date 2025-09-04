@@ -20,7 +20,6 @@ export const useSchemes = () => {
     refetchOnReconnect: false,
 
     keepPreviousData: true,  
-
   });
 };
 
