@@ -1,3 +1,4 @@
+// HomePage.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaSearch, FaBell } from "react-icons/fa";
@@ -21,22 +22,33 @@ export default function HomePage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Preload homepage banner images
+  // Preload ALL homepage images (banners + categories)
   useEffect(() => {
-    const images = [
+    const bannerImages = [
       "https://makpowerindia.com/cdn/shop/files/f7arm7foserysccse9fa.webp?v=1742894610&width=2000",
       "https://makpowerindia.com/cdn/shop/files/krxntlvftutoe0p5tsjd.webp?v=1744890344&width=2000",
       "https://makpowerindia.com/cdn/shop/files/irii2fisadlfkmal0hpn.webp?v=1753181679&width=2000",
     ];
 
+    const categoryImages = categories.map((cat) => cat.image);
+
+    const allImages = [...bannerImages, ...categoryImages];
+
     let loadedCount = 0;
-    images.forEach((src) => {
+    allImages.forEach((src) => {
       const img = new Image();
       img.src = src;
       img.onload = () => {
         loadedCount++;
-        if (loadedCount === images.length) {
-          setTimeout(() => setIsLoaded(true), 600); // थोड़ा delay smooth effect के लिए
+        if (loadedCount === allImages.length) {
+          setTimeout(() => setIsLoaded(true), 600); // smooth transition
+        }
+      };
+      img.onerror = () => {
+        // error पर भी count बढ़ाएंगे ताकि stuck ना हो
+        loadedCount++;
+        if (loadedCount === allImages.length) {
+          setTimeout(() => setIsLoaded(true), 600);
         }
       };
     });
@@ -63,7 +75,7 @@ export default function HomePage() {
   return (
     <div className="mx-auto p-4 pb-25">
       {!isLoaded ? (
-        // 🎬 Loading Animation (Shimmer BG + Spinner)
+        // 🎬 Fullscreen Loader
         <div className="flex flex-col items-center justify-center h-screen w-full bg-gradient-to-br from-gray-100 via-white to-gray-200 animate-pulse">
           <img
             src="https://makpowerindia.com/cdn/shop/files/MakPower_Mobile_Accessories_370x.webp?v=1735378281"
@@ -174,7 +186,7 @@ export default function HomePage() {
           </div>
 
           {/* ⭐ Trending Products Component */}
-          <SlidingProductsCards trendingIds={trendingIds} title={"Trending Products"} />
+          <SlidingProductsCards trendingIds={trendingIds} title={"Trending Products."} />
           <SlidingProductsCards trendingIds={schemeIds} title={"Special Scheme Products"} />
         </div>
       )}
