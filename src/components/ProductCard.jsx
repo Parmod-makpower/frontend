@@ -84,12 +84,13 @@ export default function ProductCard({
         onClick={() => navigate(`/product/${prodId}`)}
       >
         <img
-          src={imgSrc}
-          alt={prod.product_name}
-          loading="lazy"
-          className="w-full md:h-full object-cover cursor-pointer transform group-hover:scale-105 transition duration-300"
-          onError={() => setImgSrc(makpower_image)} // fallback on error
-        />
+  src={imgSrc}
+  alt={prod.product_name}
+  loading="lazy"
+  className="w-full md:h-full object-cover cursor-pointer transform group-hover:scale-105 transition duration-300"
+  onError={() => setImgSrc(makpower_image)} // fallback on error
+/>
+
 
         {hasScheme(prodId) && (
           <span className="absolute top-2 right-2 bg-pink-100 p-1.5 md:p-2 rounded-full shadow">
@@ -107,7 +108,7 @@ export default function ProductCard({
         <div className="flex items-center gap-1 mt-1">
           {prod.live_stock > 1 ? (
             <span className="flex items-center gap-1 text-[#16a34a] text-[10px] md:text-xs font-semibold">
-              <FaCheckCircle /> In Stock
+              <FaCheckCircle /> In Stock.
             </span>
           ) : (
             <span className="flex items-center gap-1 text-[#dc2626] text-[10px] md:text-xs font-semibold">
