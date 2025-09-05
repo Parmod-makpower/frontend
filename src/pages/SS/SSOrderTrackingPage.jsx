@@ -5,7 +5,6 @@ import {
   FaRupeeSign,
   FaClipboardCheck,
   FaShippingFast,
-  FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
 import API from "../../api/axios"; // <-- आपके axios instance का path सही रखें
@@ -54,7 +53,7 @@ export default function SSOrderTrackingPage() {
           { label: "Order Placed", icon: <FaBoxOpen /> },
           { label: "Verified", icon: <FaClipboardCheck /> },
           { label: "Dispatched", icon: <FaShippingFast /> },
-          { label: "Delivered", icon: <FaCheckCircle /> },
+          
         ];
 
   // Map status to step index

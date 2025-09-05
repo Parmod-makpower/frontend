@@ -11,7 +11,7 @@ import makpower_image from "../assets/images/makpower_image.png"
 import "react-toastify/dist/ReactToastify.css";
 import { downloadProductTemplate, bulkUploadProducts } from "../api/productApi";
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 50;
 
 export default function ProductPage() {
   const { data: allProducts = [], isLoading } = useCachedProducts();
@@ -159,9 +159,9 @@ export default function ProductPage() {
           className="border p-2 rounded flex-1 min-w-[200px] shadow-sm focus:ring-2 focus:ring-blue-400"
         />
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-2">
-          {/* Add Product */}
+       
+        {/* <div className="flex flex-wrap gap-2">
+         
           <button
             onClick={() => {
               setEditData(null);
@@ -180,7 +180,7 @@ export default function ProductPage() {
             <FiPlus className="text-lg" /> Add Product
           </button>
 
-          {/* Download Template */}
+         
           <button
             onClick={handleDownloadTemplate}
             className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow cursor-pointer"
@@ -188,7 +188,7 @@ export default function ProductPage() {
             <FiDownload className="text-lg" /> Download Template
           </button>
 
-          {/* Upload Sheet */}
+          
           <label
             className={`flex items-center gap-2 ${uploading ? "bg-purple-400" : "bg-purple-500 hover:bg-purple-600"} text-white px-4 py-2 rounded shadow cursor-pointer`}
           >
@@ -224,7 +224,8 @@ export default function ProductPage() {
               disabled={uploading} // 🔹 Prevent multiple uploads at once
             />
           </label>
-        </div>
+        </div> */}
+        
       </div>
 
       {/* Table */}
@@ -235,13 +236,13 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">ID</th>
               <th className="px-4 py-2 border">Category</th>
               <th className="px-4 py-2 border">Product Name</th>
-              <th className="px-4 py-2 border">Stock</th>
+              {/* <th className="px-4 py-2 border">Stock</th>
               <th className="px-4 py-2 border">Price</th>
               <th className="px-4 py-2 border">Cartoon</th>
               <th className="px-4 py-2 border">Upload</th>
               <th className="px-4 py-2 border">Active</th>
               <th className="px-4 py-2 border">Edit</th>
-              <th className="px-4 py-2 border">Delete</th>
+              <th className="px-4 py-2 border">Delete</th> */}
               <th className="px-4 py-2 border">Image</th>
             </tr>
           </thead>
@@ -251,7 +252,7 @@ export default function ProductPage() {
                 <td className="px-4 py-2 border">{prod.product_id}</td>
                 <td className="px-4 py-2 border">{prod.sub_category}</td>
                 <td className="px-4 py-2 border">{prod.product_name}</td>
-                <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
+                {/* <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
                 <td className="px-4 py-2 border">{prod.price}</td>
                 <td className="px-4 py-2 border">{prod.cartoon_size}</td>
                 <td className="px-4 py-2 border">
@@ -265,8 +266,6 @@ export default function ProductPage() {
                     />
                   </label>
                 </td>
-
-                {/* ✅ Toggle Active/Inactive */}
                 <td className="px-4 py-2 border text-center">
 
 
@@ -288,8 +287,6 @@ export default function ProductPage() {
                   />
 
                 </td>
-
-                {/* Edit */}
                 <td className="px-4 py-2 border">
                   <button
                     onClick={() => {
@@ -302,8 +299,6 @@ export default function ProductPage() {
                     <FiEdit />
                   </button>
                 </td>
-
-                {/* Delete */}
                 <td className="px-4 py-2 border">
                   <button
                     onClick={() => handleDelete(prod.product_id)}
@@ -311,7 +306,7 @@ export default function ProductPage() {
                   >
                     <FiTrash2 />
                   </button>
-                </td>
+                </td> */}
                 <td className="px-4 py-2 border">
                   <img  
                   src={
