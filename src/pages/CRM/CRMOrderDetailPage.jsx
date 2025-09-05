@@ -131,123 +131,151 @@ export default function CRMOrderDetailPage() {
         <p className="text-gray-600">{order.ss_party_name}</p>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto bg-white shadow rounded-2xl">
-        <table className="w-full border border-gray-200 text-sm text-left">
-          <thead className="bg-gray-100 text-gray-700 uppercase">
-            <tr>
-              <th className="px-4 py-3 border border-gray-300">Product</th>
-              <th className="px-4 py-3 text-center border border-gray-300">SS Order</th>
-              <th className="px-4 py-3 text-center border border-gray-300">Verify</th>
-              <th className="px-4 py-3 text-center border border-gray-300">Price</th>
-              <th className="px-4 py-3 text-center border border-gray-300">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {editedItems.map((item) => (
-              <tr key={item.product} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border border-gray-200">
-                  <div className="flex">
-                    {item.product_name}
-                    {item.is_scheme_item ? (
-                      <FaGift className="mx-2 text-orange-500" />
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </td>
-                <td className="px-4 py-2 border border-gray-200 text-center">
-                  {item.original_quantity}
-                </td>
-                <td className="px-4 py-2 border border-gray-200 text-center">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={item.quantity === 0 ? "" : item.quantity}
-                    onChange={(e) => handleEditQuantity(item.product, e.target.value)}
-                    className="border rounded-lg p-1 w-20 text-center"
-                  />
-                </td>
-                <td className="px-4 py-2 border border-gray-200 font-medium text-center">
-                  {!isNaN(item.price) ? (
-                    <span className="flex items-center justify-center gap-1 text-gray-700">
-                      <FaIndianRupeeSign className="text-gray-400" /> {item.price}
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-1 text-red-500 text-xs">
-                      <FaBan /> Price
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-2 border border-gray-200 text-center">
-                  <button
-                    onClick={() => handleDeleteItem(item.product)}
-                    className="text-red-600 hover:text-red-800 cursor-pointer"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-
-            {/* New Row */}
-            {newRow && (
-              <tr className="bg-gray-100">
-                <td className="px-4 py-2 border border-gray-200 relative overflow-visible z-50">
-                  <ProductSearchSelect
-                    value={newRow.product}
-                    onChange={(id) =>
-                      setNewRow((prev) => ({ ...prev, product: id }))
-                    }
-                  />
-                </td>
-                <td className="px-4 py-2 border border-gray-200 text-center">—</td>
-                <td className="px-4 py-2 border border-gray-200 text-center">
-                  <input
-                    type="number"
-                    min="1"
-                    value={newRow.quantity}
-                    onChange={(e) =>
-                      setNewRow((prev) => ({
-                        ...prev,
-                        quantity: +e.target.value,
-                      }))
-                    }
-                    className="border rounded-lg p-1 w-20 text-center"
-                  />
-                </td>
-                <td className="px-4 py-2 border border-gray-200 text-center text-gray-400 italic">
-                  —
-                </td>
-                <td className="px-4 py-2 border border-gray-200 text-center">
-                  <button
-                    onClick={handleSaveNewRow}
-                    className="text-green-600 border px-2 rounded p-1 hover:bg-gray-300 mr-2 cursor-pointer"
-                  >
-                    Save
-                  </button>
-                  
-                </td>
-              </tr>
-            )}
-
-            {/* Add Row */}
-            <tr>
-              <td colSpan="5" className="text-center p-4">
-                <button
-                  onClick={handleAddRow}
-                  className="flex items-center rounded border p-2 cursor-pointer justify-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  <Plus size={18} /> Add Item
-                </button>
+     
+<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+  {/* Reminder Table (Left Side) */}
+  <div className="md:col-span-1 bg-yellow-50 rounded shadow p-3 overflow-x-auto">
+    <h3 className="font-semibold text-yellow-800 mb-2">⚠️ Previous Reminders</h3>
+    {order?.recent_rejected_items?.length > 0 ? (
+      <table className="w-full border border-yellow-200 text-sm">
+        <thead className="bg-yellow-100 text-yellow-800">
+          <tr>
+            <th className="px-2 py-2 border border-yellow-300">Product</th>
+            <th className="px-2 py-2 border border-yellow-300">Qty</th>
+            <th className="px-2 py-2 border border-yellow-300">Last Rejected</th>
+          </tr>
+        </thead>
+        <tbody>
+          {order.recent_rejected_items.map((r) => (
+            <tr key={r.product} className="hover:bg-yellow-50">
+              <td className="px-2 py-1 border border-yellow-200">{r.product_name}</td>
+              <td className="px-2 py-1 border border-yellow-200 text-center">{r.quantity}</td>
+              <td className="px-2 py-1 border border-yellow-200 text-xs text-gray-600">
+                {new Date(r.last_rejected_at).toLocaleDateString()}
               </td>
             </tr>
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <div className="text-gray-500 italic text-sm">No previous rejections</div>
+    )}
+  </div>
 
-      {/* Notes */}
-      <div className="mt-6">
+  {/* Main Table (Right Side) */}
+  <div className="md:col-span-3 overflow-x-auto  shadow rounded">
+    <table className="w-full border border-gray-200 text-sm text-left">
+      <thead className="bg-gray-100 text-gray-700 uppercase">
+        <tr>
+          <th className="px-4 py-3 border border-gray-300">Product</th>
+          <th className="px-4 py-3 text-center border border-gray-300">SS Order</th>
+          <th className="px-4 py-3 text-center border border-gray-300">Verify</th>
+          <th className="px-4 py-3 text-center border border-gray-300">Price</th>
+          <th className="px-4 py-3 text-center border border-gray-300">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {editedItems.map((item) => (
+          <tr key={item.product} className="hover:bg-gray-50 bg-white">
+            <td className="px-4 py-2 border border-gray-200">
+              <div className="flex">
+                {item.product_name}
+                {item.is_scheme_item ? (
+                  <FaGift className="mx-2 text-orange-500" />
+                ) : (
+                  ""
+                )}
+              </div>
+            </td>
+            <td className="px-4 py-2 border border-gray-200 text-center">
+              {item.original_quantity}
+            </td>
+            <td className="px-4 py-2 border border-gray-200 text-center">
+              <input
+                type="text"
+                inputMode="numeric"
+                value={item.quantity === 0 ? "" : item.quantity}
+                onChange={(e) => handleEditQuantity(item.product, e.target.value)}
+                className="border rounded-lg p-1 w-20 text-center"
+              />
+            </td>
+            <td className="px-4 py-2 border border-gray-200 font-medium text-center">
+              {!isNaN(item.price) ? (
+                <span className="flex items-center justify-center gap-1 text-gray-700">
+                  <FaIndianRupeeSign className="text-gray-400" /> {item.price}
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-1 text-red-500 text-xs">
+                  <FaBan /> Price
+                </span>
+              )}
+            </td>
+            <td className="px-4 py-2 border border-gray-200 text-center">
+              <button
+                onClick={() => handleDeleteItem(item.product)}
+                className="text-red-600 hover:text-red-800 cursor-pointer"
+              >
+                <Trash2 size={18} />
+              </button>
+            </td>
+          </tr>
+        ))}
+
+        {/* New Row */}
+        {newRow && (
+          <tr className="bg-gray-100">
+            <td className="px-4 py-2 border border-gray-200 relative overflow-visible z-50">
+              <ProductSearchSelect
+                value={newRow.product}
+                onChange={(id) =>
+                  setNewRow((prev) => ({ ...prev, product: id }))
+                }
+              />
+            </td>
+            <td className="px-4 py-2 border border-gray-200 text-center">—</td>
+            <td className="px-4 py-2 border border-gray-200 text-center">
+              <input
+                type="number"
+                min="1"
+                value={newRow.quantity}
+                onChange={(e) =>
+                  setNewRow((prev) => ({
+                    ...prev,
+                    quantity: +e.target.value,
+                  }))
+                }
+                className="border rounded-lg p-1 w-20 text-center"
+              />
+            </td>
+            <td className="px-4 py-2 border border-gray-200 text-center text-gray-400 italic">
+              —
+            </td>
+            <td className="px-4 py-2 border border-gray-200 text-center">
+              <button
+                onClick={handleSaveNewRow}
+                className="text-green-600 border px-2 rounded p-1 hover:bg-gray-300 mr-2 cursor-pointer"
+              >
+                Save
+              </button>
+            </td>
+          </tr>
+        )}
+
+        {/* Add Row */}
+        <tr>
+          <td colSpan="5" className="text-center p-4">
+            <button
+              onClick={handleAddRow}
+              className="flex items-center rounded border p-2 cursor-pointer justify-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+            >
+              <Plus size={18} /> Add Item
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+     {/* Notes */}
+      <div className="mt-6 p-4">
         <label className="block font-semibold mb-1">Notes</label>
         <textarea
           className="border rounded-lg p-3 w-full focus:ring focus:ring-blue-200"
@@ -259,7 +287,7 @@ export default function CRMOrderDetailPage() {
       </div>
 
       {/* Action Buttons */}
-      <div className="mt-6 flex flex-col sm:flex-row gap-4">
+      <div className="mt-6 p-4 flex flex-col sm:flex-row gap-4">
         <button
           onClick={() => handleVerify("APPROVED")}
           disabled={loadingApprove}
@@ -286,6 +314,10 @@ export default function CRMOrderDetailPage() {
           Reject
         </button>
       </div>
+  </div>
+</div>
+
+     
     </div>
   );
 }

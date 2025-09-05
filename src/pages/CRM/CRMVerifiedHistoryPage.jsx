@@ -14,7 +14,8 @@ export default function CRMVerifiedHistoryPage() {
 
 
     const { data, isLoading, isFetching, isError } = useVerifiedOrders({ page, pageSize: 20, status, q, start_date: start, end_date: end })
-
+    console.log(data);
+    
 
 
     const results = data?.results || []
@@ -84,7 +85,13 @@ export default function CRMVerifiedHistoryPage() {
                                     <td className="p-3">{new Date(row.verified_at).toLocaleString()}</td>
                                     <td className="p-3 text-right">₹{Number(row.total_amount).toFixed(2)}</td>
                                     <td className="p-3 text-right">
-                                        <button onClick={() => navigate(`/crm/verified/${row.id}`)} className="px-3 py-1 rounded-xl border cursor-pointer hover:bg-gray-200">View</button>
+                                        <button
+  onClick={() => navigate(`/crm/verified/${row.id}`, { state: { order: row } })}
+  className="px-3 py-1 rounded-xl border cursor-pointer hover:bg-gray-200"
+>
+  View
+</button>
+
                                     </td>
                                 </tr>
                             ))

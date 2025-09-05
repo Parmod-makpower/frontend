@@ -73,22 +73,36 @@ export default function ProductDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left: Product Image */}
 
-        <div className="relative  flex items-center justify-center">
-          <img
-            src={
-              product?.image
-                ? `https://res.cloudinary.com/djyr368zj/${product.image}`
-                : makpower_image
-            }
-            alt={product.product_name}
-            className="w-full sm:w-100  object-contain transform hover:scale-105 transition duration-300"
-          />
-          {relatedSchemes.length > 0 && (
-            <span className="absolute top-5 right-5 bg-pink-100 p-3 rounded-full shadow">
-              <FaGift className="text-[#f43f5e] animate-bounce" title="Scheme Available" />
-            </span>
-          )}
-        </div>
+        <div className="relative flex items-center justify-center">
+  <img
+    src={
+      product?.image
+        ? `https://res.cloudinary.com/djyr368zj/${product.image}?f_auto,q_auto,w_500,dpr_auto`
+        : makpower_image
+    }
+    srcSet={
+      product?.image
+        ? `
+          https://res.cloudinary.com/djyr368zj/${product.image}?f_auto,q_auto,w_150,dpr_auto 150w,
+          https://res.cloudinary.com/djyr368zj/${product.image}?f_auto,q_auto,w_300,dpr_auto 300w,
+          https://res.cloudinary.com/djyr368zj/${product.image}?f_auto,q_auto,w_500,dpr_auto 500w
+        `
+        : ""
+    }
+    sizes="(max-width: 640px) 150px, (max-width: 1024px) 300px, 500px"
+    alt={product.product_name}
+    loading="lazy"
+    className="w-full sm:w-100 object-contain transform hover:scale-105 transition duration-300"
+    onError={(e) => (e.target.src = makpower_image)}
+  />
+
+  {relatedSchemes.length > 0 && (
+    <span className="absolute top-5 right-5 bg-pink-100 p-3 rounded-full shadow">
+      <FaGift className="text-[#f43f5e] animate-bounce" title="Scheme Available" />
+    </span>
+  )}
+</div>
+
         {/* Right: Product Details */}
         <div className="flex flex-col gap-5 px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800">{product.product_name}</h2>
