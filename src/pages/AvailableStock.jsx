@@ -96,11 +96,11 @@ const categories = useMemo(() => {
       {/* 📊 Right Side Table */}
       <div className="flex-1">
         {/* Top Controls */}
-        <div className="flex flex-col sm:flex-row justify-between gap-3 mb-4 ">
+        <div className="flex flex-col sm:flex-row w-70 justify-between gap-3 mb-4 ">
           {/* Search Bar */}
           <input
             type="text"
-            placeholder="🔍 Search by name, category, ID..."
+            placeholder="🔍 Search ..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -124,9 +124,9 @@ const categories = useMemo(() => {
               <option value="all">All</option>
             </select>
 
-            <button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow cursor-pointer">
+            {/* <button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow cursor-pointer">
               <FiDownload className="text-lg" /> Download PDF
-            </button>
+            </button> */}
           </div>
         </div>
 

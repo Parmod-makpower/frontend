@@ -14,8 +14,8 @@ export default function CRMVerifiedHistoryPage() {
 
 
     const { data, isLoading, isFetching, isError } = useVerifiedOrders({ page, pageSize: 20, status, q, start_date: start, end_date: end })
-    console.log(data);
     
+
 
 
     const results = data?.results || []
@@ -24,28 +24,26 @@ export default function CRMVerifiedHistoryPage() {
 
     return (
         <div className="p-4 sm:p-6 pb-20">
-            <MobilePageHeader title="Orders — History"/>
-            <div className="sticky top-0 z-10 bg-white/70 backdrop-blur border-b mb-4 pt-[60px] sm:pt-0">
-               
-                <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 pb-3">
-                    <input value={q} onChange={e => setQ(e.target.value)} placeholder="🔎 Search Party / Order ID" className="border rounded-xl p-2" />
-                    <select value={status} onChange={e => setStatus(e.target.value)} className="border rounded-xl p-2">
+            <MobilePageHeader title="Orders — History" />
+            <div className="sticky top-0 z-10 bg-white/70 backdrop-blur  pt-[60px] sm:pt-0">
+
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-2 pb-3">
+                    <input value={q} onChange={e => setQ(e.target.value)} placeholder="🔎 Search Party / Order ID" className="border rounded p-2" />
+                    <select value={status} onChange={e => setStatus(e.target.value)} className="border rounded p-2">
 
                         <option value="APPROVED">Approved</option>
                         <option value="REJECTED">Rejected</option>
-                        <option value="DISPATCH">Dispatch</option>
-                        <option value="DELIVERED">Delivered</option>
+                       
                     </select>
-                    <input type="date" value={start} onChange={e => setStart(e.target.value)} className="border rounded-xl p-2" />
-                    <input type="date" value={end} onChange={e => setEnd(e.target.value)} className="border rounded-xl p-2" />
-                    <button onClick={() => setPage(1)} className="rounded-2xl px-4 py-2 bg-black text-white">Apply</button>
+                    <input type="date" value={start} onChange={e => setStart(e.target.value)} className="border rounded p-2" />
+                    <input type="date" value={end} onChange={e => setEnd(e.target.value)} className="border rounded p-2" />
                 </div>
             </div>
 
             {isError && <div className="text-red-600">Loading failed. Try again.</div>}
 
 
-            <div className="overflow-x-auto border rounded-2xl shadow-sm">
+            <div className="overflow-x-auto border rounded shadow-sm">
                 <table className="w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>
@@ -75,9 +73,9 @@ export default function CRMVerifiedHistoryPage() {
                                     <td className="p-3">{row.crm_name}</td>
                                     <td className="p-3">
                                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${row.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                                                row.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                                                    row.status === 'DISPATCH' ? 'bg-blue-100 text-blue-700' :
-                                                        'bg-purple-100 text-purple-700'
+                                            row.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                                row.status === 'DISPATCH' ? 'bg-blue-100 text-blue-700' :
+                                                    'bg-purple-100 text-purple-700'
                                             }`}>
                                             {row.status}
                                         </span>
@@ -86,11 +84,11 @@ export default function CRMVerifiedHistoryPage() {
                                     <td className="p-3 text-right">₹{Number(row.total_amount).toFixed(2)}</td>
                                     <td className="p-3 text-right">
                                         <button
-  onClick={() => navigate(`/crm/verified/${row.id}`, { state: { order: row } })}
-  className="px-3 py-1 rounded-xl border cursor-pointer hover:bg-gray-200"
->
-  View
-</button>
+                                            onClick={() => navigate(`/crm/verified/${row.id}`, { state: { order: row } })}
+                                            className="px-3 py-1 rounded-xl border cursor-pointer hover:bg-gray-200"
+                                        >
+                                            View
+                                        </button>
 
                                     </td>
                                 </tr>

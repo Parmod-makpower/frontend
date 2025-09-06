@@ -12,7 +12,11 @@ export default function CRMOrderListPage() {
   return (
     <div className="p-2 max-w-5xl mx-auto pb-20">
       <MobilePageHeader title="My Orders" />
-
+        {isFetching && (
+        <p className="text-center text-sm text-gray-400 mt-2">
+          🔄 Updating orders...
+        </p>
+      )}
       <div className="pt-[60px] sm:pt-0 space-y-4">
         {orders.length === 0 ? (
           <p className="text-gray-500 text-center">No orders found.</p>
@@ -44,11 +48,6 @@ export default function CRMOrderListPage() {
         )}
       </div>
 
-      {isFetching && (
-        <p className="text-center text-sm text-gray-400 mt-2">
-          🔄 Updating orders...
-        </p>
-      )}
     </div>
   );
 }
