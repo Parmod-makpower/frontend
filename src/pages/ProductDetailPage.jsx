@@ -74,34 +74,34 @@ export default function ProductDetailPage() {
         {/* Left: Product Image */}
 
         <div className="relative flex items-center justify-center">
-  <img
-    src={
-      product?.image
-        ? `https://res.cloudinary.com/djyr368zj/${product.image}?f_auto,q_auto,w_500,dpr_auto`
-        : makpower_image
-    }
-    srcSet={
-      product?.image
-        ? `
+          <img
+            src={
+              product?.image
+                ? `https://res.cloudinary.com/djyr368zj/${product.image}?f_auto,q_auto,w_500,dpr_auto`
+                : makpower_image
+            }
+            srcSet={
+              product?.image
+                ? `
           https://res.cloudinary.com/djyr368zj/${product.image}?f_auto,q_auto,w_150,dpr_auto 150w,
           https://res.cloudinary.com/djyr368zj/${product.image}?f_auto,q_auto,w_300,dpr_auto 300w,
           https://res.cloudinary.com/djyr368zj/${product.image}?f_auto,q_auto,w_500,dpr_auto 500w
         `
-        : ""
-    }
-    sizes="(max-width: 640px) 150px, (max-width: 1024px) 300px, 500px"
-    alt={product.product_name}
-    loading="lazy"
-    className="w-full sm:w-100 object-contain transform hover:scale-105 transition duration-300"
-    onError={(e) => (e.target.src = makpower_image)}
-  />
+                : ""
+            }
+            sizes="(max-width: 640px) 150px, (max-width: 1024px) 300px, 500px"
+            alt={product.product_name}
+            loading="lazy"
+            className="w-full sm:w-100 object-contain transform hover:scale-105 transition duration-300"
+            onError={(e) => (e.target.src = makpower_image)}
+          />
 
-  {relatedSchemes.length > 0 && (
-    <span className="absolute top-5 right-5 bg-pink-100 p-3 rounded-full shadow">
-      <FaGift className="text-[#f43f5e] animate-bounce" title="Scheme Available" />
-    </span>
-  )}
-</div>
+          {relatedSchemes.length > 0 && (
+            <span className="absolute top-5 right-5 bg-pink-100 p-3 rounded-full shadow">
+              <FaGift className="text-[#f43f5e] animate-bounce" title="Scheme Available" />
+            </span>
+          )}
+        </div>
 
         {/* Right: Product Details */}
         <div className="flex flex-col gap-5 px-4">
@@ -182,20 +182,19 @@ export default function ProductDetailPage() {
                   <button
                     onClick={handleAddToCart}
                     className="w-full mt-2 flex items-center justify-center gap-2 
-             bg-gradient-to-r from-orange-500 via-red-500 to-pink-600
-             hover:from-pink-600 hover:via-red-500 hover:to-orange-500
-             text-white text-[11px] md:text-sm font-semibold 
-             py-2 md:py-3 rounded-xl shadow-lg 
-             transition-all duration-500 ease-in-out 
-             transform hover:scale-105 hover:shadow-2xl"
-                  >
+                    bg-gradient-to-r from-orange-500 via-red-500 to-pink-600
+                    hover:from-pink-600 hover:via-red-500 hover:to-orange-500
+                    text-white text-[11px] md:text-sm font-semibold 
+                    py-2 md:py-3 rounded-xl shadow-lg 
+                    transition-all duration-500 ease-in-out 
+                    transform hover:scale-105 hover:shadow-2xl"
+                          >
                     <FaShoppingCart className="text-sm md:text-base animate-bounce" />
                     Add to Cart
                   </button>
                 </div>
               )}
             </div>
-
           )}
 
           {/* Schemes Section */}
@@ -243,7 +242,6 @@ export default function ProductDetailPage() {
           )}
         </div>
       </div>
-
     </div>
   );
 }
