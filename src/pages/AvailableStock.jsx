@@ -7,7 +7,7 @@ import makpower_image from "../assets/images/makpower_image.png";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 20;
 const ROWS_PER_PDF_PAGE = 7; // ✅ PDF per page rows
 
 export default function AvailableStock() {
@@ -44,6 +44,8 @@ export default function AvailableStock() {
     "LED BULB",
     "GLASS CLEANER",
     "LAMINATION",
+    "HEADPHONE",
+    "PROMOTIONAL ITEM",
   ];
 
   const categories = useMemo(() => {
@@ -87,113 +89,111 @@ export default function AvailableStock() {
     else setSelectedCategories([...selectedCategories, cat]);
   };
 
-  // 📥 PDF Download
-  const handleDownloadPDF = async () => {
-    const input = tableRef.current;
-    if (!input) return;
+  
+// 📥 PDF Download
+const handleDownloadPDF = async () => {
+  const input = tableRef.current;
+  if (!input) return;
 
-    setIsDownloading(true);
-    try {
-      const pdf = new jsPDF("p", "mm", "a4"); // landscape A4
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const marginX = 15;
-      const marginY = 10;
+  setIsDownloading(true);
+  try {
+    const pdf = new jsPDF("p", "mm", "a4"); // Portrait A4
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const marginX = 15;
+    const marginY = 10;
 
-      // Split filtered products into chunks of ROWS_PER_PDF_PAGE
-      for (let i = 0; i < filteredProducts.length; i += ROWS_PER_PDF_PAGE) {
-        const chunk = filteredProducts.slice(i, i + ROWS_PER_PDF_PAGE);
+    // Split filtered products into chunks of ROWS_PER_PDF_PAGE
+    for (let i = 0; i < filteredProducts.length; i += ROWS_PER_PDF_PAGE) {
+      const chunk = filteredProducts.slice(i, i + ROWS_PER_PDF_PAGE);
 
-        // Create a temporary table
-        const tempTable = document.createElement("table");
-        tempTable.style.borderCollapse = "collapse";
-        tempTable.style.width = "100%";
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-        ["Product Name", "Category", "Image"].forEach((head) => {
-          const th = document.createElement("th");
-          th.innerText = head;
-          th.style.border = "2px solid #000";
-          th.style.paddingTop = "20px";
-          th.style.paddingBottom = "20px";
-          th.style.paddingLeft = "20px";
-          th.style.paddingRight = "20px";
-          th.style.fontSize = "50px";
-          th.style.backgroundColor = "#f0f0f0";
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        tempTable.appendChild(thead);
+      // Create a temporary table
+      const tempTable = document.createElement("table");
+      tempTable.style.borderCollapse = "collapse";
+      tempTable.style.width = "100%";
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      ["Product Name", "Category", "Image"].forEach((head) => {
+        const th = document.createElement("th");
+        th.innerText = head;
+        th.style.border = "2px solid #000";
+        th.style.padding = "20px";
+        th.style.fontSize = "50px";
+        th.style.backgroundColor = "#f0f0f0";
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      tempTable.appendChild(thead);
 
-        const tbody = document.createElement("tbody");
-        chunk.forEach((prod) => {
-          const tr = document.createElement("tr");
+      const tbody = document.createElement("tbody");
+      chunk.forEach((prod) => {
+        const tr = document.createElement("tr");
 
+        const tdName = document.createElement("td");
+        tdName.innerText = prod.product_name;
+        tdName.style.border = "1px solid #000";
+        tdName.style.fontSize = "45px";
+        tdName.style.textAlign = "center";
+        tdName.style.fontWeight = "bold";
 
+        const tdCat = document.createElement("td");
+        tdCat.innerText = prod.sub_category;
+        tdCat.style.border = "1px solid #000";
+        tdCat.style.fontSize = "45px";
+        tdCat.style.textAlign = "center";
+        tdCat.style.fontWeight = "bold";
 
-          const tdName = document.createElement("td");
-          tdName.innerText = prod.product_name;
-          tdName.style.border = "1px solid #000";
+        const tdImg = document.createElement("td");
+        tdImg.style.border = "1px solid #000";
+        tdImg.style.padding = "10px";
+        tdImg.style.textAlign = "center";
+        const img = document.createElement("img");
+        img.src = prod?.image
+          ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
+          : makpower_image;
+        img.style.width = "350px";
+        img.style.height = "350px";
+        img.style.objectFit = "contain";
+        img.style.display = "inline-block";
+        tdImg.appendChild(img);
 
-          tdName.style.fontSize = "40px";
-          tdName.style.textAlign = "center";
-          tdName.style.fontWeight = "bold";
+        tr.appendChild(tdName);
+        tr.appendChild(tdCat);
+        tr.appendChild(tdImg);
 
-          const tdCat = document.createElement("td");
-          tdCat.innerText = prod.sub_category;
-          tdCat.style.border = "1px solid #000";
+        tbody.appendChild(tr);
+      });
 
-          tdCat.style.fontSize = "40px";
-          tdCat.style.textAlign = "center";
-          tdCat.style.fontWeight = "bold";
+      tempTable.appendChild(tbody);
+      document.body.appendChild(tempTable);
 
-          const tdImg = document.createElement("td");
-          tdImg.style.border = "1px solid #000";
-          tdImg.style.padding = "2px";
-          tdImg.style.textAlign = "center";
-          const img = document.createElement("img");
-          img.src = prod?.image
-            ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
-            : makpower_image;
-          img.style.width = "300px";
-          img.style.height = "300px";
-          img.style.objectFit = "contain";
-          img.style.display = "inline-block";
-          tdImg.appendChild(img);
+      // ✅ FIXED SIZE rendering (independent of browser window)
+      const canvas = await html2canvas(tempTable, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        windowWidth: 1920, // ✅ force fixed rendering width
+      });
 
-          tr.appendChild(tdCat);
-          tr.appendChild(tdName);
-          tr.appendChild(tdImg);
+      const imgData = canvas.toDataURL("image/jpeg", 0.8);
+      const imgWidth = pdfWidth - marginX * 2; // A4 width
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-          tbody.appendChild(tr);
-        });
+      pdf.addImage(imgData, "JPEG", marginX, marginY, imgWidth, imgHeight);
+      if (i + ROWS_PER_PDF_PAGE < filteredProducts.length) pdf.addPage();
 
-        tempTable.appendChild(tbody);
-        document.body.appendChild(tempTable);
-
-        const canvas = await html2canvas(tempTable, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-        });
-        const imgData = canvas.toDataURL("image/jpeg", 0.8);
-        const imgWidth = pdfWidth - marginX * 2;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        pdf.addImage(imgData, "JPEG", marginX, marginY, imgWidth, imgHeight);
-        if (i + ROWS_PER_PDF_PAGE < filteredProducts.length) pdf.addPage();
-
-        document.body.removeChild(tempTable);
-      }
-
-      pdf.save("available-stock.pdf");
-    } catch (error) {
-      console.error("PDF export failed:", error);
-      alert("PDF बनाते समय error आया, कृपया दोबारा कोशिश करें।");
-    } finally {
-      setIsDownloading(false);
+      document.body.removeChild(tempTable);
     }
-  };
+
+    pdf.save("available-stock.pdf");
+  } catch (error) {
+    console.error("PDF export failed:", error);
+    alert("PDF बनाते समय error आया, कृपया दोबारा कोशिश करें।");
+  } finally {
+    setIsDownloading(false);
+  }
+};
+
 
   if (isLoading) return <p className="p-4">Loading...</p>;
 
@@ -269,6 +269,8 @@ export default function AvailableStock() {
               <tr className="bg-gray-100">
                 <th className="px-4 py-2 border">Category</th>
                 <th className="px-4 py-2 border">Product Name</th>
+                <th className="px-4 py-2 border">Price</th>
+                <th className="px-4 py-2 border">Cartoon Size</th>
                 <th className="px-4 py-2 border">Image</th>
               </tr>
             </thead>
@@ -280,6 +282,12 @@ export default function AvailableStock() {
                   </td>
                   <td className="px-4 py-2 border">
                     {prod.product_name}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {prod.price}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {prod.cartoon_size}
                   </td>
                   <td className="px-4 py-2 border">
                     <img
