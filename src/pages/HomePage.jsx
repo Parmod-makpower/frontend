@@ -138,7 +138,7 @@ export default function HomePage() {
       </div>
 
       {/* ⭐ Trending Products Component */}
-      <SlidingProductsCards trendingIds={trendingIds} title={"Trending Productss"}/>
+      <SlidingProductsCards trendingIds={trendingIds} title={"Trending Products"}/>
 
       <SlidingProductsCards trendingIds={schemeIds} title={"Special Scheme Products"}/>
     </div>

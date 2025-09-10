@@ -15,7 +15,7 @@ export const useCachedProducts = () => {
     queryKey: ["all-products"],
     queryFn: getAllProducts,
 
-    staleTime: 1000 * 60 * 2,   // 25 minutes        
+    staleTime: 1000 * 60 * 25,   // 25 minutes        
     gcTime: 1000 * 60 * 60 * 24 ,   
 
     refetchInterval: false,
