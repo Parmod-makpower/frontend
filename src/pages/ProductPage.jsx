@@ -248,10 +248,11 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">Price</th>
               <th className="px-4 py-2 border">Cartoon</th>
               <th className="px-4 py-2 border">Upload</th>
-              <th className="px-4 py-2 border">Upload2</th>
+              <th className="px-4 py-2 border">Image</th>
               <th className="px-4 py-2 border">Active</th>
               <th className="px-4 py-2 border">Edit</th>
               <th className="px-4 py-2 border">Delete</th>
+              <th className="px-4 py-2 border">Upload2</th>
               <th className="px-4 py-2 border">Image</th>
             </tr>
           </thead>
@@ -276,20 +277,16 @@ export default function ProductPage() {
                     />
                   </label>
                 </td>
-
-                {/* Upload for Image2 */}
-                <td className="px-4 py-2 border">
-                  <label className="cursor-pointer">
-                    <FiUpload className="text-green-600 hover:text-green-800" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, prod.product_id, "image2")}
-                      className="hidden"
-                    />
-                  </label>
+                 <td className="px-4 py-2 border">
+                  <img
+                    src={
+                      prod?.image
+                        ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
+                        : makpower_image
+                    } className="w-10 h-10 object-contain bg-gray-50 rounded-lg border self-center" />
                 </td>
 
+               
                 <td className="px-4 py-2 border text-center">
 
 
@@ -331,11 +328,24 @@ export default function ProductPage() {
                     <FiTrash2 />
                   </button>
                 </td>
+                 {/* Upload for Image2 */}
+                <td className="px-4 py-2 border">
+                  <label className="cursor-pointer">
+                    <FiUpload className="text-green-600 hover:text-green-800" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, prod.product_id, "image2")}
+                      className="hidden"
+                    />
+                  </label>
+                </td>
+
                 <td className="px-4 py-2 border">
                   <img
                     src={
-                      prod?.image
-                        ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
+                      prod?.image2
+                        ? `https://res.cloudinary.com/djyr368zj/${prod.image2}`
                         : makpower_image
                     } className="w-10 h-10 object-contain bg-gray-50 rounded-lg border self-center" />
                 </td>
