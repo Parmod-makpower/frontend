@@ -69,3 +69,17 @@ export const uploadProductImage = async ({ productId, imageFile }) => {
 
   return response.data;
 };
+
+// 🔹 Upload product image2
+export const uploadProductImage2 = async ({ productId, imageFile }) => {
+  const formData = new FormData();
+  formData.append("image2", imageFile);
+
+  const response = await API.post(`/products/${productId}/upload_image2/`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+};

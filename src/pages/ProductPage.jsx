@@ -4,7 +4,7 @@ import useFuseSearch from "../hooks/useFuseSearch";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useToggleProductStatus } from "../hooks/useProducts";
 import { useAddProduct, useDeleteProduct, useUpdateProduct } from "../hooks/useProducts";
-import { uploadProductImage } from "../api/productApi";
+import { uploadProductImage, uploadProductImage2 } from "../api/productApi";
 import { toast } from "react-toastify";
 import { FiUpload, FiEdit, FiTrash2, FiPlus, FiDownload } from "react-icons/fi";
 import makpower_image from "../assets/images/makpower_image.png"
@@ -89,16 +89,30 @@ export default function ProductPage() {
   };
 
   // Image Upload
-  const handleImageUpload = async (productId, file) => {
+  // Image Upload
+  const handleImageUpload = async (productId, file, type = "image") => {
     try {
-      const response = await uploadProductImage({ productId, imageFile: file });
-      toast.success("Image uploaded successfully ✅");
-      console.log("Uploaded Image URL:", response.url);
+      let response;
+      if (type === "image") {
+        response = await uploadProductImage({ productId, imageFile: file });
+      } else {
+        response = await uploadProductImage2({ productId, imageFile: file });
+      }
+      toast.success(`${type} uploaded successfully ✅`);
+      console.log(`Uploaded ${type} URL:`, response.url);
     } catch (error) {
-      toast.error("Image upload failed ❌");
+      toast.error(`${type} upload failed ❌`);
       console.error("Upload error:", error);
     }
   };
+
+  const handleFileChange = (e, productId, type) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleImageUpload(productId, file, type);
+    }
+  };
+
 
   const handleDownloadTemplate = async () => {
     try {
@@ -134,12 +148,6 @@ export default function ProductPage() {
     }
   };
 
-  const handleFileChange = (e, productId) => {
-    const file = e.target.files[0];
-    if (file) {
-      handleImageUpload(productId, file);
-    }
-  };
 
   if (isLoading) return <p className="p-4">Loading...</p>;
 
@@ -159,9 +167,9 @@ export default function ProductPage() {
           className="border p-2 rounded flex-1 min-w-[200px] shadow-sm focus:ring-2 focus:ring-blue-400"
         />
 
-       
-        {/* <div className="flex flex-wrap gap-2">
-         
+
+        <div className="flex flex-wrap gap-2">
+
           <button
             onClick={() => {
               setEditData(null);
@@ -180,7 +188,7 @@ export default function ProductPage() {
             <FiPlus className="text-lg" /> Add Product
           </button>
 
-         
+
           <button
             onClick={handleDownloadTemplate}
             className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow cursor-pointer"
@@ -188,7 +196,7 @@ export default function ProductPage() {
             <FiDownload className="text-lg" /> Download Template
           </button>
 
-          
+
           <label
             className={`flex items-center gap-2 ${uploading ? "bg-purple-400" : "bg-purple-500 hover:bg-purple-600"} text-white px-4 py-2 rounded shadow cursor-pointer`}
           >
@@ -224,8 +232,8 @@ export default function ProductPage() {
               disabled={uploading} // 🔹 Prevent multiple uploads at once
             />
           </label>
-        </div> */}
-        
+        </div>
+
       </div>
 
       {/* Table */}
@@ -236,13 +244,14 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">ID</th>
               <th className="px-4 py-2 border">Category</th>
               <th className="px-4 py-2 border">Product Name</th>
-              {/* <th className="px-4 py-2 border">Stock</th>
+              <th className="px-4 py-2 border">Stock</th>
               <th className="px-4 py-2 border">Price</th>
               <th className="px-4 py-2 border">Cartoon</th>
               <th className="px-4 py-2 border">Upload</th>
+              <th className="px-4 py-2 border">Upload2</th>
               <th className="px-4 py-2 border">Active</th>
               <th className="px-4 py-2 border">Edit</th>
-              <th className="px-4 py-2 border">Delete</th> */}
+              <th className="px-4 py-2 border">Delete</th>
               <th className="px-4 py-2 border">Image</th>
             </tr>
           </thead>
@@ -252,20 +261,35 @@ export default function ProductPage() {
                 <td className="px-4 py-2 border">{prod.product_id}</td>
                 <td className="px-4 py-2 border">{prod.sub_category}</td>
                 <td className="px-4 py-2 border">{prod.product_name}</td>
-                {/* <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
+                <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
                 <td className="px-4 py-2 border">{prod.price}</td>
                 <td className="px-4 py-2 border">{prod.cartoon_size}</td>
+                {/* Upload for Image1 */}
                 <td className="px-4 py-2 border">
                   <label className="cursor-pointer">
                     <FiUpload className="text-blue-600 hover:text-blue-800" />
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => handleFileChange(e, prod.product_id)}
+                      onChange={(e) => handleFileChange(e, prod.product_id, "image")}
                       className="hidden"
                     />
                   </label>
                 </td>
+
+                {/* Upload for Image2 */}
+                <td className="px-4 py-2 border">
+                  <label className="cursor-pointer">
+                    <FiUpload className="text-green-600 hover:text-green-800" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, prod.product_id, "image2")}
+                      className="hidden"
+                    />
+                  </label>
+                </td>
+
                 <td className="px-4 py-2 border text-center">
 
 
@@ -306,14 +330,14 @@ export default function ProductPage() {
                   >
                     <FiTrash2 />
                   </button>
-                </td> */}
+                </td>
                 <td className="px-4 py-2 border">
-                  <img  
-                  src={
-                    prod?.image
-                      ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
-                      : makpower_image
-                  }className="w-10 h-10 object-contain bg-gray-50 rounded-lg border self-center"/>
+                  <img
+                    src={
+                      prod?.image
+                        ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
+                        : makpower_image
+                    } className="w-10 h-10 object-contain bg-gray-50 rounded-lg border self-center" />
                 </td>
               </tr>
             ))}

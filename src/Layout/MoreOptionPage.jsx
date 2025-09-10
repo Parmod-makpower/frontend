@@ -6,6 +6,7 @@ import {
   FaSignOutAlt,
   FaInfoCircle,
   FaUsers,
+  FaChartLine,
 } from "react-icons/fa";
 import MobilePageHeader from "../components/MobilePageHeader";
 
@@ -26,6 +27,11 @@ export default function MoreOptionsPage() {
             label: "Users",
             icon: <FaUsers className="text-green-600" />,
             action: () => navigate("/crm-ss/list"),
+          },
+          {
+            label: "Available Stock",
+            icon: <FaChartLine className="text-orange-600" />,
+            action: () => navigate("/available-stock"),
           },
         ]
       : []),

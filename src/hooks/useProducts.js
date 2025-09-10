@@ -59,6 +59,18 @@ export function useUploadProductImage() {
   });
 }
 
+// hooks/useProducts.js
+export function useUploadProductImage2() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: uploadProductImage2,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+}
+
+
 // ⬇️ Toggle product active/inactive
 export function useToggleProductStatus() {
   const queryClient = useQueryClient();
