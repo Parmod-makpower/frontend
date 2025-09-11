@@ -26,20 +26,7 @@ const categories = [
     keyword: "CHARGER",
     image:  "https://makpowerindia.com/cdn/shop/files/slohk7hxowdsfjgdgbrp.webp?v=1741173178",
   
-    subcategories: [
-      {
-        label: "CHARGER",
-        keyword: "CHARGER",
-        image:  "https://makpowerindia.com/cdn/shop/files/slohk7hxowdsfjgdgbrp.webp?v=1741173178",
-  
-      },
-      {
-        label: "CAR CHARGER",
-        keyword: "CAR CHARGER",
-        image:   "https://makpowerindia.com/cdn/shop/files/Best_Fast_Dual_USB_Car_Charger_Black.webp?v=1742636246",
-      },
-      
-    ]
+    subcategories: []
   },
   {
     label: "BLUETOOTH",

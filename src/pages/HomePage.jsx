@@ -36,8 +36,8 @@ export default function HomePage() {
   };
 
   // यहाँ आप IDs की लिस्ट रखेंगे
-  const trendingIds = [1123, 1582, 1145, 726, 715, 72, 692, 17, 46];
-  const schemeIds = [18,28,1129,634,125,60,119];
+  const trendingIds = [726, 713, 41,48, 72, 692, 17, 46];
+  const schemeIds = [28,1129,634,125,60,119];
 
   return (
     <div className="mx-auto p-4 pb-25">
