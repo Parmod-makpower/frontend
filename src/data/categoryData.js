@@ -60,18 +60,14 @@ const categories = [
       {
         label: "BLUETOOTH CELL",
         keyword: "BLUETOOTH Cell",
-        image: "https://makpowerindia.com/cdn/shop/files/Makpower_15W_Bluetooth_wireless_speaker_Black.webp?v=1745229954"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757563007/gz8rtmubnidf2gptuvj8.webp"
       },
       {
         label: "CAR BLUETOOTH",
         keyword: "CAR BLUETOOTH",
         image: "https://storage.googleapis.com/takeapp/media/clwvzc1eo000a0cmg3jljazhh.jpeg"
       },
-      {
-        label: "SINGLE BLUETOOTH",
-        keyword: "SINGLE BLUETOOTH",
-        image: "https://cdn.shopclues.com/images1/thumbnails/103403/320/320/148122493-103403504-1668507820.jpg"
-      }
+     
     ]
   },
   {
@@ -261,7 +257,7 @@ const categories = [
   {
     label: "MEMORY CARD",
     keyword: "MEMORY CARD",
-    image:   "https://images.jdmagicbox.com/quickquotes/images_main/sony_8gb_microsdhc_memory_card_sr_8n4__11271825_0.jpeg",
+    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1757503232/sgwompfbk1t79ranr6ha.webp",
     subcategories: []
   },
   {
@@ -282,16 +278,11 @@ const categories = [
     image: "https://makpowerindia.com/cdn/shop/files/nhjfwatd4fmhtkkrpctd.webp?v=1748686948",
     subcategories: []
   },
-  {
-    label: "CARD READER",
-    keyword: "CARD READER",
-    image:   "https://rukminim2.flixcart.com/image/356/352/xif0q/otg-adapter/i/a/g/mp-otg-typec-02-makpower-original-imahdnhgdq7efxzt.jpeg?q=90&crop=false",
-    subcategories: []
-  },
+ 
   {
     label: "CONNECTOR",
     keyword: "CONNECTOR",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1756792215/djiatbatx1avqankvcjl.png",
+    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1757505291/iex0p0slyj1qizxypmnd.webp",
     subcategories: []
   }
  

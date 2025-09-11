@@ -267,6 +267,7 @@ export default function AvailableStock() {
           <table className="min-w-full border">
             <thead>
               <tr className="bg-gray-100">
+                <th className="px-4 py-2 border">ID</th>
                 <th className="px-4 py-2 border">Category</th>
                 <th className="px-4 py-2 border">Product Name</th>
                 <th className="px-4 py-2 border">Price</th>
@@ -278,6 +279,9 @@ export default function AvailableStock() {
             <tbody>
               {paginatedProducts.map((prod) => (
                 <tr key={prod.product_id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 border ">
+                    {prod.product_id}
+                  </td>
                   <td className="px-4 py-2 border ">
                     {prod.sub_category}
                   </td>
