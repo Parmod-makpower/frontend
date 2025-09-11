@@ -107,7 +107,7 @@ export default function ProductDetailPage() {
           <img
             src={images[currentIndex]}
             alt={product.product_name}
-            className="w-full max-h-[550px] h-[550px] object-contain transform hover:scale-105 transition duration-300"
+            className="w-full max-h-[600px] h-[600px] object-contain transform hover:scale-105 transition duration-300"
             onError={(e) => (e.target.src = makpower_image)}
           />
 
@@ -157,7 +157,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Right: Product Details */}
-        <div className="flex flex-col gap-5 px-4">
+        <div className="flex flex-col sm:gap-5 gap-2  px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
             {product.product_name}
           </h2>
