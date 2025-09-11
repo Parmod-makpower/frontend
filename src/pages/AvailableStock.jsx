@@ -8,7 +8,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 const ITEMS_PER_PAGE = 20;
-const ROWS_PER_PDF_PAGE = 7; // ✅ PDF per page rows
+const ROWS_PER_PDF_PAGE = 2; // ✅ PDF per page rows
 
 export default function AvailableStock() {
   const { data: allProducts = [], isLoading } = useCachedProducts();
@@ -21,7 +21,7 @@ export default function AvailableStock() {
 
   // 🔍 Search filter
   const searchedProducts = useFuseSearch(allProducts, search, {
-    keys: ["product_name", "sub_category", "product_id"],
+    keys: [ "sub_category"],
     threshold: 0.3,
   });
   const productsToSearch = search ? searchedProducts : allProducts;
@@ -113,7 +113,7 @@ export default function AvailableStock() {
         tempTable.style.width = "100%";
         const thead = document.createElement("thead");
         const headerRow = document.createElement("tr");
-        ["Product Name", "Category", "Image"].forEach((head) => {
+        ["Product Name",  "Image"].forEach((head) => {
           const th = document.createElement("th");
           th.innerText = head;
           th.style.border = "2px solid #000";
@@ -136,29 +136,29 @@ export default function AvailableStock() {
           tdName.style.textAlign = "center";
           tdName.style.fontWeight = "bold";
 
-          const tdCat = document.createElement("td");
-          tdCat.innerText = prod.sub_category;
-          tdCat.style.border = "1px solid #000";
-          tdCat.style.fontSize = "45px";
-          tdCat.style.textAlign = "center";
-          tdCat.style.fontWeight = "bold";
+          // const tdCat = document.createElement("td");
+          // tdCat.innerText = prod.sub_category;
+          // tdCat.style.border = "1px solid #000";
+          // tdCat.style.fontSize = "45px";
+          // tdCat.style.textAlign = "center";
+          // tdCat.style.fontWeight = "bold";
 
           const tdImg = document.createElement("td");
           tdImg.style.border = "1px solid #000";
           tdImg.style.padding = "10px";
           tdImg.style.textAlign = "center";
           const img = document.createElement("img");
-          img.src = prod?.image
-            ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
+          img.src = prod?.image2
+            ? `https://res.cloudinary.com/djyr368zj/${prod.image2}`
             : makpower_image;
-          img.style.width = "350px";
-          img.style.height = "350px";
+          img.style.width = "900px";
+          img.style.height = "1250px";
           img.style.objectFit = "contain";
           img.style.display = "inline-block";
           tdImg.appendChild(img);
 
           tr.appendChild(tdName);
-          tr.appendChild(tdCat);
+          // tr.appendChild(tdCat);
           tr.appendChild(tdImg);
 
           tbody.appendChild(tr);
@@ -288,7 +288,7 @@ export default function AvailableStock() {
                     {prod.price}
                   </td>
                   <td className="px-4 py-2 border">
-                    {prod.live_stock}
+                    {prod.cartoon_size}
                   </td>
                   <td className="px-4 py-2 border">
                     <img

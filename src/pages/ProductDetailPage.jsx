@@ -107,7 +107,7 @@ export default function ProductDetailPage() {
           <img
             src={images[currentIndex]}
             alt={product.product_name}
-            className="w-full sm:w-100 h-150 object-contain transform hover:scale-105 transition duration-300 "
+            className="w-full max-h-[550px] h-[550px] object-contain transform hover:scale-105 transition duration-300"
             onError={(e) => (e.target.src = makpower_image)}
           />
 
@@ -115,7 +115,7 @@ export default function ProductDetailPage() {
           {images.length > 1 && (
             <button
               onClick={handlePrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 p-2  shadow"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-white text-white p-2 rounded-full shadow"
             >
               ❮
             </button>
@@ -125,7 +125,7 @@ export default function ProductDetailPage() {
           {images.length > 1 && (
             <button
               onClick={handleNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-700 p-2 rounded-full shadow"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-white text-white p-2 rounded-full shadow"
             >
               ❯
             </button>
