@@ -235,6 +235,10 @@ export default function ProductPage() {
         </div>
 
       </div>
+{/* ✅ Total Records Count */}
+<div className="mb-2 text-sm text-gray-700 font-medium">
+  Total Records: {productsToShow.length}
+</div>
 
       {/* Table */}
       <div className="overflow-x-auto">
