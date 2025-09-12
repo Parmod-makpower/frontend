@@ -1,5 +1,5 @@
 
-import makpower_image from "../assets/images/makpower_image.png"
+import makpower_image from "../assets/images/makpower_image.webp"
  
 const categories = [
     {

@@ -3,7 +3,7 @@ import useFuseSearch from "../hooks/useFuseSearch";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { FiDownload } from "react-icons/fi";
 import { ImSpinner2 } from "react-icons/im";
-import makpower_image from "../assets/images/makpower_image.png";
+import makpower_image from "../assets/images/makpower_image.webp";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 

@@ -14,7 +14,7 @@ import {
   FaBan,
 } from "react-icons/fa";
 import { FaIndianRupeeSign } from "react-icons/fa6";
-import makpower_image from "../assets/images/makpower_image.png";
+import makpower_image from "../assets/images/makpower_image.webp";
 
 export default function ProductDetailPage() {
   const { user } = useAuth();
@@ -191,7 +191,7 @@ export default function ProductDetailPage() {
           {/* Product Meta Info */}
           <div className="grid grid-cols-2 gap-6 text-sm md:text-base">
             <div>
-              <p className="font-medium text-gray-600">Sub Category</p>
+              <p className="font-medium text-gray-600">Category</p>
               <p className="text-gray-800">{product.sub_category || "N/A"}</p>
             </div>
             <div>
@@ -239,7 +239,7 @@ export default function ProductDetailPage() {
                     bg-gradient-to-r from-orange-500 via-red-500 to-pink-600
                     hover:from-pink-600 hover:via-red-500 hover:to-orange-500
                     text-white text-[11px] md:text-sm font-semibold 
-                    py-2 md:py-3 rounded-xl shadow-lg 
+                    py-3 md:py-3 rounded-xl shadow-lg 
                     transition-all duration-500 ease-in-out 
                     transform hover:scale-105 hover:shadow-2xl"
                   >

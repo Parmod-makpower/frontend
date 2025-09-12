@@ -1,5 +1,4 @@
 import { useState } from "react";
-import API from "../api/axios";
 import useFuseSearch from "../hooks/useFuseSearch";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useToggleProductStatus } from "../hooks/useProducts";
@@ -7,7 +6,7 @@ import { useAddProduct, useDeleteProduct, useUpdateProduct } from "../hooks/useP
 import { uploadProductImage, uploadProductImage2 } from "../api/productApi";
 import { toast } from "react-toastify";
 import { FiUpload, FiEdit, FiTrash2, FiPlus, FiDownload } from "react-icons/fi";
-import makpower_image from "../assets/images/makpower_image.png"
+import makpower_image from "../assets/images/makpower_image.webp"
 import "react-toastify/dist/ReactToastify.css";
 import { downloadProductTemplate, bulkUploadProducts } from "../api/productApi";
 

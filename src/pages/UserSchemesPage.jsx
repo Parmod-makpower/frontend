@@ -3,7 +3,7 @@ import { useSchemes } from "../hooks/useSchemes";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
-
+import { useNavigate } from "react-router-dom";
 
 import {
   FaShoppingCart,
@@ -13,7 +13,7 @@ import {
   FaMinus,
   FaGift,
 } from "react-icons/fa";
-import makpower_image from "../assets/images/makpower_image.png"
+import makpower_image from "../assets/images/makpower_image.webp"
 import MobilePageHeader from "../components/MobilePageHeader";
 
 export default function UserSchemesPage() {
@@ -21,7 +21,7 @@ export default function UserSchemesPage() {
   const { data: allProducts = [] } = useCachedProducts();
   const { selectedProducts, addProduct, updateQuantity } = useSelectedProducts();
   const { user } = useAuth();
-
+  const navigate = useNavigate();
 
   if (isLoading) return <div className="p-4">Loading schemes...</div>;
 
@@ -71,7 +71,7 @@ export default function UserSchemesPage() {
                       return (
                         <div
                           key={c.id}
-
+                          onClick={() => navigate(`/product/${c.product}`)}
                           className="bg-gray-100 rounded overflow-hidden flex flex-col group cursor-pointer transition"
                         >
                           {/* Product Image */}

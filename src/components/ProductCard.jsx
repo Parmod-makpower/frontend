@@ -9,7 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { FaBan } from "react-icons/fa6";
-import makpower_image from "../assets/images/makpower_image.png";
+import makpower_image from "../assets/images/makpower_image.webp";
 
 export default function ProductCard({
   prod,

@@ -80,7 +80,7 @@ export default function BottomNav() {
   ].filter(Boolean);
 
   return (
-    <div className="flex justify-around items-center py-2 px-3 bg-white shadow-lg pb-4 ">
+    <div className="flex justify-around items-center mb-0 py-4 rounded-t-2xl px-3 bg-white  shadow-[0_-4px_6px_rgba(0,0,0,0.1)]">
       {finalMenu.map((item, idx) => (
         <NavLink
           key={idx}

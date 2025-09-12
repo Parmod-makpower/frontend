@@ -9,7 +9,7 @@ import {
   FaBan,   // ❗ नया icon for "Not Available"
 } from "react-icons/fa";
 import MobilePageHeader from "../components/MobilePageHeader";
-import makpower_image from "../assets/images/makpower_image.png"
+import makpower_image from "../assets/images/makpower_image.webp"
 
 export default function CartPage() {
   const { selectedProducts, updateQuantity, setSelectedProducts } = useSelectedProducts();
