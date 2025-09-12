@@ -127,6 +127,8 @@ export default function CRMVerifiedDetailsPage() {
           <div className="text-sm text-gray-600">
             Status:{" "}
             <span className="px-2 py-1 text-xs font-semibold">{order.status}</span>
+            <span className="px-2 py-1 text-xs font-semibold">( {order.notes} )</span>
+            
           </div>
         </div>
       </div>

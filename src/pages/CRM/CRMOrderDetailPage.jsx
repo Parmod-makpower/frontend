@@ -11,6 +11,11 @@ export default function CRMOrderDetailPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+
+
 
   const passedOrder = location.state?.order;
   const [order, setOrder] = useState(passedOrder || null);
@@ -134,7 +139,7 @@ export default function CRMOrderDetailPage() {
      
 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
   {/* Reminder Table (Left Side) */}
-  <div className="md:col-span-1 bg-yellow-50 rounded shadow p-3 overflow-x-auto">
+  <div className="md:col-span-1 bg-yellow-50 rounded  p-3 overflow-x-auto">
     <h3 className="font-semibold text-yellow-800 mb-2">⚠️ Previous Reminders</h3>
     {order?.recent_rejected_items?.length > 0 ? (
       <table className="w-full border border-yellow-200 text-sm">
@@ -212,11 +217,15 @@ export default function CRMOrderDetailPage() {
             </td>
             <td className="px-4 py-2 border border-gray-200 text-center">
               <button
-                onClick={() => handleDeleteItem(item.product)}
-                className="text-red-600 hover:text-red-800 cursor-pointer"
-              >
-                <Trash2 size={18} />
-              </button>
+  onClick={() => {
+    setItemToDelete(item.product); // जिस product को delete करना है उसे set करें
+    setShowDeleteModal(true);      // modal show करें
+  }}
+  className="text-red-600 hover:text-red-800 cursor-pointer"
+>
+  <Trash2 size={18} />
+</button>
+
             </td>
           </tr>
         ))}
@@ -274,17 +283,7 @@ export default function CRMOrderDetailPage() {
         </tr>
       </tbody>
     </table>
-     {/* Notes */}
-      <div className="mt-6 p-4">
-        <label className="block font-semibold mb-1">Notes</label>
-        <textarea
-          className="border rounded-lg p-3 w-full focus:ring focus:ring-blue-200"
-          rows="3"
-          placeholder="Notes for this order..."
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        ></textarea>
-      </div>
+    
 
       {/* Action Buttons */}
       <div className="mt-6 p-4 flex flex-col sm:flex-row gap-4">
@@ -302,22 +301,89 @@ export default function CRMOrderDetailPage() {
         </button>
 
         <button
-          onClick={() => handleVerify("REJECTED")}
-          disabled={loadingReject}
-          className={`flex items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${
-            loadingReject
-              ? "bg-red-400 cursor-not-allowed"
-              : "bg-red-500 hover:bg-red-600"
-          }`}
-        >
-          {loadingReject && <Loader2 className="animate-spin w-4 h-4" />}
-          Reject
-        </button>
+  onClick={() => setShowRejectModal(true)}
+  disabled={loadingReject}
+  className={`flex items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${
+    loadingReject
+      ? "bg-red-400 cursor-not-allowed"
+      : "bg-red-500 hover:bg-red-600"
+  }`}
+>
+  {loadingReject && <Loader2 className="animate-spin w-4 h-4" />}
+  Reject
+</button>
+
       </div>
   </div>
 </div>
 
-     
+     {showDeleteModal && (
+  <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl shadow-xl p-6 w-80 animate-fadeIn">
+      <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+        <Trash2 className="text-red-500" /> Delete Item?
+      </h3>
+      <p className="text-gray-600 mb-6 text-sm">
+        Are you sure you want to delete this item ?
+      </p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowDeleteModal(false)}
+          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => {
+            handleDeleteItem(itemToDelete);
+            setShowDeleteModal(false);
+          }}
+          className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+        >
+          Yes, Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{showRejectModal && (
+  <div className="fixed inset-0 bg-opacity-40 bg-transparent flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl shadow-xl p-6 w-96 animate-fadeIn">
+      <h3 className="text-lg font-semibold text-gray-800 mb-3">
+        Reject Order?
+      </h3>
+      <p className="text-gray-600 mb-4 text-sm">
+       Are you sure you want to reject this order ?
+      </p>
+      <textarea
+        className="border rounded-lg p-2 w-full text-sm mb-4"
+        rows="3"
+        placeholder="Reason for rejection (optional)"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+      />
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowRejectModal(false)}
+          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => {
+            handleVerify("REJECTED");
+            setShowRejectModal(false);
+          }}
+          className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+        >
+          Yes, Reject
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

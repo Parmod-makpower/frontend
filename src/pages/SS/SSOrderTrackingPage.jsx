@@ -51,7 +51,7 @@ export default function SSOrderTrackingPage() {
         ]
       : [
           { label: "Order Placed", icon: <FaBoxOpen /> },
-          { label: "Verified", icon: <FaClipboardCheck /> },
+          { label: "Approved", icon: <FaClipboardCheck /> },
           { label: "Dispatched", icon: <FaShippingFast /> },
           
         ];

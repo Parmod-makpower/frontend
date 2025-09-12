@@ -136,11 +136,6 @@ const categories = [
         image: makpower_image
       },
       {
-        label: "POLYMER MI RDX",
-        keyword: "POLYMER MI RDX BATTERY",
-        image: makpower_image
-      },
-      {
         label: "POLYMER MICROMAX",
         keyword: "POLYMER MICROMAX BATTERY",
         image: makpower_image
@@ -166,11 +161,6 @@ const categories = [
         image: makpower_image
       },
       {
-        label: "POLYMER RDX",
-        keyword: "POLYMER RDX BATTERY",
-        image: makpower_image
-      },
-      {
         label: "POLYMER REALME",
         keyword: "POLYMER REALME BATTERY",
         image: makpower_image
@@ -188,11 +178,6 @@ const categories = [
       {
         label: "POLYMER VIVO ",
         keyword:"POLYMER VIVO BATTERY",
-        image: makpower_image
-      },
-      {
-        label: "POLYMER VIVO RDX ",
-        keyword: "POLYMER VIVO RDX BATTERY",
         image: makpower_image
       },
      
