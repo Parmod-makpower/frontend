@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route  } from "react-router-dom";
+import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -39,6 +40,33 @@ import SubCategoryPage from "./pages/SubCategoryPage";
 
 
 export default function App() {
+  useEffect(() => {
+    // Pinch zoom रोकने के लिए
+    const handleTouchMove = (e) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    };
+
+    // Double-tap zoom रोकने के लिए
+    let lastTouchEnd = 0;
+    const handleTouchEnd = (e) => {
+      const now = new Date().getTime();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    };
+
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd, { passive: false });
+
+    return () => {
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>
