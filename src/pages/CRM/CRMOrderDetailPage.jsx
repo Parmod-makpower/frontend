@@ -13,9 +13,6 @@ export default function CRMOrderDetailPage() {
   const location = useLocation();
   const [itemToDelete, setItemToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-
-
 
   const passedOrder = location.state?.order;
   const [order, setOrder] = useState(passedOrder || null);
@@ -80,44 +77,34 @@ export default function CRMOrderDetailPage() {
   };
 
   const [loadingApprove, setLoadingApprove] = useState(false);
-  const [loadingReject, setLoadingReject] = useState(false);
 
-  const handleVerify = async (status) => {
+  const handleVerify = async () => {
     if (!order) return;
-
-    if (status === "APPROVED") setLoadingApprove(true);
-    if (status === "REJECTED") setLoadingReject(true);
+    setLoadingApprove(true);
 
     const payload = {
-      status,
+      status: "APPROVED",
       notes,
-      total_amount:
-        status === "REJECTED"
-          ? 0
-          : editedItems.reduce(
-              (sum, item) => sum + (isNaN(item.price) ? 0 : item.price) * item.quantity,
-              0
-            ),
-      items:
-        status === "REJECTED"
-          ? []
-          : editedItems.map((item) => ({
-              product: item.product,
-              quantity: item.quantity,
-              price: isNaN(item.price) ? 0 : item.price,
-            })),
+      total_amount: editedItems.reduce(
+        (sum, item) => sum + (isNaN(item.price) ? 0 : item.price) * item.quantity,
+        0
+      ),
+      items: editedItems.map((item) => ({
+        product: item.product,
+        quantity: item.quantity,
+        price: isNaN(item.price) ? 0 : item.price,
+      })),
     };
 
     try {
       await verifyCRMOrder(order.id, payload);
-      alert(`Order ${status.toLowerCase()} successfully`);
+      alert(`Order approved successfully`);
       navigate("/crm/orders");
     } catch (error) {
       console.error("❌ Error verifying order:", error);
       alert("Failed to verify order");
     } finally {
       setLoadingApprove(false);
-      setLoadingReject(false);
     }
   };
 
@@ -136,254 +123,196 @@ export default function CRMOrderDetailPage() {
         <p className="text-gray-600">{order.ss_party_name}</p>
       </div>
 
-     
-<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-  {/* Reminder Table (Left Side) */}
-  <div className="md:col-span-1 bg-yellow-50 rounded  p-3 overflow-x-auto">
-    <h3 className="font-semibold text-yellow-800 mb-2">⚠️ Previous Reminders</h3>
-    {order?.recent_rejected_items?.length > 0 ? (
-      <table className="w-full border border-yellow-200 text-sm">
-        <thead className="bg-yellow-100 text-yellow-800">
-          <tr>
-            <th className="px-2 py-2 border border-yellow-300">Product</th>
-            <th className="px-2 py-2 border border-yellow-300">Qty</th>
-            <th className="px-2 py-2 border border-yellow-300">Last Rejected</th>
-          </tr>
-        </thead>
-        <tbody>
-          {order.recent_rejected_items.map((r) => (
-            <tr key={r.product} className="hover:bg-yellow-50">
-              <td className="px-2 py-1 border border-yellow-200">{r.product_name}</td>
-              <td className="px-2 py-1 border border-yellow-200 text-center">{r.quantity}</td>
-              <td className="px-2 py-1 border border-yellow-200 text-xs text-gray-600">
-                {new Date(r.last_rejected_at).toLocaleDateString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    ) : (
-      <div className="text-gray-500 italic text-sm">No previous rejections</div>
-    )}
-  </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Reminder Table */}
+        <div className="md:col-span-1 bg-yellow-50 rounded p-3 overflow-x-auto">
+          <h3 className="font-semibold text-yellow-800 mb-2">
+            ⚠️ Previous Reminders
+          </h3>
+          {order?.recent_rejected_items?.length > 0 ? (
+            <table className="w-full border border-yellow-200 text-sm">
+              <thead className="bg-yellow-100 text-yellow-800">
+                <tr>
+                  <th className="px-2 py-2 border border-yellow-300">Product</th>
+                  <th className="px-2 py-2 border border-yellow-300">Qty</th>
+                  <th className="px-2 py-2 border border-yellow-300">Last Rejected</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.recent_rejected_items.map((r) => (
+                  <tr key={r.product} className="hover:bg-yellow-50">
+                    <td className="px-2 py-1 border border-yellow-200">{r.product_name}</td>
+                    <td className="px-2 py-1 border border-yellow-200 text-center">{r.quantity}</td>
+                    <td className="px-2 py-1 border border-yellow-200 text-xs text-gray-600">
+                      {new Date(r.last_rejected_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="text-gray-500 italic text-sm">No previous rejections</div>
+          )}
+        </div>
 
-  {/* Main Table (Right Side) */}
-  <div className="md:col-span-3 overflow-x-auto  shadow rounded">
-    <table className="w-full border border-gray-200 text-sm text-left">
-      <thead className="bg-gray-100 text-gray-700 uppercase">
-        <tr>
-          <th className="px-4 py-3 border border-gray-300">Product</th>
-          <th className="px-4 py-3 text-center border border-gray-300">SS Order</th>
-          <th className="px-4 py-3 text-center border border-gray-300">Verify</th>
-          <th className="px-4 py-3 text-center border border-gray-300">Price</th>
-          <th className="px-4 py-3 text-center border border-gray-300">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {editedItems.map((item) => (
-          <tr key={item.product} className="hover:bg-gray-50 bg-white">
-            <td className="px-4 py-2 border border-gray-200">
-              <div className="flex">
-                {item.product_name}
-                {item.is_scheme_item ? (
-                  <FaGift className="mx-2 text-orange-500" />
-                ) : (
-                  ""
-                )}
-              </div>
-            </td>
-            <td className="px-4 py-2 border border-gray-200 text-center">
-              {item.original_quantity}
-            </td>
-            <td className="px-4 py-2 border border-gray-200 text-center">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={item.quantity === 0 ? "" : item.quantity}
-                onChange={(e) => handleEditQuantity(item.product, e.target.value)}
-                className="border rounded-lg p-1 w-20 text-center"
-              />
-            </td>
-            <td className="px-4 py-2 border border-gray-200 font-medium text-center">
-              {!isNaN(item.price) ? (
-                <span className="flex items-center justify-center gap-1 text-gray-700">
-                  <FaIndianRupeeSign className="text-gray-400" /> {item.price}
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-1 text-red-500 text-xs">
-                  <FaBan /> Price
-                </span>
+        {/* Main Table */}
+        <div className="md:col-span-3 overflow-x-auto shadow rounded">
+          <table className="w-full border border-gray-200 text-sm text-left">
+            <thead className="bg-gray-100 text-gray-700 uppercase">
+              <tr>
+                <th className="px-4 py-3 border border-gray-300">Product</th>
+                <th className="px-4 py-3 text-center border border-gray-300">SS Order</th>
+                <th className="px-4 py-3 text-center border border-gray-300">Verify</th>
+                <th className="px-4 py-3 text-center border border-gray-300">Price</th>
+                <th className="px-4 py-3 text-center border border-gray-300">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {editedItems.map((item) => (
+                <tr key={item.product} className="hover:bg-gray-50 bg-white">
+                  <td className="px-4 py-2 border border-gray-200">
+                    <div className="flex">
+                      {item.product_name}
+                      {item.is_scheme_item && <FaGift className="mx-2 text-orange-500" />}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2 border border-gray-200 text-center">
+                    {item.original_quantity}
+                  </td>
+                  <td className="px-4 py-2 border border-gray-200 text-center">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={item.quantity === 0 ? "" : item.quantity}
+                      onChange={(e) => handleEditQuantity(item.product, e.target.value)}
+                      className="border rounded-lg p-1 w-20 text-center"
+                    />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-200 font-medium text-center">
+                    {!isNaN(item.price) ? (
+                      <span className="flex items-center justify-center gap-1 text-gray-700">
+                        <FaIndianRupeeSign className="text-gray-400" /> {item.price}
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center gap-1 text-red-500 text-xs">
+                        <FaBan /> Price
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 border border-gray-200 text-center">
+                    <button
+                      onClick={() => {
+                        setItemToDelete(item.product);
+                        setShowDeleteModal(true);
+                      }}
+                      className="text-red-600 hover:text-red-800 cursor-pointer"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {/* New Row */}
+              {newRow && (
+                <tr className="bg-gray-100">
+                  <td className="px-4 py-2 border border-gray-200 relative">
+                    <ProductSearchSelect
+                      value={newRow.product}
+                      onChange={(id) => setNewRow((prev) => ({ ...prev, product: id }))}
+                    />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-200 text-center">—</td>
+                  <td className="px-4 py-2 border border-gray-200 text-center">
+                    <input
+                      type="number"
+                      min="1"
+                      value={newRow.quantity}
+                      onChange={(e) =>
+                        setNewRow((prev) => ({
+                          ...prev,
+                          quantity: +e.target.value,
+                        }))
+                      }
+                      className="border rounded-lg p-1 w-20 text-center"
+                    />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-200 text-center text-gray-400 italic">
+                    —
+                  </td>
+                  <td className="px-4 py-2 border border-gray-200 text-center">
+                    <button
+                      onClick={handleSaveNewRow}
+                      className="text-green-600 border px-2 rounded p-1 hover:bg-gray-300 mr-2 cursor-pointer"
+                    >
+                      Save
+                    </button>
+                  </td>
+                </tr>
               )}
-            </td>
-            <td className="px-4 py-2 border border-gray-200 text-center">
-              <button
-  onClick={() => {
-    setItemToDelete(item.product); // जिस product को delete करना है उसे set करें
-    setShowDeleteModal(true);      // modal show करें
-  }}
-  className="text-red-600 hover:text-red-800 cursor-pointer"
->
-  <Trash2 size={18} />
-</button>
 
-            </td>
-          </tr>
-        ))}
+              {/* Add Row */}
+              <tr>
+                <td colSpan="5" className="text-center p-1">
+                  <button
+                    onClick={handleAddRow}
+                    className="flex items-center rounded border p-2 cursor-pointer justify-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    <Plus size={18} /> Add Item
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
-        {/* New Row */}
-        {newRow && (
-          <tr className="bg-gray-100">
-            <td className="px-4 py-2 border border-gray-200 relative overflow-visible z-50">
-              <ProductSearchSelect
-                value={newRow.product}
-                onChange={(id) =>
-                  setNewRow((prev) => ({ ...prev, product: id }))
-                }
-              />
-            </td>
-            <td className="px-4 py-2 border border-gray-200 text-center">—</td>
-            <td className="px-4 py-2 border border-gray-200 text-center">
-              <input
-                type="number"
-                min="1"
-                value={newRow.quantity}
-                onChange={(e) =>
-                  setNewRow((prev) => ({
-                    ...prev,
-                    quantity: +e.target.value,
-                  }))
-                }
-                className="border rounded-lg p-1 w-20 text-center"
-              />
-            </td>
-            <td className="px-4 py-2 border border-gray-200 text-center text-gray-400 italic">
-              —
-            </td>
-            <td className="px-4 py-2 border border-gray-200 text-center">
-              <button
-                onClick={handleSaveNewRow}
-                className="text-green-600 border px-2 rounded p-1 hover:bg-gray-300 mr-2 cursor-pointer"
-              >
-                Save
-              </button>
-            </td>
-          </tr>
-        )}
-
-        {/* Add Row */}
-        <tr>
-          <td colSpan="5" className="text-center p-4">
+          {/* Action Button */}
+          <div className="mt-6 p-4 flex justify-center">
             <button
-              onClick={handleAddRow}
-              className="flex items-center rounded border p-2 cursor-pointer justify-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+              onClick={handleVerify}
+              disabled={loadingApprove}
+              className={`flex items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${
+                loadingApprove
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-green-600"
+              }`}
             >
-              <Plus size={18} /> Add Item
+              {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
+              Submit
             </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    
-
-      {/* Action Buttons */}
-      <div className="mt-6 p-4 flex flex-col sm:flex-row gap-4">
-        <button
-          onClick={() => handleVerify("APPROVED")}
-          disabled={loadingApprove}
-          className={`flex  items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${
-            loadingApprove
-              ? "bg-green-400 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600"
-          }`}
-        >
-          {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
-          Approve
-        </button>
-
-        <button
-  onClick={() => setShowRejectModal(true)}
-  disabled={loadingReject}
-  className={`flex items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${
-    loadingReject
-      ? "bg-red-400 cursor-not-allowed"
-      : "bg-red-500 hover:bg-red-600"
-  }`}
->
-  {loadingReject && <Loader2 className="animate-spin w-4 h-4" />}
-  Reject
-</button>
-
+          </div>
+        </div>
       </div>
-  </div>
-</div>
 
-     {showDeleteModal && (
-  <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
-    <div className="bg-white rounded-2xl shadow-xl p-6 w-80 animate-fadeIn">
-      <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-        <Trash2 className="text-red-500" /> Delete Item?
-      </h3>
-      <p className="text-gray-600 mb-6 text-sm">
-        Are you sure you want to delete this item ?
-      </p>
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => setShowDeleteModal(false)}
-          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 cursor-pointer"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => {
-            handleDeleteItem(itemToDelete);
-            setShowDeleteModal(false);
-          }}
-          className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white cursor-pointer"
-        >
-          Yes, Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-{showRejectModal && (
-  <div className="fixed inset-0 bg-opacity-40 bg-transparent flex items-center justify-center z-50">
-    <div className="bg-white rounded-2xl shadow-xl p-6 w-96 animate-fadeIn">
-      <h3 className="text-lg font-semibold text-gray-800 mb-3">
-        Reject Order?
-      </h3>
-      <p className="text-gray-600 mb-4 text-sm">
-       Are you sure you want to reject this order ?
-      </p>
-      <textarea
-        className="border rounded-lg p-2 w-full text-sm mb-4"
-        rows="3"
-        placeholder="Reason for rejection (optional)"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-      />
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => setShowRejectModal(false)}
-          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 cursor-pointer"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => {
-            handleVerify("REJECTED");
-            setShowRejectModal(false);
-          }}
-          className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white cursor-pointer"
-        >
-          Yes, Reject
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-80 animate-fadeIn">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <Trash2 className="text-red-500" /> Delete Item?
+            </h3>
+            <p className="text-gray-600 mb-6 text-sm">
+              Are you sure you want to delete this item ?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleDeleteItem(itemToDelete);
+                  setShowDeleteModal(false);
+                }}
+                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

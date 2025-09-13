@@ -16,11 +16,12 @@ export default function SSOrderTrackingPage() {
   const [dispatchOrders, setDispatchOrders] = useState([]);
   const [loadingDispatch, setLoadingDispatch] = useState(true);
   const [error, setError] = useState(null);
-
+const [showReason, setShowReason] = useState(false);
+const [activeStep, setActiveStep] = useState(null);
   const dispatchMap = dispatchOrders.reduce((acc, item) => {
-  acc[item.product] = (acc[item.product] || 0) + item.quantity;
-  return acc;
-}, {});
+    acc[item.product] = (acc[item.product] || 0) + item.quantity;
+    return acc;
+  }, {});
 
 
   useEffect(() => {
@@ -43,18 +44,24 @@ export default function SSOrderTrackingPage() {
   }, [order]);
 
   // Define steps including rejected
+  // steps को थोड़ा बदलें
   const steps =
     (order?.status?.toUpperCase() === "REJECTED" && dispatchOrders.length === 0)
       ? [
-          { label: "Order Placed", icon: <FaBoxOpen /> },
-          { label: "Order Rejected", icon: <FaTimesCircle />, color: "bg-red-600" },
-        ]
+        { label: "Order Placed", icon: <FaBoxOpen /> },
+        { label: "Order Rejected", icon: <FaTimesCircle />, color: "bg-red-600" },
+      ]
       : [
-          { label: "Order Placed", icon: <FaBoxOpen /> },
-          { label: "Approved", icon: <FaClipboardCheck /> },
-          { label: "Dispatched", icon: <FaShippingFast /> },
-          
-        ];
+        { label: "Order Placed", icon: <FaBoxOpen /> },
+        {
+          label: order?.status?.toUpperCase() === "HOLD" ? "Hold" : "Approved",
+          icon: <FaClipboardCheck />,
+          color: order?.status?.toUpperCase() === "HOLD" ? "bg-yellow-400" : "bg-blue-600",
+          textColor: order?.status?.toUpperCase() === "HOLD" ? "text-yellow-600" : "text-blue-600",
+        },
+        { label: "Dispatched", icon: <FaShippingFast /> },
+      ];
+
 
   // Map status to step index
   const getStatusStepIndex = (status) => {
@@ -62,6 +69,7 @@ export default function SSOrderTrackingPage() {
     switch (statusUpper) {
       case "PLACED":
         return 0;
+      case "HOLD": // 👈 Hold भी Approved वाले step पर ही होगा
       case "APPROVED":
         return 1;
       case "DISPATCHED":
@@ -75,10 +83,11 @@ export default function SSOrderTrackingPage() {
     }
   };
 
+
   // Prefer dispatch status for progress bar if available
   const currentStep = dispatchOrders.length > 0
-  ? 2 // Dispatched step
-  : getStatusStepIndex(order?.status);
+    ? 2 // Dispatched step
+    : getStatusStepIndex(order?.status);
 
 
   const isRejected =
@@ -104,9 +113,12 @@ export default function SSOrderTrackingPage() {
           const circleColor =
             isRejected && index === 1
               ? "bg-red-600"
-              : isCompleted
-              ? "bg-blue-600"
-              : "bg-gray-300";
+              : step.color // 👈 अगर step में color है तो वही लो
+                ? step.color
+                : isCompleted
+                  ? "bg-blue-600"
+                  : "bg-gray-300";
+
 
           return (
             <div
@@ -119,16 +131,18 @@ export default function SSOrderTrackingPage() {
                 {step.icon}
               </div>
               <p
-                className={`mt-2 text-xs sm:text-sm font-medium ${
-                  isCurrent
-                    ? isRejected
-                      ? "text-red-600"
-                      : "text-blue-600"
+                className={`mt-2 text-xs sm:text-sm font-medium ${isCurrent
+                    ? step.textColor
+                      ? step.textColor
+                      : isRejected
+                        ? "text-red-600"
+                        : "text-blue-600"
                     : "text-gray-500"
-                }`}
+                  }`}
               >
                 {step.label}
               </p>
+
             </div>
           );
         })}
@@ -136,9 +150,8 @@ export default function SSOrderTrackingPage() {
         {/* Progress Line */}
         <div className="absolute top-5 left-[5%] right-[5%] h-1 bg-gray-200 z-0">
           <div
-            className={`h-1 ${
-              isRejected ? "bg-red-600" : "bg-blue-600"
-            } transition-all duration-500 ease-in-out`}
+            className={`h-1 ${isRejected ? "bg-red-600" : "bg-blue-600"
+              } transition-all duration-500 ease-in-out`}
             style={{
               width: `${(currentStep / (steps.length - 1)) * 100}%`,
             }}
@@ -146,8 +159,8 @@ export default function SSOrderTrackingPage() {
         </div>
       </div>
 
+     <p className="text-red-500">{order.notes}</p>
       {/* Order Items Table */}
-           {/* Order Items Table */}
       <h2 className="text-base sm:text-lg font-semibold my-3 flex items-center gap-2">
         📦 Order Items
       </h2>
@@ -188,9 +201,8 @@ export default function SSOrderTrackingPage() {
                   </td>
                   <td className="border px-3 py-2 text-center">{it.quantity}</td>
                   <td
-                    className={`border px-3 py-2 text-center font-semibold ${
-                      notDispatched ? "bg-red-100 text-red-600" : ""
-                    }`}
+                    className={`border px-3 py-2 text-center font-semibold ${notDispatched ? "bg-red-100 text-red-600" : ""
+                      }`}
                   >
                     {dispatchQty}
                   </td>
@@ -221,7 +233,7 @@ export default function SSOrderTrackingPage() {
         </table>
       </div>
 
-      
+
     </div>
   );
 }
