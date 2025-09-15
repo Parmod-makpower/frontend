@@ -45,43 +45,59 @@ const [activeStep, setActiveStep] = useState(null);
 
   // Define steps including rejected
   // steps को थोड़ा बदलें
-  const steps =
-    (order?.status?.toUpperCase() === "REJECTED" && dispatchOrders.length === 0)
-      ? [
+ // steps बनाते समय pending handle करें
+const steps =
+  (order?.status?.toUpperCase() === "REJECTED" && dispatchOrders.length === 0)
+    ? [
         { label: "Order Placed", icon: <FaBoxOpen /> },
         { label: "Order Rejected", icon: <FaTimesCircle />, color: "bg-red-600" },
       ]
-      : [
+    : [
         { label: "Order Placed", icon: <FaBoxOpen /> },
         {
-          label: order?.status?.toUpperCase() === "HOLD" ? "Hold" : "Approved",
+          label:
+            order?.status?.toUpperCase() === "HOLD"
+              ? "Hold"
+              : order?.status?.toUpperCase() === "PENDING"
+              ? "Pending"
+              : "Approved",
           icon: <FaClipboardCheck />,
-          color: order?.status?.toUpperCase() === "HOLD" ? "bg-yellow-400" : "bg-blue-600",
-          textColor: order?.status?.toUpperCase() === "HOLD" ? "text-yellow-600" : "text-blue-600",
+          color:
+            order?.status?.toUpperCase() === "HOLD"
+              ? "bg-yellow-400"
+              : order?.status?.toUpperCase() === "PENDING"
+              ? "bg-gray-400"
+              : "bg-blue-600",
+          textColor:
+            order?.status?.toUpperCase() === "HOLD"
+              ? "text-yellow-600"
+              : order?.status?.toUpperCase() === "PENDING"
+              ? "text-gray-600"
+              : "text-blue-600",
         },
         { label: "Dispatched", icon: <FaShippingFast /> },
       ];
 
-
-  // Map status to step index
-  const getStatusStepIndex = (status) => {
-    const statusUpper = status?.toUpperCase();
-    switch (statusUpper) {
-      case "PLACED":
-        return 0;
-      case "HOLD": // 👈 Hold भी Approved वाले step पर ही होगा
-      case "APPROVED":
-        return 1;
-      case "DISPATCHED":
-        return 2;
-      case "DELIVERED":
-        return 3;
-      case "REJECTED":
-        return 1;
-      default:
-        return 0;
-    }
-  };
+// getStatusStepIndex में pending handle करें
+const getStatusStepIndex = (status) => {
+  const statusUpper = status?.toUpperCase();
+  switch (statusUpper) {
+    case "PLACED":
+    case "PENDING": // 👈 Pending को placed जैसा ही treat करो
+      return 0;
+    case "HOLD":
+    case "APPROVED":
+      return 1;
+    case "DISPATCHED":
+      return 2;
+    case "DELIVERED":
+      return 3;
+    case "REJECTED":
+      return 1;
+    default:
+      return 0;
+  }
+};
 
 
   // Prefer dispatch status for progress bar if available

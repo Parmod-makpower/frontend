@@ -239,12 +239,6 @@ const categories = [
     subcategories: []
   },
   {
-    label: "HEADPHONE",
-    keyword: "HEADPHONE",
-    image: "https://s.alicdn.com/@sc04/kf/H26f80cf13b6b45fb894aef86765ab1e5e/Stereo-Professional-Headphone-with-Microphone-Over-Ear-Earphones-Bass-Headsets.jpg",
-    subcategories: []
-  },
-  {
     label: "USB HUB",
     keyword: "USB HUB",
     image: "https://makpowerindia.com/cdn/shop/files/nhjfwatd4fmhtkkrpctd.webp?v=1748686948",
