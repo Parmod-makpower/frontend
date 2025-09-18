@@ -6,6 +6,7 @@ import {
   FaClipboardCheck,
   FaShippingFast,
   FaTimesCircle,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import API from "../../api/axios"; // <-- आपके axios instance का path सही रखें
 
@@ -144,8 +145,9 @@ const getStatusStepIndex = (status) => {
               <div
                 className={`flex items-center justify-center w-10 h-10 rounded-full text-white ${circleColor}`}
               >
-                {step.icon}
+                {step.icon} 
               </div>
+             
               <p
                 className={`mt-2 text-xs sm:text-sm font-medium ${isCurrent
                     ? step.textColor

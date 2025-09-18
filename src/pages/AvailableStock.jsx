@@ -21,7 +21,7 @@ export default function AvailableStock() {
 
   // 🔍 Search filter
   const searchedProducts = useFuseSearch(allProducts, search, {
-    keys: [ "sub_category"],
+    keys: [ "sub_category","product_name"],
     threshold: 0.3,
   });
   const productsToSearch = search ? searchedProducts : allProducts;

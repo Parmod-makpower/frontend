@@ -1,42 +1,45 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { FiArrowLeft, FiCopy, FiCheck } from "react-icons/fi";
+import { FiArrowLeft } from "react-icons/fi";
 import { useState } from "react";
 import MobilePageHeader from "../../components/MobilePageHeader";
 
-function Table({ title, items, orderId, showCopy = false }) {
-  const [copied, setCopied] = useState(false);
+function ConfirmationModal({ isOpen, onClose, onConfirm }) {
+  if (!isOpen) return null;
 
-  const handleCopy = () => {
-    const text = items
-      .map((i) => `${i.product_name || ""}\t${i.quantity ?? 0}\t${orderId}`)
-      .join("\n");
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl shadow-lg p-6 w-[90%] max-w-md animate-fadeIn">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          Confirm Order Punch
+        </h2>
+        <p className="text-sm text-gray-600 mb-6">
+          Are you sure you want to punch this order ? <br/> This Order will be sent to
+          the system.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg border hover:bg-gray-100 transition cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition cursor-pointer"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
+function Table({ title, items, order }) {
   return (
     <div className="border rounded shadow-sm">
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b font-semibold">
         <span>{title}</span>
-        {showCopy && items?.length > 0 && (
-          <button
-            onClick={handleCopy}
-            className="flex items-center gap-1 px-2 py-1 text-xs border rounded hover:bg-gray-100 transition cursor-pointer"
-          >
-            {copied ? (
-              <>
-                <FiCheck className="text-green-600" /> Copied
-              </>
-            ) : (
-              <>
-                <FiCopy /> Copy
-              </>
-            )}
-          </button>
-        )}
       </div>
       <div className="overflow-x-auto select-none">
         <table className="w-full text-sm">
@@ -76,8 +79,44 @@ export default function CRMVerifiedDetailsPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 👇 अब state से पूरा order आएगा
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const order = location.state?.order;
+
+  const handleOrderPunch = () => {
+    if (!order?.items?.length) {
+      alert("No items to punch!");
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const confirmOrderPunch = () => {
+    setIsModalOpen(false);
+
+    // ✅ Generate same data as earlier (copy)
+    const now = new Date();
+    const istTimestamp = now.toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+
+    const text = order.items
+      .map(
+        (i) =>
+          `${i.product_name || ""}\t${i.quantity ?? 0}\t${order.ss_party_name}\t${order.id}\t${order.crm_name}\t${i.id}\t${istTimestamp}`
+      )
+      .join("\n");
+
+    console.log(text);
+  };
+  
 
   if (!order) {
     return (
@@ -89,10 +128,17 @@ export default function CRMVerifiedDetailsPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-4 pb-20">
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={confirmOrderPunch}
+      />
+
       {/* Header */}
       <MobilePageHeader title={order.order_id} />
-      <div className="hidden sm:flex items-center justify-between w-full ">
-        <div className=" font-semibold"></div>
+      <div className="hidden sm:flex items-center justify-between w-full">
+        <div className="font-semibold"></div>
         <div>
           <button
             onClick={() => navigate(-1)}
@@ -107,9 +153,7 @@ export default function CRMVerifiedDetailsPage() {
       <div className="grid grid-cols-2 md:grid-cols-2 gap-2 sm:gap-4 sm:pt-0 pt-[60px]">
         <div className="border rounded p-4 bg-white shadow-sm">
           <div className="font-semibold mb-2">SS Order</div>
-          <div className="text-sm font-bold text-gray-600">
-             {order.order_id}
-          </div>
+          <div className="text-sm font-bold text-gray-600">{order.order_id}</div>
           <div className="text-sm text-gray-600">
             Name: {order.ss_user_name}
           </div>
@@ -122,25 +166,39 @@ export default function CRMVerifiedDetailsPage() {
           <div className="font-semibold mb-2">CRM Verification</div>
           <div className="text-sm text-gray-600">CRM: {order.crm_name}</div>
           <div className="text-sm text-gray-600">
-            {new Date(order.verified_at).toLocaleString()}
+            {new Date(order.verified_at).toLocaleString("en-IN", {
+              timeZone: "Asia/Kolkata",
+            })}
           </div>
           <div className="text-sm text-gray-600">
             Status:{" "}
-            <span className="px-2 py-1 text-xs font-semibold">{order.status}</span>
-            <span className="px-2 py-1 text-xs font-semibold">( {order.notes} )</span>
-            
+            <span className="px-2 py-1 text-xs font-semibold">
+              {order.status}
+            </span>
+            <span className="px-2 py-1 text-xs font-semibold">
+              ( {order.notes} )
+            </span>
           </div>
         </div>
       </div>
 
       {/* Items */}
-      <div className="grid grid-cols-1  gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <Table
           title="CRM — Verified Items"
-          showCopy
-          orderId={order.order_id}
+          order={order}
           items={order.items || []}
         />
+      </div>
+
+      {/* Order Punch Button */}
+      <div className="flex justify-center">
+        <button
+          onClick={handleOrderPunch}
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition cursor-pointer"
+        >
+          Order Punch
+        </button>
       </div>
     </div>
   );
