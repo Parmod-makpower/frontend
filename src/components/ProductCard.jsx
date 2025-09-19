@@ -3,8 +3,6 @@ import {
   FaGift,
   FaCheckCircle,
   FaTimesCircle,
-  FaPlus,
-  FaMinus,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -17,60 +15,21 @@ export default function ProductCard({
   user,
   selectedProducts,
   addProduct,
-  updateQuantity,
   cardWidth = "w-40",
 }) {
   const navigate = useNavigate();
   const prodId = prod.id ?? prod.product_id;
 
   const isInCart = selectedProducts.some((p) => p.id === prodId);
-  const existing = selectedProducts.find((p) => p.id === prodId);
-  const quantity = existing?.quantity || 0;
 
-  // 👉 Local input state
-  const [localInputValue, setLocalInputValue] = useState(quantity.toString());
-
-  // 👉 Image state
   const [imgSrc, setImgSrc] = useState(
     prod?.image
       ? `https://res.cloudinary.com/djyr368zj/${prod.image}?f_auto,q_auto,w_300`
       : makpower_image
   );
 
-  useEffect(() => {
-    setLocalInputValue(quantity.toString());
-  }, [quantity]);
-
   const handleAddToCart = () => {
     addProduct({ ...prod, id: prodId }, 1);
-  };
-
-  const handleDecrease = () => {
-    const newQty = Math.max(0, quantity - 1);
-    updateQuantity(prodId, newQty);
-  };
-
-  const handleIncrease = () => {
-    updateQuantity(prodId, quantity + 1);
-  };
-
-  const handleInputChange = (e) => {
-    const val = e.target.value;
-    if (/^\d*$/.test(val)) {
-      setLocalInputValue(val);
-    }
-  };
-
-  const handleInputBlur = () => {
-    const parsed = parseInt(localInputValue, 10);
-    const validQty = isNaN(parsed) ? 0 : parsed;
-    updateQuantity(prodId, validQty);
-  };
-
-  const handleInputKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.target.blur();
-    }
   };
 
   return (
@@ -88,9 +47,8 @@ export default function ProductCard({
           alt={prod.product_name}
           loading="lazy"
           className="w-full md:h-full object-cover cursor-pointer transform group-hover:scale-105 transition duration-300"
-          onError={() => setImgSrc(makpower_image)} // fallback on error
+          onError={() => setImgSrc(makpower_image)}
         />
-
 
         {hasScheme(prodId) && (
           <span className="absolute top-2 right-2 bg-pink-100 p-1.5 md:p-2 rounded-full shadow">
@@ -106,7 +64,7 @@ export default function ProductCard({
         </h3>
 
         <div className="flex items-center gap-1 mt-1">
-          {prod.live_stock > 1 ? (
+          {prod.virtual_stock > prod.moq ? (
             <span className="flex items-center gap-1 text-[#16a34a] text-[10px] md:text-xs font-semibold">
               <FaCheckCircle /> In Stock
             </span>
@@ -127,59 +85,40 @@ export default function ProductCard({
           )}
         </p>
 
-        {/* Cart */}
+        {/* ✅ Cart Button - अब हमेशा "Added" दिखेगा जब तक product cart में है */}
         <div className="mt-auto">
-          {user?.role === "SS" &&
-            (isInCart ? (
-              <div className="flex items-center justify-center gap-1 md:gap-2 mt-2 md:mt-3">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDecrease();
-                  }}
-                  className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 text-[10px] md:text-xs"
-                >
-                  <FaMinus />
-                </button>
-
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={localInputValue}
-                  onChange={handleInputChange}
-                  onBlur={handleInputBlur}
-                  onKeyDown={handleInputKeyDown}
-                  className="w-8 md:w-12 text-center border rounded-md text-[10px] md:text-xs py-0.5 md:py-1"
-                />
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleIncrease();
-                  }}
-                  className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 text-[10px] md:text-xs"
-                >
-                  <FaPlus />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAddToCart();
-                }}
-                className="w-full mt-2 flex items-center justify-center gap-2 
-                  bg-gradient-to-r from-orange-500 via-red-500 to-pink-600
-                  hover:from-pink-600 hover:via-red-500 hover:to-orange-500
-                  text-white text-[11px] md:text-sm font-semibold 
-                  py-2 md:py-3 rounded-xl shadow-lg 
-                  transition-all duration-500 ease-in-out 
-                  transform hover:scale-105 hover:shadow-2xl cursor-pointer"
-              >
-                <FaShoppingCart className="text-sm md:text-base animate-bounce" />
-                Add to Cart
-              </button>
-            ))}
+          {user?.role === "SS" && (
+            <button
+              onClick={(e) => {
+                if (prod.virtual_stock <= prod.moq || isInCart) return;
+                e.stopPropagation();
+                handleAddToCart();
+              }}
+              disabled={prod.virtual_stock <= prod.moq}
+              className={`w-full mt-2 flex items-center justify-center gap-2 
+                ${isInCart ? "bg-gray-600" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
+                hover:opacity-90 text-white text-[11px] md:text-sm font-semibold 
+                py-2 md:py-3 rounded-xl shadow-lg transition-all duration-300
+                ${prod.virtual_stock <= prod.moq ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+              `}
+            >
+              {prod.virtual_stock <= prod.moq
+                ? "Out of Stock"
+                : isInCart
+                  ? (
+                    < >
+                      <FaCheckCircle className="text-sm md:text-base " />
+                      Added
+                    </>
+                  )
+                  : (
+                    <>
+                      <FaShoppingCart className="text-sm md:text-base animate-bounce" />
+                      Add to Cart
+                    </>
+                  )}
+            </button>
+          )}
         </div>
       </div>
     </div>

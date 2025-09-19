@@ -87,7 +87,7 @@ export default function ProductPage() {
     }
   };
 
-  // Image Upload
+  
   // Image Upload
   const handleImageUpload = async (productId, file, type = "image") => {
     try {
@@ -249,6 +249,7 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">Product Name</th>
               <th className="px-4 py-2 border">Stock</th>
               <th className="px-4 py-2 border">Price</th>
+              <th className="px-4 py-2 border">MOQ</th>
               <th className="px-4 py-2 border">Cartoon</th>
               <th className="px-4 py-2 border">Upload</th>
               <th className="px-4 py-2 border">Image</th>
@@ -267,6 +268,7 @@ export default function ProductPage() {
                 <td className="px-4 py-2 border">{prod.product_name}</td>
                 <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
                 <td className="px-4 py-2 border">{prod.price}</td>
+                <td className="px-4 py-2 border">{prod.moq}</td>
                 <td className="px-4 py-2 border">{prod.cartoon_size}</td>
                 {/* Upload for Image1 */}
                 <td className="px-4 py-2 border">

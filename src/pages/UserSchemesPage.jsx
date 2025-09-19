@@ -9,17 +9,15 @@ import {
   FaShoppingCart,
   FaCheckCircle,
   FaTimesCircle,
-  FaPlus,
-  FaMinus,
   FaGift,
 } from "react-icons/fa";
-import makpower_image from "../assets/images/makpower_image.webp"
+import makpower_image from "../assets/images/makpower_image.webp";
 import MobilePageHeader from "../components/MobilePageHeader";
 
 export default function UserSchemesPage() {
   const { data: schemes = [], isLoading } = useSchemes();
   const { data: allProducts = [] } = useCachedProducts();
-  const { selectedProducts, addProduct, updateQuantity } = useSelectedProducts();
+  const { selectedProducts, addProduct } = useSelectedProducts();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -39,33 +37,23 @@ export default function UserSchemesPage() {
             {schemes.map((scheme) => (
               <div
                 key={scheme.id}
-                className="borde shadow rounded transition border bg-white p-0 flex flex-col"
+                className="shadow rounded border bg-white flex flex-col"
               >
-
-
                 {/* Conditions */}
-                <div className="mt-2 ">
-
-                  <div className="grid gap-2 ">
+                <div className="mt-2">
+                  <div className="grid gap-2">
                     {scheme.conditions.map((c) => {
                       const prod = getProduct(c.product);
-                      const prodId = prod?.id ?? prod?.product_id;
-                      const isInCart = selectedProducts.some((p) => p.id === prodId);
-                      const existing = selectedProducts.find((p) => p.id === prodId);
-                      const quantity = existing?.quantity || 1;
+                      if (!prod) return null;
 
-                      const handleAddToCart = () => {
+                      const prodId = prod.id ?? prod.product_id;
+                      const isInCart = selectedProducts.some((p) => p.id === prodId);
+                      const outOfStock = prod.virtual_stock <= prod.moq;
+
+                      const handleAddToCart = (e) => {
+                        e.stopPropagation();
+                        if (outOfStock || isInCart) return;
                         addProduct({ ...prod, id: prodId }, 1);
-                      };
-                      const handleDecrease = () => {
-                        updateQuantity(prodId, Math.max(1, quantity - 1));
-                      };
-                      const handleIncrease = () => {
-                        updateQuantity(prodId, quantity + 1);
-                      };
-                      const handleManualInput = (e) => {
-                        const val = Math.max(1, parseInt(e.target.value) || 1);
-                        updateQuantity(prodId, val);
                       };
 
                       return (
@@ -75,7 +63,7 @@ export default function UserSchemesPage() {
                           className="bg-gray-100 rounded overflow-hidden flex flex-col group cursor-pointer transition"
                         >
                           {/* Product Image */}
-                          <div className="relative w-full bg-white  overflow-hidden">
+                          <div className="relative w-full bg-white overflow-hidden">
                             <img
                               src={
                                 prod?.image
@@ -91,76 +79,52 @@ export default function UserSchemesPage() {
                           </div>
 
                           {/* Content */}
-                          <div className="flex flex-col p-2 px-3 flex-1 ">
+                          <div className="flex flex-col p-2 px-3 flex-1">
                             <h3 className="text-xs font-bold truncate">
-                              {prod?.product_name || `Product #${c.product}`}
+                              {prod.product_name}
                             </h3>
 
+                            {/* Stock Status */}
                             <div className="flex items-center gap-1 mt-1">
-                              {prod?.live_stock > 1 ? (
-                                <span className="flex items-center gap-1 text-[#16a34a] text-[10px] font-semibold">
-                                  <FaCheckCircle /> In Stock
-                                </span>
-                              ) : (
+                              {outOfStock ? (
                                 <span className="flex items-center gap-1 text-[#dc2626] text-[10px] font-semibold">
                                   <FaTimesCircle /> Out
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1 text-[#16a34a] text-[10px] font-semibold">
+                                  <FaCheckCircle /> In Stock
                                 </span>
                               )}
                             </div>
 
+                            {/* Price */}
                             <p className="text-[#2563eb] font-semibold text-xs mt-1">
-                              ₹{prod?.price || 0}
+                              ₹{prod.price || 0}
                             </p>
 
-                            {/* Cart */}
+                            {/* Cart Button - ✅ ProductCard style */}
                             {user?.role === "SS" && (
-                              <div className="mt-auto">
-                                {isInCart ? (
-                                  <div className="flex items-center justify-center gap-1 mt-2">
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDecrease();
-                                      }}
-                                      className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 text-[10px]"
-                                    >
-                                      <FaMinus />
-                                    </button>
-                                    <input
-                                      type="number"
-                                      value={quantity}
-                                      onChange={handleManualInput}
-                                      className="w-8 text-center border rounded-md text-[10px] py-0.5"
-                                      min={1}
-                                    />
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleIncrease();
-                                      }}
-                                      className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 text-[10px]"
-                                    >
-                                      <FaPlus />
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddToCart();
-                                    }}
-                                    className="w-full mt-2 flex items-center justify-center gap-2 
-                                    bg-gradient-to-r from-orange-500 via-red-500 to-pink-600
-                                    hover:from-pink-600 hover:via-red-500 hover:to-orange-500
-                                    text-white text-[11px] md:text-sm font-semibold 
-                                    py-1 md:py-2 rounded-xl shadow-lg 
-                                    transition-all duration-500 ease-in-out 
-                                    transform hover:scale-105 hover:shadow-2xl cursor-pointer"
-                                  >
-                                    <FaShoppingCart /> Add
-                                  </button>
-                                )}
-                              </div>
+                              <button
+                                onClick={handleAddToCart}
+                                disabled={outOfStock}
+                                className={`w-full mt-2 flex items-center justify-center gap-2 
+                                  ${isInCart ? "bg-green-500" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
+                                  hover:opacity-90 text-white text-[11px] md:text-sm font-semibold 
+                                  py-1 md:py-2 rounded-xl shadow-lg transition-all duration-300
+                                  ${outOfStock ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                                `}
+                              >
+                                {outOfStock
+                                  ? "Out of Stock"
+                                  : isInCart
+                                  ? "✅ Added"
+                                  : (
+                                    <>
+                                      <FaShoppingCart className="text-sm md:text-base animate-bounce" />
+                                      Add to Cart
+                                    </>
+                                  )}
+                              </button>
                             )}
                           </div>
                         </div>
@@ -170,8 +134,7 @@ export default function UserSchemesPage() {
                 </div>
 
                 {/* Rewards */}
-                <div className="mt-0 ">
-
+                <div className="mt-0">
                   <div className="grid gap-3">
                     {scheme.rewards.map((r) => {
                       const prod = getProduct(r.product);
@@ -180,9 +143,7 @@ export default function UserSchemesPage() {
                           key={r.id}
                           className="flex items-center gap-2 bg-green-50 rounded p-2"
                         >
-                          
-                            <FaGift className="text-pink-500"/>
-                          
+                          <FaGift className="text-pink-500" />
                           <span className="text-xs">
                             Get <b>{r.quantity}</b> of{" "}
                             {prod?.product_name || `Product #${r.product}`}

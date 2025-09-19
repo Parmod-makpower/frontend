@@ -36,6 +36,7 @@ import CRMVerifiedHistoryPage from "./pages/CRM/CRMVerifiedHistoryPage";
 import CRMVerifiedDetailsPage from "./pages/CRM/CRMVerifiedDetailsPage";
 import InactiveProductsPage from "./pages/InactiveProductsPage";
 import SubCategoryPage from "./pages/SubCategoryPage";
+import Dumy from "./pages/Dumy";
 
 
 
@@ -83,6 +84,7 @@ export default function App() {
              <Route path="/category/:category/subcategories" element={<SubCategoryPage />} />
             <Route path="/product/:productId" element={<ProductDetailPage />} />
             <Route path="/more" element={<MoreOptionsPage />} />
+            <Route path="/dumy" element={ <Dumy/> } />
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
