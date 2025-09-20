@@ -65,7 +65,7 @@ export default function ProductDetailPage() {
   const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
 
   return (
-    <div className="max-w-6xl mx-auto pb-20 bg-white">
+    <div className="max-w-6xl mx-auto pb-50 bg-white">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left: Product Image Slider */}
         <div className="relative flex items-center justify-center">
@@ -146,7 +146,7 @@ export default function ProductDetailPage() {
           </p>
 
           {/* Meta Info */}
-          <div className="grid grid-cols-2 gap-6 text-sm md:text-base">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm md:text-base bg-gray-50 p-4 rounded-lg">
             <div>
               <p className="font-medium text-gray-600">Category</p>
               <p className="text-gray-800">{product.sub_category || "N/A"}</p>
@@ -154,6 +154,10 @@ export default function ProductDetailPage() {
             <div>
               <p className="font-medium text-gray-600">Cartoon Size</p>
               <p className="text-gray-800">{product.cartoon_size || "N/A"}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-600">Guarantee</p>
+              <p className="text-gray-800">{product.guarantee || "N/A"}</p>
             </div>
           </div>
 
@@ -166,8 +170,8 @@ export default function ProductDetailPage() {
                   handleAddToCart();
                 }}
                 disabled={product.virtual_stock <= product.moq}
-                className={`w-full mt-2 flex items-center justify-center gap-2 
-                  ${isInCart ? "bg-green-500" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
+                className={`w-full mt-2  flex items-center justify-center gap-2 
+                  ${isInCart ? "bg-gray-600" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
                   hover:opacity-90 text-white text-sm font-semibold 
                   py-3 rounded-xl shadow-lg transition-all duration-300
                   ${product.virtual_stock <= product.moq ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
@@ -176,7 +180,12 @@ export default function ProductDetailPage() {
                 {product.virtual_stock <= product.moq
                   ? "Out of Stock"
                   : isInCart
-                  ? "✅ Added"
+                  ? (
+                    < >
+                      <FaCheckCircle className="text-sm md:text-base " />
+                      Added
+                    </>
+                  )
                   : (
                     <>
                       <FaShoppingCart className="animate-bounce" />

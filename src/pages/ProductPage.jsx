@@ -247,10 +247,12 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">ID</th>
               <th className="px-4 py-2 border">Category</th>
               <th className="px-4 py-2 border">Product Name</th>
+              <th className="px-4 py-2 border">Cartoon</th>
+              <th className="px-4 py-2 border">Guarantee</th>
               <th className="px-4 py-2 border">Stock</th>
+              <th className="px-4 py-2 border">V_Stock</th>
               <th className="px-4 py-2 border">Price</th>
               <th className="px-4 py-2 border">MOQ</th>
-              <th className="px-4 py-2 border">Cartoon</th>
               <th className="px-4 py-2 border">Upload</th>
               <th className="px-4 py-2 border">Image</th>
               <th className="px-4 py-2 border">Active</th>
@@ -266,10 +268,12 @@ export default function ProductPage() {
                 <td className="px-4 py-2 border">{prod.product_id}</td>
                 <td className="px-4 py-2 border">{prod.sub_category}</td>
                 <td className="px-4 py-2 border">{prod.product_name}</td>
+                <td className="px-4 py-2 border">{prod.cartoon_size}</td>
+                <td className="px-4 py-2 border">{prod.guarantee}</td>
                 <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
+                <td className="px-4 py-2 border">{prod.virtual_stock || 0}</td>
                 <td className="px-4 py-2 border">{prod.price}</td>
                 <td className="px-4 py-2 border">{prod.moq}</td>
-                <td className="px-4 py-2 border">{prod.cartoon_size}</td>
                 {/* Upload for Image1 */}
                 <td className="px-4 py-2 border">
                   <label className="cursor-pointer">

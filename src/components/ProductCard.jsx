@@ -39,7 +39,7 @@ export default function ProductCard({
     >
       {/* Image */}
       <div
-        className="relative w-full overflow-hidden bg-gray-50"
+        className="relative w-full overflow-hidden bg-gray-200"
         onClick={() => navigate(`/product/${prodId}`)}
       >
         <img

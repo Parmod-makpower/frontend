@@ -108,7 +108,7 @@ export default function UserSchemesPage() {
                                 onClick={handleAddToCart}
                                 disabled={outOfStock}
                                 className={`w-full mt-2 flex items-center justify-center gap-2 
-                                  ${isInCart ? "bg-green-500" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
+                                  ${isInCart ? "bg-gray-600" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
                                   hover:opacity-90 text-white text-[11px] md:text-sm font-semibold 
                                   py-1 md:py-2 rounded-xl shadow-lg transition-all duration-300
                                   ${outOfStock ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
@@ -117,13 +117,18 @@ export default function UserSchemesPage() {
                                 {outOfStock
                                   ? "Out of Stock"
                                   : isInCart
-                                  ? "✅ Added"
-                                  : (
-                                    <>
-                                      <FaShoppingCart className="text-sm md:text-base animate-bounce" />
-                                      Add to Cart
-                                    </>
-                                  )}
+                                    ? (
+                                      < >
+                                        <FaCheckCircle className="text-sm md:text-base " />
+                                        Added
+                                      </>
+                                    )
+                                    : (
+                                      <>
+                                        <FaShoppingCart className="text-sm md:text-base animate-bounce" />
+                                        Add to Cart
+                                      </>
+                                    )}
                               </button>
                             )}
                           </div>

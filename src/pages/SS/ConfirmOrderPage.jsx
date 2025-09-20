@@ -197,10 +197,8 @@ const mergeRewards = (eligibleSchemes) => {
         <button
           onClick={handlePlaceOrder}
           disabled={isPlacingOrder}
-          className={`px-6 py-2 rounded-lg transition text-white ${isPlacingOrder
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-            }`}
+          className={`bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold px-6 py-3 rounded-md shadow-md hover:from-green-500 hover:to-green-600 hover:shadow-lg transition-all duration-300 ease-in-out"
+         px-6 py-2 rounded-lg transition text-white `}
         >
           {isPlacingOrder ? "Placing Order..." : "Place Order"}
         </button>

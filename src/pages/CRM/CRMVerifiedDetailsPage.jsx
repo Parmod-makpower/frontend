@@ -2,6 +2,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import { useState } from "react";
 import MobilePageHeader from "../../components/MobilePageHeader";
+import { punchOrderToSheet } from "../../api/punchApi"; // ✅ import API
 
 function ConfirmationModal({ isOpen, onClose, onConfirm }) {
   if (!isOpen) return null;
@@ -13,8 +14,7 @@ function ConfirmationModal({ isOpen, onClose, onConfirm }) {
           Confirm Order Punch
         </h2>
         <p className="text-sm text-gray-600 mb-6">
-          Are you sure you want to punch this order ? <br/> This Order will be sent to
-          the system.
+          Are you sure you want to punch this order? <br /> This Order will be sent to the system.
         </p>
         <div className="flex justify-end gap-3">
           <button
@@ -35,7 +35,7 @@ function ConfirmationModal({ isOpen, onClose, onConfirm }) {
   );
 }
 
-function Table({ title, items, order }) {
+function Table({ title, items }) {
   return (
     <div className="border rounded shadow-sm">
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b font-semibold">
@@ -78,7 +78,6 @@ export default function CRMVerifiedDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const order = location.state?.order;
@@ -91,32 +90,20 @@ export default function CRMVerifiedDetailsPage() {
     setIsModalOpen(true);
   };
 
-  const confirmOrderPunch = () => {
+  const confirmOrderPunch = async () => {
     setIsModalOpen(false);
-
-    // ✅ Generate same data as earlier (copy)
-    const now = new Date();
-    const istTimestamp = now.toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
-
-    const text = order.items
-      .map(
-        (i) =>
-          `${i.product_name || ""}\t${i.quantity ?? 0}\t${order.ss_party_name}\t${order.id}\t${order.crm_name}\t${i.id}\t${istTimestamp}`
-      )
-      .join("\n");
-
-    console.log(text);
+    try {
+      const data = await punchOrderToSheet(order);
+      if (data.success) {
+        alert(`Order punched successfully: ${order.items.length} rows added to sheet`);
+      } else {
+        alert("Error: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while punching order");
+    }
   };
-  
 
   if (!order) {
     return (
@@ -128,14 +115,12 @@ export default function CRMVerifiedDetailsPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-4 pb-20">
-      {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={confirmOrderPunch}
       />
 
-      {/* Header */}
       <MobilePageHeader title={order.order_id} />
       <div className="hidden sm:flex items-center justify-between w-full">
         <div className="font-semibold"></div>
@@ -154,50 +139,36 @@ export default function CRMVerifiedDetailsPage() {
         <div className="border rounded p-4 bg-white shadow-sm">
           <div className="font-semibold mb-2">SS Order</div>
           <div className="text-sm font-bold text-gray-600">{order.order_id}</div>
-          <div className="text-sm text-gray-600">
-            Name: {order.ss_user_name}
-          </div>
-          <div className="text-sm text-gray-600">
-            Party: {order.ss_party_name}
-          </div>
+          <div className="text-sm text-gray-600">Name: {order.ss_user_name}</div>
+          <div className="text-sm text-gray-600">Party: {order.ss_party_name}</div>
         </div>
 
         <div className="border rounded p-4 bg-white shadow-sm">
           <div className="font-semibold mb-2">CRM Verification</div>
           <div className="text-sm text-gray-600">CRM: {order.crm_name}</div>
           <div className="text-sm text-gray-600">
-            {new Date(order.verified_at).toLocaleString("en-IN", {
-              timeZone: "Asia/Kolkata",
-            })}
+            {new Date(order.verified_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
           </div>
           <div className="text-sm text-gray-600">
             Status:{" "}
-            <span className="px-2 py-1 text-xs font-semibold">
-              {order.status}
-            </span>
-            <span className="px-2 py-1 text-xs font-semibold">
-              ( {order.notes} )
-            </span>
+            <span className="px-2 py-1 text-xs font-semibold">{order.status}</span>{" "}
+            <span className="px-2 py-1 text-xs font-semibold">({order.notes})</span>
           </div>
         </div>
       </div>
 
       {/* Items */}
       <div className="grid grid-cols-1 gap-4">
-        <Table
-          title="CRM — Verified Items"
-          order={order}
-          items={order.items || []}
-        />
+        <Table title="CRM — Verified Items" items={order.items || []} />
       </div>
-
+    
       {/* Order Punch Button */}
       <div className="flex justify-center">
         <button
           onClick={handleOrderPunch}
           className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition cursor-pointer"
         >
-          Order Punch
+          Order Punch 
         </button>
       </div>
     </div>

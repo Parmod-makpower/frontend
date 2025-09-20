@@ -6,7 +6,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaTrashAlt,
-  FaBan,
+  FaBan, FaShoppingCart
 } from "react-icons/fa";
 import MobilePageHeader from "../components/MobilePageHeader";
 import makpower_image from "../assets/images/makpower_image.webp";
@@ -21,20 +21,20 @@ export default function CartPage() {
 
   // ✅ Initialize default cartoon/quantity on first render
   // ✅ Initialize default cartoon/quantity only on mount
-useEffect(() => {
-  const defaults = {};
-  selectedProducts.forEach((p) => {
-    if (p.cartoon_size > 1) {
-      defaults[p.id] = 1;
-      updateQuantity(p.id, p.cartoon_size); // 1 cartoon default
-    } else {
-      updateQuantity(p.id, p.quantity || 1); // default quantity 1
-    }
-  });
-  setCartoonSelection(defaults);
-  // ⚠️ only run once on mount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+  useEffect(() => {
+    const defaults = {};
+    selectedProducts.forEach((p) => {
+      if (p.cartoon_size > 1) {
+        defaults[p.id] = 1;
+        updateQuantity(p.id, p.cartoon_size); // 1 cartoon default
+      } else {
+        updateQuantity(p.id, p.quantity || 1); // default quantity 1
+      }
+    });
+    setCartoonSelection(defaults);
+    // ⚠️ only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
   const total = selectedProducts.reduce((sum, p) => {
@@ -89,7 +89,7 @@ useEffect(() => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-2  sm:px-6 space-y-6 mb-25">
+    <div className="max-w-5xl mx-auto py-2  sm:px-6 space-y-6 mb-35">
       <MobilePageHeader title="Cart" />
 
       {/* Cart Items */}
@@ -112,105 +112,106 @@ useEffect(() => {
             <div className=" border-b p-4" key={item.id}>
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex flex-row flex-wrap gap-4 items-start">
-                {/* Product Image */}
-                <img
-                  src={
-                    item?.image
-                      ? `https://res.cloudinary.com/djyr368zj/${item.image}`
-                      : makpower_image
-                  }
-                  alt={item.product_name}
-                  className="w-28 h-28 object-contain bg-gray-50 rounded-lg border self-center"
-                />
+                  {/* Product Image */}
+                  <img
+                    src={
+                      item?.image
+                        ? `https://res.cloudinary.com/djyr368zj/${item.image}`
+                        : makpower_image
+                    }
+                    alt={item.product_name}
+                    className="w-28 h-28 object-contain bg-gray-50 rounded-lg border self-center"
+                  />
 
-<div className="flex-1">
-                  <h3 className="font-semibold text-lg">{item.product_name}</h3>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg">{item.product_name}</h3>
+                    <p className="text-xs text-gray-400 mb-3">{item.sub_category}</p>
 
-                  <p className="text-gray-600 flex items-center gap-1">
-                    {!isNaN(price) ? (
-                      <>&#8377;{price}</>
-                    ) : (
-                      <span className="flex items-center gap-1 text-red-500 text-xs">
-                        <FaBan /> Price
-                      </span>
-                    )}
-                  </p>
-
-                  <p className="text-xs text-gray-400">{item.sub_category}</p>
-                  {hasCartoon && (
-                    <p className="text-xs text-gray-400">
-                      1 Cartoon = {item.cartoon_size} piece
+                    <p className="text-gray-600 flex items-center gap-1">
+                      {!isNaN(price) ? (
+                        <>&#8377;{item.price}</>
+                      ) : (
+                        <span className="flex items-center gap-1 text-red-500 text-xs">
+                          <FaBan /> Price
+                        </span>
+                      )}
                     </p>
-                  )}
-</div>
- <div className="flex flex-col justify-between items-end mt-2 sm:mt-0">
-                  <button
-                    onClick={() => handleRemove(item.id)}
-                    className="text-red-500 text-sm flex items-center gap-1 hover:text-red-700"
-                  >
-                    <FaTrashAlt />
-                  </button>
-                  
+
+
+                    {hasCartoon && (
+                      <p className="text-xs text-gray-400">
+                        1 Cartoon = {item.cartoon_size} piece
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col justify-between items-end mt-2 sm:mt-0">
+                    <button
+                      onClick={() => handleRemove(item.id)}
+                      className="text-red-500 text-sm flex items-center gap-1 hover:text-red-700"
+                    >
+                      <FaTrashAlt />
+                    </button>
+
+                  </div>
                 </div>
-</div>
                 {/* Product Details */}
-              <div className="flex flex-row items-center justify-between mt-3">
-  <div className="flex flex-row items-center gap-2">
-    {hasCartoon ? (
-      <>
-        <select
-          value={cartoonSelection[item.id] || 1}
-          onChange={(e) =>
-            handleCartoonChange(item.id, parseInt(e.target.value))
-          }
-          className="border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none w-32"
-        >
-          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-            <option key={n} value={n}>
-              {n} Cartoon{n > 1 ? "s" : ""}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          value={item.quantity || 0}
-          readOnly
-          className="w-20 border rounded px-2 py-1 text-sm bg-gray-100"
-        />
-      </>
-    ) : (
-      <input
-        type="number"
-        min={1}
-        value={item.quantity === "" ? "" : Number(item.quantity)}
-        onChange={(e) => {
-          const val = e.target.value;
-          const parsed = parseInt(val);
-          if (!isNaN(parsed)) {
-            updateQuantity(item.id, Math.max(1, parsed));
-          } else if (val === "") {
-            updateQuantity(item.id, "");
-          }
-        }}
-        onBlur={(e) => {
-          const val = parseInt(e.target.value);
-          if (isNaN(val) || val < 1) {
-            updateQuantity(item.id, 1);
-          }
-        }}
-        className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-      />
-    )}
-  </div>
+                <div className="flex flex-row items-center justify-between mt-3">
+                  <div className="flex flex-row items-center gap-2">
+                    {hasCartoon ? (
+                      <>
+                        <select
+                          value={cartoonSelection[item.id] || 1}
+                          onChange={(e) =>
+                            handleCartoonChange(item.id, parseInt(e.target.value))
+                          }
+                          className="border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none w-32"
+                        >
+                          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                            <option key={n} value={n}>
+                              {n} Cartoon{n > 1 ? "s" : ""}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          type="number"
+                          value={item.quantity || 0}
+                          readOnly
+                          className="w-20 border rounded px-2 py-1 text-sm bg-gray-100"
+                        />
+                      </>
+                    ) : (
+                      <input
+                        type="number"
+                        min={1}
+                        value={item.quantity === "" ? "" : Number(item.quantity)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const parsed = parseInt(val);
+                          if (!isNaN(parsed)) {
+                            updateQuantity(item.id, Math.max(1, parsed));
+                          } else if (val === "") {
+                            updateQuantity(item.id, "");
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (isNaN(val) || val < 1) {
+                            updateQuantity(item.id, 1);
+                          }
+                        }}
+                        className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                      />
+                    )}
+                  </div>
 
-  <div className="font-bold">
-    {!isNaN(price) ? `₹${(price * (item.quantity || 1)).toFixed(1)}` : "—"}
-  </div>
-</div>
+                  <div className="font-bold">
+                    {!isNaN(price) ? `₹${(price * (item.quantity || 1)).toFixed(1)}` : "—"}
+                  </div>
+                </div>
 
 
-                
-                    </div>
+
+              </div>
 
               {/* Schemes */}
               {relatedSchemes.map((scheme) => {
@@ -261,17 +262,21 @@ useEffect(() => {
       </div>
 
       {/* Total & Proceed */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4">
-        <p className="text-xl font-semibold">
-          Total: <span className="text-green-700">₹{total.toFixed(2)}</span>
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6  pt-4">
+        <p className="text-xl font-bold text-gray-800">
+          <u className="text-red-600">₹ {total.toFixed(2)}</u>
         </p>
+
         <button
           onClick={handleProceed}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition w-full sm:w-auto"
+          className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-semibold px-6 py-3 rounded-md shadow-md hover:from-green-500 hover:to-green-600 hover:shadow-lg transition-all duration-300 ease-in-out"
         >
-          Proceed to Checkout →
+          <FaShoppingCart className="text-lg" />
+          Buy Now
         </button>
       </div>
+
+
     </div>
   );
 }

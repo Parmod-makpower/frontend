@@ -125,7 +125,7 @@ export default function SearchBarPage() {
         >
           <div className="flex items-center gap-2 font-medium truncate text-gray-800">
             {p._displayName}
-            {p.live_stock > 1 ? (
+            {p.virtual_stock > p.moq ? (
               <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                 In Stock
               </span>

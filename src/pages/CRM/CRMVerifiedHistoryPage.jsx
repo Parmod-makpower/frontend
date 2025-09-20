@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useVerifiedOrders } from "../../hooks/useVerifiedOrders";
 import { useUpdateOrderStatus } from "../../hooks/useUpdateOrderStatus";
@@ -12,6 +12,7 @@ export default function CRMVerifiedHistoryPage() {
   const [q, setQ] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
+  const [punchedFilter, setPunchedFilter] = useState(null); // 🔹 new filter
   const [dropdownOpen, setDropdownOpen] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
@@ -28,6 +29,7 @@ export default function CRMVerifiedHistoryPage() {
     q,
     start_date: start,
     end_date: end,
+    punched: punchedFilter, // 🔹 new param
   });
 
   const results = data?.results || [];
@@ -37,6 +39,11 @@ export default function CRMVerifiedHistoryPage() {
     [count]
   );
 
+  // 🔹 reset page on filter change
+  useEffect(() => {
+    setPage(1);
+  }, [status, start, end, q, punchedFilter]);
+
   const handleStatusChange = (id, newStatus) => {
     if (newStatus === "HOLD" || newStatus === "REJECTED") {
       setSelectedOrder(id);
@@ -44,7 +51,6 @@ export default function CRMVerifiedHistoryPage() {
       setReason("");
       setShowModal(true);
     } else {
-      // APPROVE -> no reason, set notes null
       updateStatus({ id, status: newStatus, notes: null });
       setDropdownOpen(null);
     }
@@ -65,7 +71,7 @@ export default function CRMVerifiedHistoryPage() {
       <MobilePageHeader title="Orders — History" />
       <div className="sticky top-0 z-10 bg-white/70 backdrop-blur pt-[60px] sm:pt-0">
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-2 pb-3">
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-2 pb-3">
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -93,6 +99,17 @@ export default function CRMVerifiedHistoryPage() {
             onChange={(e) => setEnd(e.target.value)}
             className="border rounded p-2"
           />
+          {/* 🔹 Punched toggle */}
+          <label className="flex items-center gap-1 border rounded p-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={punchedFilter === true}
+              onChange={(e) =>
+                setPunchedFilter(e.target.checked ? true : null)
+              }
+            />
+            Punched
+          </label>
         </div>
       </div>
 
@@ -101,7 +118,7 @@ export default function CRMVerifiedHistoryPage() {
       )}
 
       {/* Table */}
-      <div className=" border rounded shadow-sm">
+      <div className="border rounded shadow-sm">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
@@ -121,7 +138,7 @@ export default function CRMVerifiedHistoryPage() {
             {isLoading || !results.length ? (
               Array.from({ length: 10 }).map((_, i) => (
                 <tr key={i} className="animate-pulse border-t">
-                  <td className="p-3" colSpan={8}>
+                  <td className="p-3" colSpan={10}>
                     <div className="h-5 bg-gray-200 rounded" />
                   </td>
                 </tr>
