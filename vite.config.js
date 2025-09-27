@@ -4,18 +4,12 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-   theme: {
-    extend: {
-      colors: {
-        primary: "#fc250c",
-      },
-    },
-  },
   plugins: [
     react(),
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'robots.txt', 'icons/*'], // public/icons/ se load hoga
       manifest: {
         name: 'Makpower App',
         short_name: 'Makpower',
@@ -24,6 +18,7 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
+        scope: '/',
         icons: [
           {
             src: '/icons/icon-192x192.png',
@@ -36,11 +31,11 @@ export default defineConfig({
             type: 'image/png',
           },
         ],
+
       },
       workbox: {
         runtimeCaching: [
           {
-            // cache HTML pages (like /, /home etc.)
             urlPattern: ({ request }) => request.destination === 'document',
             handler: 'NetworkFirst',
             options: {
@@ -48,7 +43,6 @@ export default defineConfig({
             },
           },
           {
-            // cache JS, CSS, workers
             urlPattern: ({ request }) =>
               ['script', 'style', 'worker'].includes(request.destination),
             handler: 'StaleWhileRevalidate',
@@ -57,11 +51,11 @@ export default defineConfig({
             },
           },
           {
-            // cache other routes like /products etc.
-            urlPattern: ({ url }) => url.pathname.startsWith('/'),
-            handler: 'NetworkFirst',
+            urlPattern: ({ request }) =>
+              ['image', 'font'].includes(request.destination),
+            handler: 'CacheFirst',
             options: {
-              cacheName: 'route-cache',
+              cacheName: 'static-resources',
             },
           },
         ],
