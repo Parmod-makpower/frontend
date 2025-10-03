@@ -40,12 +40,12 @@ export default function CRMSSListPage() {
     <div className="p-4">
       <MobilePageHeader title="Super Stockist"/>
       <div className="flex justify-between items-center mb-4 sm:pt-0 pt-[60px]">
-        <button
+        {/* <button
           onClick={() => navigate("/crm-ss/add")}
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
         >
           <FaPlus /> Add User
-        </button>
+        </button> */}
       </div>
 
       <UserTable

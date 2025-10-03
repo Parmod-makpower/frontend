@@ -37,8 +37,8 @@ import CRMVerifiedDetailsPage from "./pages/CRM/CRMVerifiedDetailsPage";
 import InactiveProductsPage from "./pages/InactiveProductsPage";
 import SubCategoryPage from "./pages/SubCategoryPage";
 import CRMDashboard from "./pages/CRMDashboard";
+import TemperedPage from "./pages/TemperedPage";
 import CRMCreateOrderPage from "./pages/CRM/CRMCreateOrderPage";
-
 
 
 export default function App() {
@@ -86,6 +86,7 @@ export default function App() {
             <Route path="/product/:productId" element={<ProductDetailPage />} />
             <Route path="/more" element={<MoreOptionsPage />} />
             <Route path="/CRMDashboard" element={ <CRMDashboard/> } />
+            <Route path="/tempered/:categoryKeyword" element={ <TemperedPage/> } />
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
@@ -110,7 +111,6 @@ export default function App() {
             <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
             <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
            
-
             <Route path="/ss/ds" element={<ProtectedRoute allowedRoles={['SS']}><SSDSPage /></ProtectedRoute>} />
             <Route path="/ss-page" element={<ProtectedRoute allowedRoles={['SS']}><HomePage /></ProtectedRoute>} />
             <Route path="/cart" element={<ProtectedRoute allowedRoles={['SS']}><CartPage /></ProtectedRoute>} />
