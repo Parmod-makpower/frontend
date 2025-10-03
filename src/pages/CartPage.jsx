@@ -115,18 +115,8 @@ export default function CartPage() {
                   />
 
                   <div className="flex-1">
-                    {item?._displayName
-                      ? <>
-                        <h3 className="font-semibold text-lg">{item._displayName}</h3>
-                        <p className="text-xs text-gray-400 mb-3">{item.product_name}</p>
-                      </>
-
-                      : <h3 className="font-semibold text-lg">{item.product_name}</h3>
-                    }
-                    <p className="text-xs text-gray-400 ">{item.sub_category}</p>
-
-
-
+                    <h3 className="font-semibold text-lg">{item.product_name}</h3>
+                    <p className="text-xs text-gray-400 mb-3">{item.sub_category}</p>
 
                     <p className="text-gray-600 flex items-center gap-1">
                       {!isNaN(price) ? (

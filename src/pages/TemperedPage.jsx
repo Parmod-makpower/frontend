@@ -1,3 +1,5 @@
+
+
 // 📁 src/pages/TemperedPage.jsx
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -17,9 +19,11 @@ export default function TemperedPage() {
 
   const { data: allProductsRaw = [], isLoading } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
-  const { selectedProducts, addProduct, updateQuantity } = useSelectedProducts();
+  const { selectedProducts, addProduct } = useSelectedProducts();
 
   const [search, setSearch] = useState("");
+  // Track showAll state per product
+  const [showAllMap, setShowAllMap] = useState({}); // { [productId]: true/false }
 
   // Normalize products
   const allProducts = useMemo(
@@ -58,6 +62,13 @@ export default function TemperedPage() {
     }
   };
 
+  const toggleShowAll = (productId) => {
+    setShowAllMap((prev) => ({
+      ...prev,
+      [productId]: !prev[productId],
+    }));
+  };
+
   return (
     <div className="flex flex-col h-screen max-h-screen bg-white">
       {/* 🔍 Fixed Top Bar */}
@@ -68,7 +79,7 @@ export default function TemperedPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={`Search ${categoryKeyword} only...`}
-          className="flex-1 pl-10 pr-4 py-2 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm md:text-base"
+          className="flex-1 pl-10 pr-4 py-2 border rounded-full shadow-sm focus:outline-none  text-sm md:text-base"
         />
         <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
       </div>
@@ -83,6 +94,12 @@ export default function TemperedPage() {
           <div className="flex flex-col gap-2">
             {productsToShow.map((prod) => {
               const prodId = prod.id;
+              const saleArray = Array.isArray(prod.sale_names)
+                ? prod.sale_names
+                : prod.sale_names?.split?.(",") || [];
+              const showAll = showAllMap[prodId] || false;
+              const displayArray = showAll ? saleArray : saleArray.slice(0, 10);
+
               return (
                 <div
                   key={prodId}
@@ -107,70 +124,44 @@ export default function TemperedPage() {
                         <FaGift title="Scheme Available" className="text-pink-500 text-xs animate-pulse" />
                       )}
                     </div>
+
                     <div className="flex items-center gap-4 text-gray-500 text-[11px] sm:text-xs">
-                      {/* <span className="truncate font-medium">Product: {prod.product_name}</span> */}
                       <span className="truncate font-medium">Category: {prod.sub_category}</span>
                     </div>
-{/* Used in: Sale Names with Show More/Less */}
-{prod.sale_names && prod.sale_names.length > 0 && (
-  <div className="flex flex-col text-gray-600 text-[11px] sm:text-xs mt-1">
-    <span className="font-medium">Used in:</span>
-    <ul className="list-disc list-inside ml-3">
-      {(() => {
-        const saleArray = Array.isArray(prod.sale_names)
-          ? prod.sale_names
-          : prod.sale_names.split?.(",") || [];
 
-        const [showAll, setShowAll] = useState(false); // local state for show more/less
-        const displayArray = showAll ? saleArray : saleArray.slice(0, 10);
-
-        return (
-          <>
-            {displayArray.map((name, index) => (
-              <li key={index} className="truncate">
-                {name.trim()}
-              </li>
-            ))}
-            {saleArray.length > 10 && (
-              <li
-                className="text-blue-600 cursor-pointer hover:underline"
-                onClick={() => setShowAll(!showAll)}
-              >
-                {showAll ? "Show Less" : `Show More (${saleArray.length - 10} more)`}
-              </li>
-            )}
-          </>
-        );
-      })()}
-    </ul>
-  </div>
-)}
-
-
+                    {/* Sale Names with Show More/Less */}
+                    {saleArray.length > 0 && (
+                      <div className="flex flex-col text-gray-600 text-[11px] sm:text-xs mt-1">
+                        <span className="font-medium">Used in:</span>
+                        <ul className="list-disc list-inside ml-3">
+                          {displayArray.map((name, index) => (
+                            <li key={index} className="truncate">{name.trim()}</li>
+                          ))}
+                          {saleArray.length > 10 && (
+                            <li
+                              className="text-blue-600 cursor-pointer hover:underline"
+                              onClick={() => toggleShowAll(prodId)}
+                            >
+                              {showAll ? "Show Less" : `Show More (${saleArray.length - 10} more)`}
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
                   </div>
 
-                 
                   {user?.role === "SS" && (
                     <button
                       onClick={() => handleAddProduct(prod)}
-                      disabled={prod.virtual_stock <= (prod.moq ?? 0)} // 🔹 disable if out of stock
-                      className={`ml-3 transition-transform duration-150 hover:scale-110 ${prod.virtual_stock > (prod.moq ?? 0)
-                          ? "text-blue-600 hover:text-blue-800 cursor-pointer"
-                          : "text-gray-400 cursor-not-allowed" // 🔹 gray + not-allowed when disabled
-                        }`}
-                      title={
-                        prod.virtual_stock > (prod.moq ?? 0)
-                          ? "Add to cart"
-                          : "Out of stock"
-                      }
+                      disabled={prod.virtual_stock <= (prod.moq ?? 0)} // ✅ disable if out of stock
+                      className={`ml-3 text-blue-600 transition-transform duration-150 hover:scale-110 
+                      ${prod.virtual_stock <= (prod.moq ?? 0) ? "opacity-50 cursor-not-allowed hover:scale-100" : "hover:text-blue-800"}`}
+                      title={prod.virtual_stock <= (prod.moq ?? 0) ? "Out of Stock" : "Add to cart"}
                     >
-                      {isAdded(prod) ? (
-                        <FaCheck className="text-green-600 text-sm" />
-                      ) : (
-                        <FaPlus className="text-sm" />
-                      )}
+                      {isAdded(prodId) ? <FaCheck className="text-green-600 text-sm" /> : <FaPlus className="text-sm" />}
                     </button>
                   )}
+
                 </div>
               );
             })}
