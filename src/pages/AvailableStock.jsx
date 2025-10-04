@@ -263,7 +263,7 @@ export default function AvailableStock() {
                   <th className="p-3 border">Guarantee</th>
                   <th className="p-3 border">Price</th>
                   <th className="p-3 border">Cartoon</th>
-                  <th className="p-3 border">Stock</th>
+                  {/* <th className="p-3 border">Stock</th> */}
                   <th className="p-3 border">V-Stock</th>
                   <th className="p-3 border">MOQ</th>
                 </tr>
@@ -284,7 +284,7 @@ export default function AvailableStock() {
                     <td className="p-3 border">{prod.guarantee}</td>
                     <td className="p-3 border">₹{prod.price}</td>
                     <td className="p-3 border">{prod.cartoon_size}</td>
-                    <td className="p-3 border font-semibold text-green-600">{prod.live_stock}</td>
+                    {/* <td className="p-3 border font-semibold text-green-600">{prod.live_stock}</td> */}
                     <td className="p-3 border text-blue-600">{prod.virtual_stock}</td>
                     <td className="p-3 border">{prod.moq}</td>
                   </tr>
