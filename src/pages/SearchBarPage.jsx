@@ -58,35 +58,35 @@ export default function SearchBarPage() {
   });
 
   const searchResults = useMemo(() => {
-  return fuseResults.flatMap((product) => {
-    const matchedSaleNames =
-      product.sale_names?.filter((name) =>
-        name.toLowerCase().includes(searchTerm.toLowerCase())
-      ) || [];
+    return fuseResults.flatMap((product) => {
+      const matchedSaleNames =
+        product.sale_names?.filter((name) =>
+          name.toLowerCase().includes(searchTerm.toLowerCase())
+        ) || [];
 
-    const results = [];
+      const results = [];
 
-    // अगर sale_name मिले तो उन्हें अलग से जोड़ें
-    if (matchedSaleNames.length > 0) {
-      matchedSaleNames.forEach((sale_name) => {
+      // अगर sale_name मिले तो उन्हें अलग से जोड़ें
+      if (matchedSaleNames.length > 0) {
+        matchedSaleNames.forEach((sale_name) => {
+          results.push({
+            ...product,
+            _matchType: "sale_name",
+            _displayName: sale_name,
+          });
+        });
+      } else {
+        // वरना product_name या sub_category के मैच को दिखाएं
         results.push({
           ...product,
-          _matchType: "sale_name",
-          _displayName: sale_name,
+          _matchType: "product_or_category",
+          _displayName: product.product_name,
         });
-      });
-    } else {
-      // वरना product_name या sub_category के मैच को दिखाएं
-      results.push({
-        ...product,
-        _matchType: "product_or_category",
-        _displayName: product.product_name,
-      });
-    }
+      }
 
-    return results;
-  });
-}, [fuseResults, searchTerm]);
+      return results;
+    });
+  }, [fuseResults, searchTerm]);
 
 
   const hasScheme = (productId) =>
@@ -155,8 +155,12 @@ export default function SearchBarPage() {
         {user?.role === "SS" && (
           <button
             onClick={() => addProduct(p)}
-            className="ml-3 text-blue-600 hover:text-blue-800 py-2 px-4 transition-transform duration-150 hover:scale-110"
-            title="Add to cart"
+            disabled={p.virtual_stock <= p.moq} // 🔹 disable if out of stock
+            className={`ml-3 py-2 px-4 transition-transform duration-150 ${p.virtual_stock <= p.moq
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-blue-600 hover:text-blue-800 hover:scale-110"
+              }`}
+            title={p.virtual_stock <= p.moq ? "Out of Stock" : "Add to cart"}
           >
             {isAdded(p.id) ? (
               <FaCheck className="text-green-600 text-sm" />
@@ -164,6 +168,7 @@ export default function SearchBarPage() {
               <FaPlus className="text-sm" />
             )}
           </button>
+
         )}
       </div>
     );
