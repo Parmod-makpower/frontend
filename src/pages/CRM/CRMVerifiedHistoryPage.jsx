@@ -121,120 +121,113 @@ export default function CRMVerifiedHistoryPage() {
 
       {/* Table */}
       <div className="border rounded shadow-sm">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+        <table className="min-w-full text-sm text-left text-gray-700">
+          <thead className=" bg-gray-100 text-gray-900 text-sm font-semibold">
             <tr>
-              <th className="p-3 text-left">Order ID</th>
-              <th className="p-3 text-left">Party</th>
-              <th className="p-3 text-left">SS User</th>
-              <th className="p-3 text-left">CRM</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Verified At</th>
-              <th className="p-3 text-right">Total</th>
-              <th className="p-3 text-right">View</th>
+              <th className="p-3 border">Order ID</th>
+              <th className="p-3 border">Party Name</th>
+              {/* <th className="p-3 text-left">SS User</th> */}
+              <th className="p-3 border">CRM</th>
+              <th className="p-3 border">Status</th>
+              <th className="p-3 border">Verified At</th>
+              <th className="p-3 border">Total</th>
+             
               {user?.role === "ADMIN" && (<th className="p-3 text-right">Action</th>)}
               
-              <th className="p-3"></th>
             </tr>
           </thead>
-          <tbody>
-            {isLoading || !results.length ? (
-              Array.from({ length: 10 }).map((_, i) => (
-                <tr key={i} className="animate-pulse border-t">
-                  <td className="p-3" colSpan={10}>
-                    <div className="h-5 bg-gray-200 rounded" />
-                  </td>
-                </tr>
-              ))
-            ) : (
-              results.map((row) => (
-                <tr
-                  key={row.id}
-                  className="border-t hover:bg-gray-50 relative"
-                >
-                  <td className="p-3 font-medium">{row.order_id}</td>
-                  <td className="p-3">{row.ss_party_name}</td>
-                  <td className="p-3">{row.ss_user_name}</td>
-                  <td className="p-3">{row.crm_name}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        row.status === "APPROVED"
-                          ? "bg-green-100 text-green-700"
-                          : row.status === "REJECTED"
-                          ? "bg-red-100 text-red-700"
-                          : row.status === "DISPATCH"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-purple-100 text-purple-700"
-                      }`}
-                    >
-                      {row.status}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    {new Date(row.verified_at).toLocaleString()}
-                  </td>
-                  <td className="p-3 text-right">
-                    ₹{Number(row.total_amount).toFixed(2)}
-                  </td>
-                  <td className="p-3 text-right">
-                    <button
-                      onClick={() =>
-                        navigate(`/crm/verified/${row.id}`, {
-                          state: { order: row },
-                        })
-                      }
-                      className="px-3 py-1 rounded-xl border cursor-pointer hover:bg-gray-200"
-                    >
-                      Open
-                    </button>
-                  </td>
-                  {user?.role === "ADMIN" && (
-                     <td className="p-3 text-right relative">
-                    <div className="inline-block relative">
-                      <FaEllipsisV
-                        className="cursor-pointer"
-                        onClick={() =>
-                          setDropdownOpen(
-                            dropdownOpen === row.id ? null : row.id
-                          )
-                        }
-                      />
-                      {dropdownOpen === row.id && (
-                        <div className="absolute right-0 mt-2 w-32 bg-white border rounded-xl shadow-lg z-20">
-                          <button
-                            className="block w-full px-4 py-2 text-left hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleStatusChange(row.id, "HOLD")}
-                          >
-                            Hold
-                          </button>
-                          <button
-                            className="block w-full px-4 py-2 text-left hover:bg-gray-100 cursor-pointer"
-                            onClick={() =>
-                              handleStatusChange(row.id, "APPROVED")
-                            }
-                          >
-                            Approve
-                          </button>
-                          <button
-                            className="block w-full px-4 py-2 text-left hover:bg-gray-100 cursor-pointer"
-                            onClick={() =>
-                              handleStatusChange(row.id, "REJECTED")
-                            }
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  )}
+         <tbody className="divide-y divide-gray-200">
+  {isLoading || !results.length ? (
+    Array.from({ length: 10 }).map((_, i) => (
+      <tr key={i} className="animate-pulse border-t">
+        <td className="p-3" colSpan={10}>
+          <div className="h-5 bg-gray-200 rounded" />
+        </td>
+      </tr>
+    ))
+  ) : (
+    results.map((row) => (
+      <tr
+        key={row.id}
+        onClick={() =>
+          navigate(`/crm/verified/${row.id}`, {
+            state: { order: row },
+          })
+        }
+        className="border-t hover:bg-gray-50 relative cursor-pointer hover:bg-yellow-100"
+      >
+        <td className="p-3 border font-medium">{row.order_id}</td>
+        <td className="p-3 border">{row.ss_party_name}</td>
+        <td className="p-3 border">{row.crm_name}</td>
+        <td className="p-3 border">
+          <span
+            className={`px-2 py-1 text-xs font-semibold ${
+              row.status === "APPROVED"
+                ? "text-green-700"
+                : row.status === "REJECTED"
+                ? "text-red-700"
+                : row.status === "DISPATCH"
+                ? "text-blue-700"
+                : "text-purple-700"
+            }`}
+          >
+            {row.status}
+          </span>
+        </td>
+        <td className="p-3 border">
+          {new Date(row.verified_at).toLocaleString()}
+        </td>
+        <td className="p-3 border">₹{Number(row.total_amount).toFixed(2)}</td>
 
-                 
-                </tr>
-              ))
-            )}
-          </tbody>
+        {user?.role === "ADMIN" && (
+          <td className="p-3 text-right relative">
+            <div className="inline-block relative">
+              <FaEllipsisV
+                className="cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation(); // ✅ Row navigate ko rok do
+                  setDropdownOpen(dropdownOpen === row.id ? null : row.id);
+                }}
+              />
+              {dropdownOpen === row.id && (
+                <div className="absolute right-0 mt-2 w-32 bg-white border rounded-xl shadow-lg z-20">
+                  <button
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation(); // ✅ Row navigate ko rok do
+                      handleStatusChange(row.id, "HOLD");
+                    }}
+                  >
+                    Hold
+                  </button>
+                  <button
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStatusChange(row.id, "APPROVED");
+                    }}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStatusChange(row.id, "REJECTED");
+                    }}
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
+            </div>
+          </td>
+        )}
+      </tr>
+    ))
+  )}
+</tbody>
+
         </table>
       </div>
 

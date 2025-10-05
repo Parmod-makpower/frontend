@@ -104,7 +104,7 @@ export default function CRMOrderDetailPage() {
     try {
       await verifyCRMOrder(order.id, payload);
       alert(`Order approved successfully`);
-      navigate("/crm/orders");
+      navigate("/all/orders-history");
     } catch (error) {
       console.error("❌ Error verifying order:", error);
       alert("Failed to verify order");

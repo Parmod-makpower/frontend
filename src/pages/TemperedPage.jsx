@@ -107,7 +107,7 @@ export default function TemperedPage() {
                 >
                   <div
                     className="flex flex-col flex-grow gap-1 cursor-pointer"
-                    // onClick={() => navigate(`/product/${prodId}`)}
+                  // onClick={() => navigate(`/product/${prodId}`)}
                   >
                     <div className="flex items-center gap-2 font-medium truncate text-gray-800">
                       {prod.product_name}
@@ -125,18 +125,54 @@ export default function TemperedPage() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-4 text-gray-500 text-[11px] sm:text-xs">
+                    <div className="flex justify-between gap-4 text-gray-500 text-[11px] sm:text-xs">
                       <span className="truncate font-medium">Category: {prod.sub_category}</span>
+
+                      {user?.role === "SS" && (
+                    <button
+                      onClick={() => handleAddProduct(prod)}
+                      disabled={prod.virtual_stock <= (prod.moq ?? 0)} // ✅ disable if out of stock
+                      className={`ml-3 px-4  text-blue-600 transition-transform duration-150 hover:scale-110 
+                      ${prod.virtual_stock <= (prod.moq ?? 0) ? "opacity-50 cursor-not-allowed hover:scale-100" : "hover:text-blue-800"}`}
+                      title={prod.virtual_stock <= (prod.moq ?? 0) ? "Out of Stock" : "Add to cart"}
+                    >
+                      {isAdded(prodId) ? <FaCheck className="text-green-600 text-sm" /> : <FaPlus className="text-sm" />}
+                    </button>
+                  )}
                     </div>
 
+                   
                     {/* Sale Names with Show More/Less */}
                     {saleArray.length > 0 && (
                       <div className="flex flex-col text-gray-600 text-[11px] sm:text-xs mt-1">
                         <span className="font-medium">Used in:</span>
                         <ul className="list-disc list-inside ml-3">
-                          {displayArray.map((name, index) => (
-                            <li key={index} className="truncate">{name.trim()}</li>
-                          ))}
+                          {displayArray
+                            .slice()
+                            .sort((a, b) => {
+                              // ✅ bring matching sale name on top
+                              const searchLower = search.toLowerCase();
+                              const aMatch = a.toLowerCase().includes(searchLower) ? -1 : 1;
+                              const bMatch = b.toLowerCase().includes(searchLower) ? -1 : 1;
+                              return aMatch - bMatch;
+                            })
+                            .map((name, index) => {
+                              const idx = name.toLowerCase().indexOf(search.toLowerCase());
+                              if (idx !== -1 && search.trim() !== "") {
+                                // ✅ Highlight matched part
+                                const before = name.slice(0, idx);
+                                const match = name.slice(idx, idx + search.length);
+                                const after = name.slice(idx + search.length);
+                                return (
+                                  <li key={index} className="truncate">
+                                    {before}
+                                    <span className="bg-yellow-200">{match}</span>
+                                    {after}
+                                  </li>
+                                );
+                              }
+                              return <li key={index} className="truncate">{name.trim()}</li>;
+                            })}
                           {saleArray.length > 10 && (
                             <li
                               className="text-blue-600 cursor-pointer hover:underline"
@@ -148,19 +184,10 @@ export default function TemperedPage() {
                         </ul>
                       </div>
                     )}
+
                   </div>
 
-                  {user?.role === "SS" && (
-                    <button
-                      onClick={() => handleAddProduct(prod)}
-                      disabled={prod.virtual_stock <= (prod.moq ?? 0)} // ✅ disable if out of stock
-                      className={`ml-3 text-blue-600 transition-transform duration-150 hover:scale-110 
-                      ${prod.virtual_stock <= (prod.moq ?? 0) ? "opacity-50 cursor-not-allowed hover:scale-100" : "hover:text-blue-800"}`}
-                      title={prod.virtual_stock <= (prod.moq ?? 0) ? "Out of Stock" : "Add to cart"}
-                    >
-                      {isAdded(prodId) ? <FaCheck className="text-green-600 text-sm" /> : <FaPlus className="text-sm" />}
-                    </button>
-                  )}
+                  
 
                 </div>
               );

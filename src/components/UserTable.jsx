@@ -11,8 +11,8 @@ export default function UserTable({
     <div className="overflow-x-auto mb-25">
       {/* Desktop Table */}
       <table className="hidden md:table w-full text-left border    min-w-full text-sm text-left text-gray-700">
-        <thead className="bg-gray-100 text-gray-900 text-sm font-semibold">
-          <tr className="bg-gray-100">
+        <thead className="bg-gray-200 text-gray-900 text-sm font-semibold">
+          <tr className="bg-gray-200">
             <th className="p-3 border">S.NO</th>
             <th className="p-3 border">ID</th>
             <th className="p-3 border">Name</th>
