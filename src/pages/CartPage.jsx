@@ -146,53 +146,89 @@ export default function CartPage() {
 
                 {/* Product Details */}
                 <div className="flex flex-row items-center justify-between mt-3">
-                  <div className="flex flex-row items-center gap-2">
-                    {hasCartoon ? (
-                      <>
-                        <select
-                          value={cartoonSelection[item.id] || 1}
-                          onChange={(e) =>
-                            updateCartoon(item.id, parseInt(e.target.value))
-                          }
-                          className="border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none w-32"
-                        >
-                          {Array.from({ length: 25 }, (_, i) => i + 1).map((n) => (
-                            <option key={n} value={n}>
-                              {n} Cartoon{n > 1 ? "s" : ""}
-                            </option>
-                          ))}
-                        </select>
-                        <input
-                          type="number"
-                          value={item.quantity || 0}
-                          readOnly
-                          className="w-20 border rounded px-2 py-1 text-sm bg-gray-100"
-                        />
-                      </>
-                    ) : (
-                      <input
-                        type="number"
-                        min={1}
-                        value={item.quantity === "" ? "" : Number(item.quantity)}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const parsed = parseInt(val);
-                          if (!isNaN(parsed)) {
-                            updateQuantity(item.id, Math.max(1, parsed));
-                          } else if (val === "") {
-                            updateQuantity(item.id, "");
-                          }
-                        }}
-                        onBlur={(e) => {
-                          const val = parseInt(e.target.value);
-                          if (isNaN(val) || val < 1) {
-                            updateQuantity(item.id, 1);
-                          }
-                        }}
-                        className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                      />
-                    )}
-                  </div>
+                 <div className="flex flex-row items-center gap-2">
+  {hasCartoon ? (
+    <>
+      <select
+        value={cartoonSelection[item.id]}
+
+        onChange={(e) => {
+          const val = parseInt(e.target.value);
+          updateCartoon(item.id, val);
+          if (val === 0) {
+            updateQuantity(item.id, item.quantity || 1); // switch to manual quantity
+          } else {
+            updateQuantity(item.id, val * item.cartoon_size);
+          }
+        }}
+        className="border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none w-32"
+      >
+        <option value={0}>No Cartoon</option>
+        {Array.from({ length: 25 }, (_, i) => i + 1).map((n) => (
+          <option key={n} value={n}>
+            {n} Cartoon{n > 1 ? "s" : ""}
+          </option>
+        ))}
+      </select>
+
+      {cartoonSelection[item.id] === 0 && (
+        <input
+          type="number"
+          min={1}
+          value={item.quantity === "" ? "" : Number(item.quantity)}
+          onChange={(e) => {
+            const val = e.target.value;
+            const parsed = parseInt(val);
+            if (!isNaN(parsed)) {
+              updateQuantity(item.id, Math.max(1, parsed));
+            } else if (val === "") {
+              updateQuantity(item.id, "");
+            }
+          }}
+          onBlur={(e) => {
+            const val = parseInt(e.target.value);
+            if (isNaN(val) || val < 1) {
+              updateQuantity(item.id, 1);
+            }
+          }}
+          className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+        />
+      )}
+
+      {cartoonSelection[item.id] !== 0 && (
+        <input
+          type="number"
+          value={item.quantity || 0}
+          readOnly
+          className="w-20 border rounded px-2 py-1 text-sm bg-gray-100"
+        />
+      )}
+    </>
+  ) : (
+    <input
+      type="number"
+      min={1}
+      value={item.quantity === "" ? "" : Number(item.quantity)}
+      onChange={(e) => {
+        const val = e.target.value;
+        const parsed = parseInt(val);
+        if (!isNaN(parsed)) {
+          updateQuantity(item.id, Math.max(1, parsed));
+        } else if (val === "") {
+          updateQuantity(item.id, "");
+        }
+      }}
+      onBlur={(e) => {
+        const val = parseInt(e.target.value);
+        if (isNaN(val) || val < 1) {
+          updateQuantity(item.id, 1);
+        }
+      }}
+      className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+    />
+  )}
+</div>
+
 
                   <div className="font-bold">
                     {!isNaN(price)
