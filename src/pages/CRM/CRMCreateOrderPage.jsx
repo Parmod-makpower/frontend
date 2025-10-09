@@ -223,7 +223,7 @@ export default function CRMCreateOrderPage() {
               className="border rounded px-3 py-2 w-full mb-2"
             />
             {searchTerm && (
-              <div className="max-h-40 overflow-y-auto border rounded shadow bg-white">
+              <div className="max-h-80 overflow-y-auto border rounded shadow bg-white">
                 {filteredProducts.length > 0 ? (
                   filteredProducts.map((prod, index) => (
                     <div
