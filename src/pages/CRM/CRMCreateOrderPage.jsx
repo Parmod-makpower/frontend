@@ -84,11 +84,23 @@ export default function CRMCreateOrderPage() {
     searchInputRef.current?.focus();
   };
 
-  const handleQuantityChange = (id, qty) => updateQuantity(id, qty);
+  const handleQuantityChange = (id, value) => {
+    // केवल digits की अनुमति (0-9)
+    const numericValue = value.replace(/[^0-9]/g, "");
+
+    setSelectedProducts((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? { ...p, quantity: numericValue === "" ? "" : Number(numericValue) }
+          : p
+      )
+    );
+  };
+
 
   // ✅ Remove product and auto-sync localStorage
   const handleRemove = (id) => {
-   setSelectedProducts((prev) => prev.filter((p) => p.id !== id));
+    setSelectedProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
   // ✅ Virtual stock auto-update
@@ -267,13 +279,17 @@ export default function CRMCreateOrderPage() {
                     <td className="p-2 border">{p.product_name}</td>
                     <td className="p-2 border">{p.cartoon_size}</td>
                     <td className="p-2 border">
-                      <input
-                        type="number"
-                        value={p.quantity}
-                        min="1"
-                        onChange={(e) => handleQuantityChange(p.id, Number(e.target.value))}
-                        className="w-20 border rounded px-2"
-                      />
+                      <td className="border">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={p.quantity === 0 ? "" : p.quantity}
+                          onChange={(e) => handleQuantityChange(p.id, e.target.value)}
+                          className="w-20 border-none  px-3 text-center outline-none focus:outline-none focus:ring-0
+"
+                        />
+                      </td>
+
                     </td>
                     <td className="p-2 border">{p.virtual_stock}</td>
                     <td className="p-2 border">{p.price}</td>

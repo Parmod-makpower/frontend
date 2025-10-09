@@ -84,11 +84,11 @@ const categories = [
     keyword: "BATTERY",
     image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp",
     subcategories: [
-      // {
-      //   label: "COPY BATTERY",
-      //   keyword: "COPY BATTERY",
-      //   image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
-      // },
+      {
+        label: "COPY BATTERY",
+        keyword: "COPY BATTERY",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+      },
       {
         label: "ECO BATTERY",
         keyword: "ECO BATTERY",
