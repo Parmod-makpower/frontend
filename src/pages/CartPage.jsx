@@ -116,12 +116,12 @@ export default function CartPage() {
                         : makpower_image
                     }
                     alt={item.product_name}
-                    className="w-28 h-28 object-contain bg-gray-50 rounded-lg border self-center"
+                    className="w-22 h-22 object-contain bg-gray-50 rounded-lg border self-center"
                   />
 
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">{item.product_name}</h3>
-                    <p className="text-xs text-gray-400">{item.sub_category}</p>
+                    <p className="text-xs text-gray-400 mb-2">{item.sub_category}</p>
 
                     <p className="text-gray-600 flex items-center gap-1">
                       {!isNaN(price) ? (
@@ -143,7 +143,7 @@ export default function CartPage() {
                   <div className="flex flex-col justify-between items-end mt-2 sm:mt-0">
                     <button
                       onClick={() => handleRemove(item.id)}
-                      className="text-red-500 text-sm flex items-center gap-1 hover:text-red-700"
+                      className="text-red-500 text-sm flex items-center gap-1 me-2 hover:text-red-700"
                     >
                       <FaTrashAlt />
                     </button>
