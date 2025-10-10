@@ -27,23 +27,23 @@ export default function CartPage() {
   const navigate = useNavigate();
 
   // ✅ Initialize only missing cartoon selections on mount
-useEffect(() => {
-  selectedProducts.forEach((p) => {
-    if (p.cartoon_size && p.cartoon_size > 1) {
-      if (!cartoonSelection[p.id]) {
-        updateCartoon(p.id, 1); // default 1 cartoon
+  useEffect(() => {
+    selectedProducts.forEach((p) => {
+      if (p.cartoon_size && p.cartoon_size > 1) {
+        if (!cartoonSelection[p.id]) {
+          updateCartoon(p.id, 1); // default 1 cartoon
+        } else {
+          updateQuantity(p.id, cartoonSelection[p.id] * p.cartoon_size); // sync qty
+        }
       } else {
-        updateQuantity(p.id, cartoonSelection[p.id] * p.cartoon_size); // sync qty
+        const defaultQty = p.moq || 1; // ✅ default moq quantity
+        updateQuantity(p.id, defaultQty); // p.quantity check हटाओ, हमेशा defaultQty use करो
+
       }
-    } else {
-  const defaultQty = p.moq || 1; // ✅ default moq quantity
-  updateQuantity(p.id, defaultQty); // p.quantity check हटाओ, हमेशा defaultQty use करो
 
-}
-
-  });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
   const total = selectedProducts.reduce((sum, p) => {
@@ -121,7 +121,7 @@ useEffect(() => {
 
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">{item.product_name}</h3>
-                    <p className="text-xs text-gray-400 mb-3">{item.sub_category}</p>
+                    <p className="text-xs text-gray-400">{item.sub_category}</p>
 
                     <p className="text-gray-600 flex items-center gap-1">
                       {!isNaN(price) ? (
@@ -133,11 +133,12 @@ useEffect(() => {
                       )}
                     </p>
 
-                    {hasCartoon && (
-                      <p className="text-xs text-gray-400">
-                        1 Cartoon = {item.cartoon_size} piece
+                    {/* {hasCartoon && (
+                      <p className="text-xs text-gray-500 mt-1 ">
+                        {Math.floor(item.virtual_stock / item.cartoon_size)} cartoon
+                        {Math.floor(item.virtual_stock / item.cartoon_size) > 1 ? "s" : ""} left
                       </p>
-                    )}
+                    )} */}
                   </div>
                   <div className="flex flex-col justify-between items-end mt-2 sm:mt-0">
                     <button
@@ -150,74 +151,78 @@ useEffect(() => {
                 </div>
 
                 {/* Product Details */}
-               <div className="flex flex-row items-center justify-between mt-3">
-  <div className="flex flex-row items-center gap-2">
-    {hasCartoon ? (
-      <>
-        <select
-          value={cartoonSelection[item.id] || 1}
-          onChange={(e) => updateCartoon(item.id, parseInt(e.target.value))}
-          className="border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none w-32"
-        >
-          {Array.from({ length: 25 }, (_, i) => i + 1).map((n) => (
-            <option key={n} value={n}>
-              {n} Cartoon{n > 1 ? "s" : ""}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          value={item.quantity || 0}
-          readOnly
-          className="w-20 border rounded px-2 py-1 text-sm bg-gray-100"
-        />
-      </>
-    ) : (
-      <div className="flex flex-col items-start">
-        <input
-          type="number"
-          min={item.moq || 1}
-          value={item.quantity === "" ? "" : Number(item.quantity)}
-          onChange={(e) => {
-            const val = e.target.value;
-            const parsed = parseInt(val);
-            const moq = item.moq || 1;
+                <div className="flex flex-row items-center justify-between">
+                  <div className="flex flex-row items-center gap-2">
+                    {hasCartoon ? (
+                      <>
+                        <select
+                          value={cartoonSelection[item.id] || 1}
+                          onChange={(e) => updateCartoon(item.id, parseInt(e.target.value))}
+                          className="border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none w-32"
+                        >
+                          {Array.from(
+                            { length: Math.max(1, Math.floor(item.virtual_stock / item.cartoon_size)) },
+                            (_, i) => i + 1
+                          ).map((n) => (
+                            <option key={n} value={n}>
+                              {n} Cartoon{n > 1 ? "s" : ""}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          type="number"
+                          value={item.quantity || 0}
+                          readOnly
+                          className="w-20 border rounded px-2 py-1 text-sm bg-gray-100"
+                        />
 
-            if (!isNaN(parsed)) {
-              updateQuantity(item.id, parsed);
-              item.showMoqError = parsed < moq;
-            } else if (val === "") {
-              updateQuantity(item.id, "");
-              item.showMoqError = true;
-            }
-          }}
-          onBlur={(e) => {
-            const val = parseInt(e.target.value);
-            const moq = item.moq || 1;
-            if (isNaN(val) || val < moq) {
-              updateQuantity(item.id, moq);
-              item.showMoqError = false;
-            }
-          }}
-          className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${
-            item.showMoqError ? "border-red-400" : ""
-          }`}
-        />
-        {item.showMoqError && (
-          <p className="text-xs text-red-500 mt-1">
-            Minimum quantity: {item.moq}
-          </p>
-        )}
-      </div>
-    )}
-  </div>
+                      </>
+                    ) :
+                      (
+                        <div className="flex flex-col items-start">
+                          <input
+                            type="number"
+                            min={item.moq || 1}
+                            value={item.quantity === "" ? "" : Number(item.quantity)}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const parsed = parseInt(val);
+                              const moq = item.moq || 1;
 
-  <div className="font-bold">
-    {!isNaN(price)
-      ? `₹${(price * (item.quantity || 1)).toFixed(1)}`
-      : "—"}
-  </div>
-</div>
+                              if (!isNaN(parsed)) {
+                                updateQuantity(item.id, parsed);
+                                item.showMoqError = parsed < moq;
+                              } else if (val === "") {
+                                updateQuantity(item.id, "");
+                                item.showMoqError = true;
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const val = parseInt(e.target.value);
+                              const moq = item.moq || 1;
+                              if (isNaN(val) || val < moq) {
+                                updateQuantity(item.id, moq);
+                                item.showMoqError = false;
+                              }
+                            }}
+                            className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${item.showMoqError ? "border-red-400" : ""
+                              }`}
+                          />
+                          {item.showMoqError && (
+                            <p className="text-xs text-red-500 mt-1">
+                              Minimum quantity: {item.moq}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                  </div>
+
+                  <div className="font-bold">
+                    {!isNaN(price)
+                      ? `₹${(price * (item.quantity || 1)).toFixed(1)}`
+                      : "—"}
+                  </div>
+                </div>
 
               </div>
 

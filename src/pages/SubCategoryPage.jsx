@@ -24,6 +24,18 @@ export default function SubCategoryPage() {
     }
   };
 
+//   const handleSubCategoryClick = (sub) => {
+//   const keyword = sub.keyword.toUpperCase();
+
+//   // अगर keyword में TEMPERED, BATTERY या POLYMER है → /tempered/keyword
+//   if (keyword.includes("TEMPERED") || keyword.includes("BATTERY") || keyword.includes("POLYMER")) {
+//     navigate(`/tempered/${encodeURIComponent(sub.keyword)}`);
+//   } else {
+//     navigate(`/category/${encodeURIComponent(sub.keyword)}`);
+//   }
+// };
+
+
   return (
     <div className="p-4 pb-20">
       <MobilePageHeader title={mainCategory.label} />
