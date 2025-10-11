@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { usePlaceOrder } from "../../hooks/usePlaceOrder";
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaShoppingCart, FaBoxOpen, FaBan } from "react-icons/fa";
-import { FaIndianRupeeSign } from "react-icons/fa6"
+import { FaIndianRupeeSign } from "react-icons/fa6";
 import MobilePageHeader from "../../components/MobilePageHeader";
 
 export default function ConfirmOrderPage() {
@@ -19,9 +19,7 @@ export default function ConfirmOrderPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
-
-
-  // helper function same as CartPage
+  // 🔹 Helper: Get scheme multiplier
   const getSchemeMultiplier = (scheme) => {
     return Math.min(
       ...scheme.conditions.map((cond) => {
@@ -33,74 +31,73 @@ export default function ConfirmOrderPage() {
       })
     );
   };
-  
 
-  // 📌 merge all rewards by product before sending to backend
-const mergeRewards = (eligibleSchemes) => {
-  const rewardMap = {};
+  // 🔹 Merge all rewards before sending to backend
+  const mergeRewards = (eligibleSchemes) => {
+    const rewardMap = {};
 
-  eligibleSchemes.forEach((scheme) => {
-    const multiplier = getSchemeMultiplier(scheme);
+    eligibleSchemes.forEach((scheme) => {
+      const multiplier = getSchemeMultiplier(scheme);
 
-    scheme.rewards.forEach((r) => {
-      const productId =
-        typeof r.product === "object" ? r.product.id : r.product || r.product_id;
-      const productName = r.product_name || r.product;
-      const totalQty = r.quantity * multiplier;
+      scheme.rewards.forEach((r) => {
+        const productId =
+          typeof r.product === "object" ? r.product.id : r.product || r.product_id;
+        const productName = r.product_name || r.product;
+        const totalQty = r.quantity * multiplier;
 
-      if (rewardMap[productId]) {
-        rewardMap[productId].quantity += totalQty;
-      } else {
-        rewardMap[productId] = {
-          product: productId,
-          product_name: productName,
-          quantity: totalQty,
-        };
-      }
+        if (rewardMap[productId]) {
+          rewardMap[productId].quantity += totalQty;
+        } else {
+          rewardMap[productId] = {
+            product: productId,
+            product_name: productName,
+            quantity: totalQty,
+          };
+        }
+      });
     });
-  });
 
-  return Object.values(rewardMap); // ✅ array of merged rewards
-};
-
-
-  // filter eligible schemes
-  const eligibleSchemes = schemes.filter((scheme) => getSchemeMultiplier(scheme) > 0);
-
-  const handlePlaceOrder = () => {
-  setIsPlacingOrder(true);
-
-  const mergedRewards = mergeRewards(eligibleSchemes);
-
-  const order = {
-    user_id: user?.id,
-    crm_id: user?.crm,
-    items: selectedProducts.map((p) => ({
-      id: p.id,
-      quantity: p.quantity,
-      price: Number(p.price) || 0,
-    })),
-    eligibleSchemes: mergedRewards,  // ✅ ab merge karke bhej rahe
-    total: selectedProducts.reduce(
-      (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
-      0
-    ),
+    return Object.values(rewardMap);
   };
 
-  placeOrderMutation.mutate(order, {
-    onSuccess: (data) => {
-      setIsPlacingOrder(false);
-      setSelectedProducts([]);
-      setShowSuccess(data.order.order_id);
-    },
-    onError: (error) => {
-      setIsPlacingOrder(false);
-      console.error("❌ Order failed:", error);
-      alert("Order failed, please try again.");
-    },
-  });
-};
+  // 🔹 Eligible schemes filter
+  const eligibleSchemes = schemes.filter((scheme) => getSchemeMultiplier(scheme) > 0);
 
+  // 🔹 Place order function
+  const handlePlaceOrder = () => {
+    setIsPlacingOrder(true);
+
+    const mergedRewards = mergeRewards(eligibleSchemes);
+
+    const order = {
+      user_id: user?.id,
+      crm_id: user?.crm,
+      items: selectedProducts.map((p) => ({
+        id: p.id,
+        quantity: p.quantity,
+        price: Number(p.price) || 0,
+        ss_virtual_stock: p.virtual_stock || 0, // ✅ Added: Send virtual stock
+      })),
+      eligibleSchemes: mergedRewards,
+      total: selectedProducts.reduce(
+        (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
+        0
+      ),
+    };
+
+    placeOrderMutation.mutate(order, {
+      onSuccess: (data) => {
+        setIsPlacingOrder(false);
+        setSelectedProducts([]);
+        setShowSuccess(data.order.order_id);
+      },
+      onError: (error) => {
+        setIsPlacingOrder(false);
+        console.error("❌ Order failed:", error);
+        alert("Order failed, please try again.");
+      },
+    });
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-3 pb-20">
@@ -116,6 +113,7 @@ const mergeRewards = (eligibleSchemes) => {
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">No</th>
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Product</th>
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Quantity</th>
+            
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Price</th>
               </tr>
             </thead>
@@ -125,6 +123,7 @@ const mergeRewards = (eligibleSchemes) => {
                   <td className="px-4 py-2 text-sm text-gray-700">{index + 1}</td>
                   <td className="px-4 py-2 text-sm text-gray-800">{item.product_name}</td>
                   <td className="px-4 py-2 text-sm text-gray-700">{item.quantity}</td>
+                  
                   <td className="px-4 py-2 text-sm text-gray-700">
                     {!isNaN(Number(item.price)) ? (
                       <span className="flex items-center gap-1 text-gray-700">
@@ -151,8 +150,8 @@ const mergeRewards = (eligibleSchemes) => {
             <table className="min-w-full divide-y divide-green-200">
               <thead className="bg-pink-100">
                 <tr>
-                  <th className="px-4 py-2 text-left text-sm font-semibold ">Schemes</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold ">Rewards</th>
+                  <th className="px-4 py-2 text-left text-sm font-semibold">Schemes</th>
+                  <th className="px-4 py-2 text-left text-sm font-semibold">Rewards</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-green-100 bg-white">
@@ -167,12 +166,11 @@ const mergeRewards = (eligibleSchemes) => {
                       {scheme.rewards
                         .map((r) => {
                           const multiplier = getSchemeMultiplier(scheme);
-                          const totalQty = r.quantity * multiplier;   // ✅ multiplied value
+                          const totalQty = r.quantity * multiplier;
                           return `${totalQty} ${r.product_name || r.product} Free`;
                         })
                         .join(", ")}
                     </td>
-
                   </tr>
                 ))}
               </tbody>
@@ -186,8 +184,12 @@ const mergeRewards = (eligibleSchemes) => {
         <div className="text-right">
           <p className="text-lg font-semibold">
             Total: ₹
-            {selectedProducts.reduce(
-              (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1), 0).toFixed(2)}
+            {selectedProducts
+              .reduce(
+                (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
+                0
+              )
+              .toFixed(2)}
           </p>
         </div>
       </div>
@@ -197,8 +199,7 @@ const mergeRewards = (eligibleSchemes) => {
         <button
           onClick={handlePlaceOrder}
           disabled={isPlacingOrder}
-          className={`bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold px-6 py-3 rounded-md shadow-md hover:from-green-500 hover:to-green-600 hover:shadow-lg transition-all duration-300 ease-in-out"
-         px-6 py-2 rounded-lg transition text-white `}
+          className={`bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold px-6 py-3 rounded-md shadow-md hover:from-green-500 hover:to-green-600 hover:shadow-lg transition-all duration-300 ease-in-out`}
         >
           {isPlacingOrder ? "Placing Order..." : "Place Order"}
         </button>

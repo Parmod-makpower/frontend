@@ -50,7 +50,8 @@ function Table({ title, items }) {
               <th className="p-3 border">Product</th>
               <th className="p-3 border">Cartoon</th>
               <th className="p-3 border">Qty</th>
-              <th className="p-3 border">Virtual Stock</th>
+              <th className="p-3 border">SS-Stock</th>
+              <th className="p-3 border">Stock</th>
             </tr>
           </thead>
           <tbody>
@@ -60,6 +61,7 @@ function Table({ title, items }) {
                   <td className="p-3 border">{r.product_name}</td>
                   <td className="p-3 border">{r.cartoon_size ?? "-"}</td>
                   <td className="p-3 border">{r.quantity}</td>
+                  <td className="p-3 border">{r.ss_virtual_stock}</td>
                   <td className="p-3 border">{r.virtual_stock ?? "-"}</td>
                 </tr>
               ))
@@ -167,7 +169,7 @@ export default function CRMVerifiedDetailsPage() {
       item.product_name,
       item.cartoon_size ?? "-",
       item.quantity,
-      item.virtual_stock ?? "-",
+      item.ss_virtual_stock ?? "-",
     ]);
 
     autoTable(doc, {

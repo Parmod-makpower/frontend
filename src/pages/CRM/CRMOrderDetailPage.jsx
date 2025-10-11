@@ -169,6 +169,7 @@ export default function CRMOrderDetailPage() {
                 <th className="px-4 py-3 text-center border border-gray-300">SS Order</th>
                 <th className="px-4 py-3 text-center border border-gray-300">Approved</th>
                 {/* ✅ Virtual Stock column */}
+                <th className="px-4 py-3 text-center border border-gray-300">ss-Stock</th>
                 <th className="px-4 py-3 text-center border border-gray-300">Stock</th>
                 <th className="px-4 py-3 text-center border border-gray-300">Cartoon</th>
                 <th className="px-4 py-3 text-center border border-gray-300">Price</th>
@@ -197,6 +198,9 @@ export default function CRMOrderDetailPage() {
                         onChange={(e) => handleEditQuantity(item.product, e.target.value)}
                         className="border rounded-lg p-1 w-20 text-center"
                       />
+                    </td>
+                    <td className="px-4 py-2 border border-gray-200 text-center">
+                      {item.ss_virtual_stock}
                     </td>
                     {/* ✅ Virtual Stock Value */}
                     <td className="px-4 py-2 border border-gray-200 text-center font-medium">
