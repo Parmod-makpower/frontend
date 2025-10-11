@@ -86,40 +86,36 @@ export default function ProductCard({
         </p>
 
         {/* ✅ Cart Button - अब हमेशा "Added" दिखेगा जब तक product cart में है */}
-        <div className="mt-auto">
-          {user?.role === "SS" && (
-            <button
-              onClick={(e) => {
-                if (prod.virtual_stock <= prod.moq || isInCart) return;
-                e.stopPropagation();
-                handleAddToCart();
-              }}
-              disabled={prod.virtual_stock <= prod.moq}
-              className={`w-full mt-2 flex items-center justify-center gap-2 
-                ${isInCart ? "bg-gray-600" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
-                hover:opacity-90 text-white text-[11px] md:text-sm font-semibold 
-                py-2 md:py-3 rounded-xl shadow-lg transition-all duration-300
-                ${prod.virtual_stock <= prod.moq ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-              `}
-            >
-              {prod.virtual_stock <= prod.moq
-                ? "Out of Stock"
-                : isInCart
-                  ? (
-                    < >
-                      <FaCheckCircle className="text-sm md:text-base " />
-                      Added
-                    </>
-                  )
-                  : (
-                    <>
-                      <FaShoppingCart className="text-sm md:text-base animate-bounce" />
-                      Add to Cart
-                    </>
-                  )}
-            </button>
-          )}
-        </div>
+        {/* ✅ Cart Button - अब always enable रहेगा */}
+<div className="mt-auto">
+  {user?.role === "SS" && (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        handleAddToCart();
+      }}
+      className={`w-full mt-2 flex items-center justify-center gap-2 
+        ${isInCart ? "bg-gray-600" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
+        hover:opacity-90 text-white text-[11px] md:text-sm font-semibold 
+        py-2 md:py-3 rounded-xl shadow-lg transition-all duration-300
+        cursor-pointer
+      `}
+    >
+      {isInCart ? (
+        <>
+          <FaCheckCircle className="text-sm md:text-base" />
+          Added
+        </>
+      ) : (
+        <>
+          <FaShoppingCart className="text-sm md:text-base animate-bounce" />
+          Add to Cart
+        </>
+      )}
+    </button>
+  )}
+</div>
+
       </div>
     </div>
   );

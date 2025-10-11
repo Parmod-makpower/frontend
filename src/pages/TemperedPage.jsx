@@ -128,17 +128,21 @@ export default function TemperedPage() {
                     <div className="flex justify-between gap-4 text-gray-500 text-[11px] sm:text-xs">
                       <span className="truncate font-medium">Category: {prod.sub_category}</span>
 
-                      {user?.role === "SS" && (
-                    <button
-                      onClick={() => handleAddProduct(prod)}
-                      disabled={prod.virtual_stock <= (prod.moq ?? 0)} // ✅ disable if out of stock
-                      className={`ml-3 px-4  text-blue-600 transition-transform duration-150 hover:scale-110 
-                      ${prod.virtual_stock <= (prod.moq ?? 0) ? "opacity-50 cursor-not-allowed hover:scale-100" : "hover:text-blue-800"}`}
-                      title={prod.virtual_stock <= (prod.moq ?? 0) ? "Out of Stock" : "Add to cart"}
-                    >
-                      {isAdded(prodId) ? <FaCheck className="text-green-600 text-sm" /> : <FaPlus className="text-sm" />}
-                    </button>
-                  )}
+                     {user?.role === "SS" && (
+  <button
+    onClick={() => handleAddProduct(prod)}
+    className={`ml-3 px-4 text-blue-600 transition-transform duration-150 hover:scale-110 
+      ${isAdded(prodId) ? "opacity-70 cursor-not-allowed" : "hover:text-blue-800"}`}
+    title={isAdded(prodId) ? "Already Added" : "Add to cart"}
+  >
+    {isAdded(prodId) ? (
+      <FaCheck className="text-green-600 text-sm" />
+    ) : (
+      <FaPlus className="text-sm" />
+    )}
+  </button>
+)}
+
                     </div>
 
                    

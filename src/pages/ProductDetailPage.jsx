@@ -220,37 +220,31 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ✅ Sticky Bottom Add to Cart Bar */}
-      {user?.role === "SS" && (
-        <div className="left-0 w-full bg-white p-3 flex gap-3 z-50">
-          <button
-            onClick={() => {
-              if (product.virtual_stock <= product.moq || isInCart) return;
-              handleAddToCart();
-            }}
-            disabled={product.virtual_stock <= product.moq}
-            className={`flex-1 flex items-center justify-center gap-2 
-              ${isInCart ? "bg-gray-600" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
-              text-white text-sm font-semibold py-3 rounded-lg shadow-lg transition-all duration-300
-              ${product.virtual_stock <= product.moq ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-            `}
-          >
-            {product.virtual_stock <= product.moq
-              ? "Out of Stock"
-              : isInCart
-              ? (
-                <>
-                  <FaCheckCircle /> Added
-                </>
-              )
-              : (
-                <>
-                  <FaShoppingCart className="animate-bounce" />
-                  Add to Cart
-                </>
-              )}
-          </button>
-        </div>
+      {/* ✅ Sticky Bottom Add to Cart Bar */}
+{user?.role === "SS" && (
+  <div className="left-0 w-full bg-white p-3 flex gap-3 z-50">
+    <button
+      onClick={handleAddToCart}
+      className={`flex-1 flex items-center justify-center gap-2 
+        ${isInCart ? "bg-gray-600" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
+        text-white text-sm font-semibold py-3 rounded-lg shadow-lg transition-all duration-300
+        cursor-pointer
+      `}
+    >
+      {isInCart ? (
+        <>
+          <FaCheckCircle /> Added
+        </>
+      ) : (
+        <>
+          <FaShoppingCart className="animate-bounce" />
+          Add to Cart
+        </>
       )}
+    </button>
+  </div>
+)}
+
     </div>
   );
 }

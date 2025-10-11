@@ -153,23 +153,19 @@ export default function SearchBarPage() {
         </div>
 
         {user?.role === "SS" && (
-          <button
-            onClick={() => addProduct(p)}
-            disabled={p.virtual_stock <= p.moq} // 🔹 disable if out of stock
-            className={`ml-3 py-2 px-4 transition-transform duration-150 ${p.virtual_stock <= p.moq
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-blue-600 hover:text-blue-800 hover:scale-110"
-              }`}
-            title={p.virtual_stock <= p.moq ? "Out of Stock" : "Add to cart"}
-          >
-            {isAdded(p.id) ? (
-              <FaCheck className="text-green-600 text-sm" />
-            ) : (
-              <FaPlus className="text-sm" />
-            )}
-          </button>
+  <button
+    onClick={() => addProduct(p)}
+    className="ml-3 py-2 px-4 text-blue-600 hover:text-blue-800 hover:scale-110 transition-transform duration-150"
+    title={isAdded(p.id) ? "Added" : "Add to cart"}
+  >
+    {isAdded(p.id) ? (
+      <FaCheck className="text-green-600 text-sm" />
+    ) : (
+      <FaPlus className="text-sm" />
+    )}
+  </button>
+)}
 
-        )}
       </div>
     );
   };
