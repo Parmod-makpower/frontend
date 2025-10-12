@@ -194,7 +194,8 @@ export default function CRMOrderDetailPage() {
                       <input
                         type="text"
                         inputMode="numeric"
-                        value={item.quantity === 0 ? "" : item.quantity}
+                        value={item.quantity === "" ? "" : item.quantity}
+
                         onChange={(e) => handleEditQuantity(item.product, e.target.value)}
                         className="border rounded-lg p-1 w-20 text-center"
                       />
