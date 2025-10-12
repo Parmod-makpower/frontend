@@ -186,34 +186,32 @@ useEffect(() => {
                     ) :
                       (
                         <div className="flex flex-col items-start">
-                          <input
+                       <input
   type="number"
-  min={item.moq || 1}
-  value={item.quantity === "" ? "" : Number(item.quantity)}
+  min={1}
+  value={item.quantity === "" ? "" : item.quantity}
   onChange={(e) => {
     const val = e.target.value;
-    const parsed = parseInt(val);
-    const moq = item.moq || 1;
 
-    if (!isNaN(parsed)) {
-      // 🧠 अगर user moq से कम डाले तो तुरंत MOQ पर सेट करो
-      if (parsed < moq) {
-        updateQuantity(item.id, moq);
-        item.showMoqError = true;
-      } else {
-        updateQuantity(item.id, parsed);
-        item.showMoqError = false;
-      }
-    } else if (val === "") {
+    // Empty allow करो ताकि user कुछ भी type कर सके
+    if (val === "") {
       updateQuantity(item.id, "");
       item.showMoqError = true;
+      return;
+    }
+
+    const parsed = parseInt(val);
+    if (!isNaN(parsed)) {
+      updateQuantity(item.id, parsed); // अभी कुछ भी type करने दो
+      item.showMoqError = parsed < (item.moq || 1);
     }
   }}
   onBlur={(e) => {
     const val = parseInt(e.target.value);
     const moq = item.moq || 1;
+
     if (isNaN(val) || val < moq) {
-      updateQuantity(item.id, moq);
+      updateQuantity(item.id, moq); // auto set to MOQ
       item.showMoqError = false;
     }
   }}
@@ -221,6 +219,7 @@ useEffect(() => {
     item.showMoqError ? "border-red-400" : ""
   }`}
 />
+
 
                           {item.showMoqError && (
                             <p className="text-xs text-red-500 mt-1">

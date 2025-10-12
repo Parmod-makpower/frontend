@@ -6,7 +6,8 @@ import { useSchemes } from "../hooks/useSchemes";
 import useFuseSearch from "../hooks/useFuseSearch";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
-import { FaPlus, FaGift, FaCheck } from "react-icons/fa";
+import { FaPlus, FaGift } from "react-icons/fa";
+import { IoChevronBack } from "react-icons/io5";
 import { Search as SearchIcon } from "lucide-react";
 
 export default function BatteryPage() {
@@ -66,20 +67,27 @@ export default function BatteryPage() {
   return (
     <div className="flex flex-col h-screen max-h-screen bg-white">
       {/* 🔍 Fixed Top Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow flex items-center gap-2">
-        <input
-          ref={searchRef}
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={`Search ${categoryKeyword} only...`}
-          className="flex-1 pl-10 pr-4 py-2 border rounded-full shadow-sm focus:outline-none  text-sm md:text-base"
-        />
-        <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-      </div>
+       <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out flex items-center gap-2">
+              <button
+                onClick={() => window.history.back()}
+                className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
+                aria-label="Back"
+              >
+                <IoChevronBack />
+              </button>
+              <input
+                ref={searchRef}
+                type="text"
+                onChange={(e) => setSearch(e.target.value)}
+                maxLength={20}
+                placeholder={`Search ${categoryKeyword} only...`}
+                className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
+              />
+            </div>
+     
 
       {/* Products Section */}
-      <main className="flex-1 pt-[70px] sm:pt-24 overflow-y-auto px-2 sm:px-4 pb-30">
+      <main className="flex-1 pt-[60px]  overflow-y-auto px-2  pb-30">
         {isLoading ? (
           <p className="text-center py-8">Loading...</p>
         ) : productsToShow.length === 0 ? (
@@ -133,13 +141,13 @@ export default function BatteryPage() {
                     <p className="text-[12px] sm:text-xs flex items-center font-medium ">
                       {prod.guarantee ? (
                         <span className="text-orange-600 text-[10px] ">
-                          Guarantee : {prod.guarantee} 
+                          Guarantee : {prod.guarantee}
                         </span>
                       ) : null}
                     </p>
 
                     <p className="text-[12px] sm:text-xs flex items-center gap-2 font-medium ">
-                      &#8377;{prod.price}                                           
+                      &#8377;{prod.price}
                     </p>
                   </div>
 
@@ -155,17 +163,17 @@ export default function BatteryPage() {
                                 onChange={(e) =>
                                   updateCartoon(selectedItem.id, parseInt(e.target.value))
                                 }
-                                className="border rounded  text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                               >
                                 {Array.from(
                                   { length: Math.max(1, Math.floor(selectedItem.virtual_stock / selectedItem.cartoon_size)) },
                                   (_, i) => i + 1
                                 ).map((n) => (
                                   <option key={n} value={n}>
-                                    {n} CTN {n > 1 }
+                                    {n} CTN {n > 1}
                                   </option>
                                 ))}
-                              </select> 
+                              </select>
                               {/* <input
                                 type="number"
                                 value={selectedItem.quantity || 0}
@@ -176,44 +184,44 @@ export default function BatteryPage() {
                           ) : (
                             <input
                               type="number"
-                              min={selectedItem.moq || 1}
-                              value={selectedItem.quantity === "" ? "" : Number(selectedItem.quantity)}
+                              min={1}
+                              value={selectedItem.quantity === "" ? "" : selectedItem.quantity}
                               onChange={(e) => {
                                 const val = e.target.value;
-                                const parsed = parseInt(val);
-                                const moq = selectedItem.moq || 1;
 
-                                if (!isNaN(parsed)) {
-                                  if (parsed < moq) {
-                                    updateQuantity(selectedItem.id, moq);
-                                    selectedItem.showMoqError = true;
-                                  } else {
-                                    updateQuantity(selectedItem.id, parsed);
-                                    selectedItem.showMoqError = false;
-                                  }
-                                } else if (val === "") {
+                                // User को typing allow करो (empty भी)
+                                if (val === "") {
                                   updateQuantity(selectedItem.id, "");
                                   selectedItem.showMoqError = true;
+                                  return;
+                                }
+
+                                const parsed = parseInt(val);
+                                if (!isNaN(parsed)) {
+                                  updateQuantity(selectedItem.id, parsed); // Just type करने दो
+                                  selectedItem.showMoqError = parsed < (selectedItem.moq || 1);
                                 }
                               }}
                               onBlur={(e) => {
                                 const val = parseInt(e.target.value);
                                 const moq = selectedItem.moq || 1;
+
+                                // Blur पर check करो और fix करो
                                 if (isNaN(val) || val < moq) {
                                   updateQuantity(selectedItem.id, moq);
                                   selectedItem.showMoqError = false;
                                 }
                               }}
-                              className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${
-                                selectedItem.showMoqError ? "border-red-400" : ""
-                              }`}
+                              className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${selectedItem.showMoqError ? "border-red-400" : ""
+                                }`}
                             />
+
                           )}
                         </>
                       ) : (
                         <button
                           onClick={() => handleAddProduct(prod)}
-                          className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
+                          className="bg-blue-100 p-3  rounded-full text-blue-600 hover:bg-blue-200 transition-all"
                         >
                           <FaPlus className="text-sm" />
                         </button>
