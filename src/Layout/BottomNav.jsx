@@ -57,7 +57,7 @@ export default function BottomNav() {
   const roleItems = {
     SS: [
       { path: "/user-schemes", icon: <FaGift />, label: "Schemes" },
-      { path: "/ss/history", icon: <FaBox />, label: "Orders" },
+      { path: "/all-categories", icon: <FaBox />, label: "Category" },
       cartItem,
     ],
     CRM: [

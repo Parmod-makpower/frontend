@@ -15,14 +15,14 @@ export default function SubCategoryPage() {
     return <div>No Subcategories Found</div>;
   }
 
-  const handleSubCategoryClick = (sub) => {
-    // Agar subcategory keyword me TEMPERED ho → /tempered/keyword
-    if (sub.keyword.toUpperCase().includes("TEMPERED")) {
-      navigate(`/tempered/${encodeURIComponent(sub.keyword)}`);
-    } else {
-      navigate(`/category/${encodeURIComponent(sub.keyword)}`);
-    }
-  };
+  // const handleSubCategoryClick = (sub) => {
+  //   // Agar subcategory keyword me TEMPERED ho → /tempered/keyword
+  //   if (sub.keyword.toUpperCase().includes("TEMPERED")) {
+  //     navigate(`/tempered/${encodeURIComponent(sub.keyword)}`);
+  //   } else {
+  //     navigate(`/category/${encodeURIComponent(sub.keyword)}`);
+  //   }
+  // };
 
 //   const handleSubCategoryClick = (sub) => {
 //   const keyword = sub.keyword.toUpperCase();
@@ -34,6 +34,24 @@ export default function SubCategoryPage() {
 //     navigate(`/category/${encodeURIComponent(sub.keyword)}`);
 //   }
 // };
+
+const handleSubCategoryClick = (sub) => {
+  const keyword = sub.keyword.toUpperCase();
+
+  // अगर keyword में Battery, Polymer या Asus हो → /bateries
+  if (keyword.includes("BATTERY") || keyword.includes("POLYMER") || keyword.includes("TWS")) {
+    navigate(`/batteries/${encodeURIComponent(sub.keyword)}`);
+  }
+  // अगर keyword में TEMPERED हो → /tempered/keyword
+  else if (keyword.includes("TEMPERED")) {
+    navigate(`/tempered/${encodeURIComponent(sub.keyword)}`);
+  } 
+  // बाकी सब → /category/keyword
+  else {
+    navigate(`/category/${encodeURIComponent(sub.keyword)}`);
+  }
+};
+
 
 
   return (

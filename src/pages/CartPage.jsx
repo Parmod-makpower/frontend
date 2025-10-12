@@ -27,23 +27,29 @@ export default function CartPage() {
   const navigate = useNavigate();
 
   // ✅ Initialize only missing cartoon selections on mount
-  useEffect(() => {
-    selectedProducts.forEach((p) => {
-      if (p.cartoon_size && p.cartoon_size > 1) {
-        if (!cartoonSelection[p.id]) {
-          updateCartoon(p.id, 1); // default 1 cartoon
-        } else {
-          updateQuantity(p.id, cartoonSelection[p.id] * p.cartoon_size); // sync qty
-        }
+  // ✅ Initialize only missing cartoon selections on mount
+useEffect(() => {
+  selectedProducts.forEach((p) => {
+    if (p.cartoon_size && p.cartoon_size > 1) {
+      if (!cartoonSelection[p.id]) {
+        updateCartoon(p.id, 1); // default 1 cartoon
       } else {
-        const defaultQty = p.moq || 1; // ✅ default moq quantity
-        updateQuantity(p.id, defaultQty); // p.quantity check हटाओ, हमेशा defaultQty use करो
-
+        updateQuantity(p.id, cartoonSelection[p.id] * p.cartoon_size);
       }
+    } else {
+      // ❌ पुराना code हर बार quantity reset कर देता था
+      // ✅ अब सिर्फ तभी set करेंगे जब quantity invalid या खाली हो
+      const moq = p.moq || 1;
+      const qty = parseInt(p.quantity);
 
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      if (isNaN(qty) || qty < moq) {
+        updateQuantity(p.id, moq);
+      }
+    }
+  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
 
 
   const total = selectedProducts.reduce((sum, p) => {
@@ -181,33 +187,41 @@ export default function CartPage() {
                       (
                         <div className="flex flex-col items-start">
                           <input
-                            type="number"
-                            min={item.moq || 1}
-                            value={item.quantity === "" ? "" : Number(item.quantity)}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              const parsed = parseInt(val);
-                              const moq = item.moq || 1;
+  type="number"
+  min={item.moq || 1}
+  value={item.quantity === "" ? "" : Number(item.quantity)}
+  onChange={(e) => {
+    const val = e.target.value;
+    const parsed = parseInt(val);
+    const moq = item.moq || 1;
 
-                              if (!isNaN(parsed)) {
-                                updateQuantity(item.id, parsed);
-                                item.showMoqError = parsed < moq;
-                              } else if (val === "") {
-                                updateQuantity(item.id, "");
-                                item.showMoqError = true;
-                              }
-                            }}
-                            onBlur={(e) => {
-                              const val = parseInt(e.target.value);
-                              const moq = item.moq || 1;
-                              if (isNaN(val) || val < moq) {
-                                updateQuantity(item.id, moq);
-                                item.showMoqError = false;
-                              }
-                            }}
-                            className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${item.showMoqError ? "border-red-400" : ""
-                              }`}
-                          />
+    if (!isNaN(parsed)) {
+      // 🧠 अगर user moq से कम डाले तो तुरंत MOQ पर सेट करो
+      if (parsed < moq) {
+        updateQuantity(item.id, moq);
+        item.showMoqError = true;
+      } else {
+        updateQuantity(item.id, parsed);
+        item.showMoqError = false;
+      }
+    } else if (val === "") {
+      updateQuantity(item.id, "");
+      item.showMoqError = true;
+    }
+  }}
+  onBlur={(e) => {
+    const val = parseInt(e.target.value);
+    const moq = item.moq || 1;
+    if (isNaN(val) || val < moq) {
+      updateQuantity(item.id, moq);
+      item.showMoqError = false;
+    }
+  }}
+  className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${
+    item.showMoqError ? "border-red-400" : ""
+  }`}
+/>
+
                           {item.showMoqError && (
                             <p className="text-xs text-red-500 mt-1">
                               Minimum quantity: {item.moq}

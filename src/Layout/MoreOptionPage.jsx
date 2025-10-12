@@ -7,6 +7,7 @@ import {
   FaInfoCircle,
   FaUsers,
   FaChartLine,
+  FaBox,
 } from "react-icons/fa";
 import MobilePageHeader from "../components/MobilePageHeader";
 
@@ -33,6 +34,16 @@ export default function MoreOptionsPage() {
             icon: <FaChartLine className="text-orange-600" />,
             action: () => navigate("/available-stock"),
           },
+        ]
+      : []),
+    ...(user?.role === "SS"
+      ? [
+          {
+            label: "My Order",
+            icon: <FaBox className="text-orange-600" />,
+            action: () => navigate("/ss/history"),
+          },
+         
         ]
       : []),
     {

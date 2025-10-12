@@ -38,6 +38,7 @@ import InactiveProductsPage from "./pages/InactiveProductsPage";
 import SubCategoryPage from "./pages/SubCategoryPage";
 import CRMDashboard from "./pages/CRMDashboard";
 import TemperedPage from "./pages/TemperedPage";
+import BatteryPage from "./pages/BatteryPage";
 import CRMCreateOrderPage from "./pages/CRM/CRMCreateOrderPage";
 
 
@@ -87,6 +88,7 @@ export default function App() {
             <Route path="/more" element={<MoreOptionsPage />} />
             <Route path="/CRMDashboard" element={ <CRMDashboard/> } />
             <Route path="/tempered/:categoryKeyword" element={ <TemperedPage/> } />
+            <Route path="/batteries/:categoryKeyword" element={ <BatteryPage/> } />
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
