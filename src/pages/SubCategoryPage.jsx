@@ -39,7 +39,7 @@ const handleSubCategoryClick = (sub) => {
   const keyword = sub.keyword.toUpperCase();
 
   // अगर keyword में Battery, Polymer या Asus हो → /bateries
-  if (keyword.includes("BATTERY") || keyword.includes("POLYMER") || keyword.includes("TWS")) {
+  if (keyword.includes("BATTERY") || keyword.includes("POLYMER")) {
     navigate(`/batteries/${encodeURIComponent(sub.keyword)}`);
   }
   // अगर keyword में TEMPERED हो → /tempered/keyword
