@@ -15,7 +15,6 @@ export default function CRMOrderDetailPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-
   const passedOrder = location.state?.order;
   const [order, setOrder] = useState(passedOrder || null);
 
@@ -57,7 +56,10 @@ export default function CRMOrderDetailPage() {
   };
 
   const handleSaveNewRow = () => {
-    if (!newRow?.product || newRow.quantity <= 0) return;
+    if (!newRow?.product || newRow.quantity <= 0) {
+      alert("Select a product and enter a valid quantity");
+      return;
+    }
 
     const existing = editedItems.find((i) => i.product === newRow.product);
     if (existing) {
@@ -75,9 +77,11 @@ export default function CRMOrderDetailPage() {
         product_name: productData.product_name,
         quantity: newRow.quantity,
         original_quantity: "Added",
-        price: productData.price,
+        price: productData.price ?? 0, // ✅ safe fallback
+        ss_virtual_stock: productData.virtual_stock ?? 0,
       },
     ]);
+
     setNewRow(null);
   };
 
@@ -90,20 +94,21 @@ export default function CRMOrderDetailPage() {
     const payload = {
       status: "APPROVED",
       notes,
-      total_amount: editedItems.reduce(
-        (sum, item) => sum + (isNaN(item.price) ? 0 : item.price) * item.quantity,
-        0
-      ),
+      total_amount: editedItems.reduce((sum, item) => {
+        const qty = Number(item.quantity) || 0;
+        const price = Number(item.price) || 0;
+        return sum + qty * price;
+      }, 0),
       items: editedItems.map((item) => ({
         product: item.product,
-        quantity: item.quantity,
-        price: isNaN(item.price) ? 0 : item.price,
+        quantity: Number(item.quantity) || 0,
+        price: Number(item.price) || 0,
       })),
     };
 
     try {
       await verifyCRMOrder(order.id, payload);
-      alert(`Order approved successfully`);
+      alert("Order approved successfully");
       navigate("/all/orders-history");
     } catch (error) {
       console.error("❌ Error verifying order:", error);
@@ -168,7 +173,6 @@ export default function CRMOrderDetailPage() {
                 <th className="px-4 py-3 border border-gray-300">Product</th>
                 <th className="px-4 py-3 text-center border border-gray-300">SS Order</th>
                 <th className="px-4 py-3 text-center border border-gray-300">Approved</th>
-                {/* ✅ Virtual Stock column */}
                 <th className="px-4 py-3 text-center border border-gray-300">ss-Stock</th>
                 <th className="px-4 py-3 text-center border border-gray-300">Stock</th>
                 <th className="px-4 py-3 text-center border border-gray-300">Cartoon</th>
@@ -192,18 +196,30 @@ export default function CRMOrderDetailPage() {
                     </td>
                     <td className="px-4 py-2 border border-gray-200 text-center">
                       <input
-                        type="text"
-                        inputMode="numeric"
+                        type="number"
+                        min="0"
+                        step="1"
                         value={item.quantity === "" ? "" : item.quantity}
-
-                        onChange={(e) => handleEditQuantity(item.product, e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          // allow empty for backspace
+                          if (val === "") {
+                            handleEditQuantity(item.product, "");
+                            return;
+                          }
+                          // only allow valid non-negative integers
+                          const num = parseInt(val, 10);
+                          if (!isNaN(num) && num >= 0) {
+                            handleEditQuantity(item.product, num);
+                          }
+                        }}
                         className="border rounded-lg p-1 w-20 text-center"
                       />
                     </td>
+
                     <td className="px-4 py-2 border border-gray-200 text-center">
                       {item.ss_virtual_stock}
                     </td>
-                    {/* ✅ Virtual Stock Value */}
                     <td className="px-4 py-2 border border-gray-200 text-center font-medium">
                       {productData?.virtual_stock ?? "-"}
                     </td>
@@ -252,15 +268,11 @@ export default function CRMOrderDetailPage() {
                       min="1"
                       value={newRow.quantity}
                       onChange={(e) =>
-                        setNewRow((prev) => ({
-                          ...prev,
-                          quantity: +e.target.value,
-                        }))
+                        setNewRow((prev) => ({ ...prev, quantity: +e.target.value }))
                       }
                       className="border rounded-lg p-1 w-20 text-center"
                     />
                   </td>
-                  {/* New row virtual stock */}
                   <td className="px-4 py-2 border border-gray-200 text-center text-gray-400 italic">
                     —
                   </td>
@@ -297,17 +309,19 @@ export default function CRMOrderDetailPage() {
             <button
               onClick={() => setShowConfirmModal(true)}
               disabled={loadingApprove}
-              className={`flex items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${loadingApprove ? "bg-blue-400 cursor-not-allowed" : "bg-blue-500 hover:bg-green-600"
+              className={`flex items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${loadingApprove
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-green-600"
                 }`}
             >
               {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
               Submit
             </button>
-
           </div>
         </div>
       </div>
 
+      {/* Confirm Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-80 animate-fadeIn">
@@ -326,7 +340,7 @@ export default function CRMOrderDetailPage() {
               </button>
               <button
                 onClick={() => {
-                  handleVerify(); // ✅ Confirmed: Submit the order
+                  handleVerify();
                   setShowConfirmModal(false);
                 }}
                 className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white cursor-pointer"
@@ -346,7 +360,7 @@ export default function CRMOrderDetailPage() {
               <Trash2 className="text-red-500" /> Delete Item?
             </h3>
             <p className="text-gray-600 mb-6 text-sm">
-              Are you sure you want to delete this item ?
+              Are you sure you want to delete this item?
             </p>
             <div className="flex justify-end gap-3">
               <button
