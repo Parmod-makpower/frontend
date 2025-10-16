@@ -45,7 +45,7 @@ export default function SearchBarPage() {
 
   // 🔍 Debounced Fuse search
   const fuseResults = useFuseSearch(allProducts, searchTerm, {
-    keys: ["sub_category", "sale_names", "product_name"],
+    keys: ["sub_category", "product_name"],
     threshold: 0.3,
   });
 
