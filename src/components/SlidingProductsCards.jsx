@@ -7,14 +7,23 @@ import ProductCard from "../components/ProductCard";
 export default function SlidingProductsCards({ trendingIds = [], title }) {
   const { data: allProducts = [], isLoading } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
-  const { selectedProducts, addProduct, updateQuantity } = useSelectedProducts();
+
+  // ✅ अब चार functions ले रहे हैं (BatteryPage जैसा)
+  const {
+    selectedProducts,
+    addProduct,
+    updateQuantity,
+    updateCartoon,
+    cartoonSelection,
+  } = useSelectedProducts();
+
   const { user } = useAuth();
 
   if (isLoading) {
     return <p className="text-gray-500 text-sm">Loading trending products...</p>;
   }
 
-  // Filter products by IDs
+  // ✅ Filter products by IDs
   const trendingProducts = allProducts.filter((prod) =>
     trendingIds.includes(prod.product_id)
   );
@@ -41,9 +50,6 @@ export default function SlidingProductsCards({ trendingIds = [], title }) {
         <div className="flex md:grid md:grid-cols-3 lg:grid-cols-5 gap-4">
           {trendingProducts.map((prod) => {
             const prodId = prod.id ?? prod.product_id;
-            const isInCart = selectedProducts.some((p) => p.id === prodId);
-            const existing = selectedProducts.find((p) => p.id === prodId);
-            const quantity = existing?.quantity || 1;
 
             return (
               <ProductCard
@@ -54,6 +60,8 @@ export default function SlidingProductsCards({ trendingIds = [], title }) {
                 selectedProducts={selectedProducts}
                 addProduct={addProduct}
                 updateQuantity={updateQuantity}
+                updateCartoon={updateCartoon}
+                cartoonSelection={cartoonSelection}
               />
             );
           })}

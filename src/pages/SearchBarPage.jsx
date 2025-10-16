@@ -8,6 +8,7 @@ import { FixedSizeList as List } from "react-window";
 import useFuseSearch from "../hooks/useFuseSearch";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useSelectedProducts } from "../hooks/useSelectedProducts";
 
 function Loader() {
   return (
@@ -24,22 +25,13 @@ const normalizeProduct = (product) => ({
 
 export default function SearchBarPage() {
   const { user } = useAuth();
+  const { selectedProducts, addProduct, updateQuantity, updateCartoon, cartoonSelection } = useSelectedProducts();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProducts, setSelectedProducts] = useState(() => {
-    const saved = localStorage.getItem("selectedProducts");
-    return saved ? JSON.parse(saved) : [];
-  });
-
   const searchRef = useRef();
   const navigate = useNavigate();
   const { data: allProductsRaw = [], isLoading } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
-
-  // localStorage में cart save करना
-  useEffect(() => {
-    localStorage.setItem("selectedProducts", JSON.stringify(selectedProducts));
-  }, [selectedProducts]);
 
   // auto focus on search
   useEffect(() => {
@@ -66,7 +58,6 @@ export default function SearchBarPage() {
 
       const results = [];
 
-      // अगर sale_name मिले तो उन्हें अलग से जोड़ें
       if (matchedSaleNames.length > 0) {
         matchedSaleNames.forEach((sale_name) => {
           results.push({
@@ -76,7 +67,6 @@ export default function SearchBarPage() {
           });
         });
       } else {
-        // वरना product_name या sub_category के मैच को दिखाएं
         results.push({
           ...product,
           _matchType: "product_or_category",
@@ -88,7 +78,6 @@ export default function SearchBarPage() {
     });
   }, [fuseResults, searchTerm]);
 
-
   const hasScheme = (productId) =>
     schemes.some(
       (scheme) =>
@@ -98,34 +87,35 @@ export default function SearchBarPage() {
 
   const isAdded = (id) => selectedProducts.some((p) => p.id === id);
 
-  const addProduct = (product) => {
-    if (!selectedProducts.some((p) => p.id === product.id)) {
-      setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
+  const handleAddProduct = (product) => {
+    if (!isAdded(product.id)) {
+      const moq = product.moq || 1;
+      const initialQty = product.cartoon_size && product.cartoon_size > 1
+        ? product.cartoon_size
+        : moq;
+      addProduct({ ...product, quantity: initialQty });
     }
   };
 
   const Row = ({ index, style }) => {
     const p = normalizeProduct(searchResults[index]);
+    const selectedItem = selectedProducts.find((x) => x.id === p.id);
+    const hasCartoon = selectedItem?.cartoon_size && selectedItem.cartoon_size > 1;
 
     return (
       <div
         key={`${p.id}-${p._displayName}`}
         style={style}
-        className="flex items-center justify-between px-3 py-2 border-b border-gray-300 hover:bg-gray-100 transition-all"
+        className="flex items-center justify-between px-3 py-2 border-b border-gray-300 hover:bg-gray-100 transition-all rounded-md"
       >
+        {/* 👈 Left Side: Product Info */}
         <div
-          onClick={() => {
-            if (p?.id) {
-              navigate(`/product/${p.id}`);
-            } else {
-              console.error("Product ID missing in clicked item", p);
-            }
-          }}
-          className="flex-grow flex flex-col gap-1 text-xs sm:text-sm text-gray-700 cursor-pointer"
+          onClick={() => navigate(`/product/${p.id}`)}
+          className="flex flex-col flex-grow gap-1 cursor-pointer text-xs sm:text-sm text-gray-700"
         >
           <div className="flex items-center gap-2 font-medium truncate text-gray-800">
             {p._displayName}
-            {p.virtual_stock > p.moq ? (
+            {p.virtual_stock > (p.moq ?? 0) ? (
               <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                 In Stock
               </span>
@@ -135,10 +125,7 @@ export default function SearchBarPage() {
               </span>
             )}
             {hasScheme(p.id) && (
-              <FaGift
-                title="Scheme Available"
-                className="text-pink-500 text-xs animate-pulse"
-              />
+              <FaGift title="Scheme Available" className="text-pink-500 text-xs animate-pulse" />
             )}
           </div>
 
@@ -146,32 +133,78 @@ export default function SearchBarPage() {
             <span className="truncate text-gray-400 font-medium">
               Product: {p.product_name}
             </span>
-            <span className="truncate text-gray-400 font-medium">
+          </div>
+            <span className="text-gray-500 text-[11px] sm:text-xs truncate text-gray-400 font-medium">
               {p.sub_category}
             </span>
-          </div>
         </div>
 
+        {/* 👉 Right Side: Add/Quantity Control */}
         {user?.role === "SS" && (
-  <button
-    onClick={() => addProduct(p)}
-    className="ml-3 py-2 px-4 text-blue-600 hover:text-blue-800 hover:scale-110 transition-transform duration-150"
-    title={isAdded(p.id) ? "Added" : "Add to cart"}
-  >
-    {isAdded(p.id) ? (
-      <FaCheck className="text-green-600 text-sm" />
-    ) : (
-      <FaPlus className="text-sm" />
-    )}
-  </button>
-)}
-
+          <div className="ml-3 flex items-center">
+            {isAdded(p.id) ? (
+              <>
+                {hasCartoon ? (
+                  <select
+                    value={cartoonSelection[selectedItem.id] || 1}
+                    onChange={(e) => updateCartoon(selectedItem.id, parseInt(e.target.value))}
+                    className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                  >
+                    {Array.from(
+                      { length: Math.max(1, Math.floor(selectedItem.virtual_stock / selectedItem.cartoon_size)) },
+                      (_, i) => i + 1
+                    ).map((n) => (
+                      <option key={n} value={n}>
+                        {n} CTN
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="number"
+                    min={1}
+                    value={selectedItem.quantity === "" ? "" : selectedItem.quantity}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "") {
+                        updateQuantity(selectedItem.id, "");
+                        selectedItem.showMoqError = true;
+                        return;
+                      }
+                      const parsed = parseInt(val);
+                      if (!isNaN(parsed)) {
+                        updateQuantity(selectedItem.id, parsed);
+                        selectedItem.showMoqError = parsed < (selectedItem.moq || 1);
+                      }
+                    }}
+                    onBlur={() => {
+                      const val = parseInt(selectedItem.quantity);
+                      const moq = selectedItem.moq || 1;
+                      if (isNaN(val) || val < moq) {
+                        updateQuantity(selectedItem.id, moq);
+                        selectedItem.showMoqError = false;
+                      }
+                    }}
+                    className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${selectedItem.showMoqError ? "border-red-400" : ""}`}
+                  />
+                )}
+              </>
+            ) : (
+              <button
+                onClick={() => handleAddProduct(p)}
+                className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
+              >
+                <FaPlus className="text-sm" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col h-screen max-h-screen">
+    <div className="flex flex-col h-screen max-h-screen bg-white">
       {/* 🔍 Fixed Top Bar */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out flex items-center gap-2">
         <button
@@ -197,18 +230,14 @@ export default function SearchBarPage() {
         {isLoading ? (
           <Loader />
         ) : searchTerm.trim().length === 0 ? (
-          <p className="text-center text-gray-500 py-10">
-            Search to see results
-          </p>
+          <p className="text-center text-gray-500 py-10">Search to see results</p>
         ) : searchResults.length === 0 ? (
-          <p className="text-center text-gray-500 py-10">
-            No matching products found.
-          </p>
+          <p className="text-center text-gray-500 py-10">No matching products found.</p>
         ) : (
           <List
             height={window.innerHeight - 100}
             itemCount={searchResults.length}
-            itemSize={80}
+            itemSize={90}
             width={"100%"}
           >
             {Row}

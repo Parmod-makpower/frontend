@@ -23,7 +23,13 @@ export default function ProductDetailPage() {
 
   const { data: allProductsRaw = [], isLoading: isProductLoading } = useCachedProducts();
   const { data: schemes = [], isLoading: isSchemeLoading } = useSchemes();
-  const { selectedProducts, addProduct } = useSelectedProducts();
+  const {
+    selectedProducts,
+    addProduct,
+    updateQuantity,
+    updateCartoon,
+    cartoonSelection,
+  } = useSelectedProducts();
 
   const [product, setProduct] = useState(null);
   const [showAllSales, setShowAllSales] = useState(false);
@@ -50,8 +56,17 @@ export default function ProductDetailPage() {
       )
   );
 
-  const isInCart = selectedProducts.some((p) => p.id === product.id);
-  const handleAddToCart = () => addProduct(product, 1);
+  const selectedItem = selectedProducts.find((p) => p.id === product.id);
+  const isInCart = !!selectedItem;
+
+  const handleAddToCart = () => {
+    if (!isInCart) {
+      const moq = product.moq || 1;
+      const initialQty =
+        product.cartoon_size && product.cartoon_size > 1 ? product.cartoon_size : moq;
+      addProduct({ ...product, id: product.id, quantity: initialQty });
+    }
+  };
 
   const images = [
     product?.image
@@ -68,7 +83,7 @@ export default function ProductDetailPage() {
   return (
     <div className="bg-gray-50 min-h-screen pb-28">
       {/* Product container */}
-      <div className="max-w-6xl mx-auto bg-white md:rounded-lg shadow-sm p-4  md:p-8">
+      <div className="max-w-6xl mx-auto bg-white md:rounded-lg shadow-sm p-4 md:p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           {/* Left: Product Image Slider with Zoom */}
           <div className="relative flex flex-col items-center border py-2 rounded-md ">
@@ -219,32 +234,65 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* ✅ Sticky Bottom Add to Cart Bar */}
-      {/* ✅ Sticky Bottom Add to Cart Bar */}
-{user?.role === "SS" && (
-  <div className="left-0 w-full bg-white p-3 flex gap-3 z-50">
-    <button
-      onClick={handleAddToCart}
-      className={`flex-1 flex items-center justify-center gap-2 
-        ${isInCart ? "bg-gray-600" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
-        text-white text-sm font-semibold py-3 rounded-lg shadow-lg transition-all duration-300
-        cursor-pointer
-      `}
-    >
-      {isInCart ? (
-        <>
-          <FaCheckCircle /> Added
-        </>
-      ) : (
-        <>
-          <FaShoppingCart className="animate-bounce" />
-          Add to Cart
-        </>
+      {/* ✅ Sticky Bottom Add to Cart Bar with Quantity / Cartoon Handling */}
+      {user?.role === "SS" && (
+        <div className="left-0 w-full bg-white p-3 flex gap-3 z-50">
+          {!isInCart ? (
+            <button
+              onClick={handleAddToCart}
+              className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg transition-all duration-300"
+            >
+              <FaShoppingCart className="animate-bounce" /> Add to Cart
+            </button>
+          ) : (
+            <div className="flex-1 flex flex-col gap-2">
+              {selectedItem?.cartoon_size && selectedItem.cartoon_size > 1 ? (
+                <select
+                  value={cartoonSelection[selectedItem.id] || 1}
+                  onChange={(e) =>
+                    updateCartoon(selectedItem.id, parseInt(e.target.value))
+                  }
+                  className="w-full border rounded py-2 px-3 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                >
+                  {Array.from(
+                    { length: Math.max(1, Math.floor(selectedItem.virtual_stock / selectedItem.cartoon_size)) },
+                    (_, i) => i + 1
+                  ).map((n) => (
+                    <option key={n} value={n}>
+                      {n} CTN
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="number"
+                  min={1}
+                  value={selectedItem.quantity || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "") {
+                      updateQuantity(selectedItem.id, "");
+                      return;
+                    }
+                    const parsed = parseInt(val);
+                    if (!isNaN(parsed)) {
+                      updateQuantity(selectedItem.id, parsed);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const val = parseInt(e.target.value);
+                    const moq = selectedItem.moq || 1;
+                    if (isNaN(val) || val < moq) {
+                      updateQuantity(selectedItem.id, moq);
+                    }
+                  }}
+                  className="w-full border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                />
+              )}
+            </div>
+          )}
+        </div>
       )}
-    </button>
-  </div>
-)}
-
     </div>
   );
 }

@@ -16,7 +16,8 @@ export default function CategoryProductListPage() {
   const navigate = useNavigate();
   const { data: allProducts = [], isLoading } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
-  const { selectedProducts, addProduct, updateQuantity } = useSelectedProducts();
+  const { selectedProducts, addProduct, updateQuantity, updateCartoon, cartoonSelection } = useSelectedProducts();
+
 
   const [search, setSearch] = useState("");
 
@@ -157,6 +158,8 @@ export default function CategoryProductListPage() {
                   selectedProducts={selectedProducts}
                   addProduct={addProduct}
                   updateQuantity={updateQuantity}
+                  updateCartoon={updateCartoon}       // ✅ add
+                  cartoonSelection={cartoonSelection} // ✅ add
                   cardWidth="w-full"
                 />
               );
