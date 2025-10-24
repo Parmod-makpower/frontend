@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import { useRegisterSW } from "virtual:pwa-register/react"; // 🆕 Auto update ke liye
+import { useRegisterSW } from "virtual:pwa-register/react";
 
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -43,29 +43,28 @@ import BatteryPage from "./pages/BatteryPage";
 import CRMCreateOrderPage from "./pages/CRM/CRMCreateOrderPage";
 
 export default function App() {
-  // 🆕 PWA Auto-Update Logic
+  // 🆕 PWA Auto-Update
   const { updateServiceWorker } = useRegisterSW({
     onNeedRefresh() {
-      updateServiceWorker(true); // Service worker update
-      window.location.reload();  // Auto reload app
+      updateServiceWorker(true); // SW update
+      window.location.reload();  // Auto reload
     },
+    onOfflineReady() {
+      console.log("App ready for offline use");
+    }
   });
 
-  // 👇 आपका existing pinch-zoom / double-tap zoom रोकने वाला code
+  // 👇 Pinch-zoom / double-tap zoom prevention
   useEffect(() => {
-    const handleTouchMove = (e) => {
-      if (e.touches.length > 1) e.preventDefault();
-    };
+    const handleTouchMove = (e) => { if (e.touches.length > 1) e.preventDefault(); };
     let lastTouchEnd = 0;
     const handleTouchEnd = (e) => {
       const now = new Date().getTime();
       if (now - lastTouchEnd <= 300) e.preventDefault();
       lastTouchEnd = now;
     };
-
     document.addEventListener("touchmove", handleTouchMove, { passive: false });
     document.addEventListener("touchend", handleTouchEnd, { passive: false });
-
     return () => {
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
@@ -80,7 +79,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="" element={<HomeRedirector />} />
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-
+            {/* --- All child routes same as before --- */}
             <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
             <Route path="/search" element={<ProtectedRoute><SearchBarPage /></ProtectedRoute>} />
             <Route path="/category/:categoryKeyword" element={<CategorySearchPage />} />
@@ -116,7 +115,6 @@ export default function App() {
             <Route path="/ss/history" element={<ProtectedRoute allowedRoles={['SS']}><SSHistoryPage /></ProtectedRoute>} />
             <Route path="/orders/:orderId/track" element={<ProtectedRoute allowedRoles={['SS']}><SSOrderTrackingPage /></ProtectedRoute>} />
           </Route>
-
           <Route path="/no-permission" element={<NoPermission />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
