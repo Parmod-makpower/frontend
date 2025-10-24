@@ -1,8 +1,6 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route  } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import { useRegisterSW } from "virtual:pwa-register/react";
-
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
@@ -31,6 +29,7 @@ import SSHistoryPage from "./pages/SS/SSHistoryPage";
 import SSOrderTrackingPage from "./pages/SS/SSOrderTrackingPage";
 import CRMSSFormPage from "./pages/CRM/CRMSSFormPage";
 import CRMSSListPage from "./pages/CRM/CRMSSListPage";
+
 import CRMOrderListPage from "./pages/CRM/CRMOrderListPage";
 import UserSchemesPage from "./pages/UserSchemesPage";
 import CRMVerifiedHistoryPage from "./pages/CRM/CRMVerifiedHistoryPage";
@@ -42,29 +41,29 @@ import TemperedPage from "./pages/TemperedPage";
 import BatteryPage from "./pages/BatteryPage";
 import CRMCreateOrderPage from "./pages/CRM/CRMCreateOrderPage";
 
-export default function App() {
-  // 🆕 PWA Auto-Update
-  const { updateServiceWorker } = useRegisterSW({
-    onNeedRefresh() {
-      updateServiceWorker(true); // SW update
-      window.location.reload();  // Auto reload
-    },
-    onOfflineReady() {
-      console.log("App ready for offline use");
-    }
-  });
 
-  // 👇 Pinch-zoom / double-tap zoom prevention
+export default function App() {
   useEffect(() => {
-    const handleTouchMove = (e) => { if (e.touches.length > 1) e.preventDefault(); };
+    // Pinch zoom रोकने के लिए
+    const handleTouchMove = (e) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    };
+
+    // Double-tap zoom रोकने के लिए
     let lastTouchEnd = 0;
     const handleTouchEnd = (e) => {
       const now = new Date().getTime();
-      if (now - lastTouchEnd <= 300) e.preventDefault();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
       lastTouchEnd = now;
     };
+
     document.addEventListener("touchmove", handleTouchMove, { passive: false });
     document.addEventListener("touchend", handleTouchEnd, { passive: false });
+
     return () => {
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
@@ -74,27 +73,30 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Toaster position="top-center" reverseOrder={false} />
+       <Toaster position="top-center" reverseOrder={false} />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="" element={<HomeRedirector />} />
-          <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-            {/* --- All child routes same as before --- */}
-            <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-            <Route path="/search" element={<ProtectedRoute><SearchBarPage /></ProtectedRoute>} />
+            <Route path="" element={<HomeRedirector />} />
+            <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+
+            <Route path="/home" element={<ProtectedRoute ><HomePage /></ProtectedRoute>} />
+            <Route path="/search" element={<ProtectedRoute ><SearchBarPage /></ProtectedRoute>} />
             <Route path="/category/:categoryKeyword" element={<CategorySearchPage />} />
-            <Route path="/all-categories" element={<AllCategoriesPage />} />
-            <Route path="/category/:category/subcategories" element={<SubCategoryPage />} />
+             <Route path="/all-categories" element={<AllCategoriesPage />} /> 
+             <Route path="/category/:category/subcategories" element={<SubCategoryPage />} />
             <Route path="/product/:productId" element={<ProductDetailPage />} />
             <Route path="/more" element={<MoreOptionsPage />} />
-            <Route path="/CRMDashboard" element={<CRMDashboard />} />
-            <Route path="/tempered/:categoryKeyword" element={<TemperedPage />} />
-            <Route path="/batteries/:categoryKeyword" element={<BatteryPage />} />
+            <Route path="/CRMDashboard" element={ <CRMDashboard/> } />
+            <Route path="/tempered/:categoryKeyword" element={ <TemperedPage/> } />
+            <Route path="/batteries/:categoryKeyword" element={ <BatteryPage/> } />
+           
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
-            <Route path="/user-schemes" element={<ProtectedRoute><UserSchemesPage /></ProtectedRoute>} />
-            <Route path="/inactive" element={<ProtectedRoute><InactiveProductsPage /></ProtectedRoute>} />
-            <Route path="/available-stock" element={<ProtectedRoute><AvailableStock /></ProtectedRoute>} />
+
+            <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
+            <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
+            <Route path="/available-stock" element={<ProtectedRoute ><AvailableStock /></ProtectedRoute>} />
+
             <Route path="/ad" element={<CRMOrderDetailPage />} />
             <Route path="/users-all" element={<ProtectedRoute allowedRoles={['ADMIN']}><UserHierarchy /></ProtectedRoute>} />
             <Route path="/admin/crm" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminCRMPage /></ProtectedRoute>} />
@@ -103,11 +105,14 @@ export default function App() {
             <Route path="/schemes" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemePage /></ProtectedRoute>} />
             <Route path="/schemes/new" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
             <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm/></ProtectedRoute>} />
+           
+
             <Route path="/crm-ss/add" element={<ProtectedRoute allowedRoles={['CRM']}><CRMSSFormPage /></ProtectedRoute>} />
             <Route path="/crm-ss/list" element={<ProtectedRoute allowedRoles={['CRM']}><CRMSSListPage /></ProtectedRoute>} />
             <Route path="/crm/create-order" element={<ProtectedRoute allowedRoles={['CRM']}><CRMCreateOrderPage /></ProtectedRoute>} />
             <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
             <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
+           
             <Route path="/ss/ds" element={<ProtectedRoute allowedRoles={['SS']}><SSDSPage /></ProtectedRoute>} />
             <Route path="/ss-page" element={<ProtectedRoute allowedRoles={['SS']}><HomePage /></ProtectedRoute>} />
             <Route path="/cart" element={<ProtectedRoute allowedRoles={['SS']}><CartPage /></ProtectedRoute>} />
@@ -115,6 +120,7 @@ export default function App() {
             <Route path="/ss/history" element={<ProtectedRoute allowedRoles={['SS']}><SSHistoryPage /></ProtectedRoute>} />
             <Route path="/orders/:orderId/track" element={<ProtectedRoute allowedRoles={['SS']}><SSOrderTrackingPage /></ProtectedRoute>} />
           </Route>
+
           <Route path="/no-permission" element={<NoPermission />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
