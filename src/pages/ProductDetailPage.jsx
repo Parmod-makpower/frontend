@@ -170,14 +170,19 @@ export default function ProductDetailPage() {
                 <p className="font-medium text-gray-500">Category</p>
                 <p className="text-gray-800">{product.sub_category || "N/A"}</p>
               </div>
+              {product.cartoon_size != null && product.cartoon_size !== "" && (
               <div>
                 <p className="font-medium text-gray-500">Cartoon Size</p>
-                <p className="text-gray-800">{product.cartoon_size || "N/A"}</p>
+                <p className="text-gray-800">{product.cartoon_size || "-"}</p>
               </div>
-              <div>
-                <p className="font-medium text-gray-500">Guarantee</p>
-                <p className="text-gray-800">{product.guarantee || "undefine"}</p>
-              </div>
+              )}
+              {product.guarantee != null && product.guarantee !== "nan" && (
+                <div>
+                  <p className="font-medium text-gray-500">Guarantee</p>
+                  <p className="text-gray-800">{product.guarantee}</p>
+                </div>
+              )}
+
             </div>
 
             {/* Schemes */}
@@ -253,7 +258,7 @@ export default function ProductDetailPage() {
                 >
                   {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
                     <option key={n} value={n}>
-                      {n} CTN
+                      {n} Cartoon
                     </option>
                   ))}
                 </select>

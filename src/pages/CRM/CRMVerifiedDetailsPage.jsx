@@ -187,15 +187,16 @@ export default function CRMVerifiedDetailsPage() {
   const tableData = enrichedItems.map((item, idx) => [
     idx + 1,
     item.product_name,
-    item.cartoon_size ?? "-",
     item.quantity,
+    " ",
+    item.cartoon_size ?? "-",
     item.ss_virtual_stock ?? "-",
   ]);
 
   autoTable(doc, {
     startY: boxY + totalBoxHeight + 20, // Push table below the dynamic box
     margin: { left: margin, right: margin },
-    head: [["S.No", "Product Name", "Cartoon ", "Quantity", "Stock"]],
+    head: [["S.No", "Product Name",  "Quantity","","Cartoon ", "Stock"]],
     body: tableData,
     theme: "grid",
     styles: { fontSize: 11, cellPadding: 6 },
@@ -208,11 +209,25 @@ export default function CRMVerifiedDetailsPage() {
     alternateRowStyles: { fillColor: [245, 245, 245] },
     columnStyles: {
       0: { cellWidth: 40, halign: "center" },
-      1: { cellWidth: pageWidth - margin * 2 - 220, halign: "left" },
+      1: { cellWidth: pageWidth - margin * 2 - 280, halign: "left" },
       2: { cellWidth: 60, halign: "center" },
       3: { cellWidth: 60, halign: "center" },
       4: { cellWidth: 60, halign: "center" },
+      5: { cellWidth: 60, halign: "center" },
     },
+    didParseCell: function (data) {
+  // सिर्फ body rows पर apply करें
+  if (data.row.section === 'body') {
+    if (data.column.index === 4) {
+      // Quantity और Cartoon → हल्का yellow
+      data.cell.styles.fillColor = [255, 255, 200];
+    }else if (data.column.index === 5) {
+      // Stock → हल्का red
+      data.cell.styles.fillColor = [255, 200, 200];
+    }
+  }
+},
+
   });
 
   // === Footer ===
