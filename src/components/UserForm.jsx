@@ -66,7 +66,7 @@ export default function UserForm({
       )}
 
       {/* Email */}
-      <div>
+      {/* <div>
         <label className="flex items-center gap-2 text-gray-700 mb-1">
           <FaEnvelope /> Email
         </label>
@@ -79,7 +79,7 @@ export default function UserForm({
           required
         />
         {errors.email && <p className="text-red-600 text-sm">{errors.email[0]}</p>}
-      </div>
+      </div> */}
 
       {/* Party Name */}
       <div>
@@ -98,7 +98,7 @@ export default function UserForm({
       </div>
 
       {/* DOB */}
-      <div>
+      {/* <div>
         <label className="flex items-center gap-2 text-gray-700 mb-1">
           <FaBirthdayCake /> Date of Birth
         </label>
@@ -111,7 +111,7 @@ export default function UserForm({
           required
         />
         {errors.dob && <p className="text-red-600 text-sm">{errors.dob[0]}</p>}
-      </div>
+      </div> */}
 
       {/* Submit Button */}
       <div className="md:col-span-2">

@@ -81,9 +81,9 @@ export default function ProductDetailPage() {
   const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-28">
+    <div className=" pb-28">
       {/* Product container */}
-      <div className="max-w-6xl mx-auto bg-white md:rounded-lg shadow-sm p-4 md:p-8">
+      <div className="max-w-6xl mx-auto bg-white md:rounded-lg p-4 md:p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           {/* Left: Product Image Slider with Zoom */}
           <div className="relative flex flex-col items-center border py-2 rounded-md ">

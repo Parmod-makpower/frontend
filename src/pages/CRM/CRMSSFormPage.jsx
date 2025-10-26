@@ -16,9 +16,9 @@ export default function CRMSSFormPage() {
       name: "",
       mobile: "",
       password: "",
-      email: "",
+      // email: "",
       party_name: "",
-      dob: "",
+      // dob: "",
     }
   );
   const [errors, setErrors] = useState({});

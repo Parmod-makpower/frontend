@@ -56,8 +56,13 @@ export default function CRMSSListPage() {
 
   return (
     <div className="p-4">
-      <MobilePageHeader title="Super Stockist"/>
-
+      <MobilePageHeader title="Super Stockist" />
+      <button
+        onClick={() => navigate("/crm-ss/add")}
+        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 mb-2 rounded"
+      >
+        <FaPlus /> Add User
+      </button>
       {/* Search Input */}
       <div className="sm:pt-0 pt-[60px] mb-4">
         <input
@@ -69,7 +74,7 @@ export default function CRMSSListPage() {
         />
       </div>
 
-     
+
 
       {/* Users Table */}
       <UserTable

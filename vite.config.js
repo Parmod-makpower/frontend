@@ -17,39 +17,30 @@ export default defineConfig({
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/',
+        start_url: 'https://frontend-599c.onrender.com/', // Absolute URL for TWA
         scope: '/',
-       icons: [
-  { src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-  { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-  { src: '/icons/icon-512x512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-]
-
+        icons: [
+          { src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/icons/icon-512x512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+        ]
       },
       workbox: {
         runtimeCaching: [
           {
             urlPattern: ({ request }) => request.destination === 'document',
             handler: 'NetworkFirst',
-            options: {
-              cacheName: 'html-cache',
-            },
+            options: { cacheName: 'html-cache' },
           },
           {
-            urlPattern: ({ request }) =>
-              ['script', 'style', 'worker'].includes(request.destination),
+            urlPattern: ({ request }) => ['script', 'style', 'worker'].includes(request.destination),
             handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'asset-cache',
-            },
+            options: { cacheName: 'asset-cache' },
           },
           {
-            urlPattern: ({ request }) =>
-              ['image', 'font'].includes(request.destination),
+            urlPattern: ({ request }) => ['image', 'font'].includes(request.destination),
             handler: 'CacheFirst',
-            options: {
-              cacheName: 'static-resources',
-            },
+            options: { cacheName: 'static-resources' },
           },
         ],
         navigateFallback: '/index.html',
