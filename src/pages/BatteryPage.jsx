@@ -67,24 +67,24 @@ export default function BatteryPage() {
   return (
     <div className="flex flex-col h-screen max-h-screen bg-white">
       {/* 🔍 Fixed Top Bar */}
-       <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out flex items-center gap-2">
-              <button
-                onClick={() => window.history.back()}
-                className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
-                aria-label="Back"
-              >
-                <IoChevronBack />
-              </button>
-              <input
-                ref={searchRef}
-                type="text"
-                onChange={(e) => setSearch(e.target.value)}
-                maxLength={20}
-                placeholder={`Search ${categoryKeyword} only...`}
-                className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
-              />
-            </div>
-     
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out flex items-center gap-2">
+        <button
+          onClick={() => window.history.back()}
+          className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
+          aria-label="Back"
+        >
+          <IoChevronBack />
+        </button>
+        <input
+          ref={searchRef}
+          type="text"
+          onChange={(e) => setSearch(e.target.value)}
+          maxLength={20}
+          placeholder={`Search ${categoryKeyword} only...`}
+          className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
+        />
+      </div>
+
 
       {/* Products Section */}
       <main className="flex-1 pt-[60px]  overflow-y-auto px-2  pb-30">
@@ -165,14 +165,12 @@ export default function BatteryPage() {
                                 }
                                 className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                               >
-                                {Array.from(
-                                  { length: Math.max(1, Math.floor(selectedItem.virtual_stock / selectedItem.cartoon_size)) },
-                                  (_, i) => i + 1
-                                ).map((n) => (
+                                {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
                                   <option key={n} value={n}>
-                                    {n} CTN {n > 1}
+                                    {n} CTN
                                   </option>
                                 ))}
+
                               </select>
                               {/* <input
                                 type="number"

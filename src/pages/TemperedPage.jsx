@@ -58,14 +58,14 @@ export default function TemperedPage() {
   const isAdded = (id) => selectedProducts.some((p) => p.id === id);
 
   const handleAddProduct = (product) => {
-  if (!selectedProducts.some((p) => p.id === product.id)) {
-    const moq = product.moq || 1;
-    const initialQty = product.cartoon_size && product.cartoon_size > 1
-      ? product.cartoon_size
-      : moq;
-    addProduct({ ...product, quantity: initialQty });
-  }
-};
+    if (!selectedProducts.some((p) => p.id === product.id)) {
+      const moq = product.moq || 1;
+      const initialQty = product.cartoon_size && product.cartoon_size > 1
+        ? product.cartoon_size
+        : moq;
+      addProduct({ ...product, quantity: initialQty });
+    }
+  };
 
 
   const toggleShowAll = (productId) => {
@@ -134,50 +134,48 @@ export default function TemperedPage() {
                     <div className="flex justify-between gap-4 text-gray-500 text-[11px] sm:text-xs">
                       <span className="truncate font-medium">Category: {prod.sub_category}</span>
 
-                    {user?.role === "SS" && (
-  <div className="ml-3 flex items-center">
-    {selectedProducts.some((p) => p.id === prodId) ? (
-      <>
-        {selectedProducts.find((p) => p.id === prodId)?.cartoon_size > 1 ? (
-          <select
-            value={cartoonSelection[prodId] || 1}
-            onChange={(e) => updateCartoon(prodId, parseInt(e.target.value))}
-            className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-          >
-            {Array.from(
-              { length: Math.max(1, Math.floor(prod.virtual_stock / prod.cartoon_size)) },
-              (_, i) => i + 1
-            ).map((n) => (
-              <option key={n} value={n}>
-                {n} CTN
-              </option>
-            ))}
-          </select>
-        ) : (
-          <input
-            type="number"
-            min={1}
-            value={selectedProducts.find((p) => p.id === prodId)?.quantity || ""}
-            onChange={(e) => updateQuantity(prodId, parseInt(e.target.value))}
-            className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-          />
-        )}
-      </>
-    ) : (
-      <button
-        onClick={() => handleAddProduct(prod)}
-        className="ml-3 px-4 text-blue-600 transition-transform duration-150 hover:scale-110"
-      >
-        <FaPlus className="text-sm" />
-      </button>
-    )}
-  </div>
-)}
+                      {user?.role === "SS" && (
+                        <div className="ml-3 flex items-center">
+                          {selectedProducts.some((p) => p.id === prodId) ? (
+                            <>
+                              {selectedProducts.find((p) => p.id === prodId)?.cartoon_size > 1 ? (
+                                <select
+                                  value={cartoonSelection[prodId] || 1}
+                                  onChange={(e) => updateCartoon(prodId, parseInt(e.target.value))}
+                                  className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                >
+                                  {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                                    <option key={n} value={n}>
+                                      {n} CTN
+                                    </option>
+                                  ))}
 
-   
+                                </select>
+                              ) : (
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={selectedProducts.find((p) => p.id === prodId)?.quantity || ""}
+                                  onChange={(e) => updateQuantity(prodId, parseInt(e.target.value))}
+                                  className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                              )}
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => handleAddProduct(prod)}
+                              className="ml-3 px-4 text-blue-600 transition-transform duration-150 hover:scale-110"
+                            >
+                              <FaPlus className="text-sm" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+
                     </div>
 
-                   
+
                     {/* Sale Names with Show More/Less */}
                     {saleArray.length > 0 && (
                       <div className="flex flex-col text-gray-600 text-[11px] sm:text-xs mt-1">
@@ -223,7 +221,7 @@ export default function TemperedPage() {
 
                   </div>
 
-                  
+
 
                 </div>
               );

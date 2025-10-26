@@ -134,9 +134,9 @@ export default function SearchBarPage() {
               Product: {p.product_name}
             </span>
           </div>
-            <span className="text-gray-500 text-[11px] sm:text-xs truncate text-gray-400 font-medium">
-              {p.sub_category}
-            </span>
+          <span className="text-gray-500 text-[11px] sm:text-xs truncate text-gray-400 font-medium">
+            {p.sub_category}
+          </span>
         </div>
 
         {/* 👉 Right Side: Add/Quantity Control */}
@@ -150,14 +150,12 @@ export default function SearchBarPage() {
                     onChange={(e) => updateCartoon(selectedItem.id, parseInt(e.target.value))}
                     className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                   >
-                    {Array.from(
-                      { length: Math.max(1, Math.floor(selectedItem.virtual_stock / selectedItem.cartoon_size)) },
-                      (_, i) => i + 1
-                    ).map((n) => (
+                    {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={n}>
                         {n} CTN
                       </option>
                     ))}
+
                   </select>
                 ) : (
                   <input

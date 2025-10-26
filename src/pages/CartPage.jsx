@@ -28,27 +28,27 @@ export default function CartPage() {
 
   // ✅ Initialize only missing cartoon selections on mount
   // ✅ Initialize only missing cartoon selections on mount
-useEffect(() => {
-  selectedProducts.forEach((p) => {
-    if (p.cartoon_size && p.cartoon_size > 1) {
-      if (!cartoonSelection[p.id]) {
-        updateCartoon(p.id, 1); // default 1 cartoon
+  useEffect(() => {
+    selectedProducts.forEach((p) => {
+      if (p.cartoon_size && p.cartoon_size > 1) {
+        if (!cartoonSelection[p.id]) {
+          updateCartoon(p.id, 1); // default 1 cartoon
+        } else {
+          updateQuantity(p.id, cartoonSelection[p.id] * p.cartoon_size);
+        }
       } else {
-        updateQuantity(p.id, cartoonSelection[p.id] * p.cartoon_size);
-      }
-    } else {
-      // ❌ पुराना code हर बार quantity reset कर देता था
-      // ✅ अब सिर्फ तभी set करेंगे जब quantity invalid या खाली हो
-      const moq = p.moq || 1;
-      const qty = parseInt(p.quantity);
+        // ❌ पुराना code हर बार quantity reset कर देता था
+        // ✅ अब सिर्फ तभी set करेंगे जब quantity invalid या खाली हो
+        const moq = p.moq || 1;
+        const qty = parseInt(p.quantity);
 
-      if (isNaN(qty) || qty < moq) {
-        updateQuantity(p.id, moq);
+        if (isNaN(qty) || qty < moq) {
+          updateQuantity(p.id, moq);
+        }
       }
-    }
-  });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
 
@@ -166,15 +166,13 @@ useEffect(() => {
                           onChange={(e) => updateCartoon(item.id, parseInt(e.target.value))}
                           className="border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none w-32"
                         >
-                          {Array.from(
-                            { length: Math.max(1, Math.floor(item.virtual_stock / item.cartoon_size)) },
-                            (_, i) => i + 1
-                          ).map((n) => (
+                          {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
                             <option key={n} value={n}>
                               {n} Cartoon{n > 1 ? "s" : ""}
                             </option>
                           ))}
                         </select>
+
                         <input
                           type="number"
                           value={item.quantity || 0}
@@ -186,39 +184,38 @@ useEffect(() => {
                     ) :
                       (
                         <div className="flex flex-col items-start">
-                       <input
-  type="number"
-  min={1}
-  value={item.quantity === "" ? "" : item.quantity}
-  onChange={(e) => {
-    const val = e.target.value;
+                          <input
+                            type="number"
+                            min={1}
+                            value={item.quantity === "" ? "" : item.quantity}
+                            onChange={(e) => {
+                              const val = e.target.value;
 
-    // Empty allow करो ताकि user कुछ भी type कर सके
-    if (val === "") {
-      updateQuantity(item.id, "");
-      item.showMoqError = true;
-      return;
-    }
+                              // Empty allow करो ताकि user कुछ भी type कर सके
+                              if (val === "") {
+                                updateQuantity(item.id, "");
+                                item.showMoqError = true;
+                                return;
+                              }
 
-    const parsed = parseInt(val);
-    if (!isNaN(parsed)) {
-      updateQuantity(item.id, parsed); // अभी कुछ भी type करने दो
-      item.showMoqError = parsed < (item.moq || 1);
-    }
-  }}
-  onBlur={(e) => {
-    const val = parseInt(e.target.value);
-    const moq = item.moq || 1;
+                              const parsed = parseInt(val);
+                              if (!isNaN(parsed)) {
+                                updateQuantity(item.id, parsed); // अभी कुछ भी type करने दो
+                                item.showMoqError = parsed < (item.moq || 1);
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const val = parseInt(e.target.value);
+                              const moq = item.moq || 1;
 
-    if (isNaN(val) || val < moq) {
-      updateQuantity(item.id, moq); // auto set to MOQ
-      item.showMoqError = false;
-    }
-  }}
-  className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${
-    item.showMoqError ? "border-red-400" : ""
-  }`}
-/>
+                              if (isNaN(val) || val < moq) {
+                                updateQuantity(item.id, moq); // auto set to MOQ
+                                item.showMoqError = false;
+                              }
+                            }}
+                            className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${item.showMoqError ? "border-red-400" : ""
+                              }`}
+                          />
 
 
                           {item.showMoqError && (

@@ -117,9 +117,8 @@ export default function ProductDetailPage() {
                       src={img}
                       alt={`thumb-${index}`}
                       onClick={() => setCurrentIndex(index)}
-                      className={`w-16 h-16 object-cover rounded-md cursor-pointer border ${
-                        currentIndex === index ? "border-blue-500" : "border-gray-200"
-                      }`}
+                      className={`w-16 h-16 object-cover rounded-md cursor-pointer border ${currentIndex === index ? "border-blue-500" : "border-gray-200"
+                        }`}
                     />
                   ))}
                 </div>
@@ -249,20 +248,16 @@ export default function ProductDetailPage() {
               {selectedItem?.cartoon_size && selectedItem.cartoon_size > 1 ? (
                 <select
                   value={cartoonSelection[selectedItem.id] || 1}
-                  onChange={(e) =>
-                    updateCartoon(selectedItem.id, parseInt(e.target.value))
-                  }
+                  onChange={(e) => updateCartoon(selectedItem.id, parseInt(e.target.value))}
                   className="w-full border rounded py-2 px-3 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 >
-                  {Array.from(
-                    { length: Math.max(1, Math.floor(selectedItem.virtual_stock / selectedItem.cartoon_size)) },
-                    (_, i) => i + 1
-                  ).map((n) => (
+                  {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
                     <option key={n} value={n}>
                       {n} CTN
                     </option>
                   ))}
                 </select>
+
               ) : (
                 <input
                   type="number"
