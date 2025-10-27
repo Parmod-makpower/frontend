@@ -40,7 +40,7 @@ function ConfirmationModal({ isOpen, onClose, onConfirm }) {
 function Table({ title, items }) {
   return (
     <div className="border rounded shadow-sm">
-      <div className="flex items-center justify-between px-4 py-2 bg-red-100 border font-semibold">
+      <div className="flex items-center justify-between px-4 py-2 bg-blue-100 border font-semibold">
         <span>{title}</span>
       </div>
       <div className="overflow-x-auto select-none ">
@@ -48,31 +48,63 @@ function Table({ title, items }) {
           <thead className="bg-gray-200 text-gray-900 text-sm font-semibold">
             <tr>
               <th className="p-3 border">Product</th>
-              <th className="p-3 border">Cartoon</th>
               <th className="p-3 border">Qty</th>
+              <th className="p-3 border">Cartoon</th>
+              <th className="p-3 border">Price</th>
+              <th className="p-3 border">Total</th>
               <th className="p-3 border">SS-Stock</th>
               <th className="p-3 border">Stock</th>
             </tr>
           </thead>
           <tbody>
             {items?.length ? (
-              items.map((r, idx) => (
-                <tr key={idx} className="border-t hover:bg-gray-50 transition-colors">
-                  <td className="p-3 border">{r.product_name}</td>
-                  <td className="p-3 border">{r.cartoon_size ?? "-"}</td>
-                  <td className="p-3 border">{r.quantity}</td>
-                  <td className="p-3 border">{r.ss_virtual_stock}</td>
-                  <td className="p-3 border">{r.virtual_stock ?? "-"}</td>
+              <>
+                {items.map((r, idx) => {
+                  const total = Number(r.quantity) * Number(r?.price || 0);
+                  return (
+                    <tr key={idx} className="border-t hover:bg-gray-50 transition-colors">
+                      <td className="p-3 border">{r.product_name}</td>
+                      <td className="p-3 border bg-yellow-100">{r.quantity}</td>
+                      <td className="p-3 border">{r.cartoon_size ?? "-"}</td>
+                      {/* ✅ Price 1 decimal tak */}
+                      <td className="p-3 border">
+                        ₹{Number(r.price || 0).toFixed(1)}
+                      </td>
+                      {/* ✅ Total 1 decimal tak */}
+                      <td className="p-3 border">
+                        ₹{total.toFixed(1)}
+                      </td>
+                      <td className="p-3 border bg-red-100">{r.ss_virtual_stock}</td>
+                      <td className="p-3 border bg-red-100">{r.virtual_stock ?? "-"}</td>
+                    </tr>
+                  );
+                })}
+
+                {/* ✅ Grand Total Row */}
+                <tr className="bg-blue-100 font-semibold">
+                  <td colSpan={4} className="p-3 border text-right">Grand Total</td>
+                  <td className="p-3 border">
+                    ₹
+                    {items
+                      .reduce(
+                        (sum, r) => sum + Number(r.quantity) * Number(r?.price || 0),
+                        0
+                      )
+                      .toFixed(1)}
+                  </td>
+                  <td className="p-3 border"></td>
+                  <td className="p-3 border"></td>
                 </tr>
-              ))
+              </>
             ) : (
               <tr>
-                <td className="p-3 text-gray-500" colSpan={3}>
+                <td className="p-3 text-gray-500" colSpan={7}>
                   No items
                 </td>
               </tr>
             )}
           </tbody>
+
         </table>
       </div>
     </div>
@@ -122,141 +154,141 @@ export default function CRMVerifiedDetailsPage() {
   }, [order.items, allProducts]);
 
   const handleDownloadPDF = () => {
-  const doc = new jsPDF({ unit: "pt", format: "a4" });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 40;
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 40;
 
-  doc.setLineWidth(1);
-  doc.rect(margin / 2, margin / 2, pageWidth - margin, pageHeight - margin);
+    doc.setLineWidth(1);
+    doc.rect(margin / 2, margin / 2, pageWidth - margin, pageHeight - margin);
 
-  const topMargin = 50;
-  doc.setFontSize(20);
-  doc.setFont("times", "bold");
-  doc.setTextColor(50, 50, 50);
-  doc.text("MAK", margin, topMargin);
-  doc.setTextColor(210, 0, 0);
-  doc.text("POWER", margin + doc.getTextWidth("MAK"), topMargin);
+    const topMargin = 50;
+    doc.setFontSize(20);
+    doc.setFont("times", "bold");
+    doc.setTextColor(50, 50, 50);
+    doc.text("MAK", margin, topMargin);
+    doc.setTextColor(210, 0, 0);
+    doc.text("POWER", margin + doc.getTextWidth("MAK"), topMargin);
 
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(0, 0, 0);
-  doc.text("Order Dispatch Form", pageWidth / 2, 70, { align: "center" });
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text("Order Dispatch Form", pageWidth / 2, 70, { align: "center" });
 
-  // === Start of dynamic box ===
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "normal");
+    // === Start of dynamic box ===
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
 
-  const startY = 90;
-  const boxX = margin;
-  const boxY = startY;
-  const boxWidth = pageWidth - 2 * margin;
+    const startY = 90;
+    const boxX = margin;
+    const boxY = startY;
+    const boxWidth = pageWidth - 2 * margin;
 
-  const remarksText = remarks.trim() ? `Remarks: ${remarks.trim()}` : '';
-  const wrappedRemarks = doc.splitTextToSize(remarksText, boxWidth - 20); // 20 = padding
-  const remarksLines = wrappedRemarks.length;
-  const lineHeight = 14;
+    const remarksText = remarks.trim() ? `Remarks: ${remarks.trim()}` : '';
+    const wrappedRemarks = doc.splitTextToSize(remarksText, boxWidth - 20); // 20 = padding
+    const remarksLines = wrappedRemarks.length;
+    const lineHeight = 14;
 
-  const baseBoxHeight = 70;
-  const extraHeight = remarksLines > 1 ? (remarksLines - 1) * lineHeight : 0;
-  const totalBoxHeight = baseBoxHeight + extraHeight;
+    const baseBoxHeight = 70;
+    const extraHeight = remarksLines > 1 ? (remarksLines - 1) * lineHeight : 0;
+    const totalBoxHeight = baseBoxHeight + extraHeight;
 
-  // Draw box with dynamic height
-  doc.rect(boxX, boxY, boxWidth, totalBoxHeight);
+    // Draw box with dynamic height
+    doc.rect(boxX, boxY, boxWidth, totalBoxHeight);
 
-  // Static fields
-  doc.text(`Order ID: ${orderCode}`, boxX + 10, boxY + 20);
-  doc.text(`CRM: ${order.crm_name}`, boxX + 10, boxY + 35);
-  doc.text(`Party: ${order.ss_party_name}`, boxX + 10, boxY + 50);
+    // Static fields
+    doc.text(`Order ID: ${orderCode}`, boxX + 10, boxY + 20);
+    doc.text(`CRM: ${order.crm_name}`, boxX + 10, boxY + 35);
+    doc.text(`Party: ${order.ss_party_name}`, boxX + 10, boxY + 50);
 
-  // Remarks (if any)
-  if (remarksText) {
-    doc.text(wrappedRemarks, boxX + 10, boxY + 65);
-  }
-
-  // Verified At
-  doc.text(
-    `Verified At: ${new Date(order.verified_at).toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-    })}`,
-    pageWidth / 2 + 20,
-    boxY + 20
-  );
-
-  // === Table after box ===
-  const tableData = enrichedItems.map((item, idx) => [
-    idx + 1,
-    item.product_name,
-    item.quantity,
-    " ",
-    item.cartoon_size ?? "-",
-    item.ss_virtual_stock ?? "-",
-  ]);
-
-  autoTable(doc, {
-    startY: boxY + totalBoxHeight + 20, // Push table below the dynamic box
-    margin: { left: margin, right: margin },
-    head: [["S.No", "Product Name",  "Quantity","","Cartoon ", "Stock"]],
-    body: tableData,
-    theme: "grid",
-    styles: { fontSize: 11, cellPadding: 6 },
-    headStyles: {
-      fillColor: [41, 128, 185],
-      textColor: [255, 255, 255],
-      fontStyle: "bold",
-      halign: "center",
-    },
-    alternateRowStyles: { fillColor: [245, 245, 245] },
-    columnStyles: {
-      0: { cellWidth: 40, halign: "center" },
-      1: { cellWidth: pageWidth - margin * 2 - 280, halign: "left" },
-      2: { cellWidth: 60, halign: "center" },
-      3: { cellWidth: 60, halign: "center" },
-      4: { cellWidth: 60, halign: "center" },
-      5: { cellWidth: 60, halign: "center" },
-    },
-    didParseCell: function (data) {
-  // सिर्फ body rows पर apply करें
-  if (data.row.section === 'body') {
-    if (data.column.index === 4) {
-      // Quantity और Cartoon → हल्का yellow
-      data.cell.styles.fillColor = [255, 255, 200];
-    }else if (data.column.index === 5) {
-      // Stock → हल्का red
-      data.cell.styles.fillColor = [255, 200, 200];
+    // Remarks (if any)
+    if (remarksText) {
+      doc.text(wrappedRemarks, boxX + 10, boxY + 65);
     }
-  }
-},
 
-  });
+    // Verified At
+    doc.text(
+      `Verified At: ${new Date(order.verified_at).toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+      })}`,
+      pageWidth / 2 + 20,
+      boxY + 20
+    );
 
-  // === Footer ===
-  const currentTime = new Date().toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-  });
+    // === Table after box ===
+    const tableData = enrichedItems.map((item, idx) => [
+      idx + 1,
+      item.product_name,
+      item.quantity,
+      " ",
+      item.cartoon_size ?? "-",
+      item.ss_virtual_stock ?? "-",
+    ]);
 
-  const footerMargin = 30;
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "italic");
-  doc.setTextColor(0, 0, 0);
-  doc.text(
-    `Generated On: ${currentTime}`,
-    pageWidth - margin,
-    pageHeight - footerMargin,
-    { align: "right" }
-  );
+    autoTable(doc, {
+      startY: boxY + totalBoxHeight + 20, // Push table below the dynamic box
+      margin: { left: margin, right: margin },
+      head: [["S.No", "Product Name", "Quantity", "", "Cartoon ", "Stock"]],
+      body: tableData,
+      theme: "grid",
+      styles: { fontSize: 11, cellPadding: 6 },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        halign: "center",
+      },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      columnStyles: {
+        0: { cellWidth: 40, halign: "center" },
+        1: { cellWidth: pageWidth - margin * 2 - 280, halign: "left" },
+        2: { cellWidth: 60, halign: "center" },
+        3: { cellWidth: 60, halign: "center" },
+        4: { cellWidth: 60, halign: "center" },
+        5: { cellWidth: 60, halign: "center" },
+      },
+      didParseCell: function (data) {
+        // सिर्फ body rows पर apply करें
+        if (data.row.section === 'body') {
+          if (data.column.index === 4) {
+            // Quantity और Cartoon → हल्का yellow
+            data.cell.styles.fillColor = [255, 255, 200];
+          } else if (data.column.index === 5) {
+            // Stock → हल्का red
+            data.cell.styles.fillColor = [255, 200, 200];
+          }
+        }
+      },
 
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - footerMargin, {
-      align: "center",
     });
-  }
 
-  // === Save the PDF ===
-  doc.save(`${orderCode}.pdf`);
-};
+    // === Footer ===
+    const currentTime = new Date().toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+    });
+
+    const footerMargin = 30;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(0, 0, 0);
+    doc.text(
+      `Generated On: ${currentTime}`,
+      pageWidth - margin,
+      pageHeight - footerMargin,
+      { align: "right" }
+    );
+
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - footerMargin, {
+        align: "center",
+      });
+    }
+
+    // === Save the PDF ===
+    doc.save(`${orderCode}.pdf`);
+  };
 
 const generateCRMVerifiedPDF = () => {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -301,28 +333,23 @@ const generateCRMVerifiedPDF = () => {
     startY + 20
   );
 
-  // === Table Data ===
+  // === Table Data (Cartoon हटाया गया) ===
   const tableData = enrichedItems.map((item, idx) => {
-    // ✅ Cartoon calculation
-    let cartoon = "-";
-    if (item.cartoon_size && item.cartoon_size > 0 && item.quantity > 0) {
-      cartoon = (item.quantity / item.cartoon_size).toFixed(2);
-    }
-
-    return [
-      idx + 1,
-      item.product_name,
-      cartoon, // ✅ cartoon count दिखेगा
-      item.quantity === 0 ? "Not Available" : item.quantity,
-      item.ss_virtual_stock ?? "-",
-    ];
+    const total = Number(item.quantity) * Number(item.price || 0);
+    return [idx + 1, item.product_name, item.quantity, `${total.toFixed(1)}`];
   });
+
+  // === Grand Total Calculation ===
+  const grandTotal = enrichedItems.reduce(
+    (sum, item) => sum + Number(item.quantity) * Number(item.price || 0),
+    0
+  );
 
   // === Table ===
   autoTable(doc, {
     startY: startY + 80,
     margin: { left: margin, right: margin },
-    head: [["S.No", "Product Name", "Cartoon", "Quantity"]],
+    head: [["S.No", "Product Name", "Quantity", "Total"]],
     body: tableData,
     theme: "grid",
     styles: { fontSize: 11, cellPadding: 6 },
@@ -335,8 +362,21 @@ const generateCRMVerifiedPDF = () => {
     columnStyles: {
       0: { cellWidth: 40, halign: "center" },
       1: { halign: "left" },
-      2: { cellWidth: 60, halign: "center" },
+      2: { cellWidth: 80, halign: "center" },
       3: { cellWidth: 80, halign: "center" },
+    },
+    didDrawPage: function (data) {
+      if (data.pageNumber === doc.internal.getNumberOfPages()) {
+        // हल्का सा margin (10px → 25px किया गया)
+        const finalY = data.cursor.y + 25;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text(
+          `Grand Total: Rs.${grandTotal.toFixed(1)}`,
+          pageWidth - margin - 150,
+          finalY
+        );
+      }
     },
   });
 
@@ -353,7 +393,7 @@ const generateCRMVerifiedPDF = () => {
     { align: "right" }
   );
 
-  // === Page Numbering ===
+  // === Page Numbers ===
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
@@ -367,8 +407,6 @@ const generateCRMVerifiedPDF = () => {
 };
 
 
-
-
   const handleOrderPunch = () => {
     if (!order?.items?.length) {
       alert("No items to punch!");
@@ -378,31 +416,31 @@ const generateCRMVerifiedPDF = () => {
   };
 
   const confirmOrderPunch = async () => {
-  if (!order?.items?.length) return;
+    if (!order?.items?.length) return;
 
-  setLoading(true);
-  setIsModalOpen(false);
+    setLoading(true);
+    setIsModalOpen(false);
 
-  try {
-    const data = await punchOrderToSheet(order);
-    if (data.success) {
-      // ✅ दोनों PDFs जनरेट करो
-      handleDownloadPDF();
-      generateCRMVerifiedPDF();
+    try {
+      const data = await punchOrderToSheet(order);
+      if (data.success) {
+        // ✅ दोनों PDFs जनरेट करो
+        handleDownloadPDF();
+        generateCRMVerifiedPDF();
 
-      setTimeout(() => {
-        navigate("/all/orders-history");
-      }, 500);
-    } else {
-      alert("Error: " + data.error);
+        setTimeout(() => {
+          navigate("/all/orders-history");
+        }, 500);
+      } else {
+        alert("Error: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while punching order");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error(err);
-    alert("Something went wrong while punching order");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
 
@@ -411,7 +449,7 @@ const generateCRMVerifiedPDF = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-4 pb-20">
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-4 pb-20">
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -430,21 +468,22 @@ const generateCRMVerifiedPDF = () => {
           </button>
 
           {order.punched && (
-           <>
-            <button
-              onClick={handleDownloadPDF}
-              className="flex items-center gap-1 px-3 py-1 rounded border bg-green-600 text-white hover:bg-green-700 transition cursor-pointer"
-            >
-              Dispatch PDF
-            </button>
-            <button
-              onClick={generateCRMVerifiedPDF}
-              className="flex items-center gap-1 px-3 py-1 rounded border bg-orange-600 text-white hover:bg-green-700 transition cursor-pointer"
-            >
-              SS PDF
-            </button>
-           </>
+            <>
+              <button
+                onClick={handleDownloadPDF}
+                className="flex items-center gap-1 px-3 py-1 rounded border bg-green-600 text-white hover:bg-green-700 transition cursor-pointer"
+              >
+                Dispatch PDF
+              </button>
+
+            </>
           )}
+          <button
+            onClick={generateCRMVerifiedPDF}
+            className="flex items-center gap-1 px-3 py-1 rounded border bg-orange-600 text-white hover:bg-green-700 transition cursor-pointer"
+          >
+            SS PDF
+          </button>
         </div>
       </div>
 
