@@ -115,7 +115,7 @@ export default function ProductCard({
                     }
                     className="w-full border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-gray-100 outline-none mt-2"
                   >
-                    {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                    {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={n}>
                         {n} Cartoon
                       </option>

@@ -177,6 +177,7 @@ export default function CRMOrderDetailPage() {
                 <th className="px-4 py-3 text-center border border-gray-300">Stock</th>
                 <th className="px-4 py-3 text-center border border-gray-300">Cartoon</th>
                 <th className="px-4 py-3 text-center border border-gray-300">Price</th>
+                <th className="px-4 py-3 text-center border border-gray-300">Total</th>
                 <th className="px-4 py-3 text-center border border-gray-300">Actions</th>
               </tr>
             </thead>
@@ -226,17 +227,14 @@ export default function CRMOrderDetailPage() {
                     <td className="px-4 py-2 border border-gray-200 text-center font-medium">
                       {productData?.cartoon_size ?? "-"}
                     </td>
-                    <td className="px-4 py-2 border border-gray-200 font-medium text-center">
-                      {!isNaN(item.price) ? (
-                        <span className="flex items-center justify-center gap-1 text-gray-700">
-                          <FaIndianRupeeSign className="text-gray-400" /> {item.price}
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-center gap-1 text-red-500 text-xs">
-                          <FaBan /> Price
-                        </span>
-                      )}
+
+                    <td className="px-4 py-2 border border-gray-200 text-center font-medium">
+                      {productData?.price ?? "-"}
                     </td>
+                    <td className="px-4 py-2 border border-gray-200 text-center font-medium">
+                      ₹{(Number(item.quantity) * Number(productData?.price || 0)).toFixed(1)}
+                    </td>
+
                     <td className="px-4 py-2 border border-gray-200 text-center">
                       <button
                         onClick={() => {
@@ -249,8 +247,26 @@ export default function CRMOrderDetailPage() {
                       </button>
                     </td>
                   </tr>
+                  
                 );
               })}
+{/* Grand Total Row */}
+<tr className="bg-gray-100 font-bold text-gray-800">
+  <td colSpan="7" className="px-4 py-2 text-right border border-gray-300">
+    Grand Total:
+  </td>
+  <td className="px-4 py-2 text-center border border-gray-300">
+    ₹
+    {editedItems
+      .reduce((sum, item) => {
+        const price = Number(allProducts.find((p) => p.product_id === item.product)?.price || 0);
+        const qty = Number(item.quantity) || 0;
+        return sum + price * qty;
+      }, 0)
+      .toFixed(1)}
+  </td>
+  <td className="border border-gray-300"></td>
+</tr>
 
               {/* New Row */}
               {newRow && (
@@ -310,8 +326,8 @@ export default function CRMOrderDetailPage() {
               onClick={() => setShowConfirmModal(true)}
               disabled={loadingApprove}
               className={`flex items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${loadingApprove
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-green-600"
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-green-600"
                 }`}
             >
               {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}

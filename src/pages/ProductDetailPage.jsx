@@ -256,7 +256,7 @@ export default function ProductDetailPage() {
                   onChange={(e) => updateCartoon(selectedItem.id, parseInt(e.target.value))}
                   className="w-full border rounded py-2 px-3 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 >
-                  {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                  {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
                     <option key={n} value={n}>
                       {n} Cartoon
                     </option>

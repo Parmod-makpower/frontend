@@ -189,7 +189,7 @@ export default function ConfirmOrderPage() {
                 (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
                 0
               )
-              .toFixed(2)}
+              .toFixed(1)}
           </p>
         </div>
       </div>

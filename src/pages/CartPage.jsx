@@ -166,7 +166,7 @@ export default function CartPage() {
                           onChange={(e) => updateCartoon(item.id, parseInt(e.target.value))}
                           className="border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none w-32"
                         >
-                          {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                          {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
                             <option key={n} value={n}>
                               {n} Cartoon{n > 1 ? "s" : ""}
                             </option>
@@ -290,7 +290,7 @@ export default function CartPage() {
       {/* Total & Proceed */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-4">
         <p className="text-xl font-bold text-gray-800">
-          <u className="text-red-600">₹ {total.toFixed(2)}</u>
+          <u className="text-red-600">₹ {total.toFixed(1)}</u>
         </p>
 
         <button
