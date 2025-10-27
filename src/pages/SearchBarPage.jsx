@@ -100,7 +100,7 @@ export default function SearchBarPage() {
   const Row = ({ index, style }) => {
     const p = normalizeProduct(searchResults[index]);
     const selectedItem = selectedProducts.find((x) => x.id === p.id);
-    const hasCartoon = selectedItem?.cartoon_size && selectedItem.cartoon_size > 1;
+    const hasCartoon = selectedItem?.quantity_type == "CARTOON";
 
     return (
       <div

@@ -1,17 +1,28 @@
 import { useState, useMemo, useRef } from "react";
 import useFuseSearch from "../hooks/useFuseSearch";
-import { useCachedProducts } from "../hooks/useCachedProducts";
-import { FiDownload, FiMenu, FiX } from "react-icons/fi";
+import { useAdminAllProducts } from "../hooks/useAdminAllProducts";
+import { useUpdateProduct } from "../hooks/useProducts";
+import ProductEditModel from "../components/ProductEditModel";
+
+import { FiDownload, FiMenu, FiX, FiEdit } from "react-icons/fi";
 import { ImSpinner2 } from "react-icons/im";
+import { useAuth } from "../context/AuthContext";
+
 import makpower_image from "../assets/images/makpower_image.webp";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { toast } from "react-toastify";
 
 const ITEMS_PER_PAGE = 20;
 const ROWS_PER_PDF_PAGE = 2;
 
 export default function AvailableStock() {
-  const { data: allProducts = [], isLoading } = useCachedProducts();
+  const { data: allProducts = [], isLoading } = useAdminAllProducts();
+  const { mutate: updateProduct } = useUpdateProduct();
+   const { user } = useAuth();
+    const isAnkita = user?.user_id === "AD0001";
+  
+
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [stockFilter, setStockFilter] = useState("in");
@@ -19,6 +30,17 @@ export default function AvailableStock() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isOffcanvasOpen, setIsOffcanvasOpen] = useState(false);
   const tableRef = useRef();
+
+  // 🧩 Edit Modal States
+  const [showModal, setShowModal] = useState(false);
+  const [editData, setEditData] = useState(null);
+  const [form, setForm] = useState({
+    guarantee: "",
+    price: "",
+    quantity_type: "",
+    cartoon_size: "",
+    moq: "",
+  });
 
   // 🔍 Search filter
   const searchedProducts = useFuseSearch(allProducts, search, {
@@ -28,9 +50,9 @@ export default function AvailableStock() {
   const productsToSearch = search ? searchedProducts : allProducts;
 
   const hiddenCategories = [
-    "BATTERY","COPY","GIFT ITEM","Lamination","OTHERS","RDX","RM","TV",
-    "STICKER","POWERBANK & TWS","SMART WATCH","MAHAKUMBH","LED LIGHT",
-    "LED BULB","GLASS CLEANER","LAMINATION","HEADPHONE","PROMOTIONAL ITEM",
+    "BATTERY", "COPY", "GIFT ITEM", "Lamination", "OTHERS", "RDX", "RM", "TV",
+    "STICKER", "POWERBANK & TWS", "SMART WATCH", "MAHAKUMBH", "LED LIGHT",
+    "LED BULB", "GLASS CLEANER", "LAMINATION", "HEADPHONE", "PROMOTIONAL ITEM",
   ];
 
   const categories = useMemo(() => {
@@ -46,14 +68,12 @@ export default function AvailableStock() {
     let result = productsToSearch;
     if (stockFilter === "in") result = result.filter((p) => p.live_stock > 0);
     else if (stockFilter === "out") result = result.filter((p) => p.live_stock <= 0);
-
     if (selectedCategories.length > 0)
       result = result.filter((p) => selectedCategories.includes(p.sub_category));
-
     return result;
   }, [productsToSearch, stockFilter, selectedCategories]);
 
-  // Pagination
+  // 📄 Pagination
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const paginatedProducts = filteredProducts.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -72,7 +92,7 @@ export default function AvailableStock() {
     else setSelectedCategories([...selectedCategories, cat]);
   };
 
-  // PDF Download
+  // 📥 PDF Download
   const handleDownloadPDF = async () => {
     const input = tableRef.current;
     if (!input) return;
@@ -81,13 +101,10 @@ export default function AvailableStock() {
     try {
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const marginX = 15;
-      const marginY = 10;
+      const marginX = 15, marginY = 10;
 
       for (let i = 0; i < filteredProducts.length; i += ROWS_PER_PDF_PAGE) {
         const chunk = filteredProducts.slice(i, i + ROWS_PER_PDF_PAGE);
-
         const tempTable = document.createElement("table");
         tempTable.style.borderCollapse = "collapse";
         tempTable.style.width = "100%";
@@ -150,7 +167,6 @@ export default function AvailableStock() {
         if (i + ROWS_PER_PDF_PAGE < filteredProducts.length) pdf.addPage();
         document.body.removeChild(tempTable);
       }
-
       pdf.save("available-stock.pdf");
     } catch (error) {
       console.error("PDF export failed:", error);
@@ -160,57 +176,67 @@ export default function AvailableStock() {
     }
   };
 
+  // 📝 Handle Update Submit
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    updateProduct(
+      { productId: editData.product_id, updatedData: form },
+      {
+        onSuccess: () => {
+          toast.success("Product updated ✅");
+          setShowModal(false);
+        },
+        onError: () => toast.error("Update failed ❌"),
+      }
+    );
+  };
+
   if (isLoading) return <p className="p-4">Loading...</p>;
 
   return (
     <div className="p-4">
-     
       <div className="flex">
         {/* Left Offcanvas */}
-       {/* Left Offcanvas */}
-{isOffcanvasOpen && (
-  <div
-    className="fixed inset-0 bg-black/30 z-40"
-    onClick={() => setIsOffcanvasOpen(false)}
-  ></div>
-)}
-<div
-  className={`fixed top-0 left-0 h-full w-60 bg-white z-50 shadow-lg transform transition-transform duration-300 ${
-    isOffcanvasOpen ? "translate-x-0" : "-translate-x-full"
-  }`}
->
-  <div className="flex justify-between items-center p-4 border-b">
-    <h2 className="font-semibold">Categories</h2>
-    <button onClick={() => setIsOffcanvasOpen(false)}>
-      <FiX className="text-xl" />
-    </button>
-  </div>
-  {/* ✅ Scrollable container */}
-  <div className="p-4 flex flex-col gap-2 overflow-y-auto h-[calc(100%-64px)]">
-    {categories.map((cat) => (
-      <label key={cat} className="flex items-center gap-2 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={selectedCategories.includes(cat)}
-          onChange={() => toggleCategory(cat)}
-        />
-        <span>{cat}</span>
-      </label>
-    ))}
-  </div>
-</div>
+        {isOffcanvasOpen && (
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setIsOffcanvasOpen(false)}
+          ></div>
+        )}
+        <div
+          className={`fixed top-0 left-0 h-full w-60 bg-white z-50 shadow-lg transform transition-transform duration-300 ${isOffcanvasOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
+        >
+          <div className="flex justify-between items-center p-4 border-b">
+            <h2 className="font-semibold">Categories</h2>
+            <button onClick={() => setIsOffcanvasOpen(false)}>
+              <FiX className="text-xl" />
+            </button>
+          </div>
+          <div className="p-4 flex flex-col gap-2 overflow-y-auto h-[calc(100%-64px)]">
+            {categories.map((cat) => (
+              <label key={cat} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedCategories.includes(cat)}
+                  onChange={() => toggleCategory(cat)}
+                />
+                <span>{cat}</span>
+              </label>
+            ))}
+          </div>
+        </div>
 
-
-        {/* Right Side Table Full Width */}
+        {/* Right Table */}
         <div className="flex-1 ml-0 sm:ml-0">
           {/* Top Controls */}
           <div className="flex flex-col sm:flex-row justify-between gap-3 mb-4">
-             <button
-        onClick={() => setIsOffcanvasOpen(true)}
-        className="sm:hidde p-2 bg-blue-500 cursor-pointer text-white rounded flex items-center gap-2"
-      >
-        <FiMenu /> 
-      </button>
+            <button
+              onClick={() => setIsOffcanvasOpen(true)}
+              className="p-2 bg-blue-500 cursor-pointer text-white rounded flex items-center gap-2"
+            >
+              <FiMenu />
+            </button>
             <input
               type="text"
               placeholder="🔍 Search ..."
@@ -234,7 +260,7 @@ export default function AvailableStock() {
                 <option value="out">Out of Stock</option>
                 <option value="all">All</option>
               </select>
-              <button
+              {/* <button
                 onClick={handleDownloadPDF}
                 disabled={isDownloading}
                 className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white px-4 py-2 rounded shadow cursor-pointer"
@@ -248,7 +274,7 @@ export default function AvailableStock() {
                     <FiDownload className="text-lg" /> Download PDF
                   </>
                 )}
-              </button>
+              </button> */}
             </div>
           </div>
 
@@ -262,10 +288,11 @@ export default function AvailableStock() {
                   <th className="p-3 border">Product Name</th>
                   <th className="p-3 border">Guarantee</th>
                   <th className="p-3 border">Price</th>
+                  <th className="p-3 border">Type</th>
                   <th className="p-3 border">Cartoon</th>
-                  {/* <th className="p-3 border">Stock</th> */}
-                  <th className="p-3 border">V-Stock</th>
                   <th className="p-3 border">MOQ</th>
+                  <th className="p-3 border">V-Stock</th>
+                  {/* <th className="p-3 border text-center">Edit</th> */}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -283,10 +310,35 @@ export default function AvailableStock() {
                     <td className="p-3 border">{prod.product_name}</td>
                     <td className="p-3 border">{prod.guarantee}</td>
                     <td className="p-3 border">₹{prod.price}</td>
-                    <td className="p-3 border">{prod.cartoon_size}</td>
-                    {/* <td className="p-3 border font-semibold text-green-600">{prod.live_stock}</td> */}
+                    <td className="p-3 border font-semibold text-green-600">{prod.quantity_type}</td>
+                    <td className="p-3 border bg-red-100">{prod.cartoon_size}</td>
+                    <td className="p-3 border bg-red-100">{prod.moq}</td>
                     <td className="p-3 border text-blue-600">{prod.virtual_stock}</td>
-                    <td className="p-3 border">{prod.moq}</td>
+                    {isAnkita && (
+                       <td className="p-3 border text-center">
+                      <button
+                        onClick={() => {
+                          setEditData(prod);
+                          setForm({
+                            product_id: prod.product_id || "",
+                            product_name: prod.product_name || "",
+                            sub_category: prod.sub_category || "",
+                            guarantee: prod.guarantee || "",
+                            price: prod.price || "",
+                            quantity_type: prod.quantity_type || "",
+                            cartoon_size: prod.cartoon_size || "",
+                            moq: prod.moq || "",
+                          });
+                          setShowModal(true);
+                        }}
+
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <FiEdit />
+                      </button>
+                    </td>
+                    )}
+                   
                   </tr>
                 ))}
               </tbody>
@@ -317,6 +369,17 @@ export default function AvailableStock() {
           )}
         </div>
       </div>
+
+      {/* 🧾 Edit Modal (Reuse same as ProductPage) */}
+      <ProductEditModel
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onSubmit={handleSubmit}
+        form={form}
+        setForm={setForm}
+        editData={editData}
+      />
+
     </div>
   );
 }

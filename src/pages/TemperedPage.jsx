@@ -138,7 +138,7 @@ export default function TemperedPage() {
                         <div className="ml-3 flex items-center">
                           {selectedProducts.some((p) => p.id === prodId) ? (
                             <>
-                              {selectedProducts.find((p) => p.id === prodId)?.cartoon_size > 1 ? (
+                              {selectedProducts.find((p) => p.id === prodId)?.quantity_type == "CARTOON" ? (
                                 <select
                                   value={cartoonSelection[prodId] || 1}
                                   onChange={(e) => updateCartoon(prodId, parseInt(e.target.value))}

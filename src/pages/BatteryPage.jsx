@@ -103,7 +103,7 @@ export default function BatteryPage() {
               const displayArray = showAll ? saleArray : saleArray.slice(0, 10);
 
               const selectedItem = selectedProducts.find((p) => p.id === prodId);
-              const hasCartoon = selectedItem?.cartoon_size && selectedItem.cartoon_size > 1;
+              const hasCartoon = selectedItem?.quantity_type == "CARTOON";
 
               return (
                 <div

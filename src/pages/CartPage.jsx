@@ -27,28 +27,29 @@ export default function CartPage() {
   const navigate = useNavigate();
 
   // ✅ Initialize only missing cartoon selections on mount
-  // ✅ Initialize only missing cartoon selections on mount
-  useEffect(() => {
-    selectedProducts.forEach((p) => {
-      if (p.cartoon_size && p.cartoon_size > 1) {
-        if (!cartoonSelection[p.id]) {
-          updateCartoon(p.id, 1); // default 1 cartoon
-        } else {
-          updateQuantity(p.id, cartoonSelection[p.id] * p.cartoon_size);
-        }
+ useEffect(() => {
+  selectedProducts.forEach((p) => {
+    // ✅ अगर product cartoon type का है
+    if (p.quantity_type === "CARTOON" && p.cartoon_size && p.cartoon_size > 1) {
+      if (!cartoonSelection[p.id]) {
+        updateCartoon(p.id, 1); // default 1 cartoon
+        updateQuantity(p.id, p.cartoon_size * 1);
       } else {
-        // ❌ पुराना code हर बार quantity reset कर देता था
-        // ✅ अब सिर्फ तभी set करेंगे जब quantity invalid या खाली हो
-        const moq = p.moq || 1;
-        const qty = parseInt(p.quantity);
-
-        if (isNaN(qty) || qty < moq) {
-          updateQuantity(p.id, moq);
-        }
+        updateQuantity(p.id, cartoonSelection[p.id] * p.cartoon_size);
       }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    } 
+    // ✅ अगर product MOQ type का है
+    else {
+      const moq = p.moq || 1;
+      const qty = parseInt(p.quantity);
+
+      if (isNaN(qty) || qty < moq) {
+        updateQuantity(p.id, moq);
+      }
+    }
+  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
 
 
@@ -108,7 +109,7 @@ export default function CartPage() {
           );
 
           const price = parseFloat(item.price);
-          const hasCartoon = item.cartoon_size && item.cartoon_size > 1;
+          const hasCartoon = item.quantity_type == "CARTOON";
 
           return (
             <div className="border-b p-4" key={item.id}>
@@ -139,12 +140,6 @@ export default function CartPage() {
                       )}
                     </p>
 
-                    {/* {hasCartoon && (
-                      <p className="text-xs text-gray-500 mt-1 ">
-                        {Math.floor(item.virtual_stock / item.cartoon_size)} cartoon
-                        {Math.floor(item.virtual_stock / item.cartoon_size) > 1 ? "s" : ""} left
-                      </p>
-                    )} */}
                   </div>
                   <div className="flex flex-col justify-between items-end mt-2 sm:mt-0">
                     <button

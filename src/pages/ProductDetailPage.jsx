@@ -250,7 +250,7 @@ export default function ProductDetailPage() {
             </button>
           ) : (
             <div className="flex-1 flex flex-col gap-2">
-              {selectedItem?.cartoon_size && selectedItem.cartoon_size > 1 ? (
+              {selectedItem.quantity_type == "CARTOON" ? (
                 <select
                   value={cartoonSelection[selectedItem.id] || 1}
                   onChange={(e) => updateCartoon(selectedItem.id, parseInt(e.target.value))}

@@ -107,7 +107,7 @@ export default function ProductCard({
               </button>
             ) : (
               <>
-                {selectedItem?.cartoon_size && selectedItem.cartoon_size > 1 ? (
+                {selectedItem.quantity_type == "CARTOON" ? (
                   <select
                     value={cartoonSelection[selectedItem.id] || 1}
                     onChange={(e) =>
