@@ -264,9 +264,11 @@ const generateCRMVerifiedPDF = () => {
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 40;
 
+  // === Border ===
   doc.setLineWidth(1);
   doc.rect(margin / 2, margin / 2, pageWidth - margin, pageHeight - margin);
 
+  // === Header ===
   doc.setFontSize(20);
   doc.setFont("times", "bold");
   doc.setTextColor(50, 50, 50);
@@ -279,10 +281,10 @@ const generateCRMVerifiedPDF = () => {
   doc.setTextColor(0, 0, 0);
   doc.text("CRM Verified Order", pageWidth / 2, 70, { align: "center" });
 
+  // === Order Info Box ===
   const startY = 90;
   const boxX = margin;
   const boxWidth = pageWidth - 2 * margin;
-
   doc.rect(boxX, startY, boxWidth, 60);
 
   doc.setFontSize(11);
@@ -299,15 +301,24 @@ const generateCRMVerifiedPDF = () => {
     startY + 20
   );
 
-  // === Table ===
-  const tableData = enrichedItems.map((item, idx) => [
-    idx + 1,
-    item.product_name,
-    item.cartoon_size ?? "-",
-    item.quantity === 0 ? "Not Available" : item.quantity,
-    item.ss_virtual_stock ?? "-",
-  ]);
+  // === Table Data ===
+  const tableData = enrichedItems.map((item, idx) => {
+    // ✅ Cartoon calculation
+    let cartoon = "-";
+    if (item.cartoon_size && item.cartoon_size > 0 && item.quantity > 0) {
+      cartoon = (item.quantity / item.cartoon_size).toFixed(2);
+    }
 
+    return [
+      idx + 1,
+      item.product_name,
+      cartoon, // ✅ cartoon count दिखेगा
+      item.quantity === 0 ? "Not Available" : item.quantity,
+      item.ss_virtual_stock ?? "-",
+    ];
+  });
+
+  // === Table ===
   autoTable(doc, {
     startY: startY + 80,
     margin: { left: margin, right: margin },
@@ -326,10 +337,10 @@ const generateCRMVerifiedPDF = () => {
       1: { halign: "left" },
       2: { cellWidth: 60, halign: "center" },
       3: { cellWidth: 80, halign: "center" },
-      
     },
   });
 
+  // === Footer ===
   const footerMargin = 30;
   doc.setFontSize(10);
   doc.setFont("helvetica", "italic");
@@ -342,6 +353,7 @@ const generateCRMVerifiedPDF = () => {
     { align: "right" }
   );
 
+  // === Page Numbering ===
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
@@ -350,8 +362,10 @@ const generateCRMVerifiedPDF = () => {
     });
   }
 
+  // === Save File ===
   doc.save(`${order.order_id}_ss_order.pdf`);
 };
+
 
 
 

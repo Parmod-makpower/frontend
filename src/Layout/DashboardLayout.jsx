@@ -13,7 +13,8 @@ import {
   FaList,
   FaPlus,
   FaCheck,FaBoxOpen,
-  FaSignOutAlt,FaChartLine 
+  FaSignOutAlt,FaChartLine, 
+  FaHourglassHalf
 } from "react-icons/fa";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
@@ -146,6 +147,7 @@ export default function DashboardLayout() {
       { label: "Sale Name", path: "/sale-name", icon: <FaBox /> },
       { label: "Schemes", path: "/schemes", icon: <FaGift /> },
       { label: "CRM", path: "/admin/crm", icon: <FaUsers /> },
+      { label: "Pending Orders", path: "/admin/pending-orders", icon: <FaHourglassHalf/> },
       { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> }
     );
   }

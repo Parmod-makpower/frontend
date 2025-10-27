@@ -1,19 +1,17 @@
 import { useState } from "react";
 import useFuseSearch from "../hooks/useFuseSearch";
-import { useCachedProducts } from "../hooks/useCachedProducts";
-import { useToggleProductStatus } from "../hooks/useProducts";
-import { useAddProduct, useDeleteProduct, useUpdateProduct } from "../hooks/useProducts";
-import { uploadProductImage, uploadProductImage2 } from "../api/productApi";
+import { useAdminAllProducts } from "../hooks/useAdminAllProducts";
+import { useAddProduct, useDeleteProduct, useUpdateProduct, useToggleProductStatus } from "../hooks/useProducts";
 import { toast } from "react-toastify";
 import { FiUpload, FiEdit, FiTrash2, FiPlus, FiDownload } from "react-icons/fi";
 import makpower_image from "../assets/images/makpower_image.webp"
 import "react-toastify/dist/ReactToastify.css";
-import { downloadProductTemplate, bulkUploadProducts } from "../api/productApi";
+import { uploadProductImage, uploadProductImage2, downloadProductTemplate, bulkUploadProducts } from "../api/productApi";
 
 const ITEMS_PER_PAGE = 50;
 
 export default function ProductPage() {
-  const { data: allProducts = [], isLoading } = useCachedProducts();
+  const { data: allProducts = [], isLoading } = useAdminAllProducts();
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -25,7 +23,9 @@ export default function ProductPage() {
     sub_category: "",
     cartoon_size: "",
     price: "",
-    live_stock: ""
+    live_stock: "",
+    guarantee: "",
+    moq: "",
   });
 
   const [uploading, setUploading] = useState(false); // 🔹 Upload loader state
@@ -178,7 +178,9 @@ export default function ProductPage() {
                 sub_category: "",
                 cartoon_size: "",
                 price: "",
-                live_stock: ""
+                live_stock: "",
+                guarantee: prod.guarantee || "",
+                moq: prod.moq || "",
               });
               setShowModal(true);
             }}
@@ -451,6 +453,29 @@ export default function ProductPage() {
                   className="border p-2 w-full rounded"
                 />
               </div>
+              <div>
+  <label className="block text-sm font-medium mb-1">Guarantee</label>
+  <input
+    name="guarantee"
+    value={form.guarantee || ""}
+    onChange={(e) => setForm({ ...form, guarantee: e.target.value })}
+    placeholder="Enter Guarantee (e.g. 6 Months)"
+    className="border p-2 w-full rounded"
+  />
+</div>
+
+<div>
+  <label className="block text-sm font-medium mb-1">MOQ</label>
+  <input
+    name="moq"
+    type="number"
+    value={form.moq || ""}
+    onChange={(e) => setForm({ ...form, moq: e.target.value })}
+    placeholder="Enter Minimum Order Quantity"
+    className="border p-2 w-full rounded"
+  />
+</div>
+
 
               <div className="flex justify-end gap-2 pt-2">
                 <button

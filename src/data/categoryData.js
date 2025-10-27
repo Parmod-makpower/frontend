@@ -207,11 +207,17 @@ const categories = [
     image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1758532741/jbul9qzghqqkbb9jv639.webp",
     subcategories: []
   },
+   {
+    label: "HEADPHONE",
+    keyword: "HEADPHONE",
+    image:   "https://cdn.store-assets.com/s/273607/i/18788356.jpg",
+    subcategories: []
+  },
   
   {
     label: "PENDRIVE",
     keyword: "PENDRIVE",
-    image:   "https://printmygift.in/wp-content/uploads/2021/03/Metal-Hook-Pen-drive-front-a.jpg",
+    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1757503207/erjplzgypqfeoveb7tzv.webp",
     subcategories: []
   },
    {

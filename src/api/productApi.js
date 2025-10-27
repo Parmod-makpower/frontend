@@ -20,10 +20,10 @@ export const addProduct = async (newProduct) => {
 
 // Update Product without image
 export const updateProduct = async ({ productId, updatedData }) => {
-  const payload = { ...updatedData, image: null }; // Image अभी skip
-  const response = await API.put(`/products/${productId}/`, payload);
+  const response = await API.put(`/products/${productId}/`, updatedData);
   return response.data;
 };
+
 
 // ✅ केवल is_active update करने के लिए PATCH
 export const toggleProductStatus = async ({ productId, isActive }) => {
