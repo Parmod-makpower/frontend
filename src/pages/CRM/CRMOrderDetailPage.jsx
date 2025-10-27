@@ -250,7 +250,6 @@ export default function CRMOrderDetailPage() {
                   
                 );
               })}
-{/* Grand Total Row */}
 <tr className="bg-gray-100 font-bold text-gray-800">
   <td colSpan="7" className="px-4 py-2 text-right border border-gray-300">
     Grand Total:
@@ -259,7 +258,20 @@ export default function CRMOrderDetailPage() {
     ₹
     {editedItems
       .reduce((sum, item) => {
-        const price = Number(allProducts.find((p) => p.product_id === item.product)?.price || 0);
+        const productData = allProducts.find((p) => p.product_id === item.product);
+        const rawPrice = productData?.price;
+
+        // ❌ अगर price नहीं है तो skip करो
+        if (
+          rawPrice === null ||
+          rawPrice === undefined ||
+          rawPrice === "" ||
+          isNaN(Number(rawPrice))
+        ) {
+          return sum;
+        }
+
+        const price = Number(rawPrice);
         const qty = Number(item.quantity) || 0;
         return sum + price * qty;
       }, 0)
@@ -267,6 +279,7 @@ export default function CRMOrderDetailPage() {
   </td>
   <td className="border border-gray-300"></td>
 </tr>
+
 
               {/* New Row */}
               {newRow && (
