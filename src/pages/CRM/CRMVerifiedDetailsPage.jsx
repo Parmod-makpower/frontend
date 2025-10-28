@@ -53,6 +53,7 @@ function Table({ title, items }) {
               <th className="p-3 border">Cartoon</th>
               <th className="p-3 border">Price</th>
               <th className="p-3 border">Total</th>
+              <th className="p-3 border">SS-Stock</th>
               <th className="p-3 border">Stock</th>
             </tr>
           </thead>
@@ -74,8 +75,8 @@ function Table({ title, items }) {
                       <td className="p-3 border">
                         ₹{total.toFixed(1)}
                       </td>
-                      {/* <td className="p-3 border bg-red-100">{r.ss_virtual_stock}</td> */}
-                      <td className="p-3 border bg-red-100">{r.virtual_stock ?? "-"}</td>
+                      <td className="p-3 border bg-red-100">{r.ss_virtual_stock}</td>
+                      <td className="p-3 border bg-red-200">{r.virtual_stock ?? "-"}</td>
                     </tr>
                   );
                 })}
@@ -83,7 +84,7 @@ function Table({ title, items }) {
                 {/* ✅ Grand Total Row */}
                 <tr className="bg-blue-100 font-semibold">
                   <td colSpan={4} className="p-3 border text-right">Grand Total</td>
-                  <td colSpan={2} className="p-3 border">
+                  <td colSpan={3} className="p-3 border">
                     ₹
                     {items
                       .reduce(
@@ -221,7 +222,7 @@ export default function CRMVerifiedDetailsPage() {
       item.quantity,
       " ",
       item.cartoon_size ?? "-",
-      item.virtual_stock ?? "-",
+      item.ss_virtual_stock ?? "-",
     ]);
 
     autoTable(doc, {

@@ -9,7 +9,6 @@ export default function PDFDownloadButton({ order, items = [] }) {
       return;
     }
 
-    // === Prepare items with product info ===
     const enrichedItems = items.map((item) => ({
       ...item,
       price: item.price ?? 0,
@@ -50,18 +49,6 @@ export default function PDFDownloadButton({ order, items = [] }) {
     doc.text(`CRM: ${order.crm_name || "-"}`, boxX + 10, startY + 35);
     doc.text(`Party: ${order.ss_party_name || "-"}`, boxX + 10, startY + 50);
 
-    // doc.text(
-    //   `Verified At: ${
-    //     order.verified_at
-    //       ? new Date(order.verified_at).toLocaleString("en-IN", {
-    //           timeZone: "Asia/Kolkata",
-    //         })
-    //       : "-"
-    //   }`,
-    //   pageWidth / 2 + 20,
-    //   startY + 20
-    // );
-
     // === Table Data ===
     const tableData = enrichedItems.map((item, idx) => {
       const total = Number(item.quantity) * Number(item.price || 0);
@@ -73,7 +60,7 @@ export default function PDFDownloadButton({ order, items = [] }) {
       ];
     });
 
-    // === Grand Total Calculation ===
+    // === Grand Total ===
     const grandTotal = enrichedItems.reduce(
       (sum, item) => sum + Number(item.quantity) * Number(item.price || 0),
       0
@@ -99,44 +86,44 @@ export default function PDFDownloadButton({ order, items = [] }) {
         2: { cellWidth: 80, halign: "center" },
         3: { cellWidth: 80, halign: "center" },
       },
-
       didParseCell: function (data) {
         if (data.section === "body" && data.column.index === 2) {
-          // Light Yellow
-          data.cell.styles.fillColor = [255, 255, 204];
-        }
-      },
-      didDrawPage: function (data) {
-        if (data.pageNumber === doc.internal.getNumberOfPages()) {
-          const finalY = data.cursor.y + 25;
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(12);
-          doc.text(
-            `Grand Total: ${grandTotal.toFixed(1)}`,
-            pageWidth - margin - 150,
-            finalY
-          );
+          data.cell.styles.fillColor = [255, 255, 204]; // light yellow
         }
       },
     });
 
-    // === Footer ===
-    const footerMargin = 30;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "italic");
+    // === Grand Total on LAST PAGE only ===
+    const finalY = doc.lastAutoTable.finalY + 25;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
     doc.text(
-      `Generated On: ${new Date().toLocaleString("en-IN", {
-        timeZone: "Asia/Kolkata",
-      })}`,
-      pageWidth - margin,
-      pageHeight - footerMargin,
-      { align: "right" }
+      `Grand Total: ${grandTotal.toFixed(1)}`,
+      pageWidth - margin - 150,
+      finalY
     );
 
-    // === Page Numbers ===
+    // === Footer ===
+    const footerMargin = 30;
     const pageCount = doc.internal.getNumberOfPages();
+
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+
+      // Footer text
+      doc.text(
+        `Generated On: ${new Date().toLocaleString("en-IN", {
+          timeZone: "Asia/Kolkata",
+        })}`,
+        pageWidth - margin,
+        pageHeight - footerMargin,
+        { align: "right" }
+      );
+
+      // Page numbers
       doc.text(
         `Page ${i} of ${pageCount}`,
         pageWidth / 2,
@@ -145,7 +132,7 @@ export default function PDFDownloadButton({ order, items = [] }) {
       );
     }
 
-    // === Save File ===
+    // === Save PDF ===
     doc.save(`${order.order_id}_crm_verified.pdf`);
   };
 
