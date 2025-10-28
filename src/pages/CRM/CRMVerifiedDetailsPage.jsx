@@ -341,15 +341,10 @@ export default function CRMVerifiedDetailsPage() {
       />
 
       <MobilePageHeader title={order.order_id} />
-      <div className="hidden sm:flex items-center justify-between w-full">
-        <div className="font-semibold"></div>
+      <div className="hidden sm:flex items-center justify-between w-full ">
+        <div className="font-semibold border rounded bg-gray-200 px-4 p-2">{orderCode}</div>
         <div className="flex gap-2">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-1 px-3 py-1 rounded border hover:bg-gray-200 transition cursor-pointer"
-          >
-            <FiArrowLeft /> Back
-          </button>
+
 
           {order.punched && (
             <>
@@ -364,11 +359,16 @@ export default function CRMVerifiedDetailsPage() {
           )}
 
           <PDFDownloadButton order={order} items={enrichedItems} />
-
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1 px-3 py-1 rounded border hover:bg-gray-200 transition cursor-pointer"
+          >
+            <FiArrowLeft /> Back
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-2 sm:gap-4 sm:pt-0 pt-[60px]">
+      {/* <div className="grid grid-cols-2 md:grid-cols-2 gap-2 sm:gap-4 sm:pt-0 pt-[60px]">
         <div className="border rounded p-4 bg-white shadow-sm">
           <div className="font-semibold mb-2">SS Order</div>
           <div className="text-sm font-bold text-gray-600">{order.order_id}</div>
@@ -386,7 +386,7 @@ export default function CRMVerifiedDetailsPage() {
             })}
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-1 gap-4">
         <Table title="CRM — Verified Items" items={enrichedItems} />

@@ -14,7 +14,8 @@ import {
   FaPlus,
   FaCheck,FaBoxOpen,
   FaSignOutAlt,FaChartLine, 
-  FaHourglassHalf
+  FaHourglassHalf,
+  FaBan
 } from "react-icons/fa";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
@@ -144,6 +145,7 @@ export default function DashboardLayout() {
     navItems.push(
       { label: "Home", path: "/", icon: <FaHome /> },
       { label: "Products", path: "/products", icon: <FaBox /> },
+      { label: "Inactive", path: "/inactive", icon: <FaBan /> },
       { label: "Sale Name", path: "/sale-name", icon: <FaBox /> },
       { label: "Schemes", path: "/schemes", icon: <FaGift /> },
       { label: "CRM", path: "/admin/crm", icon: <FaUsers /> },
