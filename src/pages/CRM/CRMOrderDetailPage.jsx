@@ -170,15 +170,15 @@ export default function CRMOrderDetailPage() {
           <table className="w-full border border-gray-200 text-sm text-left">
             <thead className="bg-gray-100 text-gray-700 uppercase">
               <tr>
-                <th className="px-4 py-3 border border-gray-300">Product</th>
-                <th className="px-4 py-3 text-center border border-gray-300">SS Order</th>
-                <th className="px-4 py-3 text-center border border-gray-300">Approved</th>
-                <th className="px-4 py-3 text-center border border-gray-300">ss-Stock</th>
-                <th className="px-4 py-3 text-center border border-gray-300">Stock</th>
-                <th className="px-4 py-3 text-center border border-gray-300">Cartoon</th>
-                <th className="px-4 py-3 text-center border border-gray-300">Price</th>
-                <th className="px-4 py-3 text-center border border-gray-300">Total</th>
-                <th className="px-4 py-3 text-center border border-gray-300">Actions</th>
+                <th className="px-4 py-3 border">Product</th>
+                <th className="px-4 py-3 text-center border">SS Order</th>
+                <th className="px-4 py-3 text-center border">Approved</th>
+                <th className="px-4 py-3 text-center border">ss-Stock</th>
+                <th className="px-4 py-3 text-center border">Stock</th>
+                <th className="px-4 py-3 text-center border">Cartoon</th>
+                <th className="px-4 py-3 text-center border">Price</th>
+                <th className="px-4 py-3 text-center border">Total</th>
+                <th className="px-4 py-3 text-center border">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -186,16 +186,16 @@ export default function CRMOrderDetailPage() {
                 const productData = allProducts.find((p) => p.product_id === item.product);
                 return (
                   <tr key={item.product} className="hover:bg-gray-50 bg-white">
-                    <td className="px-4 py-2 border border-gray-200">
+                    <td className="px-4 py-2 border">
                       <div className="flex">
                         {item.product_name}
                         {item.is_scheme_item && <FaGift className="mx-2 text-orange-500" />}
                       </div>
                     </td>
-                    <td className="px-4 py-2 border border-gray-200 text-center">
+                    <td className="px-4 py-2 border text-center">
                       {item.original_quantity}
                     </td>
-                    <td className="px-4 py-2 border border-gray-200 text-center">
+                    <td className="px-4 py-2 border text-center">
                       <input
                         type="number"
                         min="0"
@@ -218,24 +218,24 @@ export default function CRMOrderDetailPage() {
                       />
                     </td>
 
-                    <td className="px-4 py-2 border border-gray-200 text-center">
+                    <td className="px-4 py-2 border  text-center bg-red-300">
                       {item.ss_virtual_stock}
                     </td>
-                    <td className="px-4 py-2 border border-gray-200 text-center font-medium">
+                    <td className="px-4 py-2 border  text-center font-medium bg-red-300">
                       {productData?.virtual_stock ?? "-"}
                     </td>
-                    <td className="px-4 py-2 border border-gray-200 text-center font-medium">
+                    <td className="px-4 py-2 border  text-center font-medium ">
                       {productData?.cartoon_size ?? "-"}
                     </td>
 
-                    <td className="px-4 py-2 border border-gray-200 text-center font-medium">
+                    <td className="px-4 py-2 border text-center font-medium">
                       {productData?.price ?? "-"}
                     </td>
-                    <td className="px-4 py-2 border border-gray-200 text-center font-medium">
+                    <td className="px-4 py-2 border text-center font-medium bg-blue-100">
                       ₹{(Number(item.quantity) * Number(productData?.price || 0)).toFixed(1)}
                     </td>
 
-                    <td className="px-4 py-2 border border-gray-200 text-center">
+                    <td className="px-4 py-2 border  text-center">
                       <button
                         onClick={() => {
                           setItemToDelete(item.product);

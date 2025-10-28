@@ -222,7 +222,7 @@ export default function CRMVerifiedDetailsPage() {
       item.quantity,
       " ",
       item.cartoon_size ?? "-",
-      item.ss_virtual_stock ?? "-",
+      item.virtual_stock ?? "-",
     ]);
 
     autoTable(doc, {
