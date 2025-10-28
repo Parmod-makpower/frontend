@@ -2,41 +2,80 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { verifyCRMOrder } from "../../hooks/useCRMOrders";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
-import ProductSearchSelect from "../../components/ProductSearchSelect";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { FaGift, FaBan } from "react-icons/fa";
+import { FaGift } from "react-icons/fa";
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import PDFDownloadButton from "../../components/PDFDownloadButton";
+
 
 export default function CRMOrderDetailPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+
   const [itemToDelete, setItemToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
   const passedOrder = location.state?.order;
   const [order, setOrder] = useState(passedOrder || null);
-
-  const [editedItems, setEditedItems] = useState(
-    (passedOrder?.items || []).map((item) => ({
-      ...item,
-      original_quantity: item.quantity,
-    }))
-  );
   const [notes, setNotes] = useState(passedOrder?.notes || "");
+  const [loadingApprove, setLoadingApprove] = useState(false);
 
-  // ✅ products with virtual stock merged
+  // ✅ Edited items (restore from localStorage or backend)
+  const [editedItems, setEditedItems] = useState([]);
+
+  // ✅ Sync localStorage or backend order items
+  useEffect(() => {
+    const saved = localStorage.getItem(`crm_order_items_${orderId}`);
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setEditedItems(parsed);
+          return;
+        }
+      } catch {
+        localStorage.removeItem(`crm_order_items_${orderId}`);
+      }
+    }
+
+    if (passedOrder?.items) {
+      const mapped = passedOrder.items.map((item) => ({
+        ...item,
+        original_quantity: item.quantity,
+      }));
+      setEditedItems(mapped);
+      localStorage.setItem(`crm_order_items_${orderId}`, JSON.stringify(mapped));
+    }
+  }, [passedOrder, orderId]);
+
+  // ✅ Auto-save edited items to localStorage
+  useEffect(() => {
+    if (editedItems && editedItems.length > 0) {
+      localStorage.setItem(
+        `crm_order_items_${orderId}`,
+        JSON.stringify(editedItems)
+      );
+    }
+  }, [editedItems, orderId]);
+
+  // ✅ All cached products
   const { data: allProducts = [] } = useCachedProducts();
 
-  const [newRow, setNewRow] = useState(null);
+  // ✅ Product search
+  const [searchTerm, setSearchTerm] = useState("");
+  const [highlightIndex, setHighlightIndex] = useState(-1);
 
   useEffect(() => {
-    if (!passedOrder) {
-      navigate("/crm/orders");
-    }
+    if (!passedOrder) navigate("/crm/orders");
   }, [passedOrder, navigate]);
 
+  const filteredProducts = allProducts.filter((p) =>
+    p.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // ✅ Edit quantity
   const handleEditQuantity = (productId, value) => {
     setEditedItems((prev) =>
       prev.map((item) =>
@@ -47,46 +86,56 @@ export default function CRMOrderDetailPage() {
     );
   };
 
+  // ✅ Delete item
   const handleDeleteItem = (productId) => {
     setEditedItems((prev) => prev.filter((item) => item.product !== productId));
   };
 
-  const handleAddRow = () => {
-    setNewRow({ product: null, quantity: 1 });
-  };
-
-  const handleSaveNewRow = () => {
-    if (!newRow?.product || newRow.quantity <= 0) {
-      alert("Select a product and enter a valid quantity");
-      return;
-    }
-
-    const existing = editedItems.find((i) => i.product === newRow.product);
+  // ✅ Add product by search
+  const handleAddProductBySearch = (product) => {
+    if (!product) return;
+    const existing = editedItems.find((i) => i.product === product.product_id);
     if (existing) {
-      alert("Product already in the list.");
+      alert("Product already added!");
       return;
     }
-
-    const productData = allProducts.find((p) => p.product_id === newRow.product);
-    if (!productData) return;
 
     setEditedItems((prev) => [
       ...prev,
       {
-        product: productData.product_id,
-        product_name: productData.product_name,
-        quantity: newRow.quantity,
+        product: product.product_id,
+        product_name: product.product_name,
+        quantity: 1,
         original_quantity: "Added",
-        price: productData.price ?? 0, // ✅ safe fallback
-        ss_virtual_stock: productData.virtual_stock ?? 0,
+        price: product.price ?? 0,
+        ss_virtual_stock: product.virtual_stock ?? 0,
       },
     ]);
-
-    setNewRow(null);
+    setSearchTerm("");
+    setHighlightIndex(-1);
   };
 
-  const [loadingApprove, setLoadingApprove] = useState(false);
+  // ✅ Keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightIndex((prev) => (prev + 1) % filteredProducts.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightIndex((prev) =>
+        prev === -1
+          ? filteredProducts.length - 1
+          : (prev - 1 + filteredProducts.length) % filteredProducts.length
+      );
+    } else if (e.key === "Enter") {
+      if (highlightIndex >= 0 && filteredProducts[highlightIndex]) {
+        e.preventDefault();
+        handleAddProductBySearch(filteredProducts[highlightIndex]);
+      }
+    }
+  };
 
+  // ✅ Approve order
   const handleVerify = async () => {
     if (!order) return;
     setLoadingApprove(true);
@@ -109,6 +158,10 @@ export default function CRMOrderDetailPage() {
     try {
       await verifyCRMOrder(order.id, payload);
       alert("Order approved successfully");
+
+      // ✅ Clear localStorage after success
+      localStorage.removeItem(`crm_order_items_${orderId}`);
+
       navigate("/all/orders-history");
     } catch (error) {
       console.error("❌ Error verifying order:", error);
@@ -128,10 +181,19 @@ export default function CRMOrderDetailPage() {
   return (
     <div className="p-4 mx-auto sm:border rounded pb-20">
       {/* Header */}
-      <div className="mb-6 border-b pb-3">
-        <h2 className="text-sm font-bold">{order.order_id}</h2>
-        <p className="text-gray-600">{order.ss_party_name}</p>
+      <div className="mb-6 border-b pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        {/* Left Section — Order Info */}
+        <div>
+          <h2 className="text-base font-semibold text-gray-800">{order.order_id}</h2>
+          <p className="text-sm text-gray-600">{order.ss_party_name}</p>
+        </div>
+
+        {/* Right Section — PDF Button */}
+        <div>
+          <PDFDownloadButton order={order} items={editedItems} />
+        </div>
       </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Reminder Table */}
@@ -143,17 +205,17 @@ export default function CRMOrderDetailPage() {
             <table className="w-full border border-yellow-200 text-sm">
               <thead className="bg-yellow-100 text-yellow-800">
                 <tr>
-                  <th className="px-2 py-2 border border-yellow-300">Product</th>
-                  <th className="px-2 py-2 border border-yellow-300">Qty</th>
-                  <th className="px-2 py-2 border border-yellow-300">Last Rejected</th>
+                  <th className="px-2 py-2 border">Product</th>
+                  <th className="px-2 py-2 border">Qty</th>
+                  <th className="px-2 py-2 border">Last Rejected</th>
                 </tr>
               </thead>
               <tbody>
                 {order.recent_rejected_items.map((r) => (
                   <tr key={r.product} className="hover:bg-yellow-50">
-                    <td className="px-2 py-1 border border-yellow-200">{r.product_name}</td>
-                    <td className="px-2 py-1 border border-yellow-200 text-center">{r.quantity}</td>
-                    <td className="px-2 py-1 border border-yellow-200 text-xs text-gray-600">
+                    <td className="px-2 py-1 border">{r.product_name}</td>
+                    <td className="px-2 py-1 border text-center">{r.quantity}</td>
+                    <td className="px-2 py-1 border text-xs text-gray-600">
                       {new Date(r.last_rejected_at).toLocaleDateString()}
                     </td>
                   </tr>
@@ -161,13 +223,15 @@ export default function CRMOrderDetailPage() {
               </tbody>
             </table>
           ) : (
-            <div className="text-gray-500 italic text-sm">No previous rejections</div>
+            <div className="text-gray-500 italic text-sm">
+              No previous rejections
+            </div>
           )}
         </div>
 
         {/* Main Table */}
-        <div className="md:col-span-3 overflow-x-auto shadow rounded">
-          <table className="w-full border border-gray-200 text-sm text-left">
+        <div className="md:col-span-3 overflow-x-auto shadow rounded p-3">
+          <table className="w-full border text-sm text-left">
             <thead className="bg-gray-100 text-gray-700 uppercase">
               <tr>
                 <th className="px-4 py-3 border">Product</th>
@@ -181,16 +245,19 @@ export default function CRMOrderDetailPage() {
                 <th className="px-4 py-3 text-center border">Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {editedItems.map((item) => {
-                const productData = allProducts.find((p) => p.product_id === item.product);
+                const productData = allProducts.find(
+                  (p) => p.product_id === item.product
+                );
                 return (
                   <tr key={item.product} className="hover:bg-gray-50 bg-white">
-                    <td className="px-4 py-2 border">
-                      <div className="flex">
-                        {item.product_name}
-                        {item.is_scheme_item && <FaGift className="mx-2 text-orange-500" />}
-                      </div>
+                    <td className="px-4 py-2 border gap-2">
+                      {item.product_name}
+                      {item.is_scheme_item && (
+                        <FaGift className="text-orange-500" />
+                      )}
                     </td>
                     <td className="px-4 py-2 border text-center">
                       {item.original_quantity}
@@ -201,144 +268,122 @@ export default function CRMOrderDetailPage() {
                         min="0"
                         step="1"
                         value={item.quantity === "" ? "" : item.quantity}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          // allow empty for backspace
-                          if (val === "") {
-                            handleEditQuantity(item.product, "");
-                            return;
-                          }
-                          // only allow valid non-negative integers
-                          const num = parseInt(val, 10);
-                          if (!isNaN(num) && num >= 0) {
-                            handleEditQuantity(item.product, num);
-                          }
-                        }}
+                        onChange={(e) =>
+                          handleEditQuantity(item.product, e.target.value)
+                        }
                         className="border rounded-lg p-1 w-20 text-center"
                       />
                     </td>
-
-                    <td className="px-4 py-2 border  text-center bg-red-300">
+                    <td className="px-4 py-2 border text-center bg-red-300">
                       {item.ss_virtual_stock}
                     </td>
-                    <td className="px-4 py-2 border  text-center font-medium bg-red-300">
+                    <td className="px-4 py-2 border text-center bg-red-300">
                       {productData?.virtual_stock ?? "-"}
                     </td>
-                    <td className="px-4 py-2 border  text-center font-medium ">
+                    <td className="px-4 py-2 border text-center">
                       {productData?.cartoon_size ?? "-"}
                     </td>
-
-                    <td className="px-4 py-2 border text-center font-medium">
+                    <td className="px-4 py-2 border text-center">
                       {productData?.price ?? "-"}
                     </td>
-                    <td className="px-4 py-2 border text-center font-medium bg-blue-100">
-                      ₹{(Number(item.quantity) * Number(productData?.price || 0)).toFixed(1)}
+                    <td className="px-4 py-2 border text-center bg-blue-100">
+                      ₹
+                      {(
+                        (Number(item.quantity) || 0) *
+                        (Number(productData?.price) || 0)
+                      ).toFixed(1)}
                     </td>
-
-                    <td className="px-4 py-2 border  text-center">
+                    <td className="px-4 py-2 border text-center">
                       <button
                         onClick={() => {
                           setItemToDelete(item.product);
                           setShowDeleteModal(true);
                         }}
-                        className="text-red-600 hover:text-red-800 cursor-pointer"
+                        className="text-red-600 hover:text-red-800"
                       >
                         <Trash2 size={18} />
                       </button>
                     </td>
                   </tr>
-                  
                 );
               })}
-<tr className="bg-gray-100 font-bold text-gray-800">
-  <td colSpan="7" className="px-4 py-2 text-right border border-gray-300">
-    Grand Total:
-  </td>
-  <td className="px-4 py-2 text-center border border-gray-300">
-    ₹
-    {editedItems
-      .reduce((sum, item) => {
-        const productData = allProducts.find((p) => p.product_id === item.product);
-        const rawPrice = productData?.price;
 
-        // ❌ अगर price नहीं है तो skip करो
-        if (
-          rawPrice === null ||
-          rawPrice === undefined ||
-          rawPrice === "" ||
-          isNaN(Number(rawPrice))
-        ) {
-          return sum;
-        }
-
-        const price = Number(rawPrice);
-        const qty = Number(item.quantity) || 0;
-        return sum + price * qty;
-      }, 0)
-      .toFixed(1)}
-  </td>
-  <td className="border border-gray-300"></td>
-</tr>
-
-
-              {/* New Row */}
-              {newRow && (
-                <tr className="bg-gray-100">
-                  <td className="px-4 py-2 border border-gray-200 relative">
-                    <ProductSearchSelect
-                      value={newRow.product}
-                      onChange={(id) => setNewRow((prev) => ({ ...prev, product: id }))}
-                    />
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 text-center">—</td>
-                  <td className="px-4 py-2 border border-gray-200 text-center">
-                    <input
-                      type="number"
-                      min="1"
-                      value={newRow.quantity}
-                      onChange={(e) =>
-                        setNewRow((prev) => ({ ...prev, quantity: +e.target.value }))
-                      }
-                      className="border rounded-lg p-1 w-20 text-center"
-                    />
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 text-center text-gray-400 italic">
-                    —
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 text-center text-gray-400 italic">
-                    —
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 text-center">
-                    <button
-                      onClick={handleSaveNewRow}
-                      className="text-green-600 border px-2 rounded p-1 hover:bg-gray-300 mr-2 cursor-pointer"
-                    >
-                      Save
-                    </button>
-                  </td>
-                </tr>
-              )}
-
-              {/* Add Row */}
-              <tr>
-                <td colSpan="6" className="text-center p-1">
-                  <button
-                    onClick={handleAddRow}
-                    className="flex items-center rounded border p-2 cursor-pointer justify-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    <Plus size={18} /> Add Item
-                  </button>
+              {/* Grand Total */}
+              <tr className="bg-gray-100 font-bold text-gray-800">
+                <td colSpan="7" className="px-4 py-2 text-right border">
+                  Grand Total:
                 </td>
+                <td colSpan="2" className="px-4 py-2 border">
+                  ₹
+                  {editedItems
+                    .reduce((sum, item) => {
+                      const productData = allProducts.find(
+                        (p) => p.product_id === item.product
+                      );
+                      const rawPrice = productData?.price;
+                      if (
+                        rawPrice === null ||
+                        rawPrice === undefined ||
+                        rawPrice === "" ||
+                        isNaN(Number(rawPrice))
+                      )
+                        return sum;
+                      const price = Number(rawPrice);
+                      const qty = Number(item.quantity) || 0;
+                      return sum + price * qty;
+                    }, 0)
+                    .toFixed(1)}
+                </td>
+               
               </tr>
             </tbody>
           </table>
 
-          {/* Action Button */}
+          {/* 🔍 Add Product */}
+          <div className="mt-6 border-t pt-4">
+            <label className="block text-sm font-medium mb-2">
+              Add Product
+            </label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setHighlightIndex(-1);
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder="Search product and press Enter..."
+              className="border rounded px-3 py-2 w-full mb-2"
+            />
+
+            {searchTerm && (
+              <div className="max-h-60 overflow-y-auto border rounded shadow bg-white">
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((prod, index) => (
+                    <div
+                      key={prod.product_id}
+                      className={`px-3 py-2 cursor-pointer ${highlightIndex === index
+                        ? "bg-blue-100"
+                        : "hover:bg-gray-100"
+                        }`}
+                      onClick={() => handleAddProductBySearch(prod)}
+                    >
+                      {prod.product_name}
+                    </div>
+                  ))
+                ) : (
+                  <p className="px-3 py-2 text-gray-500">No products found</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ✅ Submit */}
           <div className="mt-6 p-4 flex justify-center">
             <button
               onClick={() => setShowConfirmModal(true)}
               disabled={loadingApprove}
-              className={`flex items-center justify-center gap-2 px-6 py-2 cursor-pointer rounded-lg text-white shadow-md transition ${loadingApprove
+              className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md ${loadingApprove
                 ? "bg-blue-400 cursor-not-allowed"
                 : "bg-blue-500 hover:bg-green-600"
                 }`}
@@ -346,6 +391,8 @@ export default function CRMOrderDetailPage() {
               {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
               Submit
             </button>
+
+
           </div>
         </div>
       </div>
@@ -353,7 +400,7 @@ export default function CRMOrderDetailPage() {
       {/* Confirm Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-80 animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-80">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">
               Confirm Order Submission
             </h3>
@@ -363,7 +410,7 @@ export default function CRMOrderDetailPage() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowConfirmModal(false)}
-                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 cursor-pointer"
+                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700"
               >
                 Cancel
               </button>
@@ -372,7 +419,7 @@ export default function CRMOrderDetailPage() {
                   handleVerify();
                   setShowConfirmModal(false);
                 }}
-                className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white cursor-pointer"
+                className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white"
               >
                 Yes, Submit
               </button>
@@ -383,8 +430,8 @@ export default function CRMOrderDetailPage() {
 
       {/* Delete Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-80 animate-fadeIn">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-80">
             <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <Trash2 className="text-red-500" /> Delete Item?
             </h3>
@@ -394,7 +441,7 @@ export default function CRMOrderDetailPage() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 cursor-pointer"
+                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700"
               >
                 Cancel
               </button>
@@ -403,7 +450,7 @@ export default function CRMOrderDetailPage() {
                   handleDeleteItem(itemToDelete);
                   setShowDeleteModal(false);
                 }}
-                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white"
               >
                 Yes, Delete
               </button>

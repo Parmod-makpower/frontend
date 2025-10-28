@@ -6,6 +6,7 @@ import autoTable from "jspdf-autotable";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { punchOrderToSheet } from "../../api/punchApi";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
+import PDFDownloadButton from "../../components/PDFDownloadButton";
 
 function ConfirmationModal({ isOpen, onClose, onConfirm }) {
   if (!isOpen) return null;
@@ -52,7 +53,6 @@ function Table({ title, items }) {
               <th className="p-3 border">Cartoon</th>
               <th className="p-3 border">Price</th>
               <th className="p-3 border">Total</th>
-              <th className="p-3 border">SS-Stock</th>
               <th className="p-3 border">Stock</th>
             </tr>
           </thead>
@@ -74,7 +74,7 @@ function Table({ title, items }) {
                       <td className="p-3 border">
                         ₹{total.toFixed(1)}
                       </td>
-                      <td className="p-3 border bg-red-100">{r.ss_virtual_stock}</td>
+                      {/* <td className="p-3 border bg-red-100">{r.ss_virtual_stock}</td> */}
                       <td className="p-3 border bg-red-100">{r.virtual_stock ?? "-"}</td>
                     </tr>
                   );
@@ -83,7 +83,7 @@ function Table({ title, items }) {
                 {/* ✅ Grand Total Row */}
                 <tr className="bg-blue-100 font-semibold">
                   <td colSpan={4} className="p-3 border text-right">Grand Total</td>
-                  <td className="p-3 border">
+                  <td colSpan={2} className="p-3 border">
                     ₹
                     {items
                       .reduce(
@@ -92,8 +92,7 @@ function Table({ title, items }) {
                       )
                       .toFixed(1)}
                   </td>
-                  <td className="p-3 border"></td>
-                  <td className="p-3 border"></td>
+
                 </tr>
               </>
             ) : (
@@ -290,122 +289,6 @@ export default function CRMVerifiedDetailsPage() {
     doc.save(`${orderCode}.pdf`);
   };
 
-const generateCRMVerifiedPDF = () => {
-  const doc = new jsPDF({ unit: "pt", format: "a4" });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 40;
-
-  // === Border ===
-  doc.setLineWidth(1);
-  doc.rect(margin / 2, margin / 2, pageWidth - margin, pageHeight - margin);
-
-  // === Header ===
-  doc.setFontSize(20);
-  doc.setFont("times", "bold");
-  doc.setTextColor(50, 50, 50);
-  doc.text("MAK", margin, 50);
-  doc.setTextColor(210, 0, 0);
-  doc.text("POWER", margin + doc.getTextWidth("MAK"), 50);
-
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(0, 0, 0);
-  doc.text("CRM Verified Order", pageWidth / 2, 70, { align: "center" });
-
-  // === Order Info Box ===
-  const startY = 90;
-  const boxX = margin;
-  const boxWidth = pageWidth - 2 * margin;
-  doc.rect(boxX, startY, boxWidth, 60);
-
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Order ID: ${order.order_id}`, boxX + 10, startY + 20);
-  doc.text(`CRM: ${order.crm_name}`, boxX + 10, startY + 35);
-  doc.text(`Party: ${order.ss_party_name}`, boxX + 10, startY + 50);
-
-  doc.text(
-    `Verified At: ${new Date(order.verified_at).toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-    })}`,
-    pageWidth / 2 + 20,
-    startY + 20
-  );
-
-  // === Table Data (Cartoon हटाया गया) ===
-  const tableData = enrichedItems.map((item, idx) => {
-    const total = Number(item.quantity) * Number(item.price || 0);
-    return [idx + 1, item.product_name, item.quantity, `${total.toFixed(1)}`];
-  });
-
-  // === Grand Total Calculation ===
-  const grandTotal = enrichedItems.reduce(
-    (sum, item) => sum + Number(item.quantity) * Number(item.price || 0),
-    0
-  );
-
-  // === Table ===
-  autoTable(doc, {
-    startY: startY + 80,
-    margin: { left: margin, right: margin },
-    head: [["S.No", "Product Name", "Quantity", "Total"]],
-    body: tableData,
-    theme: "grid",
-    styles: { fontSize: 11, cellPadding: 6 },
-    headStyles: {
-      fillColor: [41, 128, 185],
-      textColor: [255, 255, 255],
-      fontStyle: "bold",
-      halign: "center",
-    },
-    columnStyles: {
-      0: { cellWidth: 40, halign: "center" },
-      1: { halign: "left" },
-      2: { cellWidth: 80, halign: "center" },
-      3: { cellWidth: 80, halign: "center" },
-    },
-    didDrawPage: function (data) {
-      if (data.pageNumber === doc.internal.getNumberOfPages()) {
-        // हल्का सा margin (10px → 25px किया गया)
-        const finalY = data.cursor.y + 25;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.text(
-          `Grand Total: Rs.${grandTotal.toFixed(1)}`,
-          pageWidth - margin - 150,
-          finalY
-        );
-      }
-    },
-  });
-
-  // === Footer ===
-  const footerMargin = 30;
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "italic");
-  doc.text(
-    `Generated On: ${new Date().toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-    })}`,
-    pageWidth - margin,
-    pageHeight - footerMargin,
-    { align: "right" }
-  );
-
-  // === Page Numbers ===
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - footerMargin, {
-      align: "center",
-    });
-  }
-
-  // === Save File ===
-  doc.save(`${order.order_id}_ss_order.pdf`);
-};
-
 
   const handleOrderPunch = () => {
     if (!order?.items?.length) {
@@ -471,19 +354,16 @@ const generateCRMVerifiedPDF = () => {
             <>
               <button
                 onClick={handleDownloadPDF}
-                className="flex items-center gap-1 px-3 py-1 rounded border bg-green-600 text-white hover:bg-green-700 transition cursor-pointer"
+                className="flex items-center gap-1 px-3 py-1 rounded border bg-orange-600 text-white hover:bg-orange-700 transition cursor-pointer"
               >
                 Dispatch PDF
               </button>
 
             </>
           )}
-          <button
-            onClick={generateCRMVerifiedPDF}
-            className="flex items-center gap-1 px-3 py-1 rounded border bg-orange-600 text-white hover:bg-green-700 transition cursor-pointer"
-          >
-            SS PDF
-          </button>
+
+          <PDFDownloadButton order={order} items={enrichedItems} />
+
         </div>
       </div>
 
