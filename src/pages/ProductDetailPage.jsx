@@ -171,10 +171,10 @@ export default function ProductDetailPage() {
                 <p className="text-gray-800">{product.sub_category || "N/A"}</p>
               </div>
               {product.cartoon_size != null && product.cartoon_size !== "" && (
-              <div>
-                <p className="font-medium text-gray-500">Cartoon Size</p>
-                <p className="text-gray-800">{product.cartoon_size || "-"}</p>
-              </div>
+                <div>
+                  <p className="font-medium text-gray-500">Cartoon Size</p>
+                  <p className="text-gray-800">{product.cartoon_size || "-"}</p>
+                </div>
               )}
               {product.guarantee != null && product.guarantee !== "nan" && (
                 <div>
@@ -241,7 +241,9 @@ export default function ProductDetailPage() {
       {/* ✅ Sticky Bottom Add to Cart Bar with Quantity / Cartoon Handling */}
       {user?.role === "SS" && (
         <div className="left-0 w-full bg-white p-3 flex gap-3 z-50">
-          {!isInCart ? (
+          {product.sub_category === "GIFT ITEM" || product.sub_category === "Z GIFT ITEM" ? (
+           <></>
+          ) : !isInCart ? (
             <button
               onClick={handleAddToCart}
               className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg transition-all duration-300"

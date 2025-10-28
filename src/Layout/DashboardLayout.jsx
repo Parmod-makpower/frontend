@@ -12,8 +12,8 @@ import {
   FaShoppingCart,
   FaList,
   FaPlus,
-  FaCheck,FaBoxOpen,
-  FaSignOutAlt,FaChartLine, 
+  FaCheck, FaBoxOpen,
+  FaSignOutAlt, FaChartLine,
   FaHourglassHalf,
   FaBan
 } from "react-icons/fa";
@@ -149,7 +149,7 @@ export default function DashboardLayout() {
       { label: "Sale Name", path: "/sale-name", icon: <FaBox /> },
       { label: "Schemes", path: "/schemes", icon: <FaGift /> },
       { label: "CRM", path: "/admin/crm", icon: <FaUsers /> },
-      { label: "Pending Orders", path: "/admin/pending-orders", icon: <FaHourglassHalf/> },
+      { label: "Pending Orders", path: "/admin/pending-orders", icon: <FaHourglassHalf /> },
       { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> }
     );
   }
@@ -161,7 +161,7 @@ export default function DashboardLayout() {
       // { label: "Create Orders", path: "/crm/create-order", icon: <FaBoxOpen /> },
       { label: "New Orders", path: "/crm/orders", icon: <FaBox /> },
       { label: "History", path: "/all/orders-history", icon: <FaHistory /> },
-      { label: "Stock", path: "/available-stock", icon: <FaChartLine  /> }
+      { label: "Stock", path: "/available-stock", icon: <FaChartLine /> }
     );
   }
   if (user.role === "SS") {
@@ -255,7 +255,14 @@ export default function DashboardLayout() {
                           {isAdded(p.id) ? (
                             <FaCheck className="text-green-600 text-sm" />
                           ) : (
-                            <FaPlus className="text-sm" />
+                            !isAdded(p.id) && p.sub_category !== "GIFT ITEM" && p.sub_category !== "Z GIFT ITEM" && (
+                              <button
+                                onClick={() => handleAddProduct(p)}
+                                className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
+                              >
+                                <FaPlus className="text-sm" />
+                              </button>
+                            )
                           )}
                         </button>
                       )}
