@@ -1,7 +1,7 @@
 // 📁 src/pages/SearchBarPage.jsx
 import { useEffect, useState, useRef, useMemo } from "react";
 import { IoChevronBack } from "react-icons/io5";
-import { FaPlus, FaGift, FaCheck } from "react-icons/fa";
+import { FaPlus, FaGift } from "react-icons/fa";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSchemes } from "../hooks/useSchemes";
 import { FixedSizeList as List } from "react-window";
@@ -25,7 +25,8 @@ const normalizeProduct = (product) => ({
 
 export default function SearchBarPage() {
   const { user } = useAuth();
-  const { selectedProducts, addProduct, updateQuantity, updateCartoon, cartoonSelection } = useSelectedProducts();
+  const { selectedProducts, addProduct, updateQuantity, updateCartoon, cartoonSelection } =
+    useSelectedProducts();
 
   const [searchTerm, setSearchTerm] = useState("");
   const searchRef = useRef();
@@ -43,40 +44,39 @@ export default function SearchBarPage() {
     [allProductsRaw]
   );
 
-  // 🔍 Debounced Fuse search
+  // 🔍 Fuse search
   const fuseResults = useFuseSearch(allProducts, searchTerm, {
-    keys: ["sub_category", "product_name"],
+    keys: ["sub_category", "product_name", "sale_names"],
     threshold: 0.3,
   });
 
-  const searchResults = useMemo(() => {
-    return fuseResults.flatMap((product) => {
-      const matchedSaleNames =
-        product.sale_names?.filter((name) =>
-          name.toLowerCase().includes(searchTerm.toLowerCase())
-        ) || [];
+ // ✅ Simplified searchResults: No duplicate products for multiple sale_names
+const searchResults = useMemo(() => {
+  const uniqueResults = new Map();
 
-      const results = [];
+  fuseResults.forEach((product) => {
+    const lowerSearch = searchTerm.toLowerCase();
 
-      if (matchedSaleNames.length > 0) {
-        matchedSaleNames.forEach((sale_name) => {
-          results.push({
-            ...product,
-            _matchType: "sale_name",
-            _displayName: sale_name,
-          });
-        });
-      } else {
-        results.push({
-          ...product,
-          _matchType: "product_or_category",
-          _displayName: product.product_name,
-        });
-      }
+    const matchedSaleName = product.sale_names?.find((name) =>
+      name.toLowerCase().includes(lowerSearch)
+    );
 
-      return results;
-    });
-  }, [fuseResults, searchTerm]);
+    const matchFound =
+      product.product_name?.toLowerCase().includes(lowerSearch) ||
+      product.sub_category?.toLowerCase().includes(lowerSearch) ||
+      !!matchedSaleName;
+
+    if (matchFound) {
+      uniqueResults.set(product.id, {
+        ...product,
+        _displayName: matchedSaleName || product.product_name,
+      });
+    }
+  });
+
+  return Array.from(uniqueResults.values());
+}, [fuseResults, searchTerm]);
+
 
   const hasScheme = (productId) =>
     schemes.some(
@@ -90,9 +90,10 @@ export default function SearchBarPage() {
   const handleAddProduct = (product) => {
     if (!isAdded(product.id)) {
       const moq = product.moq || 1;
-      const initialQty = product.cartoon_size && product.cartoon_size > 1
-        ? product.cartoon_size
-        : moq;
+      const initialQty =
+        product.cartoon_size && product.cartoon_size > 1
+          ? product.cartoon_size
+          : moq;
       addProduct({ ...product, quantity: initialQty });
     }
   };
@@ -100,7 +101,7 @@ export default function SearchBarPage() {
   const Row = ({ index, style }) => {
     const p = normalizeProduct(searchResults[index]);
     const selectedItem = selectedProducts.find((x) => x.id === p.id);
-    const hasCartoon = selectedItem?.quantity_type == "CARTOON";
+    const hasCartoon = selectedItem?.quantity_type === "CARTOON";
 
     return (
       <div
@@ -125,7 +126,10 @@ export default function SearchBarPage() {
               </span>
             )}
             {hasScheme(p.id) && (
-              <FaGift title="Scheme Available" className="text-pink-500 text-xs animate-pulse" />
+              <FaGift
+                title="Scheme Available"
+                className="text-pink-500 text-xs animate-pulse"
+              />
             )}
           </div>
 
@@ -139,7 +143,7 @@ export default function SearchBarPage() {
           </span>
         </div>
 
-        {/* 👉 Right Side: Add/Quantity Control */}
+        {/* 👉 Right Side: Add / Quantity Control */}
         {user?.role === "SS" && (
           <div className="ml-3 flex items-center">
             {isAdded(p.id) ? (
@@ -147,7 +151,9 @@ export default function SearchBarPage() {
                 {hasCartoon ? (
                   <select
                     value={cartoonSelection[selectedItem.id] || 1}
-                    onChange={(e) => updateCartoon(selectedItem.id, parseInt(e.target.value))}
+                    onChange={(e) =>
+                      updateCartoon(selectedItem.id, parseInt(e.target.value))
+                    }
                     className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                   >
                     {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
@@ -155,13 +161,14 @@ export default function SearchBarPage() {
                         {n} CTN
                       </option>
                     ))}
-
                   </select>
                 ) : (
                   <input
                     type="number"
                     min={1}
-                    value={selectedItem.quantity === "" ? "" : selectedItem.quantity}
+                    value={
+                      selectedItem.quantity === "" ? "" : selectedItem.quantity
+                    }
                     onChange={(e) => {
                       const val = e.target.value;
                       if (val === "") {
@@ -172,7 +179,8 @@ export default function SearchBarPage() {
                       const parsed = parseInt(val);
                       if (!isNaN(parsed)) {
                         updateQuantity(selectedItem.id, parsed);
-                        selectedItem.showMoqError = parsed < (selectedItem.moq || 1);
+                        selectedItem.showMoqError =
+                          parsed < (selectedItem.moq || 1);
                       }
                     }}
                     onBlur={() => {
@@ -183,19 +191,23 @@ export default function SearchBarPage() {
                         selectedItem.showMoqError = false;
                       }
                     }}
-                    className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${selectedItem.showMoqError ? "border-red-400" : ""}`}
+                    className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${
+                      selectedItem.showMoqError ? "border-red-400" : ""
+                    }`}
                   />
                 )}
               </>
             ) : (
-               !isAdded(p.id) && p.sub_category !== "GIFT ITEM" && p.sub_category !== "Z GIFT ITEM" && (
-        <button
-          onClick={() => handleAddProduct(p)}
-          className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
-        >
-          <FaPlus className="text-sm" />
-        </button>
-      )
+              !isAdded(p.id) &&
+              p.sub_category !== "GIFT ITEM" &&
+              p.sub_category !== "Z GIFT ITEM" && (
+                <button
+                  onClick={() => handleAddProduct(p)}
+                  className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
+                >
+                  <FaPlus className="text-sm" />
+                </button>
+              )
             )}
           </div>
         )}
@@ -206,10 +218,10 @@ export default function SearchBarPage() {
   return (
     <div className="flex flex-col h-screen max-h-screen bg-white">
       {/* 🔍 Fixed Top Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out flex items-center gap-2">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow flex items-center gap-2">
         <button
           onClick={() => window.history.back()}
-          className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
+          className="text-gray-700 hover:text-blue-600 text-2xl font-bold px-1 transition-transform hover:scale-105"
           aria-label="Back"
         >
           <IoChevronBack />
@@ -219,20 +231,24 @@ export default function SearchBarPage() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          maxLength={20}
-          placeholder="Search by product or category..."
+          maxLength={25}
+          placeholder="Search by product, sale name, or category..."
           className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
         />
       </div>
 
       {/* 🔍 Scrollable Results */}
-      <div className="flex-1 pt-[60px] sm:pt-4 overflow-y-auto px-1 sm:px-2">
+      <div className="flex-1 pt-[60px] overflow-y-auto px-1 sm:px-2">
         {isLoading ? (
           <Loader />
         ) : searchTerm.trim().length === 0 ? (
-          <p className="text-center text-gray-500 py-10">Search to see results</p>
+          <p className="text-center text-gray-500 py-10">
+            Search to see results
+          </p>
         ) : searchResults.length === 0 ? (
-          <p className="text-center text-gray-500 py-10">No matching products found.</p>
+          <p className="text-center text-gray-500 py-10">
+            No matching products found.
+          </p>
         ) : (
           <List
             height={window.innerHeight - 100}

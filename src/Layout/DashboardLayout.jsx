@@ -62,37 +62,30 @@ export default function DashboardLayout() {
     threshold: 0.3,
   });
 
-  const searchResults = useMemo(() => {
-    return fuseResults.flatMap((product) => {
-      const matchedSaleNames =
-        product.sale_names?.filter((name) =>
-          name.toLowerCase().includes(searchTerm.toLowerCase())
-        ) || [];
+const searchResults = useMemo(() => {
+  const uniqueResults = new Map();
+  const lowerSearch = searchTerm.toLowerCase();
 
-      const results = [];
+  fuseResults.forEach((product) => {
+    const matchedSaleName = product.sale_names?.find((name) =>
+      name.toLowerCase().includes(lowerSearch)
+    );
 
-      // अगर sale_name मिले तो उन्हें अलग से जोड़ें
-      if (matchedSaleNames.length > 0) {
-        matchedSaleNames.forEach((sale_name) => {
-          results.push({
-            ...product,
-            _matchType: "sale_name",
-            _displayName: sale_name,
-          });
-        });
-      } else {
-        // वरना product_name या sub_category के मैच को दिखाएं
-        results.push({
-          ...product,
-          _matchType: "product_or_category",
-          _displayName: product.product_name,
-        });
-      }
+    const matchFound =
+      product.product_name?.toLowerCase().includes(lowerSearch) ||
+      product.sub_category?.toLowerCase().includes(lowerSearch) ||
+      !!matchedSaleName;
 
-      return results;
-    });
-  }, [fuseResults, searchTerm]);
+    if (matchFound) {
+      uniqueResults.set(product.id, {
+        ...product,
+        _displayName: matchedSaleName || product.product_name,
+      });
+    }
+  });
 
+  return Array.from(uniqueResults.values());
+}, [fuseResults, searchTerm]);
 
   // Limit results
   const searchResultsLimited = searchResults.slice(0, 6);
