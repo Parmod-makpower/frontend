@@ -310,8 +310,7 @@ export default function CRMVerifiedDetailsPage() {
       if (data.success) {
         // ✅ दोनों PDFs जनरेट करो
         handleDownloadPDF();
-        generateCRMVerifiedPDF();
-
+       
         setTimeout(() => {
           navigate("/all/orders-history");
         }, 500);
