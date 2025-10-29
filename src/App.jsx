@@ -42,6 +42,7 @@ import BatteryPage from "./pages/BatteryPage";
 import CRMCreateOrderPage from "./pages/CRM/CRMCreateOrderPage";
 import SSPendingOrders from "./pages/ADMIN/SSPendingOrders";
 import SSPendingOrderItems from "./pages/ADMIN/SSPendingOrderItems";
+import CargoDetailsPage from "./pages/ADMIN/CargoDetailsPage";
 
 
 export default function App() {
@@ -109,6 +110,7 @@ export default function App() {
             <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm/></ProtectedRoute>} />
             <Route path="/admin/pending-orders" element={<ProtectedRoute allowedRoles={['ADMIN']}><SSPendingOrders /></ProtectedRoute>} />
             <Route path="/admin/pending-orders/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SSPendingOrderItems /></ProtectedRoute>} />
+            <Route path="/cargo-details" element={<ProtectedRoute ><CargoDetailsPage /></ProtectedRoute>} />
            
 
             <Route path="/crm-ss/add" element={<ProtectedRoute allowedRoles={['CRM']}><CRMSSFormPage /></ProtectedRoute>} />
