@@ -13,6 +13,7 @@ export default function PDFDownloadButton({ order, items = [] }) {
       ...item,
       price: item.price ?? 0,
       product_name: item.product_name ?? "Unnamed Product",
+      ss_virtual_stock: item.ss_virtual_stock ?? 0,
     }));
 
     const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -51,26 +52,34 @@ export default function PDFDownloadButton({ order, items = [] }) {
 
     // === Table Data ===
     const tableData = enrichedItems.map((item, idx) => {
-      const total = Number(item.quantity) * Number(item.price || 0);
+      const stockStatus =
+        item.ss_virtual_stock > 0 ? "Available" : "Not Available";
+
+      const total =
+        item.ss_virtual_stock > 0
+          ? Number(item.quantity) * Number(item.price || 0)
+          : 0;
+
       return [
         idx + 1,
         item.product_name,
         item.quantity,
+        stockStatus, // 👈 yaha status dikhayenge (Available/Not Available)
         `${total.toFixed(1)}`,
       ];
     });
 
-    // === Grand Total ===
-    const grandTotal = enrichedItems.reduce(
-      (sum, item) => sum + Number(item.quantity) * Number(item.price || 0),
-      0
-    );
+    // === Grand Total (skip SS stock = 0 items) ===
+    const grandTotal = enrichedItems.reduce((sum, item) => {
+      if (item.ss_virtual_stock <= 0) return sum;
+      return sum + Number(item.quantity) * Number(item.price || 0);
+    }, 0);
 
     // === Table ===
     autoTable(doc, {
       startY: startY + 80,
       margin: { left: margin, right: margin },
-      head: [["S.No", "Product Name", "Quantity", "Total"]],
+      head: [["S.No", "Product Name", "Qty", "SS Stock Status", "Total"]],
       body: tableData,
       theme: "grid",
       styles: { fontSize: 11, cellPadding: 6 },
@@ -83,12 +92,20 @@ export default function PDFDownloadButton({ order, items = [] }) {
       columnStyles: {
         0: { cellWidth: 40, halign: "center" },
         1: { halign: "left" },
-        2: { cellWidth: 80, halign: "center" },
-        3: { cellWidth: 80, halign: "center" },
+        2: { cellWidth: 70, halign: "center" },
+        3: { cellWidth: 100, halign: "center" },
+        4: { cellWidth: 80, halign: "center" },
       },
       didParseCell: function (data) {
-        if (data.section === "body" && data.column.index === 2) {
-          data.cell.styles.fillColor = [255, 255, 204]; // light yellow
+        if (data.section === "body" && data.column.index === 3) {
+          const text = data.cell.text[0];
+          if (text === "Not Available") {
+            data.cell.styles.textColor = [255, 0, 0]; // लाल रंग
+            data.cell.styles.fillColor = [255, 220, 220];
+          } else if (text === "Available") {
+            data.cell.styles.textColor = [0, 150, 0]; // हरा रंग
+            data.cell.styles.fillColor = [220, 255, 220];
+          }
         }
       },
     });
@@ -98,7 +115,7 @@ export default function PDFDownloadButton({ order, items = [] }) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text(
-      `Grand Total: ${grandTotal.toFixed(1)}`,
+      `Estimate Total: ${grandTotal.toFixed(1)}`,
       pageWidth - margin - 150,
       finalY
     );
@@ -109,11 +126,9 @@ export default function PDFDownloadButton({ order, items = [] }) {
 
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
-
       doc.setFontSize(10);
       doc.setFont("helvetica", "italic");
 
-      // Footer text
       doc.text(
         `Generated On: ${new Date().toLocaleString("en-IN", {
           timeZone: "Asia/Kolkata",
@@ -123,7 +138,6 @@ export default function PDFDownloadButton({ order, items = [] }) {
         { align: "right" }
       );
 
-      // Page numbers
       doc.text(
         `Page ${i} of ${pageCount}`,
         pageWidth / 2,
@@ -132,7 +146,6 @@ export default function PDFDownloadButton({ order, items = [] }) {
       );
     }
 
-    // === Save PDF ===
     doc.save(`${order.order_id}_crm_verified.pdf`);
   };
 

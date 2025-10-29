@@ -288,11 +288,14 @@ export default function CRMOrderDetailPage() {
                     </td>
                     <td className="px-4 py-2 border text-center bg-blue-100">
                       ₹
-                      {(
-                        (Number(item.quantity) || 0) *
-                        (Number(productData?.price) || 0)
-                      ).toFixed(1)}
+                      {item.ss_virtual_stock > 0
+                        ? (
+                          (Number(item.quantity) || 0) *
+                          (Number(productData?.price) || 0)
+                        ).toFixed(1)
+                        : 0}
                     </td>
+
                     <td className="px-4 py-2 border text-center">
                       <button
                         onClick={() => {
@@ -311,30 +314,37 @@ export default function CRMOrderDetailPage() {
               {/* Grand Total */}
               <tr className="bg-gray-100 font-bold text-gray-800">
                 <td colSpan="7" className="px-4 py-2 text-right border">
-                  Grand Total:
+                  Estimate Total:
                 </td>
                 <td colSpan="2" className="px-4 py-2 border">
                   ₹
+
                   {editedItems
                     .reduce((sum, item) => {
                       const productData = allProducts.find(
                         (p) => p.product_id === item.product
                       );
                       const rawPrice = productData?.price;
+
+                      // 🧠 अगर SS stock 0 है तो इस item को skip करो
                       if (
+                        item.ss_virtual_stock <= 0 ||
                         rawPrice === null ||
                         rawPrice === undefined ||
                         rawPrice === "" ||
                         isNaN(Number(rawPrice))
-                      )
+                      ) {
                         return sum;
+                      }
+
                       const price = Number(rawPrice);
                       const qty = Number(item.quantity) || 0;
                       return sum + price * qty;
                     }, 0)
                     .toFixed(1)}
+
                 </td>
-               
+
               </tr>
             </tbody>
           </table>
