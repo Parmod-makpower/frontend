@@ -6,13 +6,14 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FaPlus } from "react-icons/fa";
 import MobilePageHeader from "../../components/MobilePageHeader";
+import { useAuth } from "../../context/AuthContext";
 
 export default function CRMSSListPage() {
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-
+  const { user } = useAuth();
   // ✅ useQuery से users लाना
   const { data: ssList = [], isLoading, error, refetch } = useCachedSSUsers();
 
@@ -78,6 +79,7 @@ export default function CRMSSListPage() {
 
       {/* Users Table */}
       <UserTable
+        user={user}
         list={filteredList}
         onEdit={handleEdit}
         onToggleStatus={handleToggle}

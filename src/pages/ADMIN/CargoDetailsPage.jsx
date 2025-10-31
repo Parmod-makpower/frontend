@@ -7,6 +7,7 @@ import {
 } from "../../hooks/useCargoDetails";
 import { useCachedSSUsers } from "../../auth/useSS";
 import { Loader2, Trash2, Edit3 } from "lucide-react";
+import API from "../../api/axios";
 
 export default function CargoDetailsPage() {
   const { data: cargos, isLoading } = useCargoDetails();
@@ -26,17 +27,22 @@ export default function CargoDetailsPage() {
   });
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData.id) {
-      updateCargo.mutate(formData, {
-        onSuccess: () => resetForm(),
-      });
-    } else {
-      addCargo.mutate(formData, {
-        onSuccess: () => resetForm(),
-      });
-    }
-  };
+  e.preventDefault();
+
+  // 🧠 Prevent duplicate cargo for same user (frontend check)
+  const existing = cargos?.find((c) => c.user === parseInt(formData.user));
+  if (!formData.id && existing) {
+    alert("Cargo details already exist for this user.");
+    return;
+  }
+
+  if (formData.id) {
+    updateCargo.mutate(formData, { onSuccess: () => resetForm() });
+  } else {
+    addCargo.mutate(formData, { onSuccess: () => resetForm() });
+  }
+};
+
 
   const resetForm = () => {
     setFormData({
@@ -60,6 +66,45 @@ export default function CargoDetailsPage() {
     });
   };
 
+  const [file, setFile] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState("");
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const res = await API.get("cargo-details/download-template/", {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "CargoDetailsTemplate.xlsx");
+      document.body.appendChild(link);
+      link.click();
+    } catch (err) {
+      alert("Template download failed!");
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      alert("कृपया पहले फ़ाइल चुनें।");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setUploadStatus("Uploading...");
+      const res = await API.post("cargo-details/upload-excel/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setUploadStatus(`✅ Upload Done — Created: ${res.data.results.created}, Updated: ${res.data.results.updated}, Skipped: ${res.data.results.skipped}`);
+    } catch (err) {
+      setUploadStatus("❌ Upload failed!");
+    }
+  };
+
   if (isLoading || userLoading)
     return (
       <div className="flex justify-center items-center h-screen">
@@ -70,6 +115,33 @@ export default function CargoDetailsPage() {
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-4">Cargo Details Management</h2>
+      {/* Excel Upload/Download Section */}
+      <div className="mt-6 bg-white p-4 rounded shadow flex items-center gap-4">
+        <button
+          onClick={handleDownloadTemplate}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          📥 Download Excel Template
+        </button>
+
+        <input
+          type="file"
+          accept=".xlsx"
+          onChange={(e) => setFile(e.target.files[0])}
+          className="border p-2 rounded"
+        />
+
+        <button
+          onClick={handleUpload}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          📤 Upload Excel
+        </button>
+      </div>
+
+      {uploadStatus && (
+        <p className="mt-2 text-sm text-gray-700">{uploadStatus}</p>
+      )}
 
       {/* Form */}
       <form

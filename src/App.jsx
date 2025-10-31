@@ -113,8 +113,8 @@ export default function App() {
             <Route path="/cargo-details" element={<ProtectedRoute ><CargoDetailsPage /></ProtectedRoute>} />
            
 
-            <Route path="/crm-ss/add" element={<ProtectedRoute allowedRoles={['CRM']}><CRMSSFormPage /></ProtectedRoute>} />
-            <Route path="/crm-ss/list" element={<ProtectedRoute allowedRoles={['CRM']}><CRMSSListPage /></ProtectedRoute>} />
+            <Route path="/crm-ss/add" element={<ProtectedRoute ><CRMSSFormPage /></ProtectedRoute>} />
+            <Route path="/crm-ss/list" element={<ProtectedRoute ><CRMSSListPage /></ProtectedRoute>} />
             <Route path="/crm/create-order" element={<ProtectedRoute allowedRoles={['CRM']}><CRMCreateOrderPage /></ProtectedRoute>} />
             <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
             <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />

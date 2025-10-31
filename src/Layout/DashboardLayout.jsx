@@ -142,8 +142,10 @@ const searchResults = useMemo(() => {
       { label: "Sale Name", path: "/sale-name", icon: <FaBox /> },
       { label: "Schemes", path: "/schemes", icon: <FaGift /> },
       { label: "CRM", path: "/admin/crm", icon: <FaUsers /> },
+      { label: "Super Stockist", path: "/crm-ss/list", icon: <FaUsers /> },
       { label: "Pending Orders", path: "/admin/pending-orders", icon: <FaHourglassHalf /> },
-      { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> }
+      { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> },
+      { label: "Cargos", path: "/cargo-details", icon: <FaBox /> }
     );
   }
   if (user.role === "CRM") {

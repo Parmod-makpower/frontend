@@ -48,6 +48,7 @@ function Table({ title, items }) {
         <table className="min-w-full text-sm text-left text-gray-700 border">
           <thead className="bg-gray-200 text-gray-900 text-sm font-semibold">
             <tr>
+              <th className="p-3 border">S.No</th>
               <th className="p-3 border">Product</th>
               <th className="p-3 border">Qty</th>
               <th className="p-3 border">Cartoon</th>
@@ -64,6 +65,7 @@ function Table({ title, items }) {
                   const total = Number(r.quantity) * Number(r?.price || 0);
                   return (
                     <tr key={idx} className="border-t hover:bg-gray-50 transition-colors">
+                      <td className="p-3 border text-center">{idx + 1}</td> 
                       <td className="p-3 border">{r.product_name}</td>
                       <td className="p-3 border bg-yellow-100">{r.quantity}</td>
                       <td className="p-3 border">{r.cartoon_size ?? "-"}</td>
