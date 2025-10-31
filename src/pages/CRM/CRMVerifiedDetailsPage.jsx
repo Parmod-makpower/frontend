@@ -85,7 +85,7 @@ function Table({ title, items }) {
 
                 {/* ✅ Grand Total Row */}
                 <tr className="bg-blue-100 font-semibold">
-                  <td colSpan={4} className="p-3 border text-right">Grand Total</td>
+                  <td colSpan={5} className="p-3 border text-right">Grand Total</td>
                   <td colSpan={3} className="p-3 border">
                     ₹
                     {items
