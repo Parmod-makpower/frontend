@@ -128,7 +128,7 @@ export default function ConfirmOrderPage() {
                     {!isNaN(Number(item.price)) ? (
                       <span className="flex items-center gap-1 text-gray-700">
                         <FaIndianRupeeSign className="text-gray-400" />
-                        {(Number(item.price) || 0) * (item.quantity || 1)}
+                       {((Number(item.price) || 0) * (item.quantity || 1)).toFixed(1)}
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 text-red-500 text-xs">

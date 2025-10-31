@@ -220,6 +220,7 @@ export default function CargoDetailsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b font-semibold">
+              <th className="p-2 text-left">S.N</th>
               <th className="p-2 text-left">User</th>
               <th className="p-2 text-left">Name</th>
               <th className="p-2 text-left">Mobile</th>
@@ -229,8 +230,9 @@ export default function CargoDetailsPage() {
             </tr>
           </thead>
           <tbody>
-            {cargos?.map((cargo) => (
+            {cargos?.map((cargo, index) => (
               <tr key={cargo.id} className="border-b hover:bg-gray-50">
+                 <td className="p-2">{index + 1}</td>
                 <td className="p-2">{cargo.user_name || "—"}</td>
                 <td className="p-2">{cargo.cargo_name}</td>
                 <td className="p-2">{cargo.cargo_mobile_number}</td>
