@@ -66,7 +66,7 @@ function Table({ title, items }) {
                   const total = Number(r.quantity) * Number(r?.price || 0);
                   return (
                     <tr key={idx} className="border-t hover:bg-gray-50 transition-colors">
-                      <td className="p-3 border text-center">{idx + 1}</td> 
+                      <td className="p-3 border text-center">{idx + 1}</td>
                       <td className="p-3 border">{r.sub_category}</td>
                       <td className="p-3 border">{r.product_name}</td>
                       <td className="p-3 border bg-yellow-100">{r.quantity}</td>
@@ -147,23 +147,23 @@ export default function CRMVerifiedDetailsPage() {
 
   // ✅ Merge order items with virtual stock
   const enrichedItems = useMemo(() => {
-  const merged = order.items.map((item) => {
-    const found = allProducts.find(p => p.product_id === item.product);
-    return {
-      ...item,
-      virtual_stock: found?.virtual_stock ?? null,
-      cartoon_size: found?.cartoon_size ?? "-",
-      sub_category: found?.sub_category ?? "-",
-    };
-  });
+    const merged = order.items.map((item) => {
+      const found = allProducts.find(p => p.product_id === item.product);
+      return {
+        ...item,
+        virtual_stock: found?.virtual_stock ?? null,
+        cartoon_size: found?.cartoon_size ?? "-",
+        sub_category: found?.sub_category ?? "-",
+      };
+    });
 
-  // ✅ Category-wise sorting (alphabetical)
-  return merged.sort((a, b) => {
-    const catA = (a.sub_category || "").toLowerCase();
-    const catB = (b.sub_category || "").toLowerCase();
-    return catA.localeCompare(catB);
-  });
-}, [order.items, allProducts]);
+    // ✅ Category-wise sorting (alphabetical)
+    return merged.sort((a, b) => {
+      const catA = (a.sub_category || "").toLowerCase();
+      const catB = (b.sub_category || "").toLowerCase();
+      return catA.localeCompare(catB);
+    });
+  }, [order.items, allProducts]);
 
 
   const handleDownloadPDF = () => {
@@ -231,6 +231,7 @@ export default function CRMVerifiedDetailsPage() {
     // === Table after box ===
     const tableData = enrichedItems.map((item, idx) => [
       idx + 1,
+      item.sub_category ?? "-",
       item.product_name,
       item.quantity,
       " ",
@@ -241,7 +242,7 @@ export default function CRMVerifiedDetailsPage() {
     autoTable(doc, {
       startY: boxY + totalBoxHeight + 20, // Push table below the dynamic box
       margin: { left: margin, right: margin },
-      head: [["S.No", "Product Name", "Quantity", "", "Cartoon ", "Stock"]],
+      head: [["S.N", "Category", "Product Name", "Quantity", "", "Cartoon ", "Stock"]],
       body: tableData,
       theme: "grid",
       styles: { fontSize: 11, cellPadding: 6 },
@@ -253,17 +254,19 @@ export default function CRMVerifiedDetailsPage() {
       },
       alternateRowStyles: { fillColor: [245, 245, 245] },
       columnStyles: {
-        0: { cellWidth: 40, halign: "center" },
-        1: { cellWidth: pageWidth - margin * 2 - 280, halign: "left" },
-        2: { cellWidth: 60, halign: "center" },
-        3: { cellWidth: 60, halign: "center" },
-        4: { cellWidth: 60, halign: "center" },
-        5: { cellWidth: 60, halign: "center" },
+        0: { cellWidth: 35, halign: "center" }, // S.No
+        1: { cellWidth: 90, halign: "left" },   // Category
+        2: { cellWidth: 160, halign: "left" },  // Product
+        3: { cellWidth: 60, halign: "center" }, // Quantity
+        4: { cellWidth: 60, halign: "center" }, // Empty Column
+        5: { cellWidth: 60, halign: "center" }, // Cartoon
+        6: { cellWidth: 60, halign: "center" }, // Stock
       },
+
       didParseCell: function (data) {
         // सिर्फ body rows पर apply करें
         if (data.row.section === 'body') {
-          if (data.column.index === 4) {
+          if (data.column.index === 5) {
             // Quantity और Cartoon → हल्का yellow
             data.cell.styles.fillColor = [255, 255, 200];
           } else if (data.column.index === 5) {
@@ -323,7 +326,7 @@ export default function CRMVerifiedDetailsPage() {
       if (data.success) {
         // ✅ दोनों PDFs जनरेट करो
         handleDownloadPDF();
-       
+
         setTimeout(() => {
           navigate("/all/orders-history");
         }, 500);
