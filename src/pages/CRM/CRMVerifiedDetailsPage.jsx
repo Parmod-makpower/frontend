@@ -49,6 +49,7 @@ function Table({ title, items }) {
           <thead className="bg-gray-200 text-gray-900 text-sm font-semibold">
             <tr>
               <th className="p-3 border">S.No</th>
+              <th className="p-3 border">Category</th>
               <th className="p-3 border">Product</th>
               <th className="p-3 border">Qty</th>
               <th className="p-3 border">Cartoon</th>
@@ -66,6 +67,7 @@ function Table({ title, items }) {
                   return (
                     <tr key={idx} className="border-t hover:bg-gray-50 transition-colors">
                       <td className="p-3 border text-center">{idx + 1}</td> 
+                      <td className="p-3 border">{r.sub_category}</td>
                       <td className="p-3 border">{r.product_name}</td>
                       <td className="p-3 border bg-yellow-100">{r.quantity}</td>
                       <td className="p-3 border">{r.cartoon_size ?? "-"}</td>
@@ -145,15 +147,24 @@ export default function CRMVerifiedDetailsPage() {
 
   // ✅ Merge order items with virtual stock
   const enrichedItems = useMemo(() => {
-    return order.items.map((item) => {
-      const found = allProducts.find(p => p.product_id === item.product);
-      return {
-        ...item,
-        virtual_stock: found?.virtual_stock ?? null,
-        cartoon_size: found?.cartoon_size ?? "-", // ✅ NEW
-      };
-    });
-  }, [order.items, allProducts]);
+  const merged = order.items.map((item) => {
+    const found = allProducts.find(p => p.product_id === item.product);
+    return {
+      ...item,
+      virtual_stock: found?.virtual_stock ?? null,
+      cartoon_size: found?.cartoon_size ?? "-",
+      sub_category: found?.sub_category ?? "-",
+    };
+  });
+
+  // ✅ Category-wise sorting (alphabetical)
+  return merged.sort((a, b) => {
+    const catA = (a.sub_category || "").toLowerCase();
+    const catB = (b.sub_category || "").toLowerCase();
+    return catA.localeCompare(catB);
+  });
+}, [order.items, allProducts]);
+
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
