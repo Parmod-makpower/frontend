@@ -260,7 +260,7 @@ export default function ProductDetailPage() {
                 >
                   {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
                     <option key={n} value={n}>
-                      {n} Cartoon
+                       {n} Carton = {n * (product.cartoon_size || 1)} Pcs 
                     </option>
                   ))}
                 </select>

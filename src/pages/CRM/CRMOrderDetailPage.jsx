@@ -239,7 +239,7 @@ export default function CRMOrderDetailPage() {
                 <th className="px-4 py-3 text-center border">Approved</th>
                 <th className="px-4 py-3 text-center border">ss-Stock</th>
                 <th className="px-4 py-3 text-center border">Stock</th>
-                <th className="px-4 py-3 text-center border">Cartoon</th>
+                <th className="px-4 py-3 text-center border">Carton</th>
                 <th className="px-4 py-3 text-center border">Price</th>
                 <th className="px-4 py-3 text-center border">Total</th>
                 <th className="px-4 py-3 text-center border">Actions</th>

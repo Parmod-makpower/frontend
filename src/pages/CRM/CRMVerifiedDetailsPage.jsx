@@ -52,7 +52,7 @@ function Table({ title, items }) {
               <th className="p-3 border">Category</th>
               <th className="p-3 border">Product</th>
               <th className="p-3 border">Qty</th>
-              <th className="p-3 border">Cartoon</th>
+              <th className="p-3 border">Carton</th>
               <th className="p-3 border">Price</th>
               <th className="p-3 border">Total</th>
               <th className="p-3 border">SS-Stock</th>
@@ -242,7 +242,7 @@ export default function CRMVerifiedDetailsPage() {
     autoTable(doc, {
       startY: boxY + totalBoxHeight + 20, // Push table below the dynamic box
       margin: { left: margin, right: margin },
-      head: [["S.N", "Category", "Product Name", "Quantity", "", "Cartoon ", "Stock"]],
+      head: [["S.N", "Category", "Product Name", "Quantity", "", "Carton ", "Stock"]],
       body: tableData,
       theme: "grid",
       styles: { fontSize: 11, cellPadding: 6 },
@@ -269,7 +269,7 @@ export default function CRMVerifiedDetailsPage() {
           if (data.column.index === 5) {
             // Quantity और Cartoon → हल्का yellow
             data.cell.styles.fillColor = [255, 255, 200];
-          } else if (data.column.index === 5) {
+          } else if (data.column.index === 6) {
             // Stock → हल्का red
             data.cell.styles.fillColor = [255, 200, 200];
           }

@@ -113,11 +113,11 @@ export default function ProductCard({
                     onChange={(e) =>
                       updateCartoon(selectedItem.id, parseInt(e.target.value))
                     }
-                    className="w-full border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-gray-100 outline-none mt-2"
+                    className="w-full border rounded py-1 ps-2 text-sm focus:ring-2 focus:ring-gray-100 outline-none mt-2"
                   >
                     {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={n}>
-                        {n} Cartoon
+                        {n} Carton = {n * (prod.cartoon_size || 1)} Pcs 
                       </option>
                     ))}
 
