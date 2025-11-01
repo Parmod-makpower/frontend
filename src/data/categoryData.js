@@ -120,8 +120,8 @@ const categories = [
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
       {
-        label: "POLYMER ITEL",
-        keyword: "POLYMER ITEL BATTERY",
+        label: "POLYMER LAVA",
+        keyword: "POLYMER LAVA BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
      
