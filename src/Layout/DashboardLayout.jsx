@@ -198,14 +198,14 @@ export default function DashboardLayout() {
                   {searchResultsLimited.map((p) => (
                     <div
                       key={p.id + p._displayName}
-                     
+
                       className="flex items-center justify-between px-3 py-4 hover:bg-gray-100 cursor-pointer"
                     >
                       <div className="flex flex-col text-sm"
-                       onClick={() => {
-                        navigate(`/product/${p.id}`);
-                        setSearchDropdownOpen(false);
-                      }}
+                        onClick={() => {
+                          navigate(`/product/${p.id}`);
+                          setSearchDropdownOpen(false);
+                        }}
                       >
                         <span className="font-medium flex items-center gap-2">
                           {p._displayName}
@@ -234,7 +234,8 @@ export default function DashboardLayout() {
                         <div className="ml-3 flex items-center">
                           {isAdded(p.id) ? (
                             <>
-                              {cartoonSelection[p.id] ? (
+                              {/* अगर product.quantity_type === "CARTOON" है तो select दिखाओ */}
+                              {p.quantity_type === "CARTOON" ? (
                                 <select
                                   value={cartoonSelection[p.id] || 1}
                                   onChange={(e) =>
@@ -244,7 +245,7 @@ export default function DashboardLayout() {
                                 >
                                   {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
                                     <option key={n} value={n}>
-                                      {n} Carton = {n * (p.cartoon_size || 1)} Pcs
+                                      {n} CTN = {n * (p.cartoon_size || 1)} Pcs
                                     </option>
                                   ))}
                                 </select>
@@ -256,8 +257,19 @@ export default function DashboardLayout() {
                                     selectedProducts.find((x) => x.id === p.id)?.quantity || ""
                                   }
                                   onChange={(e) => {
-                                    const val = parseInt(e.target.value);
-                                    if (!isNaN(val)) updateQuantity(p.id, val);
+                                    const val = e.target.value;
+                                    if (val === "") {
+                                      updateQuantity(p.id, "");
+                                      return;
+                                    }
+                                    const parsed = parseInt(val);
+                                    if (!isNaN(parsed)) updateQuantity(p.id, parsed);
+                                  }}
+                                  onBlur={() => {
+                                    const selectedItem = selectedProducts.find((x) => x.id === p.id);
+                                    const val = parseInt(selectedItem?.quantity);
+                                    const moq = p.moq || 1;
+                                    if (isNaN(val) || val < moq) updateQuantity(p.id, moq);
                                   }}
                                   className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                                 />
@@ -278,6 +290,7 @@ export default function DashboardLayout() {
                               </button>
                             )
                           )}
+
                         </div>
                       )}
                     </div>
