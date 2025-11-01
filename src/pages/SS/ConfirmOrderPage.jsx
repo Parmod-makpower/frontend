@@ -110,12 +110,12 @@ export default function ConfirmOrderPage() {
       <div className="my-6 pt-[60px] sm:pt-0">
         <div className="overflow-auto rounded-lg shadow">
           {/* PDF Download Button */}
-          {/* <div className="flex justify-center mt-4">
+          <div className="flex justify-center">
             <ConfirmOrderPDFButton
               selectedProducts={selectedProducts}
               eligibleSchemes={eligibleSchemes}
             />
-          </div> */}
+          </div>
 
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">

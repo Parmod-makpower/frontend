@@ -1,7 +1,7 @@
 // 📁 src/components/ConfirmOrderPDFButton.jsx
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Download } from "lucide-react";
+import { FaDownload } from "react-icons/fa";
 
 export default function ConfirmOrderPDFButton({ selectedProducts = [], eligibleSchemes = [] }) {
   const handleDownloadPDF = () => {
@@ -127,12 +127,15 @@ export default function ConfirmOrderPDFButton({ selectedProducts = [], eligibleS
   };
 
   return (
-    <button
-      onClick={handleDownloadPDF}
-      className="flex items-center gap-2 bg-green-600 hover:bg-green-700 cursor-pointer text-white px-4 py-2 rounded shadow-md transition-all mx-auto mt-4"
-    >
-      <Download size={18} />
-      Download PDF
-    </button>
+    
+
+<button
+  onClick={handleDownloadPDF}
+  className="flex items-center gap-1 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-md text-sm shadow-sm transition-all mx-auto mb-3"
+>
+  <FaDownload className="text-blue-600 text-sm" />
+  <span>Download PDF</span>
+</button>
+
   );
 }

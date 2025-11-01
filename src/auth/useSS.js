@@ -13,7 +13,7 @@ export const useCachedSSUsers = () => {
     queryKey: ["ss-users"],      // unique key for cache
     queryFn: getSSUsers,
 
-    staleTime: 1000 * 60 * 3,   // 1 hour (data "fresh" रहेगा)
+    staleTime: 1000 * 60 * 134,   // 1 hour (data "fresh" रहेगा)
     gcTime: 1000 * 60 * 60 * 24, // 24 hours तक cache memory में रहेगा
 
     refetchInterval: false,
