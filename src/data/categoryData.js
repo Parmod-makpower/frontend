@@ -95,6 +95,11 @@ const categories = [
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
       {
+        label: "POLY BATTERY",
+        keyword: "POLY BATTERY",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+      },
+      {
         label: "POLYMER ASUS",
         keyword: "POLYMER ASUS BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
@@ -249,7 +254,7 @@ const categories = [
   {
     label: "CONNECTOR",
     keyword: "CONNECTOR",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1757505291/iex0p0slyj1qizxypmnd.webp",
+    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1761543453/ugzsgnxyhh8flgubhubz.webp",
     subcategories: []
   }
  

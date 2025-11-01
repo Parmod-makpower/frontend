@@ -1,4 +1,3 @@
-// 📁 src/layouts/DashboardLayout.jsx
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import BottomNav from "./BottomNav";
@@ -12,8 +11,10 @@ import {
   FaShoppingCart,
   FaList,
   FaPlus,
-  FaCheck, FaBoxOpen,
-  FaSignOutAlt, FaChartLine,
+  FaCheck,
+  FaBoxOpen,
+  FaSignOutAlt,
+  FaChartLine,
   FaHourglassHalf,
   FaBan
 } from "react-icons/fa";
@@ -21,9 +22,8 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSchemes } from "../hooks/useSchemes";
 import useFuseSearch from "../hooks/useFuseSearch";
-import logo from "../assets/images/logo.png"
-
-
+import logo from "../assets/images/logo.png";
+import { useSelectedProducts } from "../hooks/useSelectedProducts";
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
@@ -38,17 +38,10 @@ export default function DashboardLayout() {
   const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
   const searchRef = useRef(null);
 
-  const [selectedProducts, setSelectedProducts] = useState(() => {
-    const saved = localStorage.getItem("selectedProducts");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { selectedProducts, addProduct, updateQuantity, updateCartoon, cartoonSelection } = useSelectedProducts();
 
   const { data: allProductsRaw = [], isLoading } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
-
-  useEffect(() => {
-    localStorage.setItem("selectedProducts", JSON.stringify(selectedProducts));
-  }, [selectedProducts]);
 
   const normalizeProduct = (product) => ({
     ...product,
@@ -62,32 +55,31 @@ export default function DashboardLayout() {
     threshold: 0.3,
   });
 
-const searchResults = useMemo(() => {
-  const uniqueResults = new Map();
-  const lowerSearch = searchTerm.toLowerCase();
+  const searchResults = useMemo(() => {
+    const uniqueResults = new Map();
+    const lowerSearch = searchTerm.toLowerCase();
 
-  fuseResults.forEach((product) => {
-    const matchedSaleName = product.sale_names?.find((name) =>
-      name.toLowerCase().includes(lowerSearch)
-    );
+    fuseResults.forEach((product) => {
+      const matchedSaleName = product.sale_names?.find((name) =>
+        name.toLowerCase().includes(lowerSearch)
+      );
 
-    const matchFound =
-      product.product_name?.toLowerCase().includes(lowerSearch) ||
-      product.sub_category?.toLowerCase().includes(lowerSearch) ||
-      !!matchedSaleName;
+      const matchFound =
+        product.product_name?.toLowerCase().includes(lowerSearch) ||
+        product.sub_category?.toLowerCase().includes(lowerSearch) ||
+        !!matchedSaleName;
 
-    if (matchFound) {
-      uniqueResults.set(product.id, {
-        ...product,
-        _displayName: matchedSaleName || product.product_name,
-      });
-    }
-  });
+      if (matchFound) {
+        uniqueResults.set(product.id, {
+          ...product,
+          _displayName: matchedSaleName || product.product_name,
+        });
+      }
+    });
 
-  return Array.from(uniqueResults.values());
-}, [fuseResults, searchTerm]);
+    return Array.from(uniqueResults.values());
+  }, [fuseResults, searchTerm]);
 
-  // Limit results
   const searchResultsLimited = searchResults.slice(0, 6);
 
   const hasScheme = (productId) =>
@@ -99,9 +91,14 @@ const searchResults = useMemo(() => {
 
   const isAdded = (id) => selectedProducts.some((p) => p.id === id);
 
-  const addProduct = (product) => {
+  const handleAddProduct = (product) => {
     if (!isAdded(product.id)) {
-      setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
+      const moq = product.moq || 1;
+      const initialQty =
+        product.cartoon_size && product.cartoon_size > 1
+          ? product.cartoon_size
+          : moq;
+      addProduct({ ...product, quantity: initialQty });
     }
   };
 
@@ -153,7 +150,6 @@ const searchResults = useMemo(() => {
       { label: "Home", path: "/", icon: <FaHome /> },
       { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },
       { label: "Super Stockist", path: "/crm-ss/list", icon: <FaUsers /> },
-      // { label: "Create Orders", path: "/crm/create-order", icon: <FaBoxOpen /> },
       { label: "New Orders", path: "/crm/orders", icon: <FaBox /> },
       { label: "History", path: "/all/orders-history", icon: <FaHistory /> },
       { label: "Stock", path: "/available-stock", icon: <FaChartLine /> }
@@ -172,16 +168,12 @@ const searchResults = useMemo(() => {
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* ✅ Top NavBar */}
       <header className="hidden md:flex justify-between items-center bg-white shadow-md px-4 py-4 sticky top-0 z-50">
-        {/* Logo */}
         <h1 className="text-xl md:text-2xl font-bold text-blue-600">
-          <img
-            src={logo}
-            className="w-35"
-          />
+          <img src={logo} className="w-35" />
         </h1>
 
         {/* 🔍 Search */}
-        <div className="relative flex-1 mx-5  " ref={searchRef}>
+        <div className="relative flex-1 mx-5" ref={searchRef}>
           <input
             type="text"
             placeholder="Search by product or category..."
@@ -189,14 +181,14 @@ const searchResults = useMemo(() => {
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => setSearchDropdownOpen(true)}
             maxLength={20}
-            className="w-full  sm:p-3  rounded-full border text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400" />
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[#fc250c] hover:text-blue-800" >
+            className="w-full sm:p-3 rounded-full border text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[#fc250c] hover:text-blue-800">
             <FaSearch />
           </button>
 
-
           {searchDropdownOpen && searchTerm.trim() && (
-            <div className="absolute top-full left-0 w-full bg-white rounded-md shadow-lg mt-3  overflow-auto z-50">
+            <div className="absolute top-full left-0 w-full bg-white rounded-md shadow-lg mt-3 overflow-auto z-50">
               {isLoading ? (
                 <p className="p-3 text-gray-500">Loading...</p>
               ) : searchResultsLimited.length === 0 ? (
@@ -206,15 +198,14 @@ const searchResults = useMemo(() => {
                   {searchResultsLimited.map((p) => (
                     <div
                       key={p.id + p._displayName}
-                      onClick={() => {
+                     
+                      className="flex items-center justify-between px-3 py-4 hover:bg-gray-100 cursor-pointer"
+                    >
+                      <div className="flex flex-col text-sm"
+                       onClick={() => {
                         navigate(`/product/${p.id}`);
                         setSearchDropdownOpen(false);
                       }}
-                      className="flex items-center justify-between px-3 py-4 hover:bg-gray-100 cursor-pointer"
-                    >
-                      <div
-
-                        className="flex flex-col text-sm"
                       >
                         <span className="font-medium flex items-center gap-2">
                           {p._displayName}
@@ -238,40 +229,59 @@ const searchResults = useMemo(() => {
                           {p.product_name} — {p.sub_category}
                         </span>
                       </div>
+
                       {user?.role === "SS" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            addProduct(p);
-                          }}
-                          className="ml-3 text-blue-600 hover:text-blue-800"
-                          title="Add to cart"
-                        >
+                        <div className="ml-3 flex items-center">
                           {isAdded(p.id) ? (
-                            <FaCheck className="text-green-600 text-sm" />
+                            <>
+                              {cartoonSelection[p.id] ? (
+                                <select
+                                  value={cartoonSelection[p.id] || 1}
+                                  onChange={(e) =>
+                                    updateCartoon(p.id, parseInt(e.target.value))
+                                  }
+                                  className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                >
+                                  {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
+                                    <option key={n} value={n}>
+                                      {n} Carton = {n * (p.cartoon_size || 1)} Pcs
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : (
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={
+                                    selectedProducts.find((x) => x.id === p.id)?.quantity || ""
+                                  }
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value);
+                                    if (!isNaN(val)) updateQuantity(p.id, val);
+                                  }}
+                                  className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                              )}
+                            </>
                           ) : (
-                            !isAdded(p.id) && p.sub_category !== "GIFT ITEM" && p.sub_category !== "Z GIFT ITEM" && (
+                            !isAdded(p.id) &&
+                            p.sub_category !== "GIFT ITEM" &&
+                            p.sub_category !== "Z GIFT ITEM" && (
                               <button
-                                onClick={() => handleAddProduct(p)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddProduct(p);
+                                }}
                                 className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
                               >
                                 <FaPlus className="text-sm" />
                               </button>
                             )
                           )}
-                        </button>
+                        </div>
                       )}
-
                     </div>
                   ))}
-                  {/* {searchResults.length > 6 && (
-                    <div
-                      className="p-2 text-blue-600 text-center text-sm cursor-pointer hover:bg-gray-50"
-                      onClick={() => navigate(`/search?query=${searchTerm}`)}
-                    >
-                      View all results
-                    </div>
-                  )} */}
                 </>
               )}
             </div>
@@ -290,9 +300,6 @@ const searchResults = useMemo(() => {
               )}
             </NavLink>
           )}
-
-          {/* Logout button directly in header */}
-
 
           {/* Profile Dropdown */}
           <div className="relative" ref={profileRef}>
@@ -342,12 +349,10 @@ const searchResults = useMemo(() => {
         ))}
       </nav>
 
-      {/* Page Content */}
       <main className="flex-1 p-0 lg:p-4 overflow-y-auto">
         <Outlet />
       </main>
 
-      {/* 📱 Mobile Bottom Nav */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-inner z-50">
         <BottomNav />
       </div>

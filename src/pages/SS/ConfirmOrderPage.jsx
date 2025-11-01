@@ -7,6 +7,8 @@ import { usePlaceOrder } from "../../hooks/usePlaceOrder";
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaShoppingCart, FaBoxOpen, FaBan } from "react-icons/fa";
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import ConfirmOrderPDFButton from "../../components/ConfirmOrderPDFButton";
+
 import MobilePageHeader from "../../components/MobilePageHeader";
 
 export default function ConfirmOrderPage() {
@@ -107,13 +109,21 @@ export default function ConfirmOrderPage() {
       {/* Products Table */}
       <div className="my-6 pt-[60px] sm:pt-0">
         <div className="overflow-auto rounded-lg shadow">
+          {/* PDF Download Button */}
+          {/* <div className="flex justify-center mt-4">
+            <ConfirmOrderPDFButton
+              selectedProducts={selectedProducts}
+              eligibleSchemes={eligibleSchemes}
+            />
+          </div> */}
+
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">No</th>
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Product</th>
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Quantity</th>
-            
+
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Price</th>
               </tr>
             </thead>
@@ -123,12 +133,12 @@ export default function ConfirmOrderPage() {
                   <td className="px-4 py-2 text-sm text-gray-700">{index + 1}</td>
                   <td className="px-4 py-2 text-sm text-gray-800">{item.product_name}</td>
                   <td className="px-4 py-2 text-sm text-gray-700">{item.quantity}</td>
-                  
+
                   <td className="px-4 py-2 text-sm text-gray-700">
                     {!isNaN(Number(item.price)) ? (
                       <span className="flex items-center gap-1 text-gray-700">
                         <FaIndianRupeeSign className="text-gray-400" />
-                       {((Number(item.price) || 0) * (item.quantity || 1)).toFixed(1)}
+                        {((Number(item.price) || 0) * (item.quantity || 1)).toFixed(1)}
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 text-red-500 text-xs">

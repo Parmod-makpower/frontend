@@ -139,16 +139,17 @@ export default function BatteryPage() {
                     <p className="text-[11px] sm:text-xs">{prod.sub_category}</p>
 
                     <p className="text-[12px] sm:text-xs flex items-center font-medium ">
-                      {prod.guarantee ? (
+                      {prod.guarantee && prod.guarantee !== "nan" && prod.guarantee !== "null" && prod.guarantee !== null ? (
                         <span className="text-orange-600 text-[10px] ">
-                          Guarantee : {prod.guarantee}
+                           {prod.guarantee} guarantee
                         </span>
                       ) : null}
-                    </p>
 
-                    <p className="text-[12px] sm:text-xs flex items-center gap-2 font-medium ">
-                      &#8377;{prod.price}
                     </p>
+                    {prod.price ? (<p className="text-[12px] sm:text-xs flex items-center gap-2 font-medium ">
+                      &#8377;{prod.price}
+                    </p>) : null}
+
                   </div>
 
                   {/* 👉 Right Side: Add/Quantity Control */}
