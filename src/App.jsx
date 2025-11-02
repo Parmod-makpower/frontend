@@ -29,7 +29,6 @@ import SSHistoryPage from "./pages/SS/SSHistoryPage";
 import SSOrderTrackingPage from "./pages/SS/SSOrderTrackingPage";
 import CRMSSFormPage from "./pages/CRM/CRMSSFormPage";
 import CRMSSListPage from "./pages/CRM/CRMSSListPage";
-
 import CRMOrderListPage from "./pages/CRM/CRMOrderListPage";
 import UserSchemesPage from "./pages/UserSchemesPage";
 import CRMVerifiedHistoryPage from "./pages/CRM/CRMVerifiedHistoryPage";
@@ -43,7 +42,6 @@ import CRMCreateOrderPage from "./pages/CRM/CRMCreateOrderPage";
 import SSPendingOrders from "./pages/ADMIN/SSPendingOrders";
 import SSPendingOrderItems from "./pages/ADMIN/SSPendingOrderItems";
 import CargoDetailsPage from "./pages/ADMIN/CargoDetailsPage";
-import DeleteOrdersPage from "./pages/ADMIN/DeleteOrdersPage";
 
 
 export default function App() {
@@ -110,7 +108,6 @@ export default function App() {
             <Route path="/schemes/new" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
             <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm/></ProtectedRoute>} />
             <Route path="/admin/pending-orders" element={<ProtectedRoute allowedRoles={['ADMIN']}><SSPendingOrders /></ProtectedRoute>} />
-            <Route path="/delete-orders" element={<ProtectedRoute allowedRoles={['ADMIN']}><DeleteOrdersPage /></ProtectedRoute>} />
             <Route path="/admin/pending-orders/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SSPendingOrderItems /></ProtectedRoute>} />
             <Route path="/cargo-details" element={<ProtectedRoute ><CargoDetailsPage /></ProtectedRoute>} />
            

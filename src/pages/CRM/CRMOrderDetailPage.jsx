@@ -1,10 +1,10 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { verifyCRMOrder } from "../../hooks/useCRMOrders";
+import { verifyCRMOrder, deleteCRMOrder } from "../../hooks/useCRMOrders";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { FaGift } from "react-icons/fa";
-import { FaIndianRupeeSign } from "react-icons/fa6";
+import ConfirmModal from "../../components/ConfirmModal";
 import PDFDownloadButton from "../../components/PDFDownloadButton";
 
 
@@ -171,6 +171,27 @@ export default function CRMOrderDetailPage() {
     }
   };
 
+
+  const [showDeleteOrderModal, setShowDeleteOrderModal] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+
+  const handleDeleteOrder = async () => {
+    if (!order) return;
+    setLoadingDelete(true);
+    try {
+      await deleteCRMOrder(order.id);
+      alert("✅ Order deleted and stock restored!");
+      navigate("/crm/orders"); // back to list
+    } catch (err) {
+      console.error("❌ Delete failed:", err);
+      alert("Failed to delete order");
+    } finally {
+      setLoadingDelete(false);
+      setShowDeleteOrderModal(false);
+    }
+  };
+
+
   if (!order)
     return (
       <div className="flex justify-center items-center h-64">
@@ -284,7 +305,7 @@ export default function CRMOrderDetailPage() {
                       {productData?.cartoon_size ?? "-"}
                     </td>
                     <td className="px-4 py-2 border text-center">
-                      {productData?.price ?? "-"}
+                      {productData.price ?  `₹${productData.price}` : ""}
                     </td>
                     <td className="px-4 py-2 border text-center bg-blue-100">
                       ₹
@@ -302,7 +323,7 @@ export default function CRMOrderDetailPage() {
                           setItemToDelete(item.product);
                           setShowDeleteModal(true);
                         }}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 cursor-pointer px-3 p-1"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -389,85 +410,72 @@ export default function CRMOrderDetailPage() {
           </div>
 
           {/* ✅ Submit */}
-          <div className="mt-6 p-4 flex justify-center">
+          <div className="mt-6 p-4 flex justify-end gap-6">
+            
+            <button
+              onClick={() => setShowDeleteOrderModal(true)}
+              className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-md cursor-pointer"
+            >Delete Order
+           </button>
             <button
               onClick={() => setShowConfirmModal(true)}
               disabled={loadingApprove}
               className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md ${loadingApprove
                 ? "bg-blue-400 cursor-not-allowed"
                 : "bg-blue-500 hover:bg-green-600"
-                }`}
+                } cursor-pointer`}
             >
               {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
               Submit
             </button>
-
-
           </div>
+          
+
         </div>
       </div>
 
-      {/* Confirm Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-80">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">
-              Confirm Order Submission
-            </h3>
-            <p className="text-gray-600 mb-6 text-sm">
-              Are you sure you want to submit this order?
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  handleVerify();
-                  setShowConfirmModal(false);
-                }}
-                className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white"
-              >
-                Yes, Submit
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ✅ Confirm Submit Modal */}
+<ConfirmModal
+  isOpen={showConfirmModal}
+  title="Confirm Order Submission"
+  message="Are you sure you want to submit this order?"
+  confirmText="Yes, Submit"
+  confirmColor="bg-green-500 hover:bg-green-600"
+  onCancel={() => setShowConfirmModal(false)}
+  onConfirm={() => {
+    handleVerify();
+    setShowConfirmModal(false);
+  }}
+/>
 
-      {/* Delete Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-80">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <Trash2 className="text-red-500" /> Delete Item?
-            </h3>
-            <p className="text-gray-600 mb-6 text-sm">
-              Are you sure you want to delete this item?
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  handleDeleteItem(itemToDelete);
-                  setShowDeleteModal(false);
-                }}
-                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white"
-              >
-                Yes, Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+{/* 🗑️ Delete Order Modal */}
+<ConfirmModal
+  isOpen={showDeleteOrderModal}
+  title="Delete Order?"
+  message="Are you sure you want to delete this entire order?"
+  confirmText="Yes, Delete"
+  confirmColor="bg-red-500 hover:bg-red-600"
+  loading={loadingDelete}
+  onCancel={() => setShowDeleteOrderModal(false)}
+  onConfirm={handleDeleteOrder}
+  icon={Trash2}
+/>
+
+{/* 🧹 Delete Item Modal */}
+<ConfirmModal
+  isOpen={showDeleteModal}
+  title="Delete Item?"
+  message="Are you sure you want to delete this item?"
+  confirmText="Yes, Delete"
+  confirmColor="bg-red-500 hover:bg-red-600"
+  onCancel={() => setShowDeleteModal(false)}
+  onConfirm={() => {
+    handleDeleteItem(itemToDelete);
+    setShowDeleteModal(false);
+  }}
+  icon={Trash2}
+/>
+
     </div>
   );
 }

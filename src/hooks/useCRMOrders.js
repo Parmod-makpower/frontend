@@ -23,3 +23,10 @@ export const verifyCRMOrder = async (orderId, payload) => {
   const res = await API.post(`/crm/orders/${orderId}/verify/`, payload);
   return res.data;
 };
+
+
+// ✅ Delete order
+export const deleteCRMOrder = async (orderId) => {
+  const res = await API.delete(`/crm/orders/${orderId}/delete/`);
+  return res.data;
+};

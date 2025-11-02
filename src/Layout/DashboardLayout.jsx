@@ -142,7 +142,6 @@ export default function DashboardLayout() {
       { label: "Super Stockist", path: "/crm-ss/list", icon: <FaUsers /> },
       { label: "Pending Orders", path: "/admin/pending-orders", icon: <FaHourglassHalf /> },
       { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> },
-      { label: "Delete Orders", path: "/delete-orders", icon: <FaBox /> },
       { label: "Cargos", path: "/cargo-details", icon: <FaBox /> }
     );
   }
