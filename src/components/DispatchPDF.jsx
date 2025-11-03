@@ -66,7 +66,7 @@ export default function DispatchPDF(order, enrichedItems, remarks, orderCode) {
     item.sub_category ?? "-",
     item.product_name,
     item.quantity,
-    " ",
+    item.rack_no ?? "-",
     item.cartoon_size ?? "-",
     item.ss_virtual_stock ?? "-",
   ]);
@@ -74,7 +74,7 @@ export default function DispatchPDF(order, enrichedItems, remarks, orderCode) {
   autoTable(doc, {
     startY: boxY + totalBoxHeight + 20,
     margin: { left: margin, right: margin },
-    head: [["S.N", "Category", "Product Name", "Quantity", "", "Carton", "Stock"]],
+    head: [["S.N", "Category", "Product Name", "Quantity", "Rack", "Carton", "Stock"]],
     body: tableData,
     theme: "grid",
     styles: { fontSize: 11, cellPadding: 6 },
@@ -87,16 +87,19 @@ export default function DispatchPDF(order, enrichedItems, remarks, orderCode) {
     alternateRowStyles: { fillColor: [245, 245, 245] },
     columnStyles: {
       0: { cellWidth: 35, halign: "center" },
-      1: { cellWidth: 90, halign: "left" },
-      2: { cellWidth: 160, halign: "left" },
+      1: { cellWidth: 90, halign: "center" },
+      2: { cellWidth: 160, halign: "center" },
       3: { cellWidth: 60, halign: "center" },
       4: { cellWidth: 60, halign: "center" },
       5: { cellWidth: 60, halign: "center" },
       6: { cellWidth: 60, halign: "center" },
+     
     },
     didParseCell: function (data) {
       if (data.row.section === "body") {
-        if (data.column.index === 5) {
+        if (data.column.index === 3) {
+          data.cell.styles.fillColor = [144, 238, 144];
+        } else if (data.column.index === 5) {
           data.cell.styles.fillColor = [255, 255, 200];
         } else if (data.column.index === 6) {
           data.cell.styles.fillColor = [255, 200, 200];

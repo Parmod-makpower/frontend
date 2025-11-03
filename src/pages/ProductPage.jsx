@@ -171,7 +171,7 @@ export default function ProductPage() {
 
         <div className="flex flex-wrap gap-2">
 
-          <button
+          {/* <button
             onClick={() => {
               setEditData(null);
               setForm({
@@ -189,7 +189,7 @@ export default function ProductPage() {
             className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow cursor-pointer"
           >
             <FiPlus className="text-lg" /> Add Product
-          </button>
+          </button> */}
 
 
           <button
@@ -257,14 +257,15 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">V_Stock</th>
               <th className="px-4 py-2 border">Price</th>
               <th className="px-4 py-2 border">MOQ</th>
+              <th className="px-4 py-2 border">Rack</th>
               <th className="px-4 py-2 border">Type</th>
               <th className="px-4 py-2 border">Upload</th>
               <th className="px-4 py-2 border">Image</th>
               <th className="px-4 py-2 border">Active</th>
               <th className="px-4 py-2 border">Edit</th>
-              <th className="px-4 py-2 border">Delete</th>
-              <th className="px-4 py-2 border">Upload2</th>
-              <th className="px-4 py-2 border">Image</th>
+              {/* <th className="px-4 py-2 border">Delete</th> */}
+              {/* <th className="px-4 py-2 border">Upload2</th>
+              <th className="px-4 py-2 border">Image</th> */}
             </tr>
           </thead>
           <tbody>
@@ -273,12 +274,13 @@ export default function ProductPage() {
                 <td className="px-4 py-2 border">{prod.product_id}</td>
                 <td className="px-4 py-2 border">{prod.sub_category}</td>
                 <td className="px-4 py-2 border">{prod.product_name}</td>
-                <td className="px-4 py-2 border">{prod.cartoon_size}</td>
+                <td className="px-4 py-2 border bg-yellow-200">{prod.cartoon_size}</td>
                 <td className="px-4 py-2 border">{prod.guarantee}</td>
-                <td className="px-4 py-2 border">{prod.live_stock || 0}</td>
-                <td className="px-4 py-2 border">{prod.virtual_stock || 0}</td>
-                <td className="px-4 py-2 border">{prod.price}</td>
+                <td className="px-4 py-2 border bg-red-200">{prod.live_stock || 0}</td>
+                <td className="px-4 py-2 border bg-red-200">{prod.virtual_stock || 0}</td>
+                <td className="px-4 py-2 border bg-blue-200">{prod.price}</td>
                 <td className="px-4 py-2 border">{prod.moq}</td>
+                <td className="px-4 py-2 border bg-green-300">{prod.rack_no}</td>
                 <td className="px-4 py-2 border">{prod.quantity_type}</td>
                 {/* Upload for Image1 */}
                 <td className="px-4 py-2 border">
@@ -335,16 +337,16 @@ export default function ProductPage() {
                     <FiEdit />
                   </button>
                 </td>
-                <td className="px-4 py-2 border">
+                {/* <td className="px-4 py-2 border">
                   <button
                     onClick={() => handleDelete(prod.product_id)}
                     className="text-red-600 hover:text-red-800"
                   >
                     <FiTrash2 />
                   </button>
-                </td>
+                </td> */}
                 {/* Upload for Image2 */}
-                <td className="px-4 py-2 border">
+                {/* <td className="px-4 py-2 border">
                   <label className="cursor-pointer">
                     <FiUpload className="text-green-600 hover:text-green-800" />
                     <input
@@ -363,7 +365,7 @@ export default function ProductPage() {
                         ? `https://res.cloudinary.com/djyr368zj/${prod.image2}`
                         : makpower_image
                     } className="w-10 h-10 object-contain bg-gray-50 rounded-lg border self-center" />
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>

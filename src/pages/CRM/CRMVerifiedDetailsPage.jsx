@@ -5,8 +5,8 @@ import DispatchPDF from "../../components/DispatchPDF";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { punchOrderToSheet } from "../../api/punchApi";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
-import PDFDownloadButton from "../../components/PDFDownloadButton";
 import ConfirmModal from "../../components/ConfirmModal";
+import API from "../../api/axios";
 
 function Table({ title, items }) {
   return (
@@ -38,7 +38,6 @@ function Table({ title, items }) {
                   const ssStock = Number(r.ss_virtual_stock) || 0;
                   const stock = Number(r.virtual_stock) || 0;
 
-                  // ✅ Total calculate condition same as CRMOrderDetailPage
                   const total =
                     ssStock > 0 || (ssStock <= 0 && stock > 0)
                       ? (qty * price).toFixed(1)
@@ -54,21 +53,14 @@ function Table({ title, items }) {
                       <td className="p-3 border">{r.product_name}</td>
                       <td className="p-3 border bg-yellow-100">{r.quantity}</td>
                       <td className="p-3 border">{r.cartoon_size ?? "-"}</td>
-                      <td className="p-3 border">
-                        ₹{price.toFixed(1)}
-                      </td>
-                      <td className="p-3 border bg-blue-100">
-                        ₹{total}
-                      </td>
+                      <td className="p-3 border">₹{price.toFixed(1)}</td>
+                      <td className="p-3 border bg-blue-100">₹{total}</td>
                       <td className="p-3 border bg-red-100">{ssStock}</td>
-                      <td className="p-3 border bg-red-200">
-                        {stock || "0"}
-                      </td>
+                      <td className="p-3 border bg-red-200">{stock || "0"}</td>
                     </tr>
                   );
                 })}
 
-                {/* ✅ Grand Total with same condition */}
                 <tr className="bg-blue-100 font-semibold">
                   <td colSpan={6} className="p-3 border text-right">
                     Estimate Total
@@ -81,8 +73,6 @@ function Table({ title, items }) {
                         const price = Number(item.price) || 0;
                         const ssStock = Number(item.ss_virtual_stock) || 0;
                         const stock = Number(item.virtual_stock) || 0;
-
-                        // ✅ अगर ssStock > 0 या (ssStock <= 0 और stock > 0) तभी जोड़ो
                         if (ssStock > 0 || (ssStock <= 0 && stock > 0)) {
                           return sum + qty * price;
                         }
@@ -114,6 +104,10 @@ export default function CRMVerifiedDetailsPage() {
   const [loading, setLoading] = useState(false);
   const [remarks, setRemarks] = useState("");
 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newProduct, setNewProduct] = useState("");
+  const [newQty, setNewQty] = useState("");
+  const [newPrice, setNewPrice] = useState("");
 
   const order = location.state?.order;
 
@@ -126,41 +120,36 @@ export default function CRMVerifiedDetailsPage() {
     "Rahul Kumar": "RK-AP",
     "Vivek Sharma": "VS-AP",
     "Aarti Singh": "AS-AP",
-    "Kanak Maurya": "KM-AP"
+    "Kanak Maurya": "KM-AP",
   };
 
   const orderCode = crmMapping[order?.crm_name]
     ? `${crmMapping[order.crm_name]}${order.id}`
     : `${order?.crm_name} ${order?.id}`;
 
-  // ✅ Get all products with virtual stock
   const { data: allProducts = [] } = useCachedProducts();
 
-  // ✅ Merge order items with virtual stock
   const enrichedItems = useMemo(() => {
     const merged = order.items.map((item) => {
-      const found = allProducts.find(p => p.product_id === item.product);
+      const found = allProducts.find((p) => p.product_id === item.product);
       return {
         ...item,
         virtual_stock: found?.virtual_stock ?? null,
         cartoon_size: found?.cartoon_size ?? "-",
         sub_category: found?.sub_category ?? "-",
+        rack_no: found?.rack_no ?? "-",
       };
     });
-
-    // ✅ Category-wise sorting (alphabetical)
-    return merged.sort((a, b) => {
-      const catA = (a.sub_category || "").toLowerCase();
-      const catB = (b.sub_category || "").toLowerCase();
-      return catA.localeCompare(catB);
-    });
+    return merged.sort((a, b) =>
+      (a.sub_category || "").toLowerCase().localeCompare(
+        (b.sub_category || "").toLowerCase()
+      )
+    );
   }, [order.items, allProducts]);
-
 
   const handleDownloadPDF = () => {
     DispatchPDF(order, enrichedItems, remarks, orderCode);
   };
-
 
   const handleOrderPunch = () => {
     if (!order?.items?.length) {
@@ -179,9 +168,7 @@ export default function CRMVerifiedDetailsPage() {
     try {
       const data = await punchOrderToSheet(order);
       if (data.success) {
-        // ✅ दोनों PDFs जनरेट करो
         handleDownloadPDF();
-
         setTimeout(() => {
           navigate("/all/orders-history");
         }, 500);
@@ -196,14 +183,45 @@ export default function CRMVerifiedDetailsPage() {
     }
   };
 
+  const handleAddProduct = async () => {
+    if (!newProduct || !newQty) {
+      alert("Please select a product and enter quantity.");
+      return;
+    }
+
+    try {
+      const res = await API.post(`/crm/verified/${order.id}/add-item/`, {
+        product_id: newProduct,
+        quantity: newQty,
+        price: newPrice || 0,
+      });
+
+      alert(res.data.message);
+      navigate("/all/orders-history/");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || "Failed to add product.");
+    }
+  };
+
+  const [searchTerm, setSearchTerm] = useState("");
+const [dropdownOpen, setDropdownOpen] = useState(false);
+
+const filteredProducts = allProducts.filter((p) =>
+  p.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
 
   if (!order) {
-    return <div className="p-6 text-red-600">No order data provided. Please go back.</div>;
+    return (
+      <div className="p-6 text-red-600">
+        No order data provided. Please go back.
+      </div>
+    );
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-4 pb-20">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-4 pb-20">
       <ConfirmModal
         isOpen={isModalOpen}
         title="Confirm Order Punch"
@@ -216,25 +234,21 @@ export default function CRMVerifiedDetailsPage() {
         onConfirm={confirmOrderPunch}
       />
 
-
       <MobilePageHeader title={order.order_id} />
+
       <div className="hidden sm:flex items-center justify-between w-full ">
-        <div className="font-semibold border rounded bg-gray-200 px-4 p-2">{orderCode}</div>
+        <div className="font-semibold border rounded bg-gray-200 px-4 p-2">
+          {orderCode}
+        </div>
         <div className="flex gap-2">
-
-
           {order.punched && (
-            <>
-              <button
-                onClick={handleDownloadPDF}
-                className="flex items-center gap-1 px-3 py-1 rounded border bg-orange-600 text-white hover:bg-orange-700 transition cursor-pointer"
-              >
-                Dispatch PDF
-              </button>
-
-            </>
+            <button
+              onClick={handleDownloadPDF}
+              className="flex items-center gap-1 px-3 py-1 rounded border bg-orange-600 text-white hover:bg-orange-700 transition cursor-pointer"
+            >
+              Dispatch PDF
+            </button>
           )}
-
 
           <button
             onClick={() => navigate(-1)}
@@ -245,13 +259,104 @@ export default function CRMVerifiedDetailsPage() {
         </div>
       </div>
 
+      {/* ✅ Add Product Button */}
+      {/* <div className="flex justify-end mb-2">
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700"
+        >
+          Add Product
+        </button>
+      </div> */}
 
-
+      {/* ✅ Table */}
       <div className="grid grid-cols-1 gap-4">
         <Table title="CRM — Verified Items" items={enrichedItems} />
       </div>
+
+      {/* ✅ Add Product Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-md">
+            <h2 className="text-lg font-bold mb-4">Add Product to Order</h2>
+
+         {/* ✅ Searchable Product Selector */}
+<div className="mb-3 relative">
+  <input
+    type="text"
+    placeholder="Search product..."
+    className="w-full border rounded p-2"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    onFocus={() => setDropdownOpen(true)}
+  />
+
+  {/* Dropdown List */}
+  {dropdownOpen && (
+    <div className="absolute z-50 bg-white border rounded w-full max-h-60 overflow-y-auto shadow-lg">
+      {filteredProducts.length > 0 ? (
+        filteredProducts.map((p) => (
+          <div
+            key={p.product_id}
+            onClick={() => {
+              setNewProduct(p.product_id);
+              setNewPrice(p.price || 0);
+              setSearchTerm(p.product_name);
+              setDropdownOpen(false);
+            }}
+            className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+          >
+            {p.product_name} 
+          </div>
+        ))
+      ) : (
+        <div className="p-3 text-gray-400">No product found</div>
+      )}
+    </div>
+  )}
+</div>
+
+
+
+            <input
+              type="number"
+              placeholder="Quantity"
+              className="w-full border rounded p-2 mb-3"
+              value={newQty}
+              onChange={(e) => setNewQty(e.target.value)}
+            />
+
+           <input
+  type="number"
+  placeholder="Price"
+  className="w-full border rounded p-2 mb-4 bg-gray-100"
+  value={newPrice}
+  readOnly
+/>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddProduct}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-4">
-        <label htmlFor="remarks" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="remarks"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Remarks
         </label>
         <textarea
@@ -267,10 +372,11 @@ export default function CRMVerifiedDetailsPage() {
       <button
         onClick={handleOrderPunch}
         disabled={order.punched || loading}
-        className={`px-6 py-2 rounded-lg shadow transition
-          ${order.punched || loading
+        className={`px-6 py-2 rounded-lg shadow transition ${
+          order.punched || loading
             ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"}`}
+            : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+        }`}
       >
         {loading ? (
           <>
@@ -296,7 +402,11 @@ export default function CRMVerifiedDetailsPage() {
             </svg>
             Processing...
           </>
-        ) : order.punched ? "Already Punched" : "Order Punch"}
+        ) : order.punched ? (
+          "Already Punched"
+        ) : (
+          "Order Punch"
+        )}
       </button>
     </div>
   );
