@@ -6,36 +6,8 @@ import MobilePageHeader from "../../components/MobilePageHeader";
 import { punchOrderToSheet } from "../../api/punchApi";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 import PDFDownloadButton from "../../components/PDFDownloadButton";
+import ConfirmModal from "../../components/ConfirmModal";
 
-function ConfirmationModal({ isOpen, onClose, onConfirm }) {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-lg p-6 w-[90%] max-w-md animate-fadeIn">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">
-          Confirm Order Punch
-        </h2>
-        <p className="text-sm text-gray-600 mb-6">
-          Are you sure you want to punch this order? <br /> This Order will be sent to the Backend.
-        </p>
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg border hover:bg-gray-100 transition cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition cursor-pointer"
-          >
-            Confirm
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function Table({ title, items }) {
   return (
@@ -84,20 +56,30 @@ function Table({ title, items }) {
                   );
                 })}
 
-                {/* ✅ Grand Total Row */}
+                {/* ✅ Grand Total Row (with Estimate Total Logic) */}
                 <tr className="bg-blue-100 font-semibold">
-                  <td colSpan={6} className="p-3 border text-right">Grand Total</td>
+                  <td colSpan={6} className="p-3 border text-right">
+                    Estimate Total
+                  </td>
                   <td colSpan={3} className="p-3 border">
                     ₹
                     {items
-                      .reduce(
-                        (sum, r) => sum + Number(r.quantity) * Number(r?.price || 0),
-                        0
-                      )
+                      .reduce((sum, item) => {
+                        // CRMOrderDetailPage जैसी logic
+                        const virtualStock = Number(item.virtual_stock) || 0;
+                        const ssStock = Number(item.ss_virtual_stock) || 0;
+                        const price = Number(item.price) || 0;
+
+                        // अगर दोनों stock 0 या negative हैं, तो skip करो
+                        if (ssStock <= 0 && virtualStock <= 0) return sum;
+
+                        const qty = Number(item.quantity) || 0;
+                        return sum + price * qty;
+                      }, 0)
                       .toFixed(1)}
                   </td>
-
                 </tr>
+
               </>
             ) : (
               <tr>
@@ -165,9 +147,9 @@ export default function CRMVerifiedDetailsPage() {
   }, [order.items, allProducts]);
 
 
- const handleDownloadPDF = () => {
-  DispatchPDF(order, enrichedItems, remarks, orderCode);
-};
+  const handleDownloadPDF = () => {
+    DispatchPDF(order, enrichedItems, remarks, orderCode);
+  };
 
 
   const handleOrderPunch = () => {
@@ -212,11 +194,18 @@ export default function CRMVerifiedDetailsPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-4 pb-20">
-      <ConfirmationModal
+      <ConfirmModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        title="Confirm Order Punch"
+        message="Are you sure you want to punch this order? This order will be sent to the backend."
+        confirmText="Confirm"
+        cancelText="Cancel"
+        confirmColor="bg-blue-600 hover:bg-blue-700"
+        loading={loading}
+        onCancel={() => setIsModalOpen(false)}
         onConfirm={confirmOrderPunch}
       />
+
 
       <MobilePageHeader title={order.order_id} />
       <div className="hidden sm:flex items-center justify-between w-full ">
@@ -236,7 +225,7 @@ export default function CRMVerifiedDetailsPage() {
             </>
           )}
 
-          <PDFDownloadButton order={order} items={enrichedItems} />
+
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-1 px-3 py-1 rounded border hover:bg-gray-200 transition cursor-pointer"
@@ -246,25 +235,7 @@ export default function CRMVerifiedDetailsPage() {
         </div>
       </div>
 
-      {/* <div className="grid grid-cols-2 md:grid-cols-2 gap-2 sm:gap-4 sm:pt-0 pt-[60px]">
-        <div className="border rounded p-4 bg-white shadow-sm">
-          <div className="font-semibold mb-2">SS Order</div>
-          <div className="text-sm font-bold text-gray-600">{order.order_id}</div>
-          <div className="text-sm text-gray-600">Name: {order.ss_user_name}</div>
-          <div className="text-sm text-gray-600">Party: {order.ss_party_name}</div>
-        </div>
 
-        <div className="border rounded p-4 bg-white shadow-sm">
-          <div className="font-semibold mb-2">CRM Verification</div>
-          <div className="text-sm font-bold text-gray-600">{orderCode}</div>
-          <div className="text-sm text-gray-600">CRM: {order.crm_name}</div>
-          <div className="text-sm text-gray-600">
-            {new Date(order.verified_at).toLocaleString("en-IN", {
-              timeZone: "Asia/Kolkata",
-            })}
-          </div>
-        </div>
-      </div> */}
 
       <div className="grid grid-cols-1 gap-4">
         <Table title="CRM — Verified Items" items={enrichedItems} />

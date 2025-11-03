@@ -14,6 +14,7 @@ export default function PDFDownloadButton({ order, items = [] }) {
       price: item.price ?? 0,
       product_name: item.product_name ?? "Unnamed Product",
       ss_virtual_stock: item.ss_virtual_stock ?? 0,
+      virtual_stock: item.virtual_stock ?? 0,
     }));
 
     const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -52,26 +53,34 @@ export default function PDFDownloadButton({ order, items = [] }) {
 
     // === Table Data ===
     const tableData = enrichedItems.map((item, idx) => {
-      const stockStatus =
-        item.ss_virtual_stock > 0 ? "Available" : "Not Available";
+      const hasSSStock = item.ss_virtual_stock > 0;
+      const hasVirtualStock = item.virtual_stock > 0;
 
-      const total =
-        item.ss_virtual_stock > 0
-          ? Number(item.quantity) * Number(item.price || 0)
-          : 0;
+      // ✅ Apply condition: if SS stock <= 0 but virtual stock > 0 => Available
+      const isAvailable = hasSSStock || (!hasSSStock && hasVirtualStock);
+
+      const stockStatus = isAvailable ? "Available" : "Not Available";
+
+      const total = isAvailable
+        ? Number(item.quantity) * Number(item.price || 0)
+        : 0;
 
       return [
         idx + 1,
         item.product_name,
         item.quantity,
-        stockStatus, // 👈 yaha status dikhayenge (Available/Not Available)
+        stockStatus,
         `${total.toFixed(1)}`,
       ];
     });
 
-    // === Grand Total (skip SS stock = 0 items) ===
+    // === Grand Total (use same logic)
     const grandTotal = enrichedItems.reduce((sum, item) => {
-      if (item.ss_virtual_stock <= 0) return sum;
+      const hasSSStock = item.ss_virtual_stock > 0;
+      const hasVirtualStock = item.virtual_stock > 0;
+      const isAvailable = hasSSStock || (!hasSSStock && hasVirtualStock);
+
+      if (!isAvailable) return sum;
       return sum + Number(item.quantity) * Number(item.price || 0);
     }, 0);
 
@@ -79,7 +88,7 @@ export default function PDFDownloadButton({ order, items = [] }) {
     autoTable(doc, {
       startY: startY + 80,
       margin: { left: margin, right: margin },
-      head: [["S.No", "Product Name", "Qty", "SS Stock Status", "Total"]],
+      head: [["S.No", "Product Name", "Qty", "Stock Status", "Total"]],
       body: tableData,
       theme: "grid",
       styles: { fontSize: 11, cellPadding: 6 },
@@ -100,17 +109,17 @@ export default function PDFDownloadButton({ order, items = [] }) {
         if (data.section === "body" && data.column.index === 3) {
           const text = data.cell.text[0];
           if (text === "Not Available") {
-            data.cell.styles.textColor = [255, 0, 0]; // लाल रंग
+            data.cell.styles.textColor = [255, 0, 0];
             data.cell.styles.fillColor = [255, 220, 220];
           } else if (text === "Available") {
-            data.cell.styles.textColor = [0, 150, 0]; // हरा रंग
+            data.cell.styles.textColor = [0, 150, 0];
             data.cell.styles.fillColor = [220, 255, 220];
           }
         }
       },
     });
 
-    // === Grand Total on LAST PAGE only ===
+    // === Grand Total ===
     const finalY = doc.lastAutoTable.finalY + 25;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);

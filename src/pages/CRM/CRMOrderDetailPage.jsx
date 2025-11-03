@@ -211,7 +211,20 @@ export default function CRMOrderDetailPage() {
 
         {/* Right Section — PDF Button */}
         <div>
-          <PDFDownloadButton order={order} items={editedItems} />
+          <PDFDownloadButton
+            order={order}
+            items={editedItems.map((item) => {
+              const productData = allProducts.find(
+                (p) => p.product_id === item.product
+              );
+              return {
+                ...item,
+                virtual_stock: productData?.virtual_stock ?? 0,
+                price: productData?.price ?? item.price ?? 0,
+              };
+            })}
+          />
+
         </div>
       </div>
 
@@ -305,17 +318,18 @@ export default function CRMOrderDetailPage() {
                       {productData?.cartoon_size ?? "-"}
                     </td>
                     <td className="px-4 py-2 border text-center">
-                      {productData.price ?  `₹${productData.price}` : ""}
+                      {productData.price ? `₹${productData.price}` : ""}
                     </td>
                     <td className="px-4 py-2 border text-center bg-blue-100">
                       ₹
-                      {item.ss_virtual_stock > 0
+                      {(item.ss_virtual_stock > 0 || (item.ss_virtual_stock <= 0 && (productData?.virtual_stock ?? 0) > 0))
                         ? (
                           (Number(item.quantity) || 0) *
                           (Number(productData?.price) || 0)
                         ).toFixed(1)
                         : 0}
                     </td>
+
 
                     <td className="px-4 py-2 border text-center">
                       <button
@@ -348,8 +362,11 @@ export default function CRMOrderDetailPage() {
                       const rawPrice = productData?.price;
 
                       // 🧠 अगर SS stock 0 है तो इस item को skip करो
+                      const virtualStock = productData?.virtual_stock ?? 0;
+
+                      // अगर दोनों stock 0 या negative हैं तभी skip करो
                       if (
-                        item.ss_virtual_stock <= 0 ||
+                        (item.ss_virtual_stock <= 0 && virtualStock <= 0) ||
                         rawPrice === null ||
                         rawPrice === undefined ||
                         rawPrice === "" ||
@@ -357,6 +374,7 @@ export default function CRMOrderDetailPage() {
                       ) {
                         return sum;
                       }
+
 
                       const price = Number(rawPrice);
                       const qty = Number(item.quantity) || 0;
@@ -411,12 +429,12 @@ export default function CRMOrderDetailPage() {
 
           {/* ✅ Submit */}
           <div className="mt-6 p-4 flex justify-end gap-6">
-            
+
             <button
               onClick={() => setShowDeleteOrderModal(true)}
               className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-md cursor-pointer"
             >Delete Order
-           </button>
+            </button>
             <button
               onClick={() => setShowConfirmModal(true)}
               disabled={loadingApprove}
@@ -429,52 +447,52 @@ export default function CRMOrderDetailPage() {
               Submit
             </button>
           </div>
-          
+
 
         </div>
       </div>
 
       {/* ✅ Confirm Submit Modal */}
-<ConfirmModal
-  isOpen={showConfirmModal}
-  title="Confirm Order Submission"
-  message="Are you sure you want to submit this order?"
-  confirmText="Yes, Submit"
-  confirmColor="bg-green-500 hover:bg-green-600"
-  onCancel={() => setShowConfirmModal(false)}
-  onConfirm={() => {
-    handleVerify();
-    setShowConfirmModal(false);
-  }}
-/>
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        title="Confirm Order Submission"
+        message="Are you sure you want to submit this order?"
+        confirmText="Yes, Submit"
+        confirmColor="bg-green-500 hover:bg-green-600"
+        onCancel={() => setShowConfirmModal(false)}
+        onConfirm={() => {
+          handleVerify();
+          setShowConfirmModal(false);
+        }}
+      />
 
-{/* 🗑️ Delete Order Modal */}
-<ConfirmModal
-  isOpen={showDeleteOrderModal}
-  title="Delete Order?"
-  message="Are you sure you want to delete this entire order?"
-  confirmText="Yes, Delete"
-  confirmColor="bg-red-500 hover:bg-red-600"
-  loading={loadingDelete}
-  onCancel={() => setShowDeleteOrderModal(false)}
-  onConfirm={handleDeleteOrder}
-  icon={Trash2}
-/>
+      {/* 🗑️ Delete Order Modal */}
+      <ConfirmModal
+        isOpen={showDeleteOrderModal}
+        title="Delete Order?"
+        message="Are you sure you want to delete this entire order?"
+        confirmText="Yes, Delete"
+        confirmColor="bg-red-500 hover:bg-red-600"
+        loading={loadingDelete}
+        onCancel={() => setShowDeleteOrderModal(false)}
+        onConfirm={handleDeleteOrder}
+        icon={Trash2}
+      />
 
-{/* 🧹 Delete Item Modal */}
-<ConfirmModal
-  isOpen={showDeleteModal}
-  title="Delete Item?"
-  message="Are you sure you want to delete this item?"
-  confirmText="Yes, Delete"
-  confirmColor="bg-red-500 hover:bg-red-600"
-  onCancel={() => setShowDeleteModal(false)}
-  onConfirm={() => {
-    handleDeleteItem(itemToDelete);
-    setShowDeleteModal(false);
-  }}
-  icon={Trash2}
-/>
+      {/* 🧹 Delete Item Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Item?"
+        message="Are you sure you want to delete this item?"
+        confirmText="Yes, Delete"
+        confirmColor="bg-red-500 hover:bg-red-600"
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          handleDeleteItem(itemToDelete);
+          setShowDeleteModal(false);
+        }}
+        icon={Trash2}
+      />
 
     </div>
   );
