@@ -8,14 +8,13 @@ import { useCachedProducts } from "../../hooks/useCachedProducts";
 import PDFDownloadButton from "../../components/PDFDownloadButton";
 import ConfirmModal from "../../components/ConfirmModal";
 
-
 function Table({ title, items }) {
   return (
     <div className="border rounded shadow-sm">
       <div className="flex items-center justify-between px-4 py-2 bg-blue-100 border font-semibold">
         <span>{title}</span>
       </div>
-      <div className="overflow-x-auto select-none ">
+      <div className="overflow-x-auto select-none">
         <table className="min-w-full text-sm text-left text-gray-700 border">
           <thead className="bg-gray-200 text-gray-900 text-sm font-semibold">
             <tr>
@@ -34,29 +33,42 @@ function Table({ title, items }) {
             {items?.length ? (
               <>
                 {items.map((r, idx) => {
-                  const total = Number(r.quantity) * Number(r?.price || 0);
+                  const qty = Number(r.quantity) || 0;
+                  const price = Number(r.price) || 0;
+                  const ssStock = Number(r.ss_virtual_stock) || 0;
+                  const stock = Number(r.virtual_stock) || 0;
+
+                  // ✅ Total calculate condition same as CRMOrderDetailPage
+                  const total =
+                    ssStock > 0 || (ssStock <= 0 && stock > 0)
+                      ? (qty * price).toFixed(1)
+                      : (0).toFixed(1);
+
                   return (
-                    <tr key={idx} className="border-t hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={idx}
+                      className="border-t hover:bg-gray-50 transition-colors"
+                    >
                       <td className="p-3 border text-center">{idx + 1}</td>
                       <td className="p-3 border">{r.sub_category}</td>
                       <td className="p-3 border">{r.product_name}</td>
                       <td className="p-3 border bg-yellow-100">{r.quantity}</td>
                       <td className="p-3 border">{r.cartoon_size ?? "-"}</td>
-                      {/* ✅ Price 1 decimal tak */}
                       <td className="p-3 border">
-                        ₹{Number(r.price || 0).toFixed(1)}
+                        ₹{price.toFixed(1)}
                       </td>
-                      {/* ✅ Total 1 decimal tak */}
-                      <td className="p-3 border">
-                        ₹{total.toFixed(1)}
+                      <td className="p-3 border bg-blue-100">
+                        ₹{total}
                       </td>
-                      <td className="p-3 border bg-red-100">{r.ss_virtual_stock}</td>
-                      <td className="p-3 border bg-red-200">{r.virtual_stock ?? "-"}</td>
+                      <td className="p-3 border bg-red-100">{ssStock}</td>
+                      <td className="p-3 border bg-red-200">
+                        {stock || "0"}
+                      </td>
                     </tr>
                   );
                 })}
 
-                {/* ✅ Grand Total Row (with Estimate Total Logic) */}
+                {/* ✅ Grand Total with same condition */}
                 <tr className="bg-blue-100 font-semibold">
                   <td colSpan={6} className="p-3 border text-right">
                     Estimate Total
@@ -65,31 +77,29 @@ function Table({ title, items }) {
                     ₹
                     {items
                       .reduce((sum, item) => {
-                        // CRMOrderDetailPage जैसी logic
-                        const virtualStock = Number(item.virtual_stock) || 0;
-                        const ssStock = Number(item.ss_virtual_stock) || 0;
-                        const price = Number(item.price) || 0;
-
-                        // अगर दोनों stock 0 या negative हैं, तो skip करो
-                        if (ssStock <= 0 && virtualStock <= 0) return sum;
-
                         const qty = Number(item.quantity) || 0;
-                        return sum + price * qty;
+                        const price = Number(item.price) || 0;
+                        const ssStock = Number(item.ss_virtual_stock) || 0;
+                        const stock = Number(item.virtual_stock) || 0;
+
+                        // ✅ अगर ssStock > 0 या (ssStock <= 0 और stock > 0) तभी जोड़ो
+                        if (ssStock > 0 || (ssStock <= 0 && stock > 0)) {
+                          return sum + qty * price;
+                        }
+                        return sum;
                       }, 0)
                       .toFixed(1)}
                   </td>
                 </tr>
-
               </>
             ) : (
               <tr>
-                <td className="p-3 text-gray-500" colSpan={7}>
+                <td className="p-3 text-gray-500" colSpan={9}>
                   No items
                 </td>
               </tr>
             )}
           </tbody>
-
         </table>
       </div>
     </div>

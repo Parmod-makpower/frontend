@@ -140,7 +140,7 @@ export default function CRMVerifiedHistoryPage() {
               <th className="p-3 border">CRM</th>
               <th className="p-3 border">Status</th>
               <th className="p-3 border">Verified At</th>
-              <th className="p-3 border">Total</th>
+              {/* <th className="p-3 border">Total</th> */}
               {user?.role === "ADMIN" && (
                 <th className="p-3 text-right">Action</th>
               )}
@@ -198,9 +198,9 @@ export default function CRMVerifiedHistoryPage() {
                         timeZone: "Asia/Kolkata",
                       })}
                     </td>
-                    <td className="p-3 border">
+                    {/* <td className="p-3 border">
                       ₹{Number(row.total_amount).toFixed(2)}
-                    </td>
+                    </td> */}
 
                     {user?.role === "ADMIN" && (
                       <td className="p-3 text-right relative">
