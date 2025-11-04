@@ -1,35 +1,13 @@
 
-import makpower_image from "../assets/images/makpower_image.webp"
- 
 const categories = [
     {
-    label: "AUDIO",
+    label: "Audio",
     keyword: "AUDIO",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532724/p2syqkpr5kxff6uiarjf.webp",
     subcategories: []
   },
-    {
-    label: "POWER BANK",
-    keyword: "POWER BANK",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532750/qstv6nc7rgzwtmddxhjn.webp",
-    subcategories: []
-  },
-   
-    {
-    label: "SPEAKER",
-    keyword: "SPEAKER",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532754/qsvcsduv4mszlgrwga6e.webp",
-    subcategories: []
-  },
-  {
-    label: "CHARGER",
-    keyword: "CHARGER",
-    image:  "https://res.cloudinary.com/djyr368zj/image/upload/v1758532738/wslagvfsasg9r0pi672d.webp",
-  
-    subcategories: []
-  },
-  {
-    label: "BLUETOOTH",
+   {
+    label: "Bluetooth",
     keyword: "BLUETOOTH",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532730/yrbmszliqozzvl9j9cmw.webp",
 
@@ -58,29 +36,7 @@ const categories = [
     ]
   },
   {
-    label: "TEMPERED",
-    keyword: "TEMPERED",
-    image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425",
-    subcategories: [
-      {
-        label: "TEMPERED BODYGUARD",
-        keyword: "TEMPERED BODYGUARD",
-        image: makpower_image
-      },
-      {
-        label: "TEMPERED SUPER X",
-        keyword: "TEMPERED SUPER X",
-        image: makpower_image
-      },
-      {
-        label: "UV TEMPERED",
-        keyword: "UV TEMPERED",
-        image: makpower_image
-      }
-    ]
-  },
-  {
-    label: "BATTERY",
+    label: "Battery",
     keyword: "BATTERY",
     image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp",
     subcategories: [
@@ -183,67 +139,125 @@ const categories = [
      
     ]
   },
-
   {
+    label: "Charger",
+    keyword: "CHARGER",
+    image:  "https://res.cloudinary.com/djyr368zj/image/upload/v1758532738/wslagvfsasg9r0pi672d.webp",
+  
+    subcategories: []
+  },
+  {
+    label: "Connector",
+    keyword: "CONNECTOR",
+    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1761543453/ugzsgnxyhh8flgubhubz.webp",
+    subcategories: []
+  },
+   {
     label: "CABLE",
     keyword: "CABLE",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532734/laic3tlpbionyqjjlyjx.webp",
     subcategories: [
       {
-        label: "AUX CABLE",
+        label: "AUX Cables",
         keyword: "AUX CABLE",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503009/djvbec5fw6o4ix3q4scy.webp"
       },
       {
-        label: "DATA CABLE",
+        label: "Data Cables",
         keyword: "DATA CABLE",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532734/laic3tlpbionyqjjlyjx.webp",
       },
       {
-        label: "OTG CABLE",
+        label: "OTG Cables",
         keyword: "O.T.G",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757502118/tehcjy28eqv5bq4idklv.webp"
       }
     ]
   },
-  {
-    label: "HANDSFREE",
+   {
+    label: "Handfree",
     keyword: "HANDSFREE",
     image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1758532741/jbul9qzghqqkbb9jv639.webp",
     subcategories: []
   },
    {
-    label: "HEADPHONE",
+    label: "Headphones",
     keyword: "HEADPHONE",
     image:   "https://cdn.store-assets.com/s/273607/i/18788356.jpg",
     subcategories: []
   },
   
   {
-    label: "PENDRIVE",
-    keyword: "PENDRIVE",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1757503207/erjplzgypqfeoveb7tzv.webp",
+    label: "Led Light",
+    keyword: "LED",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503038/snnngwxnumclv86jgfrl.webp",
     subcategories: []
   },
    {
-    label: "MOBILE HOLDER",
+    label: "Mobile Holder",
     keyword: "MOBILE HOLDER",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532746/wif4hyrgsj4gqrvelo8i.webp",
 
     subcategories: []
   },
   {
-    label: "MEMORY CARD",
+    label: "Memory card",
     keyword: "MEMORY CARD",
     image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1757503232/sgwompfbk1t79ranr6ha.webp",
     subcategories: []
   },
+    {
+    label: "Power Bank",
+    keyword: "POWER BANK",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532750/qstv6nc7rgzwtmddxhjn.webp",
+    subcategories: []
+  },
+   
   {
-    label: "SMART WATCH",
+    label: "Pendrive",
+    keyword: "PENDRIVE",
+    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1757503207/erjplzgypqfeoveb7tzv.webp",
+    subcategories: []
+  },
+   
+    {
+    label: "Speakers",
+    keyword: "SPEAKER",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532754/qsvcsduv4mszlgrwga6e.webp",
+    subcategories: []
+  },
+  
+  {
+    label: "Smart Watch",
     keyword: "SMART WATCH",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503000/vhnzdx5lpyscijtwazh2.webp",
     subcategories: []
   },
+ 
+  {
+    label: "Tempered",
+    keyword: "TEMPERED",
+    image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425",
+    subcategories: [
+      {
+        label: "TEMPERED BODYGUARD",
+        keyword: "TEMPERED BODYGUARD",
+        image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
+      },
+      {
+        label: "TEMPERED SUPER X",
+        keyword: "TEMPERED SUPER X",
+        image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
+      },
+      {
+        label: "UV TEMPERED",
+        keyword: "UV TEMPERED",
+        image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
+      }
+    ]
+  },
+  
+  
   {
     label: "USB HUB",
     keyword: "USB HUB",
@@ -251,12 +265,7 @@ const categories = [
     subcategories: []
   },
  
-  {
-    label: "CONNECTOR",
-    keyword: "CONNECTOR",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1761543453/ugzsgnxyhh8flgubhubz.webp",
-    subcategories: []
-  }
+  
  
 ];
 

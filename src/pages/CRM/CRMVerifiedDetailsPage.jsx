@@ -1,14 +1,16 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiEdit, FiTrash2 } from "react-icons/fi";
 import { useState, useMemo } from "react";
 import DispatchPDF from "../../components/DispatchPDF";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { punchOrderToSheet } from "../../api/punchApi";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 import ConfirmModal from "../../components/ConfirmModal";
+import { useAuth } from "../../context/AuthContext";
 import API from "../../api/axios";
 
-function Table({ title, items }) {
+
+function Table({ title, items, setEditingItem, setEditQty, setShowEditModal, order, user, handleDeleteItem }) {
   return (
     <div className="border rounded shadow-sm">
       <div className="flex items-center justify-between px-4 py-2 bg-blue-100 border font-semibold">
@@ -27,6 +29,8 @@ function Table({ title, items }) {
               <th className="p-3 border">Total</th>
               <th className="p-3 border">SS-Stock</th>
               <th className="p-3 border">Stock</th>
+              {!order.punched && (<th className="p-3 border">Action</th>)}
+
             </tr>
           </thead>
           <tbody>
@@ -57,6 +61,31 @@ function Table({ title, items }) {
                       <td className="p-3 border bg-blue-100">₹{total}</td>
                       <td className="p-3 border bg-red-100">{ssStock}</td>
                       <td className="p-3 border bg-red-200">{stock || "0"}</td>
+                      {!order.punched && (<td className="p-3 border text-center">
+                        <div className="flex justify-around">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingItem(r);
+                              setEditQty(r.quantity);
+                              setShowEditModal(true);
+                            }}
+                            className="text-blue-600 rounded hover:bg-blue-600 hover:text-white flex items-center border px-2 cursor-pointer"
+                          >
+                            <FiEdit className="me-2" />  Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteItem(r.id);
+                            }}
+                            className="flex  cursor-pointer items-center gap-2 text-red-600 border border-red-600 rounded-md px-2  hover:bg-red-600 hover:text-white transition-all duration-150 "
+                          >
+                            <FiTrash2  /> Delete
+                          </button>
+                        </div>
+                      </td>)}
+                      {user?.role === "ADMIN" && (<td className="p-3 border bg-red-200">{r.id}</td>)}
                     </tr>
                   );
                 })}
@@ -97,12 +126,17 @@ function Table({ title, items }) {
 }
 
 export default function CRMVerifiedDetailsPage() {
+  const { user } = useAuth();
+
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [remarks, setRemarks] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [editQty, setEditQty] = useState("");
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newProduct, setNewProduct] = useState("");
@@ -205,11 +239,41 @@ export default function CRMVerifiedDetailsPage() {
   };
 
   const [searchTerm, setSearchTerm] = useState("");
-const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-const filteredProducts = allProducts.filter((p) =>
-  p.product_name.toLowerCase().includes(searchTerm.toLowerCase())
-);
+  const filteredProducts = allProducts.filter((p) =>
+    p.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleEditQuantity = async (itemId, newQty) => {
+    if (!newQty || isNaN(newQty)) {
+      alert("Invalid quantity!");
+      return;
+    }
+    try {
+      const res = await API.post(`/crm/verified/item/${itemId}/update/`, {
+        quantity: newQty,
+      });
+      alert(res.data.message);
+      navigate("/all/orders-history/");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || "Failed to update quantity.");
+    }
+  };
+
+  const handleDeleteItem = async (itemId) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
+
+    try {
+      const res = await API.delete(`/crm/verified/item/${itemId}/delete/`);
+      alert(res.data.message);
+      navigate(0); // reload current page
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || "Failed to delete item.");
+    }
+  };
 
 
   if (!order) {
@@ -259,19 +323,34 @@ const filteredProducts = allProducts.filter((p) =>
         </div>
       </div>
 
-      {/* ✅ Add Product Button */}
-      {/* <div className="flex justify-end mb-2">
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700"
-        >
-          Add Product
-        </button>
-      </div> */}
-
       {/* ✅ Table */}
       <div className="grid grid-cols-1 gap-4">
-        <Table title="CRM — Verified Items" items={enrichedItems} />
+
+        <Table
+          title="CRM — Verified Items"
+          items={enrichedItems}
+          setEditingItem={setEditingItem}
+          setEditQty={setEditQty}
+          setShowEditModal={setShowEditModal}
+          handleDeleteItem={handleDeleteItem}
+          order={order}
+          user={user}
+        />
+        {!order.punched && (<div className="flex justify-end mb-2">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-green-600 text-white px-4 py-1 cursor-pointer rounded shadow hover:bg-green-700"
+          >
+            Add Product
+          </button>
+        </div>)}
+        {user?.role === "ADMIN" && (<div className="flex justify-end mb-2">
+          <button onClick={() => setShowAddModal(true)}
+            className="bg-green-600 text-white px-4 py-1 cursor-pointer rounded shadow hover:bg-green-700"
+          > Add Product
+          </button>
+        </div>)}
+
       </div>
 
       {/* ✅ Add Product Modal */}
@@ -280,41 +359,41 @@ const filteredProducts = allProducts.filter((p) =>
           <div className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-md">
             <h2 className="text-lg font-bold mb-4">Add Product to Order</h2>
 
-         {/* ✅ Searchable Product Selector */}
-<div className="mb-3 relative">
-  <input
-    type="text"
-    placeholder="Search product..."
-    className="w-full border rounded p-2"
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    onFocus={() => setDropdownOpen(true)}
-  />
+            {/* ✅ Searchable Product Selector */}
+            <div className="mb-3 relative">
+              <input
+                type="text"
+                placeholder="Search product..."
+                className="w-full border rounded p-2"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => setDropdownOpen(true)}
+              />
 
-  {/* Dropdown List */}
-  {dropdownOpen && (
-    <div className="absolute z-50 bg-white border rounded w-full max-h-60 overflow-y-auto shadow-lg">
-      {filteredProducts.length > 0 ? (
-        filteredProducts.map((p) => (
-          <div
-            key={p.product_id}
-            onClick={() => {
-              setNewProduct(p.product_id);
-              setNewPrice(p.price || 0);
-              setSearchTerm(p.product_name);
-              setDropdownOpen(false);
-            }}
-            className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
-          >
-            {p.product_name} 
-          </div>
-        ))
-      ) : (
-        <div className="p-3 text-gray-400">No product found</div>
-      )}
-    </div>
-  )}
-</div>
+              {/* Dropdown List */}
+              {dropdownOpen && (
+                <div className="absolute z-50 bg-white border rounded w-full max-h-60 overflow-y-auto shadow-lg">
+                  {filteredProducts.length > 0 ? (
+                    filteredProducts.map((p) => (
+                      <div
+                        key={p.product_id}
+                        onClick={() => {
+                          setNewProduct(p.product_id);
+                          setNewPrice(p.price || 0);
+                          setSearchTerm(p.product_name);
+                          setDropdownOpen(false);
+                        }}
+                        className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+                      >
+                        {p.product_name}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-3 text-gray-400">No product found</div>
+                  )}
+                </div>
+              )}
+            </div>
 
 
 
@@ -326,13 +405,13 @@ const filteredProducts = allProducts.filter((p) =>
               onChange={(e) => setNewQty(e.target.value)}
             />
 
-           <input
-  type="number"
-  placeholder="Price"
-  className="w-full border rounded p-2 mb-4 bg-gray-100"
-  value={newPrice}
-  readOnly
-/>
+            <input
+              type="number"
+              placeholder="Price"
+              className="w-full border rounded p-2 mb-4 bg-gray-100"
+              value={newPrice}
+              readOnly
+            />
 
             <div className="flex justify-end gap-3">
               <button
@@ -372,11 +451,10 @@ const filteredProducts = allProducts.filter((p) =>
       <button
         onClick={handleOrderPunch}
         disabled={order.punched || loading}
-        className={`px-6 py-2 rounded-lg shadow transition ${
-          order.punched || loading
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-        }`}
+        className={`px-6 py-2 rounded-lg shadow transition ${order.punched || loading
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+          }`}
       >
         {loading ? (
           <>
@@ -408,6 +486,41 @@ const filteredProducts = allProducts.filter((p) =>
           "Order Punch"
         )}
       </button>
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-md">
+            <h2 className="text-lg font-bold mb-4">
+              Edit Quantity for {editingItem?.product_name}
+            </h2>
+
+            <input
+              type="number"
+              value={editQty}
+              onChange={(e) => setEditQty(e.target.value)}
+              className="w-full border rounded p-2 mb-4"
+            />
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleEditQuantity(editingItem.id, editQty);
+                  setShowEditModal(false);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

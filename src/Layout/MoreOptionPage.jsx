@@ -8,6 +8,9 @@ import {
   FaUsers,
   FaChartLine,
   FaBox,
+  FaBan,
+  FaHourglassHalf,
+  FaUser,
 } from "react-icons/fa";
 import MobilePageHeader from "../components/MobilePageHeader";
 
@@ -34,6 +37,42 @@ export default function MoreOptionsPage() {
             icon: <FaChartLine className="text-orange-600" />,
             action: () => navigate("/available-stock"),
           },
+        ]
+      : []),
+    ...(user?.role === "ADMIN"
+      ? [
+        {
+            label: "Pending Orders",
+            icon: <FaHourglassHalf className="text-red-600" />,
+            action: () => navigate("/admin/pending-orders"),
+          },
+         {
+            label: "Products",
+            icon: <FaBox className="text-green-600" />,
+            action: () => navigate("/products"),
+          },
+          {
+            label: "Inactive Products",
+            icon: <FaBan className="text-red-600" />,
+            action: () => navigate("/inactive"),
+          },
+          {
+            label: "Sale Name",
+            icon: <FaBox className="text-yellow-600" />,
+            action: () => navigate("/sale-name"),
+          },
+          {
+            label: "Super Stockist",
+            icon: <FaUser className="text-blue-600" />,
+            action: () => navigate("/crm-ss/list"),
+          },
+          
+          {
+            label: "Cargos details",
+            icon: <FaBox className="text-gray-600" />,
+            action: () => navigate("/cargo-details"),
+          },
+          
         ]
       : []),
     ...(user?.role === "SS"
