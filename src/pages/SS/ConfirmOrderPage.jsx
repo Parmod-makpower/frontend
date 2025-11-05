@@ -91,14 +91,26 @@ export default function ConfirmOrderPage() {
       onSuccess: (data) => {
         setIsPlacingOrder(false);
         setSelectedProducts([]);
-        setShowSuccess(data.order.order_id);
+
+        // ✅ Multiple order support (new nested structure)
+        const tempered = data?.orders?.tempered_order;
+        const normal = data?.orders?.normal_order;
+
+        const ids = [
+          tempered?.order_id,
+          normal?.order_id,
+        ].filter(Boolean); // remove undefined
+
+        if (ids.length > 0) {
+          setShowSuccess(ids.join(", "));
+        } else {
+          alert("Order placed, but could not read order ID.");
+          console.warn("Unexpected response format:", data);
+        }
       },
-      onError: (error) => {
-        setIsPlacingOrder(false);
-        console.error("❌ Order failed:", error);
-        alert("Order failed, please try again.");
-      },
+
     });
+
   };
 
   return (
