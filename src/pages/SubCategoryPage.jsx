@@ -57,7 +57,7 @@ const handleSubCategoryClick = (sub) => {
   return (
     <div className="p-4 pb-20">
       <MobilePageHeader title={mainCategory.label} />
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:pt-0 pt-[60px]">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:pt-0 pt-[60px]">
         {mainCategory.subcategories.map((sub) => (
           <div
             key={sub.label}

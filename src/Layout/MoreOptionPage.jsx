@@ -13,6 +13,7 @@ import {
   FaUser,
 } from "react-icons/fa";
 import MobilePageHeader from "../components/MobilePageHeader";
+import ClearCacheButton from "../components/ClearCacheButton";
 
 export default function MoreOptionsPage() {
   const { user, logout } = useAuth();
@@ -117,7 +118,7 @@ export default function MoreOptionsPage() {
           </div>
         </div>
       </div>
-
+    {user?.role == "ADMIN" && (<ClearCacheButton/>)}
       {/* Options */}
       <div className="space-y-3">
         {options.map(({ label, icon, action, danger }, idx) => (

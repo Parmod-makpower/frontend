@@ -13,22 +13,22 @@ const categories = [
 
     subcategories: [
       {
-        label: "BLUETOOTH",
+        label: "Neckband",
         keyword: "BLUETOOTH",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532730/yrbmszliqozzvl9j9cmw.webp"
       },
       {
-        label: "TWS",
+        label: "Earbuds",
         keyword: "TWS",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757746187/fyojsjespgmbzvlnhulp.webp",
       },
       {
-        label: "BLUETOOTH CELL",
+        label: "Bluetooth Cell",
         keyword: "BLUETOOTH Cell",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757563007/gz8rtmubnidf2gptuvj8.webp"
       },
       {
-        label: "CAR BLUETOOTH",
+        label: "Car Bluetooth",
         keyword: "CAR BLUETOOTH",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757562991/fdmfm3djjyhs76kvecvk.webp"
       },
@@ -87,7 +87,7 @@ const categories = [
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
       {
-        label: "POLYMER MI",
+        label: "POLYMER MI BATTERY",
         keyword: "POLYMER MI BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
@@ -240,17 +240,17 @@ const categories = [
     image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425",
     subcategories: [
       {
-        label: "TEMPERED BODYGUARD",
+        label: "Bodyguard",
         keyword: "TEMPERED BODYGUARD",
         image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
       },
       {
-        label: "TEMPERED SUPER X",
+        label: "Super X",
         keyword: "TEMPERED SUPER X",
         image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
       },
       {
-        label: "UV TEMPERED",
+        label: "UV Glass",
         keyword: "UV TEMPERED",
         image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
       }

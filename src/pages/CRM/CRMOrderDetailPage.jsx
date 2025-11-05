@@ -430,11 +430,11 @@ export default function CRMOrderDetailPage() {
           {/* ✅ Submit */}
           <div className="mt-6 p-4 flex justify-end gap-6">
 
-            {/* <button
+            <button
               onClick={() => setShowDeleteOrderModal(true)}
               className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-md cursor-pointer"
             >Delete Order
-            </button> */}
+            </button>
 
             <button
               onClick={() => setShowConfirmModal(true)}
