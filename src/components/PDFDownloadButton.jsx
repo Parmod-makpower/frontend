@@ -161,10 +161,9 @@ export default function PDFDownloadButton({ order, items = [] }) {
   return (
     <button
       onClick={handleDownloadPDF}
-      className="flex items-center gap-2 bg-green-600 hover:bg-green-700 cursor-pointer text-white px-4 py-2 rounded shadow-md transition-all"
-    >
-      <Download size={18} />
-      Download SS PDF
+      className="flex gap-2 justify-center items-center cursor-pointer"
+    > <Download size={18} className="text-blue-500"/>
+       SS PDF
     </button>
   );
 }

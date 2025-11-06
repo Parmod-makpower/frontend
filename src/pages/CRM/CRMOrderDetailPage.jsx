@@ -3,15 +3,20 @@ import { useState, useEffect } from "react";
 import { verifyCRMOrder, deleteCRMOrder } from "../../hooks/useCRMOrders";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 import { Loader2, Trash2 } from "lucide-react";
-import { FaGift } from "react-icons/fa";
+import { FaGift, FaTrashAlt } from "react-icons/fa";
 import ConfirmModal from "../../components/ConfirmModal";
 import PDFDownloadButton from "../../components/PDFDownloadButton";
-
+import { useSchemes } from "../../hooks/useSchemes";
+import ReminderTable from "../../components/orderSheet/ReminderTable";
+import OrderItemsTable from "../../components/orderSheet/OrderItemsTable";
+import MobilePageHeader from "../../components/MobilePageHeader";
+import { FaEllipsisV } from "react-icons/fa";
 
 export default function CRMOrderDetailPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const [itemToDelete, setItemToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -23,6 +28,31 @@ export default function CRMOrderDetailPage() {
 
   // ✅ Edited items (restore from localStorage or backend)
   const [editedItems, setEditedItems] = useState([]);
+  const { data: schemes = [] } = useSchemes();
+
+  const hasScheme = (productId) =>
+    schemes.some(
+      (scheme) =>
+        Array.isArray(scheme.conditions) &&
+        scheme.conditions.some((cond) => cond.product === productId)
+    );
+  // ✅ Generate reward text for a product
+  const getSchemeText = (productId) => {
+    const scheme = schemes.find((s) =>
+      Array.isArray(s.conditions) &&
+      s.conditions.some((c) => c.product === productId)
+    );
+
+    if (!scheme) return null;
+
+    const cond = scheme.conditions[0]; // assuming single condition
+    const reward = scheme.rewards?.[0]; // assuming single reward
+
+    if (!cond || !reward) return null;
+
+    return `Buy ${cond.min_quantity} ${cond.product_name} → Get ${reward.quantity} ${reward.product_name}`;
+  };
+
 
   // ✅ Sync localStorage or backend order items
   useEffect(() => {
@@ -202,257 +232,162 @@ export default function CRMOrderDetailPage() {
   return (
     <div className="p-4 mx-auto sm:border rounded pb-20">
       {/* Header */}
-      <div className="mb-6 border-b pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <MobilePageHeader title={order.order_id} />
+      <div className="mb-6 border-b pb-4 flex flex-col flex-row items-center justify-between pt-[65px] sm:pt-0">
         {/* Left Section — Order Info */}
         <div>
-          <h2 className="text-base font-semibold text-gray-800">{order.order_id}</h2>
+          <h2 className="text-base font-semibold text-gray-800 hidden sm:flex">{order.order_id}</h2>
           <p className="text-sm text-gray-600">{order.ss_party_name}</p>
         </div>
 
         {/* Right Section — PDF Button */}
-        <div>
-          <PDFDownloadButton
-            order={order}
-            items={editedItems.map((item) => {
-              const productData = allProducts.find(
-                (p) => p.product_id === item.product
-              );
-              return {
-                ...item,
-                virtual_stock: productData?.virtual_stock ?? 0,
-                price: productData?.price ?? item.price ?? 0,
-              };
-            })}
-          />
+        <div className="relative">
+          {/* 3-dot button */}
+          <button
+            onClick={() => setMenuOpen((prev) => !prev)}
+            className="p-2 rounded hover:bg-gray-200 cursor-pointer"
+          >
+            <FaEllipsisV size={18} />
+          </button>
 
-        </div>
-      </div>
+          {/* Dropdown Menu */}
+          {menuOpen && (
+            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg  border z-50">
 
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Reminder Table */}
-        <div className="md:col-span-1 bg-yellow-50 rounded p-3 overflow-x-auto">
-          <h3 className="font-semibold text-yellow-800 mb-2">
-            ⚠️ Previous Reminders
-          </h3>
-          {order?.recent_rejected_items?.length > 0 ? (
-            <table className="w-full border border-yellow-200 text-sm">
-              <thead className="bg-yellow-100 text-yellow-800">
-                <tr>
-                  <th className="px-2 py-2 border">Product</th>
-                  <th className="px-2 py-2 border">Qty</th>
-                  <th className="px-2 py-2 border">Last Rejected</th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.recent_rejected_items.map((r) => (
-                  <tr key={r.product} className="hover:bg-yellow-50">
-                    <td className="px-2 py-1 border">{r.product_name}</td>
-                    <td className="px-2 py-1 border text-center">{r.quantity}</td>
-                    <td className="px-2 py-1 border text-xs text-gray-600">
-                      {new Date(r.last_rejected_at).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className="text-gray-500 italic text-sm">
-              No previous rejections
+              {/* ✅ PDF Download */}
+              <ul>
+                <li className="p-2"><button
+                  onClick={() => {
+                    setMenuOpen(false);
+                  }}
+                >
+                  <PDFDownloadButton
+                    order={order}
+                    items={editedItems.map((item) => {
+                      const productData = allProducts.find(
+                        (p) => p.product_id === item.product
+                      );
+                      return {
+                        ...item,
+                        virtual_stock: productData?.virtual_stock ?? 0,
+                        price: productData?.price ?? item.price ?? 0,
+                      };
+                    })}
+                  />
+                </button></li>
+                <li className="border-t p-2"> <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setShowDeleteOrderModal(true);
+                  }}
+                  className="flex gap-2 justify-center items-center cursor-pointer"
+                ><FaTrashAlt size={15} className="text-red-500" />
+                  Delete Order
+                </button></li>
+              </ul>
             </div>
           )}
         </div>
 
-        {/* Main Table */}
-        <div className="md:col-span-3 overflow-x-auto shadow rounded p-3">
-          <table className="w-full border text-sm text-left">
-            <thead className="bg-gray-100 text-gray-700 uppercase">
-              <tr>
-                <th className="px-4 py-3 border">Product</th>
-                <th className="px-4 py-3 text-center border">SS Order</th>
-                <th className="px-4 py-3 text-center border">Approved</th>
-                <th className="px-4 py-3 text-center border">ss-Stock</th>
-                <th className="px-4 py-3 text-center border">Stock</th>
-                <th className="px-4 py-3 text-center border">Carton</th>
-                <th className="px-4 py-3 text-center border">Price</th>
-                <th className="px-4 py-3 text-center border">Total</th>
-                <th className="px-4 py-3 text-center border">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {editedItems.map((item) => {
-                const productData = allProducts.find(
-                  (p) => p.product_id === item.product
-                );
-                return (
-                  <tr key={item.product} className="hover:bg-gray-50 bg-white">
-                    <td className="px-4 py-2 border gap-2">
-                      {item.product_name}
-                      {item.is_scheme_item && (
-                        <FaGift className="text-orange-500" />
-                      )}
-                    </td>
-                    <td className="px-4 py-2 border text-center">
-                      {item.original_quantity}
-                    </td>
-                    <td className="px-4 py-2 border text-center">
-                      <input
-                        type="number"
-                        min="0"
-                        step="1"
-                        value={item.quantity === "" ? "" : item.quantity}
-                        onChange={(e) =>
-                          handleEditQuantity(item.product, e.target.value)
-                        }
-                        className="border rounded-lg p-1 w-20 text-center"
-                      />
-                    </td>
-                    <td className="px-4 py-2 border text-center bg-red-300">
-                      {item.ss_virtual_stock}
-                    </td>
-                    <td className="px-4 py-2 border text-center bg-red-300">
-                      {productData?.virtual_stock ?? "-"}
-                    </td>
-                    <td className="px-4 py-2 border text-center">
-                      {productData?.cartoon_size ?? "-"}
-                    </td>
-                    <td className="px-4 py-2 border text-center">
-                      {productData.price ? `₹${productData.price}` : ""}
-                    </td>
-                    <td className="px-4 py-2 border text-center bg-blue-100">
-                      ₹
-                      {(item.ss_virtual_stock > 0 || (item.ss_virtual_stock <= 0 && (productData?.virtual_stock ?? 0) > 0))
-                        ? (
-                          (Number(item.quantity) || 0) *
-                          (Number(productData?.price) || 0)
-                        ).toFixed(1)
-                        : 0}
-                    </td>
+      </div>
 
 
-                    <td className="px-4 py-2 border text-center">
-                      <button
-                        onClick={() => {
-                          setItemToDelete(item.product);
-                          setShowDeleteModal(true);
-                        }}
-                        className="text-red-600 hover:text-red-800 cursor-pointer px-3 p-1"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
-              {/* Grand Total */}
-              <tr className="bg-gray-100 font-bold text-gray-800">
-                <td colSpan="7" className="px-4 py-2 text-right border">
-                  Estimate Total:
-                </td>
-                <td colSpan="2" className="px-4 py-2 border">
-                  ₹
+        <div className="md:col-span-1">
+          <ReminderTable recentRejectedItems={order.recent_rejected_items} />
+        </div>
 
-                  {editedItems
-                    .reduce((sum, item) => {
-                      const productData = allProducts.find(
-                        (p) => p.product_id === item.product
-                      );
-                      const rawPrice = productData?.price;
-
-                      // 🧠 अगर SS stock 0 है तो इस item को skip करो
-                      const virtualStock = productData?.virtual_stock ?? 0;
-
-                      // अगर दोनों stock 0 या negative हैं तभी skip करो
-                      if (
-                        (item.ss_virtual_stock <= 0 && virtualStock <= 0) ||
-                        rawPrice === null ||
-                        rawPrice === undefined ||
-                        rawPrice === "" ||
-                        isNaN(Number(rawPrice))
-                      ) {
-                        return sum;
-                      }
-
-
-                      const price = Number(rawPrice);
-                      const qty = Number(item.quantity) || 0;
-                      return sum + price * qty;
-                    }, 0)
-                    .toFixed(1)}
-
-                </td>
-
-              </tr>
-            </tbody>
-          </table>
-
-          {/* 🔍 Add Product */}
-          <div className="mt-6 border-t pt-4">
-            <label className="block text-sm font-medium mb-2">
-              Add Product
-            </label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setHighlightIndex(-1);
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder="Search product and press Enter..."
-              className="border rounded px-3 py-2 w-full mb-2"
-            />
-
-            {searchTerm && (
-              <div className="max-h-60 overflow-y-auto border rounded shadow bg-white">
-                {filteredProducts.length > 0 ? (
-                  filteredProducts.map((prod, index) => (
-                    <div
-                      key={prod.product_id}
-                      className={`px-3 py-2 cursor-pointer ${highlightIndex === index
-                        ? "bg-blue-100"
-                        : "hover:bg-gray-100"
-                        }`}
-                      onClick={() => handleAddProductBySearch(prod)}
-                    >
-                      {prod.product_name}
-                    </div>
-                  ))
-                ) : (
-                  <p className="px-3 py-2 text-gray-500">No products found</p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* ✅ Submit */}
-          <div className="mt-6 p-4 flex justify-end gap-6">
-
-            <button
-              onClick={() => setShowDeleteOrderModal(true)}
-              className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-md cursor-pointer"
-            >Delete Order
-            </button>
-
-            <button
-              onClick={() => setShowConfirmModal(true)}
-              disabled={loadingApprove}
-              className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md ${loadingApprove
-                ? "bg-blue-400 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-green-600"
-                } cursor-pointer`}
-            >
-              {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
-              Submit
-            </button>
-          </div>
+        <div className="md:col-span-3 overflow-x-auto rounded p-3">
+          <OrderItemsTable
+            editedItems={editedItems}
+            allProducts={allProducts}
+            handleEditQuantity={handleEditQuantity}
+            setItemToDelete={setItemToDelete}
+            setShowDeleteModal={setShowDeleteModal}
+          />
 
 
         </div>
-      </div>
+        <div></div>
+        <div className="">
 
+          {/* Label */}
+          <label className="block text-sm font-medium mb-2">
+            Add Product
+          </label>
+
+          {/* Search Input */}
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setHighlightIndex(-1);
+            }}
+            onKeyDown={handleKeyDown}
+            placeholder="Search product and press Enter..."
+            className="border rounded px-3 py-2 w-full mb-2"
+          />
+
+          {/* Dropdown List */}
+          {searchTerm && (
+            <div className="max-h-60 overflow-y-auto border rounded shadow bg-white w-full">
+
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((prod, index) => {
+                  const schemeText = getSchemeText(prod.product_id);
+
+                  return (
+                    <div
+                      key={prod.product_id}
+                      className={`px-3 py-2 cursor-pointer ${highlightIndex === index ? "bg-blue-100" : "hover:bg-gray-100"
+                        }`}
+                      onClick={() => handleAddProductBySearch(prod)}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">{prod.product_name}</span>
+
+                        {schemeText && (
+                          <FaGift className="text-pink-500 text-sm animate-pulse ml-2" />
+                        )}
+                      </div>
+
+                      {/* Scheme reward text */}
+                      {schemeText && (
+                        <p className="text-[11px] text-pink-600 mt-1 font-semibold">
+                          {schemeText}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="px-3 py-2 text-gray-500 text-sm">No products found</p>
+              )}
+
+            </div>
+          )}
+
+          {/* Submit Button */}
+
+
+        </div>
+
+      </div>
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowConfirmModal(true)}
+          disabled={loadingApprove}
+          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md w-full sm:w-auto ${loadingApprove
+            ? "bg-blue-400 cursor-not-allowed"
+            : "bg-blue-500 hover:bg-green-600"
+            } cursor-pointer`}
+        >
+          {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
+          Submit
+        </button>
+      </div>
       {/* ✅ Confirm Submit Modal */}
       <ConfirmModal
         isOpen={showConfirmModal}
@@ -471,7 +406,7 @@ export default function CRMOrderDetailPage() {
       <ConfirmModal
         isOpen={showDeleteOrderModal}
         title="Delete Order?"
-        message="Are you sure you want to delete this entire order?"
+        message="Are you sure you want to delete this order?"
         confirmText="Yes, Delete"
         confirmColor="bg-red-500 hover:bg-red-600"
         loading={loadingDelete}
