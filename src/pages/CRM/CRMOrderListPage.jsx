@@ -24,8 +24,15 @@ export default function CRMOrderListPage() {
     if (n.includes("battery"))
       return { label: "Battery", class: "bg-yellow-100 text-yellow-700" };
 
+
+    if (n.includes("non"))
+      return { label: "Accessory", class: "bg-blue-100 text-blue-700" };
+
+
     if (n.includes("tempered"))
       return { label: "Tempered", class: "bg-red-100 text-red-700" };
+
+    
 
     if (n.includes("accessor"))
       return { label: "Accessory", class: "bg-blue-100 text-blue-700" };
