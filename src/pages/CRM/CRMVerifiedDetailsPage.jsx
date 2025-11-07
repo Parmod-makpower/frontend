@@ -54,21 +54,35 @@ export default function CRMVerifiedDetailsPage() {
     : `${order?.crm_name} ${order?.id}`;
 
   const enrichedItems = useMemo(() => {
-    if (!order?.items) return [];
-    const merged = order.items.map((item) => {
-      const found = allProducts.find((p) => p.product_id === item.product);
-      return {
-        ...item,
-        virtual_stock: found?.virtual_stock ?? null,
-        cartoon_size: found?.cartoon_size ?? "-",
-        sub_category: found?.sub_category ?? "-",
-        rack_no: found?.rack_no ?? "-",
-      };
-    });
-    return merged.sort((a, b) =>
-      (a.sub_category || "").localeCompare(b.sub_category || "")
-    );
-  }, [order?.items, allProducts]);
+  if (!order?.items) return [];
+
+  const merged = order.items.map((item) => {
+    const found = allProducts.find((p) => p.product_id === item.product);
+    return {
+      ...item,
+      virtual_stock: found?.virtual_stock ?? null,
+      cartoon_size: found?.cartoon_size ?? "-",
+      sub_category: found?.sub_category ?? "-",
+      rack_no: found?.rack_no ?? "-",
+      product_name: found?.product_name ?? "-", // ✅ ensure available
+    };
+  });
+
+  // ✅ Category + Product sorting
+  return merged.sort((a, b) => {
+    const catA = a.sub_category || "";
+    const catB = b.sub_category || "";
+
+    const categoryCompare = catA.localeCompare(catB);
+    if (categoryCompare !== 0) return categoryCompare;
+
+    // ✅ Product name sorting (numeric friendly: DC1, DC2…)
+    const prodA = a.product_name || "";
+    const prodB = b.product_name || "";
+    return prodA.localeCompare(prodB, undefined, { numeric: true });
+  });
+}, [order?.items, allProducts]);
+
 
   const handleDownloadPDF = () => {
     DispatchPDF(order, enrichedItems, remarks, orderCode);

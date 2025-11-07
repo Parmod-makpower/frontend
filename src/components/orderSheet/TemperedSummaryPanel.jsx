@@ -7,8 +7,8 @@ export default function TemperedSummaryPanel({
 }) {
     const getShortName = (cat) => {
   if (cat === "UV TEMPERED") return "UV";
-  if (cat === "TEMPERED BODYGUARD") return "BODYGUARD";
-  if (cat === "TEMPERED SUPER X") return "SUPER X";
+  if (cat === "TEMPERED BODYGUARD") return "Bodyguard";
+  if (cat === "TEMPERED SUPER X") return "Super X";
   return cat;
 };
 
