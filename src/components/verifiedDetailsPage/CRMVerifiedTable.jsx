@@ -42,6 +42,7 @@ export default function CRMVerifiedTable({
               <th className="p-3 border">SS-Stock</th>
               <th className="p-3 border">Stock</th>
               {(!order.punched || user?.role === "ADMIN") && <th className="p-3 border">Action</th>}
+               {user?.role == "ADMIN" && (<th className="p-3 border">ID</th>)}
             </tr>
           </thead>
 
@@ -98,6 +99,8 @@ export default function CRMVerifiedTable({
                           </div>
                         </td>
                       )}
+                      {user?.role == "ADMIN" && (<td className="p-3 border bg-red-200">{r.id}</td>)}
+                       
                     </tr>
                   );
                 })}

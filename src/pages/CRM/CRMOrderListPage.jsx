@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import {
@@ -11,6 +12,8 @@ export default function CRMOrderListPage() {
   const navigate = useNavigate();
   const { data: orders = [], isLoading, isFetching } = useCRMOrders();
 
+  const [searchTerm, setSearchTerm] = useState("");
+
   if (isLoading)
     return (
       <div className="flex justify-center items-center h-40 text-gray-500">
@@ -18,28 +21,30 @@ export default function CRMOrderListPage() {
       </div>
     );
 
+  // ✅ Badge logic
   const getOrderBadge = (note) => {
-    const n = (note || "").toLowerCase();  // ✅ Safe
+    const n = (note || "").toLowerCase();
 
     if (n.includes("battery"))
       return { label: "Battery", class: "bg-yellow-100 text-yellow-700" };
 
-
-    if (n.includes("non"))
+    if (n.includes("non") || n.includes("accessor"))
       return { label: "Accessory", class: "bg-blue-100 text-blue-700" };
-
 
     if (n.includes("tempered"))
       return { label: "Tempered", class: "bg-red-100 text-red-700" };
 
-    
-
-    if (n.includes("accessor"))
-      return { label: "Accessory", class: "bg-blue-100 text-blue-700" };
-
     return { label: "General", class: "bg-gray-100 text-gray-700" };
   };
 
+  // ✅ Search filter
+  const filteredOrders = orders.filter((order) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      order.order_id.toLowerCase().includes(term) ||
+      order.ss_party_name.toLowerCase().includes(term)
+    );
+  });
 
   return (
     <div className="p-3 max-w-4xl mx-auto pb-24">
@@ -51,11 +56,24 @@ export default function CRMOrderListPage() {
         </p>
       )}
 
-      <div className="pt-[65px] sm:pt-6 space-y-4">
-        {orders.length === 0 ? (
-          <p className="text-gray-500 text-center text-sm">No orders found.</p>
+      {/* ✅ Search Bar */}
+      <div className="pt-[65px] sm:pt-6 mb-4">
+        <input
+          type="text"
+          placeholder="Search by Order ID or Party Name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full border p-2 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
+
+      <div className="space-y-4">
+        {filteredOrders.length === 0 ? (
+          <p className="text-gray-500 text-center text-sm">
+            No matching orders found.
+          </p>
         ) : (
-          orders.map((order) => {
+          filteredOrders.map((order) => {
             const badge = getOrderBadge(order.note);
 
             return (
@@ -73,7 +91,8 @@ export default function CRMOrderListPage() {
                   {/* Order ID + Badge */}
                   <div className="flex items-center gap-3">
                     <h3 className="flex items-center font-bold gap-1 text-gray-800 text-base sm:text-lg">
-                     <FaShoppingBag className="text-blue-500" /> {order.order_id}
+                      <FaShoppingBag className="text-blue-500" />{" "}
+                      {order.order_id}
                     </h3>
 
                     {order.note && (

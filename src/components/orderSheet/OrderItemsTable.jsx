@@ -9,18 +9,18 @@ export default function OrderItemsTable({
   setShowDeleteModal,
 }) {
   return (
-    <table className="w-full border text-sm text-left">
-      <thead className="bg-gray-100 text-gray-700 uppercase">
+    <table className="w-full text-sm  text-left sm:table-fix">
+      <thead className="bg-gray-600 border text-white sticky top-0 z-10">
         <tr>
-          <th className="px-4 py-3 border">Product</th>
-          <th className="px-4 py-3 text-center border">SS Order</th>
-          <th className="px-4 py-3 text-center border">Approved</th>
-          <th className="px-4 py-3 text-center border">ss-Stock</th>
-          <th className="px-4 py-3 text-center border">Stock</th>
-          <th className="px-4 py-3 text-center border">Carton</th>
-          <th className="px-4 py-3 text-center border">Price</th>
-          <th className="px-4 py-3 text-center border">Total</th>
-          <th className="px-4 py-3 text-center border">Actions</th>
+          <th className="px-4 py-3 border border-black">Product</th>
+          <th className="px-4 py-3 text-center border border-black">SS Order</th>
+          <th className="px-4 py-3 text-center border border-black">Approved</th>
+          <th className="px-4 py-3 text-center border border-black">SS-Stock</th>
+          <th className="px-4 py-3 text-center border border-black">Stock</th>
+          <th className="px-4 py-3 text-center border border-black">Carton</th>
+          <th className="px-4 py-3 text-center border border-black">Price</th>
+          <th className="px-4 py-3 text-center border border-black">Total</th>
+          <th className="px-4 py-3 text-center border border-black">Actions</th>
         </tr>
       </thead>
 

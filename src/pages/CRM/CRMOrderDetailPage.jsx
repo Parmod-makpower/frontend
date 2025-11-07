@@ -11,6 +11,7 @@ import ReminderTable from "../../components/orderSheet/ReminderTable";
 import OrderItemsTable from "../../components/orderSheet/OrderItemsTable";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { FaEllipsisV } from "react-icons/fa";
+import TemperedSummaryPanel from "../../components/orderSheet/TemperedSummaryPanel";
 
 export default function CRMOrderDetailPage() {
   const { orderId } = useParams();
@@ -25,6 +26,8 @@ export default function CRMOrderDetailPage() {
   const [order, setOrder] = useState(passedOrder || null);
   const [notes, setNotes] = useState(passedOrder?.notes || "");
   const [loadingApprove, setLoadingApprove] = useState(false);
+  const [showTemperedPanel, setShowTemperedPanel] = useState(false);
+  const isTempered = order?.note?.toLowerCase()?.includes("tempered");
 
   // ✅ Edited items (restore from localStorage or backend)
   const [editedItems, setEditedItems] = useState([]);
@@ -222,6 +225,51 @@ export default function CRMOrderDetailPage() {
   };
 
 
+  // ✅ Calculate Totals
+  const totalSSOrderQty = editedItems.reduce(
+    (sum, item) => sum + Number(item.original_quantity || 0),
+    0
+  );
+
+  const totalApprovedQty = editedItems.reduce(
+    (sum, item) => sum + Number(item.quantity || 0),
+    0
+  );
+
+  const totalProducts = editedItems.length;
+
+  // ✅ Category filters (tempered categories only)
+  const temperedKeywords = [
+    "UV TEMPERED",
+    "TEMPERED BODYGUARD",
+    "TEMPERED SUPER X"
+  ];
+
+  // ✅ Category Wise Quantity Calculation
+  const categoryWiseTotals = {};
+
+  editedItems.forEach((item) => {
+    const product = allProducts.find(p => p.product_id === item.product);
+    const subCat = product?.sub_category?.toUpperCase() ?? "";
+
+    const matchedKeyword = temperedKeywords.find((kw) =>
+      subCat.includes(kw)
+    );
+
+    if (matchedKeyword) {
+      if (!categoryWiseTotals[matchedKeyword]) {
+        categoryWiseTotals[matchedKeyword] = {
+          ssQty: 0,
+          approvedQty: 0,
+        };
+      }
+
+      categoryWiseTotals[matchedKeyword].ssQty += Number(item.original_quantity || 0);
+      categoryWiseTotals[matchedKeyword].approvedQty += Number(item.quantity || 0);
+    }
+  });
+
+
   if (!order)
     return (
       <div className="flex justify-center items-center h-64">
@@ -230,14 +278,14 @@ export default function CRMOrderDetailPage() {
     );
 
   return (
-    <div className="p-4 mx-auto sm:border rounded pb-20">
+    <div className="p-4 mx-auto sm:border rounded pb-20 bg-green-100">
       {/* Header */}
       <MobilePageHeader title={order.order_id} />
-      <div className="mb-6 border-b pb-4 flex flex-col flex-row items-center justify-between pt-[65px] sm:pt-0">
+      <div className="pb-4 flex flex-col flex-row items-center justify-between pt-[65px] sm:pt-0">
         {/* Left Section — Order Info */}
         <div>
           <h2 className="text-base font-semibold text-gray-800 hidden sm:flex">{order.order_id}</h2>
-          <p className="text-sm text-gray-600">{order.ss_party_name}</p>
+          <p className="text-sm text-blue-600">{order.ss_party_name}</p>
         </div>
 
         {/* Right Section — PDF Button */}
@@ -275,6 +323,7 @@ export default function CRMOrderDetailPage() {
                     })}
                   />
                 </button></li>
+
                 <li className="border-t p-2"> <button
                   onClick={() => {
                     setMenuOpen(false);
@@ -284,6 +333,7 @@ export default function CRMOrderDetailPage() {
                 ><FaTrashAlt size={15} className="text-red-500" />
                   Delete Order
                 </button></li>
+
               </ul>
             </div>
           )}
@@ -295,20 +345,36 @@ export default function CRMOrderDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
         <div className="md:col-span-1">
+          {isTempered && (
+            <div className="md:col-span-4">
+              <TemperedSummaryPanel
+                totalSSOrderQty={totalSSOrderQty}
+                totalApprovedQty={totalApprovedQty}
+                totalProducts={totalProducts}
+                categoryWiseTotals={categoryWiseTotals}
+              />
+            </div>
+          )}
+           <div className="md:col-span-3 mt-2">
+          <div className="max-h-[40vh] overflow-y-auto border p-0 m-0 rounded">
+
           <ReminderTable recentRejectedItems={order.recent_rejected_items} />
+          </div>
+          </div>
         </div>
 
-        <div className="md:col-span-3 overflow-x-auto rounded p-3">
-          <OrderItemsTable
-            editedItems={editedItems}
-            allProducts={allProducts}
-            handleEditQuantity={handleEditQuantity}
-            setItemToDelete={setItemToDelete}
-            setShowDeleteModal={setShowDeleteModal}
-          />
-
-
+        <div className="md:col-span-3">
+          <div className="max-h-[69vh] overflow-y-auto border p-0 m-0 rounded">
+            <OrderItemsTable
+              editedItems={editedItems}
+              allProducts={allProducts}
+              handleEditQuantity={handleEditQuantity}
+              setItemToDelete={setItemToDelete}
+              setShowDeleteModal={setShowDeleteModal}
+            />
+          </div>
         </div>
+
         <div></div>
         <div className="">
 

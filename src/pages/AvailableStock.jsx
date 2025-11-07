@@ -21,11 +21,13 @@ export default function AvailableStock() {
   const { mutate: updateProduct } = useUpdateProduct();
    const { user } = useAuth();
     const isAnkita = user?.user_id === "AD0001";
+    const [priceFilter, setPriceFilter] = useState("all");
+
   
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [stockFilter, setStockFilter] = useState("in");
+  const [stockFilter, setStockFilter] = useState("all");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isOffcanvasOpen, setIsOffcanvasOpen] = useState(false);
@@ -65,13 +67,24 @@ export default function AvailableStock() {
 
   // ✅ Apply filters
   const filteredProducts = useMemo(() => {
-    let result = productsToSearch;
-    if (stockFilter === "in") result = result.filter((p) => p.live_stock > 0);
-    else if (stockFilter === "out") result = result.filter((p) => p.live_stock <= 0);
-    if (selectedCategories.length > 0)
-      result = result.filter((p) => selectedCategories.includes(p.sub_category));
-    return result;
-  }, [productsToSearch, stockFilter, selectedCategories]);
+  let result = productsToSearch;
+
+  if (stockFilter === "in") result = result.filter((p) => p.live_stock > 0);
+  else if (stockFilter === "out") result = result.filter((p) => p.live_stock <= 0);
+
+  if (selectedCategories.length > 0)
+    result = result.filter((p) => selectedCategories.includes(p.sub_category));
+
+  // ✅ Added Price Filter
+  if (priceFilter === "price") {
+    result = result.filter((p) => p.price >= 1);
+  } else if (priceFilter === "not_price") {
+    result = result.filter((p) => p.price < 1);
+  }
+
+  return result;
+}, [productsToSearch, stockFilter, selectedCategories, priceFilter]);
+
 
   // 📄 Pagination
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
@@ -207,6 +220,7 @@ export default function AvailableStock() {
           className={`fixed top-0 left-0 h-full w-60 bg-white z-50 shadow-lg transform transition-transform duration-300 ${isOffcanvasOpen ? "translate-x-0" : "-translate-x-full"
             }`}
         >
+          
           <div className="flex justify-between items-center p-4 border-b">
             <h2 className="font-semibold">Categories</h2>
             <button onClick={() => setIsOffcanvasOpen(false)}>
@@ -260,6 +274,19 @@ export default function AvailableStock() {
                 <option value="out">Out of Stock</option>
                 <option value="all">All</option>
               </select>
+              <select
+  value={priceFilter}
+  onChange={(e) => {
+    setPriceFilter(e.target.value);
+    setCurrentPage(1);
+  }}
+  className="border p-2 rounded shadow-sm"
+>
+  <option value="all">All</option>
+  <option value="price">Price</option>
+  <option value="not_price">Not Price</option>
+</select>
+
               {/* <button
                 onClick={handleDownloadPDF}
                 disabled={isDownloading}
@@ -277,6 +304,10 @@ export default function AvailableStock() {
               </button> */}
             </div>
           </div>
+<div className="mb-3 text-sm font-semibold text-gray-700">
+  Total Products: <span className="text-blue-600">{allProducts.length}</span> |
+  Filtered: <span className="text-green-600">{filteredProducts.length}</span>
+</div>
 
           {/* Table */}
           <div ref={tableRef} className="overflow-x-auto rounded">
