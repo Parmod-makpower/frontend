@@ -139,8 +139,8 @@ export default function CRMVerifiedHistoryPage() {
               <th className="p-3 border">Party Name</th>
               <th className="p-3 border">CRM</th>
               <th className="p-3 border">Status</th>
-              <th className="p-3 border">Verified At</th>
-              {/* <th className="p-3 border">Total</th> */}
+              <th className="p-3 border">Order</th>
+              <th className="p-3 border">Verified</th>
               {user?.role === "ADMIN" && (
                 <th className="p-3 text-right">Action</th>
               )}
@@ -180,28 +180,29 @@ export default function CRMVerifiedHistoryPage() {
                     <td className="p-3 border">{row.crm_name}</td>
                     <td className="p-3 border">
                       <span
-                        className={`px-2 py-1 text-xs font-semibold ${
-                          row.status === "APPROVED"
+                        className={`px-2 py-1 text-xs font-semibold ${row.status === "APPROVED"
                             ? "text-green-700"
                             : row.status === "REJECTED"
-                            ? "text-red-700"
-                            : row.status === "DISPATCH"
-                            ? "text-blue-700"
-                            : "text-purple-700"
-                        }`}
+                              ? "text-red-700"
+                              : row.status === "DISPATCH"
+                                ? "text-blue-700"
+                                : "text-purple-700"
+                          }`}
                       >
                         {row.status}
                       </span>
+                    </td>
+                    <td className="p-3 border">
+                      {new Date(row.ss_order_created_at).toLocaleString("en-IN", {
+                        timeZone: "Asia/Kolkata",
+                      })}
                     </td>
                     <td className="p-3 border">
                       {new Date(row.verified_at).toLocaleString("en-IN", {
                         timeZone: "Asia/Kolkata",
                       })}
                     </td>
-                    {/* <td className="p-3 border">
-                      ₹{Number(row.total_amount).toFixed(2)}
-                    </td> */}
-
+                   
                     {user?.role === "ADMIN" && (
                       <td className="p-3 text-right relative">
                         <div className="inline-block relative">
@@ -280,11 +281,10 @@ export default function CRMVerifiedHistoryPage() {
               </button>
               <button
                 onClick={handleConfirm}
-                className={`px-4 py-2 rounded-lg text-white cursor-pointer ${
-                  selectedStatus === "HOLD"
+                className={`px-4 py-2 rounded-lg text-white cursor-pointer ${selectedStatus === "HOLD"
                     ? "bg-yellow-500 hover:bg-yellow-600"
                     : "bg-red-500 hover:bg-red-600"
-                }`}
+                  }`}
               >
                 Confirm
               </button>

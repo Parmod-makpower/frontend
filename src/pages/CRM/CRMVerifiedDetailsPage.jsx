@@ -9,7 +9,7 @@ import MobilePageHeader from "../../components/MobilePageHeader";
 import ConfirmModal from "../../components/ConfirmModal";
 import PDFDownloadButton from "../../components/PDFDownloadButton";
 import DispatchPDF from "../../components/DispatchPDF";
-
+import { useCargoDetails } from "../../hooks/useCargoDetails";
 // 🧩 Newly modular components
 import CRMVerifiedTable from "../../components/verifiedDetailsPage/CRMVerifiedTable";
 import AddProductModal from "../../components/verifiedDetailsPage/AddProductModal";
@@ -23,7 +23,7 @@ export default function CRMVerifiedDetailsPage() {
   const location = useLocation();
 
   const order = location.state?.order;
-
+  const { data: cargos, isLoading } = useCargoDetails();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [remarks, setRemarks] = useState("");
@@ -34,6 +34,11 @@ export default function CRMVerifiedDetailsPage() {
   const [newProduct, setNewProduct] = useState("");
   const [newQty, setNewQty] = useState("");
   const [newPrice, setNewPrice] = useState("");
+  const [cargoName, setCargoName] = useState("");
+  const [cargoMobile, setCargoMobile] = useState("");
+  const [cargoLocation, setCargoLocation] = useState("");
+  const [cargoParcel, setCargoParcel] = useState("");
+
 
   const { data: allProducts = [] } = useCachedProducts();
 
@@ -54,34 +59,34 @@ export default function CRMVerifiedDetailsPage() {
     : `${order?.crm_name} ${order?.id}`;
 
   const enrichedItems = useMemo(() => {
-  if (!order?.items) return [];
+    if (!order?.items) return [];
 
-  const merged = order.items.map((item) => {
-    const found = allProducts.find((p) => p.product_id === item.product);
-    return {
-      ...item,
-      virtual_stock: found?.virtual_stock ?? null,
-      cartoon_size: found?.cartoon_size ?? "-",
-      sub_category: found?.sub_category ?? "-",
-      rack_no: found?.rack_no ?? "-",
-      product_name: found?.product_name ?? "-", // ✅ ensure available
-    };
-  });
+    const merged = order.items.map((item) => {
+      const found = allProducts.find((p) => p.product_id === item.product);
+      return {
+        ...item,
+        virtual_stock: found?.virtual_stock ?? null,
+        cartoon_size: found?.cartoon_size ?? "-",
+        sub_category: found?.sub_category ?? "-",
+        rack_no: found?.rack_no ?? "-",
+        product_name: found?.product_name ?? "-", // ✅ ensure available
+      };
+    });
 
-  // ✅ Category + Product sorting
-  return merged.sort((a, b) => {
-    const catA = a.sub_category || "";
-    const catB = b.sub_category || "";
+    // ✅ Category + Product sorting
+    return merged.sort((a, b) => {
+      const catA = a.sub_category || "";
+      const catB = b.sub_category || "";
 
-    const categoryCompare = catA.localeCompare(catB);
-    if (categoryCompare !== 0) return categoryCompare;
+      const categoryCompare = catA.localeCompare(catB);
+      if (categoryCompare !== 0) return categoryCompare;
 
-    // ✅ Product name sorting (numeric friendly: DC1, DC2…)
-    const prodA = a.product_name || "";
-    const prodB = b.product_name || "";
-    return prodA.localeCompare(prodB, undefined, { numeric: true });
-  });
-}, [order?.items, allProducts]);
+      // ✅ Product name sorting (numeric friendly: DC1, DC2…)
+      const prodA = a.product_name || "";
+      const prodB = b.product_name || "";
+      return prodA.localeCompare(prodB, undefined, { numeric: true });
+    });
+  }, [order?.items, allProducts]);
 
 
   const handleDownloadPDF = () => {
@@ -161,6 +166,30 @@ export default function CRMVerifiedDetailsPage() {
     }
   };
 
+  const matchedCargo = useMemo(() => {
+    if (!cargos || !order?.ss_party_name) return null;
+
+    return cargos.find(
+      (c) => c.user_name?.trim().toLowerCase() === order.ss_party_name.trim().toLowerCase()
+    );
+  }, [cargos, order?.ss_party_name]);
+
+useMemo(() => {
+  if (matchedCargo) {
+    setCargoName(matchedCargo.cargo_name || "");
+    setCargoMobile(matchedCargo.cargo_mobile_number || "");
+    setCargoLocation(matchedCargo.cargo_location || "");
+    setCargoParcel(matchedCargo.parcel_size || "");
+  }
+}, [matchedCargo]);
+
+const cargoDetails = {
+  cargoName,
+  cargoMobile,
+  cargoLocation,
+  cargoParcel,
+};
+
   if (!order)
     return <div className="p-6 text-red-600">No order data provided.</div>;
 
@@ -180,29 +209,56 @@ export default function CRMVerifiedDetailsPage() {
 
       <MobilePageHeader title={orderCode} />
 
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-        <div className="font-semibold border rounded bg-gray-200 px-4 p-2">
-          {orderCode}
-        </div>
-        <div className="flex gap-2">
-          {/* <PDFDownloadButton
-            order={order}
-            items={enrichedItems.map((item) => ({
-              ...item,
-              virtual_stock: item.virtual_stock ?? 0,
-              price: item.price ?? 0,
-            }))}
-          /> */}
-          {order.punched && (
-            <button
-              onClick={handleDownloadPDF}
-              className="flex items-center gap-1 px-3 py-1 rounded border bg-orange-600 text-white hover:bg-orange-700 transition cursor-pointer"
-            >
-              Dispatch PDF
-            </button>
-          )}
-        </div>
-      </div>
+     <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+
+  <div className="font-semibold border rounded bg-gray-200 px-4 p-2">
+    {orderCode}
+  </div>
+
+  {/* <input
+    className="font-semibold border rounded bg-gray-200 px-4 p-2"
+    type="text"
+    placeholder="Cargo Name"
+    value={cargoName}
+    onChange={(e) => setCargoName(e.target.value)}
+  />
+
+  <input
+    className="font-semibold border rounded bg-gray-200 px-4 p-2"
+    type="text"
+    placeholder="Mobile"
+    value={cargoMobile}
+    onChange={(e) => setCargoMobile(e.target.value)}
+  />
+
+  <input
+    className="font-semibold border rounded bg-gray-200 px-4 p-2"
+    type="text"
+    placeholder="Location"
+    value={cargoLocation}
+    onChange={(e) => setCargoLocation(e.target.value)}
+  />
+
+  <input
+    className="font-semibold border rounded bg-gray-200 px-4 p-2"
+    type="text"
+    placeholder="Parcel Size"
+    value={cargoParcel}
+    onChange={(e) => setCargoParcel(e.target.value)}
+  /> */}
+
+  <div className="flex gap-2">
+    {order.punched && (
+      <button
+        onClick={handleDownloadPDF}
+        className="flex items-center gap-1 px-3 py-1 rounded border bg-orange-600 text-white hover:bg-orange-700 transition cursor-pointer"
+      >
+        Dispatch PDF
+      </button>
+    )}
+  </div>
+</div>
+
 
       {/* ✅ Verified Table */}
       <CRMVerifiedTable
@@ -259,17 +315,16 @@ export default function CRMVerifiedDetailsPage() {
       <button
         onClick={handleOrderPunch}
         disabled={order.punched || loading}
-        className={`px-6 py-2 rounded-lg shadow transition ${
-          order.punched || loading
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-        }`}
+        className={`px-6 py-2 rounded-lg shadow transition ${order.punched || loading
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+          }`}
       >
         {loading
           ? "Processing..."
           : order.punched
-          ? "Already Punched"
-          : "Order Punch"}
+            ? "Already Punched"
+            : "Order Punch"}
       </button>
     </div>
   );
