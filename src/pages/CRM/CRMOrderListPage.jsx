@@ -10,7 +10,9 @@ import { useCRMOrders } from "../../hooks/useCRMOrders";
 
 export default function CRMOrderListPage() {
   const navigate = useNavigate();
-  const { data: orders = [], isLoading, isFetching } = useCRMOrders();
+  const [filterStatus, setFilterStatus] = useState("PENDING");
+  const { data: orders = [], isLoading, isFetching } = useCRMOrders(filterStatus);
+
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -137,7 +139,7 @@ export default function CRMOrderListPage() {
   // ✅ FINAL RENDER
   return (
     <div className="p-3 max-w-4xl mx-auto pb-24">
-      <MobilePageHeader title="My Orders" />
+      {/* <MobilePageHeader title="My Orders" /> */}
 
       {isFetching && (
         <p className="text-center text-xs text-gray-500 mt-1 animate-pulse">
@@ -145,15 +147,25 @@ export default function CRMOrderListPage() {
         </p>
       )}
 
+
       {/* ✅ Search Bar */}
-      <div className="pt-[65px] sm:pt-6 mb-4">
+      <div className=" mb-4 flex ">
         <input
           type="text"
           placeholder="Search by Order ID or Party Name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full border p-2 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
+          className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
         />
+        <button
+          onClick={() => setFilterStatus("HOLD")}
+          className={`px-4 py-1 rounded cursor-pointer ms-2 text-sm font-semibold ${filterStatus === "HOLD"
+              ? "bg-yellow-600 text-white"
+              : "bg-gray-200 text-gray-700"
+            }`}
+        >
+          Hold
+        </button>
       </div>
 
       <div className="space-y-4">

@@ -1,9 +1,9 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { verifyCRMOrder, deleteCRMOrder } from "../../hooks/useCRMOrders";
+import { verifyCRMOrder, deleteCRMOrder, holdCRMOrder } from "../../hooks/useCRMOrders";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 import { Loader2, Trash2 } from "lucide-react";
-import { FaGift, FaTrashAlt } from "react-icons/fa";
+import { FaGift, FaPauseCircle, FaTrashAlt } from "react-icons/fa";
 import ConfirmModal from "../../components/ConfirmModal";
 import PDFDownloadButton from "../../components/PDFDownloadButton";
 import { useSchemes } from "../../hooks/useSchemes";
@@ -304,6 +304,28 @@ export default function CRMOrderDetailPage() {
 
               {/* ✅ PDF Download */}
               <ul>
+                <li className="p-2 border-b">
+                  <button
+                    onClick={async () => {
+                      setMenuOpen(false);
+
+                      const ok = window.confirm("Order ko HOLD par rakhna hai?");
+                      if (!ok) return;
+
+                      try {
+                        await holdCRMOrder(order.id, { notes });
+                        alert("✅ Order Hold me chala gaya!");
+                        navigate("/crm/orders");
+                      } catch (err) {
+                        console.error("Hold error:", err);
+                        alert("Failed to Hold Order");
+                      }
+                    }}
+                    className="flex gap-2 items-center cursor-pointer"
+                  ><FaPauseCircle  size={15} className="text-yellow-500" />
+                     Hold Order
+                  </button>
+                </li>
                 <li className="p-2"><button
                   onClick={() => {
                     setMenuOpen(false);
@@ -355,11 +377,11 @@ export default function CRMOrderDetailPage() {
               />
             </div>
           )}
-           <div className="md:col-span-3 mt-2">
-          <div className="max-h-[40vh] overflow-y-auto border p-0 m-0 rounded">
+          <div className="md:col-span-3 mt-2">
+            <div className="max-h-[40vh] overflow-y-auto border p-0 m-0 rounded">
 
-          <ReminderTable recentRejectedItems={order.recent_rejected_items} />
-          </div>
+              <ReminderTable recentRejectedItems={order.recent_rejected_items} />
+            </div>
           </div>
         </div>
 
