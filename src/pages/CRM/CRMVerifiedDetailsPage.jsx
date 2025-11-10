@@ -15,12 +15,14 @@ import CRMVerifiedTable from "../../components/verifiedDetailsPage/CRMVerifiedTa
 import AddProductModal from "../../components/verifiedDetailsPage/AddProductModal";
 import EditQuantityModal from "../../components/verifiedDetailsPage/EditQuantityModal";
 import RemarksSection from "../../components/verifiedDetailsPage/RemarksSection";
+import { FaEllipsisV } from "react-icons/fa";
 
 export default function CRMVerifiedDetailsPage() {
   const { user } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const order = location.state?.order;
   const { data: cargos, isLoading } = useCargoDetails();
@@ -174,21 +176,21 @@ export default function CRMVerifiedDetailsPage() {
     );
   }, [cargos, order?.ss_party_name]);
 
-useMemo(() => {
-  if (matchedCargo) {
-    setCargoName(matchedCargo.cargo_name || "");
-    setCargoMobile(matchedCargo.cargo_mobile_number || "");
-    setCargoLocation(matchedCargo.cargo_location || "");
-    setCargoParcel(matchedCargo.parcel_size || "");
-  }
-}, [matchedCargo]);
+  useMemo(() => {
+    if (matchedCargo) {
+      setCargoName(matchedCargo.cargo_name || "");
+      setCargoMobile(matchedCargo.cargo_mobile_number || "");
+      setCargoLocation(matchedCargo.cargo_location || "");
+      setCargoParcel(matchedCargo.parcel_size || "");
+    }
+  }, [matchedCargo]);
 
-const cargoDetails = {
-  cargoName,
-  cargoMobile,
-  cargoLocation,
-  cargoParcel,
-};
+  const cargoDetails = {
+    cargoName,
+    cargoMobile,
+    cargoLocation,
+    cargoParcel,
+  };
 
   if (!order)
     return <div className="p-6 text-red-600">No order data provided.</div>;
@@ -209,13 +211,13 @@ const cargoDetails = {
 
       <MobilePageHeader title={orderCode} />
 
-     <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
 
-  <div className="font-semibold border rounded bg-gray-200 px-4 p-2">
-    {orderCode}
-  </div>
+        <div className="font-semibold border rounded bg-gray-200 px-4 p-2">
+          {orderCode}
+        </div>
 
-  {/* <input
+        {/* <input
     className="font-semibold border rounded bg-gray-200 px-4 p-2"
     type="text"
     placeholder="Cargo Name"
@@ -247,17 +249,74 @@ const cargoDetails = {
     onChange={(e) => setCargoParcel(e.target.value)}
   /> */}
 
-  <div className="flex gap-2">
-    {order.punched && (
-      <button
-        onClick={handleDownloadPDF}
-        className="flex items-center gap-1 px-3 py-1 rounded border bg-orange-600 text-white hover:bg-orange-700 transition cursor-pointer"
-      >
-        Dispatch PDF
-      </button>
-    )}
-  </div>
-</div>
+
+        <div className="relative">
+          {/* 3-Dot Button */}
+          <button
+            onClick={() => setMenuOpen((prev) => !prev)}
+            className="p-2 rounded hover:bg-gray-200 cursor-pointer"
+          >
+            <FaEllipsisV size={18} />
+          </button>
+
+          {/* Dropdown Menu */}
+          {menuOpen && (
+            <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg border rounded z-50">
+
+              {/* ✅ Order PDF */}
+              <ul>
+                <li className="p-2">
+                  <PDFDownloadButton
+                order={order}
+                items={enrichedItems.map((item) => ({
+                  ...item,
+                  virtual_stock:
+                    allProducts.find((p) => p.product_id === item.product)
+                      ?.virtual_stock ?? 0,
+                  price:
+                    allProducts.find((p) => p.product_id === item.product)
+                      ?.price ?? item.price ?? 0,
+                }))}
+              />
+                </li>
+                <li className="p-2 border-t">
+                   {order.punched && (
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleDownloadPDF();
+                  }}
+                  className="w-full text-left hover:bg-gray-100 "
+                >
+                  🚚 Dispatch PDF
+                </button>
+              )}
+                </li>
+              </ul>
+
+            </div>
+          )}
+        </div>
+
+        {/* Hidden PDFDownloadButton trigger */}
+        <div className="hidden">
+          <PDFDownloadButton
+            id="verified-order-pdf-btn"
+            order={order}
+            items={enrichedItems.map((item) => ({
+              ...item,
+              virtual_stock:
+                allProducts.find((p) => p.product_id === item.product)
+                  ?.virtual_stock ?? 0,
+              price:
+                allProducts.find((p) => p.product_id === item.product)
+                  ?.price ?? item.price ?? 0,
+            }))}
+          />
+        </div>
+
+
+      </div>
 
 
       {/* ✅ Verified Table */}
