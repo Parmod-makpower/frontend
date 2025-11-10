@@ -42,62 +42,93 @@ export default function OrderTrackPage() {
       </div>
 
       {loading && <p className="mt-4">Loading...</p>}
+{orderData && (
+  <div className="mt-8">
+    
+    {/* Header Info */}
+    <div className="mb-6 p-4 bg-white rounded-lg shadow">
+      <h2 className="text-xl font-bold mb-2">Order Details</h2>
+      <p><strong>Order ID:</strong> {orderData.order_id}</p>
+      <p><strong>SS User:</strong> {orderData.ss_user}</p>
+      <p><strong>Status:</strong> {orderData.status}</p>
+      <p><strong>Total Amount:</strong> ₹{orderData.total_amount}</p>
+    </div>
 
-      {orderData && (
-        <div className="mt-6 space-y-6">
+    {/* Comparison Table */}
+    <div className="overflow-x-auto">
+      <table className="min-w-full text-sm border rounded-lg shadow">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="border px-3 py-2 text-left">Product</th>
+            <th className="border px-3 py-2 text-center">SS Qty</th>
+            <th className="border px-3 py-2 text-center">CRM Qty</th>
+            <th className="border px-3 py-2 text-center">CRM Status</th>
+            <th className="border px-3 py-2 text-center">Dispatch Qty</th>
+          </tr>
+        </thead>
 
-          {/* SS ORDER */}
-          <div className="border p-4 rounded-lg bg-gray-50">
-            <h2 className="text-xl font-semibold mb-3">🟦 SS Order</h2>
+        <tbody>
 
-            <p><strong>Order ID:</strong> {orderData.order_id}</p>
-            <p><strong>SS User:</strong> {orderData.ss_user}</p>
-            <p><strong>Total:</strong> {orderData.total_amount}</p>
+          {orderData.ss_items.map((ssItem, index) => {
+            const crmItem = orderData.crm_data?.items.find(
+              (ci) => ci.product_id === ssItem.product_id
+            );
 
-            <h3 className="font-semibold mt-2">Items:</h3>
-            {orderData.ss_items.map((i, idx) => (
-              <p key={idx}>
-                ✅ {i.product_name} — {i.quantity}
-              </p>
-            ))}
-          </div>
+            const dispatchItem = orderData.dispatch_data.find(
+              (di) => di.product === ssItem.product_name
+            );
 
-          {/* CRM SECTION */}
-          {orderData.crm_data ? (
-            <div className="border p-4 rounded-lg bg-blue-50">
-              <h2 className="text-xl font-semibold mb-3">🟧 CRM Verification</h2>
+            return (
+              <tr key={index} className="hover:bg-gray-50">
 
-              <p><strong>Status:</strong> {orderData.crm_data.status}</p>
-              <p><strong>CRM:</strong> {orderData.crm_data.crm_user}</p>
-              <p><strong>Notes:</strong> {orderData.crm_data.notes}</p>
+                {/* Product */}
+                <td className="border px-3 py-2 font-medium">
+                  {ssItem.product_name}
+                </td>
 
-              <h3 className="font-semibold mt-2">CRM Items:</h3>
-              {orderData.crm_data.items.map((i, idx) => (
-                <p key={idx}>
-                  {i.product_name} — {i.quantity} 
-                  {i.is_rejected && " ❌ (Rejected)"}
-                </p>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">CRM verification pending...</p>
-          )}
+                {/* SS Qty */}
+                <td className="border px-3 py-2 text-center bg-blue-50">
+                  {ssItem.quantity}
+                </td>
 
-          {/* DISPATCH */}
-          <div className="border p-4 rounded-lg bg-green-50">
-            <h2 className="text-xl font-semibold mb-3">🟩 Dispatch</h2>
+                {/* CRM Qty */}
+                <td className="border px-3 py-2 text-center bg-yellow-50">
+                  {crmItem ? crmItem.quantity : "--"}
+                </td>
 
-            {orderData.dispatch_data.length > 0 ? (
-              orderData.dispatch_data.map((d, idx) => (
-                <p key={idx}>✅ {d.product} — {d.quantity}</p>
-              ))
-            ) : (
-              <p>No dispatch yet.</p>
-            )}
-          </div>
+                {/* CRM Status */}
+                <td className="border px-3 py-2 text-center">
+                  {!crmItem ? (
+                    <span className="text-gray-500">PENDING</span>
+                  ) : crmItem.is_rejected ? (
+                    <span className="text-red-600 font-semibold">REJECTED</span>
+                  ) : (
+                    <span className="text-green-600 font-semibold">APPROVED</span>
+                  )}
+                </td>
 
-        </div>
-      )}
+                {/* Dispatch Qty */}
+                <td className="border px-3 py-2 text-center bg-green-50">
+                  {dispatchItem ? dispatchItem.quantity : "--"}
+                </td>
+
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    {/* CRM Notes */}
+    {orderData.crm_data && (
+      <div className="mt-4 p-3 bg-blue-50 border rounded">
+        <strong>CRM Notes:</strong> {orderData.crm_data.notes || "No notes"}
+      </div>
+    )}
+
+  </div>
+)}
+
     </div>
   );
 }

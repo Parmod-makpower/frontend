@@ -255,6 +255,7 @@ const searchResults = useMemo(() => {
             itemCount={searchResults.length}
             itemSize={90}
             width={"100%"}
+            itemKey={(index) => searchResults[index].id}
           >
             {Row}
           </List>
