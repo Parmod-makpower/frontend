@@ -12,6 +12,7 @@ const exportToExcel = (data, role) => {
       rows.push({
         Role: "CRM",
         Name: crm.crm.name,
+        PartyName: crm.crm.party_name || "-",
         Mobile: crm.crm.mobile,
         Under_SS: crm.ss_count,
         Under_DS: crm.ss_data.reduce((a, s) => a + s.ds_count, 0),
@@ -20,6 +21,7 @@ const exportToExcel = (data, role) => {
         rows.push({
           Role: "→ SS",
           Name: ss.ss.name,
+          PartyName: ss.ss.party_name || "-",
           Mobile: ss.ss.mobile,
           Under_DS: ss.ds_count,
         });
@@ -27,6 +29,7 @@ const exportToExcel = (data, role) => {
           rows.push({
             Role: "→→ DS",
             Name: ds.name,
+            PartyName: ss.ss.party_name || "-",
             Mobile: ds.mobile,
             UserID: ds.user_id,
           });
@@ -38,6 +41,7 @@ const exportToExcel = (data, role) => {
       rows.push({
         Role: "SS",
         Name: ss.ss.name,
+        PartyName: ss.ss.party_name || "-", 
         Mobile: ss.ss.mobile,
         Under_DS: ss.ds_count,
       });
@@ -45,6 +49,7 @@ const exportToExcel = (data, role) => {
         rows.push({
           Role: "→ DS",
           Name: ds.name,
+          PartyName: ds.party_name || "-", 
           Mobile: ds.mobile,
           UserID: ds.user_id,
         });
@@ -55,6 +60,7 @@ const exportToExcel = (data, role) => {
       rows.push({
         Role: "DS",
         Name: ds.name,
+        PartyName: ds.party_name || "-", 
         Mobile: ds.mobile,
         UserID: ds.user_id,
       });

@@ -42,6 +42,7 @@ import CRMCreateOrderPage from "./pages/CRM/CRMCreateOrderPage";
 import SSPendingOrders from "./pages/ADMIN/SSPendingOrders";
 import SSPendingOrderItems from "./pages/ADMIN/SSPendingOrderItems";
 import CargoDetailsPage from "./pages/ADMIN/CargoDetailsPage";
+import OrderTrackPage from "./pages/CRM/OrderTrackPage";
 
 
 export default function App() {
@@ -94,6 +95,7 @@ export default function App() {
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
+            <Route path="/track" element={<OrderTrackPage />} />
 
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
