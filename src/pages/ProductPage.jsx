@@ -309,6 +309,7 @@ export default function ProductPage() {
 
                   <input
                     type="checkbox"
+                    className="cursor-pointer"
                     checked={prod.is_active}
                     onChange={() =>
                       toggleStatus(
@@ -332,7 +333,7 @@ export default function ProductPage() {
                       setForm(prod);
                       setShowModal(true);
                     }}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-blue-600 hover:text-blue-800 cursor-pointer"
                   >
                     <FiEdit />
                   </button>

@@ -47,9 +47,8 @@ export default function ProductEditModel({
                 setForm({ ...form, product_id: e.target.value })
               }
               placeholder="Enter Product ID"
-              className={`border border-gray-300 p-2.5 w-full rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
-              }`}
+              className={`border border-gray-300 p-2.5 w-full rounded-lg focus:ring-2 focus:ring-blue-500 ${!isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
               required
               disabled={!isAdmin}
             />
@@ -67,9 +66,8 @@ export default function ProductEditModel({
                 setForm({ ...form, product_name: e.target.value })
               }
               placeholder="Enter Product Name"
-              className={`border border-gray-300 p-2.5 w-full rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
-              }`}
+              className={`border border-gray-300 p-2.5 w-full rounded-lg focus:ring-2 focus:ring-blue-500 ${!isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
               required
               disabled={!isAdmin}
             />
@@ -87,9 +85,8 @@ export default function ProductEditModel({
                 setForm({ ...form, sub_category: e.target.value })
               }
               placeholder="Enter Category"
-             className={`border border-gray-300 p-2.5 w-full rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
-              }`}
+              className={`border border-gray-300 p-2.5 w-full rounded-lg focus:ring-2 focus:ring-blue-500 ${!isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
               required
               disabled={!isAdmin}
             />
@@ -173,6 +170,20 @@ export default function ProductEditModel({
               <option value="MOQ">MOQ</option>
             </select>
           </div>
+          {/* Rack No */}
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700">
+              Rack No
+            </label>
+            <input
+              name="rack_no"
+              value={form.rack_no || ""}
+              onChange={(e) => setForm({ ...form, rack_no: e.target.value })}
+              placeholder="Enter Rack Number"
+              className="border border-gray-300 p-2.5 w-full rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
         </form>
 
         {/* Footer */}
@@ -187,7 +198,7 @@ export default function ProductEditModel({
           <button
             type="submit"
             onClick={onSubmit}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition"
+            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition cursor-pointer"
           >
             {editData ? "Update Product" : "Add Product"}
           </button>
