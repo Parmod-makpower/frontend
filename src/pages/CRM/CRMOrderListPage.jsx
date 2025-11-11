@@ -7,6 +7,8 @@ import {
   FaShoppingBag,
 } from "react-icons/fa";
 import { useCRMOrders } from "../../hooks/useCRMOrders";
+import CRMOrderListFilterMenu from "../../components/CRMOrderListFilterMenu";
+import { IoChevronBack } from "react-icons/io5";
 
 export default function CRMOrderListPage() {
   const navigate = useNavigate();
@@ -147,26 +149,29 @@ export default function CRMOrderListPage() {
         </p>
       )}
 
+      <div className="fixed sm:static top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow flex items-center gap-2">
+        <button
+          onClick={() => window.history.back()}
+          className="text-gray-700 hover:text-blue-600 text-2xl font-bold px-1 transition-transform hover:scale-105"
+        >
+          <IoChevronBack />
+        </button>
 
-      {/* ✅ Search Bar */}
-      <div className=" mb-4 flex ">
         <input
-          type="text"
+           type="text"
           placeholder="Search by Order ID or Party Name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
+          className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
         />
-        <button
-          onClick={() => setFilterStatus("HOLD")}
-          className={`px-4 py-1 rounded cursor-pointer ms-2 text-sm font-semibold ${filterStatus === "HOLD"
-              ? "bg-yellow-600 text-white"
-              : "bg-gray-200 text-gray-700"
-            }`}
-        >
-          Hold
-        </button>
+         <CRMOrderListFilterMenu
+          filterStatus={filterStatus}
+          setFilterStatus={setFilterStatus}
+        />
       </div>
+
+      
+
 
       <div className="space-y-4">
         {filteredOrders.length === 0 ? (

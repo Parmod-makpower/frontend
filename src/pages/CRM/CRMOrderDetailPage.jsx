@@ -1,9 +1,9 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { verifyCRMOrder, deleteCRMOrder, holdCRMOrder } from "../../hooks/useCRMOrders";
+import { verifyCRMOrder, deleteCRMOrder, holdCRMOrder, RejectCRMOrder } from "../../hooks/useCRMOrders";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 import { Loader2, Trash2 } from "lucide-react";
-import { FaGift, FaPauseCircle, FaTrashAlt } from "react-icons/fa";
+import { FaGift, FaPauseCircle, FaTimesCircle, FaTrashAlt } from "react-icons/fa";
 import ConfirmModal from "../../components/ConfirmModal";
 import PDFDownloadButton from "../../components/PDFDownloadButton";
 import { useSchemes } from "../../hooks/useSchemes";
@@ -304,28 +304,6 @@ export default function CRMOrderDetailPage() {
 
               {/* ✅ PDF Download */}
               <ul>
-                <li className="p-2 border-b">
-                  <button
-                    onClick={async () => {
-                      setMenuOpen(false);
-
-                      const ok = window.confirm("Order ko HOLD par rakhna hai?");
-                      if (!ok) return;
-
-                      try {
-                        await holdCRMOrder(order.id, { notes });
-                        alert("✅ Order Hold me chala gaya!");
-                        navigate("/crm/orders");
-                      } catch (err) {
-                        console.error("Hold error:", err);
-                        alert("Failed to Hold Order");
-                      }
-                    }}
-                    className="flex gap-2 items-center cursor-pointer"
-                  ><FaPauseCircle  size={15} className="text-yellow-500" />
-                     Hold Order
-                  </button>
-                </li>
                 <li className="p-2"><button
                   onClick={() => {
                     setMenuOpen(false);
@@ -345,8 +323,49 @@ export default function CRMOrderDetailPage() {
                     })}
                   />
                 </button></li>
+                <li className="p-2 border-t">
+                  <button
+                    onClick={async () => {
+                      setMenuOpen(false);
 
-                <li className="border-t p-2"> <button
+                      const ok = window.confirm("Are you sure you want to place this order on HOLD?");
+                      if (!ok) return;
+
+                      try {
+                        await holdCRMOrder(order.id, { notes });
+                        navigate("/crm/orders");
+                      } catch (err) {
+                        console.error("Hold error:", err);
+                        alert("Failed to Hold Order");
+                      }
+                    }}
+                    className="flex gap-2 items-center cursor-pointer"
+                  ><FaPauseCircle  size={15} className="text-yellow-500" />
+                     Hold Order
+                  </button>
+                </li>
+                <li className="p-2 border-t">
+                  <button
+                    onClick={async () => {
+                      setMenuOpen(false);
+
+                      const ok = window.confirm("Are you sure you want to Reject this order?");
+                      if (!ok) return;
+
+                      try {
+                        await RejectCRMOrder(order.id, { notes });
+                        navigate("/crm/orders");
+                      } catch (err) {
+                        console.error("Reject error:", err);
+                        alert("Failed to Reject Order");
+                      }
+                    }}
+                    className="flex gap-2 items-center cursor-pointer"
+                  ><FaTimesCircle  size={15} className="text-red-500" />
+                     Reject Order
+                  </button>
+                </li>
+                {/* <li className="border-t p-2"> <button
                   onClick={() => {
                     setMenuOpen(false);
                     setShowDeleteOrderModal(true);
@@ -354,7 +373,7 @@ export default function CRMOrderDetailPage() {
                   className="flex gap-2 justify-center items-center cursor-pointer"
                 ><FaTrashAlt size={15} className="text-red-500" />
                   Delete Order
-                </button></li>
+                </button></li> */}
 
               </ul>
             </div>
