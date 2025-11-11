@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { FiUpload, FiEdit, FiTrash2, FiPlus, FiDownload } from "react-icons/fi";
 import makpower_image from "../assets/images/makpower_image.webp"
 import "react-toastify/dist/ReactToastify.css";
-import { uploadProductImage, uploadProductImage2, downloadProductTemplate, bulkUploadProducts } from "../api/productApi";
+import { uploadProductImage, uploadProductImage2, downloadProductTemplate, bulkUploadProducts, exportProductsExcel } from "../api/productApi";
 
 const ITEMS_PER_PAGE = 50;
 
@@ -190,6 +190,12 @@ export default function ProductPage() {
           >
             <FiPlus className="text-lg" /> Add Product
           </button> */}
+          <button
+            onClick={exportProductsExcel}
+            className="px-4 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700"
+          >
+            Export Excel
+          </button>
 
 
           <button

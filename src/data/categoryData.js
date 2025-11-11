@@ -3,13 +3,13 @@ const categories = [
     {
     label: "Audio",
     keyword: "AUDIO",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532724/p2syqkpr5kxff6uiarjf.webp",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757739319/ixopessgrtybupruq1g2.webp",
     subcategories: []
   },
    {
     label: "Bluetooth",
     keyword: "BLUETOOTH",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532730/yrbmszliqozzvl9j9cmw.webp",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757562710/c7qwuglix191frqspyu9.webp",
 
     subcategories: [
       {
@@ -142,7 +142,7 @@ const categories = [
   {
     label: "Charger",
     keyword: "CHARGER",
-    image:  "https://res.cloudinary.com/djyr368zj/image/upload/v1758532738/wslagvfsasg9r0pi672d.webp",
+    image:  "https://res.cloudinary.com/djyr368zj/image/upload/v1757567834/emwwycpqxbcexljxpinz.webp",
   
     subcategories: []
   },
@@ -155,7 +155,7 @@ const categories = [
    {
     label: "CABLE",
     keyword: "CABLE",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532734/laic3tlpbionyqjjlyjx.webp",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757504919/rkuvopjapnrxyyv5bgik.webp",
     subcategories: [
       {
         label: "AUX Cables",
@@ -183,7 +183,7 @@ const categories = [
    {
     label: "Headphones",
     keyword: "HEADPHONE",
-    image:   "https://cdn.store-assets.com/s/273607/i/18788356.jpg",
+    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1762325394/qfdswm5um64h5ga9bole.webp",
     subcategories: []
   },
   

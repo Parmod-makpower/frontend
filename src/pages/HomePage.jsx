@@ -85,13 +85,13 @@ export default function HomePage() {
             ? navigate(`/category/${encodeURIComponent(cat.keyword)}/subcategories`)
             : navigate(`/category/${encodeURIComponent(cat.keyword)}`)
         }
-        className="flex-shrink-0 flex flex-col items-center cursor-pointer w-20 md:w-28 lg:w-32 group"
+        className="flex-shrink-0 flex flex-col items-center cursor-pointer w-20 md:w-28 lg:w-32 group "
       >
         <div className="overflow-hidden rounded-full shadow transition-all duration-300 group-hover:shadow-lg">
           <img
             src={cat.image}
             alt={cat.label}
-            className="w-16 h-16 md:w-24 md:h-24 lg:w-22 lg:h-22 object-cover transform group-hover:scale-150 transition duration-300 rounded-full"
+            className="w-16 h-16 md:w-24 md:h-24 lg:w-22 lg:h-22 object-cover transform group-hover:scale-150 transition duration-300 rounded-full bg-gray-200"
           />
         </div>
         <span className="mt-1 text-[12px] md:text-sm lg:text-base text-center text-gray-700 font-medium group-hover:text-[var(--primary-color)] transition">
