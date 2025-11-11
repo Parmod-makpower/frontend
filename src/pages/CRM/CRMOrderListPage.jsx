@@ -173,7 +173,7 @@ export default function CRMOrderListPage() {
       
 
 
-      <div className="space-y-4">
+      <div className="space-y-4 pt-[60px] sm:pt-0">
         {filteredOrders.length === 0 ? (
           <p className="text-gray-500 text-center text-sm">
             No matching orders found.
