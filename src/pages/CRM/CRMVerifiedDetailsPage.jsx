@@ -83,11 +83,12 @@ export default function CRMVerifiedDetailsPage() {
       const categoryCompare = catA.localeCompare(catB);
       if (categoryCompare !== 0) return categoryCompare;
 
-      // ✅ Product name sorting (numeric friendly: DC1, DC2…)
+      // ✅ Product name alphabetical sorting only
       const prodA = a.product_name || "";
       const prodB = b.product_name || "";
-      return prodA.localeCompare(prodB, undefined, { numeric: true });
+      return prodA.localeCompare(prodB);
     });
+
   }, [order?.items, allProducts]);
 
 
@@ -267,30 +268,30 @@ export default function CRMVerifiedDetailsPage() {
               <ul>
                 <li className="p-2">
                   <PDFDownloadButton
-                order={order}
-                items={enrichedItems.map((item) => ({
-                  ...item,
-                  virtual_stock:
-                    allProducts.find((p) => p.product_id === item.product)
-                      ?.virtual_stock ?? 0,
-                  price:
-                    allProducts.find((p) => p.product_id === item.product)
-                      ?.price ?? item.price ?? 0,
-                }))}
-              />
+                    order={order}
+                    items={enrichedItems.map((item) => ({
+                      ...item,
+                      virtual_stock:
+                        allProducts.find((p) => p.product_id === item.product)
+                          ?.virtual_stock ?? 0,
+                      price:
+                        allProducts.find((p) => p.product_id === item.product)
+                          ?.price ?? item.price ?? 0,
+                    }))}
+                  />
                 </li>
                 <li className="p-2 border-t">
-                   {order.punched && (
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    handleDownloadPDF();
-                  }}
-                  className="w-full text-left hover:bg-gray-100 "
-                >
-                  🚚 Dispatch PDF
-                </button>
-              )}
+                  {order.punched && (
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        handleDownloadPDF();
+                      }}
+                      className="w-full text-left hover:bg-gray-100 "
+                    >
+                      🚚 Dispatch PDF
+                    </button>
+                  )}
                 </li>
               </ul>
 
