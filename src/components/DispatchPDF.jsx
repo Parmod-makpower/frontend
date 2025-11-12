@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export default function DispatchPDF(order, enrichedItems, remarks, orderCode, cargoDetails) {
+export default function DispatchPDF(order, enrichedItems, remarks, orderCode, dispatchLocation, cargoDetails) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -69,15 +69,12 @@ export default function DispatchPDF(order, enrichedItems, remarks, orderCode, ca
   // LEFT SIDE
 let leftY = boxY + 20;
 
-// ✅ Heading bold
-doc.setFont("helvetica", "bold");
-doc.text(`Order Information`, boxX + 10, leftY);
-
 // ✅ Dynamic data normal (NOT bold)
 doc.setFont("helvetica", "normal");
-doc.text(`Order ID: ${orderCode}`, boxX + 10, leftY + 15);
-doc.text(`CRM Name: ${order.crm_name}`, boxX + 10, leftY + 30);
-doc.text(`Party Name: ${order.ss_party_name}`, boxX + 10, leftY + 45);
+doc.text(`Order ID: ${orderCode}`, boxX + 10, leftY);
+doc.text(`CRM Name: ${order.crm_name}`, boxX + 10, leftY + 15);
+doc.text(`Party Name: ${order.ss_party_name}`, boxX + 10, leftY + 30);
+doc.text(`Location: ${dispatchLocation}`, boxX + 10, leftY + 45);
 
   // REMARKS
   if (remarks.trim()) {
@@ -113,7 +110,8 @@ if (hasCargo) {
     item.quantity,
     item.rack_no ?? "-",
     item.cartoon_size ?? "-",
-    item.ss_virtual_stock ?? "-",
+    dispatchLocation?.toLowerCase() === "mumbai" ? "-" : item.ss_virtual_stock ?? "-", // ✅ condition added here
+ 
   ]);
 
   autoTable(doc, {

@@ -2,7 +2,7 @@
 import API from './axios';
 
 // 🔹 Punch order to sheet
-export const punchOrderToSheet = async (order) => {
+export const punchOrderToSheet = async (order, dispatchLocation) => {
   if (!order?.items?.length) {
     throw new Error("No items to punch");
   }
@@ -25,6 +25,7 @@ export const punchOrderToSheet = async (order) => {
     order_id: order.order_id,
     ss_party_name: order.ss_party_name,
     crm_name: order.crm_name,
+    dispatch_location: dispatchLocation,
     items: order.items.map(i => ({
       product_name: i.product_name,
       quantity: i.quantity,

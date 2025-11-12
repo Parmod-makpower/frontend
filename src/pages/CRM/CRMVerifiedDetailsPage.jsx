@@ -23,6 +23,8 @@ export default function CRMVerifiedDetailsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dispatchLocation, setDispatchLocation] = useState("Delhi");
+
 
   const order = location.state?.order;
   const { data: cargos, isLoading } = useCargoDetails();
@@ -93,7 +95,8 @@ export default function CRMVerifiedDetailsPage() {
 
 
   const handleDownloadPDF = () => {
-    DispatchPDF(order, enrichedItems, remarks, orderCode);
+    DispatchPDF(order, enrichedItems, remarks, orderCode, dispatchLocation);
+    
   };
 
   const handleOrderPunch = () => {
@@ -110,7 +113,7 @@ export default function CRMVerifiedDetailsPage() {
     setLoading(true);
     setIsModalOpen(false);
     try {
-      const data = await punchOrderToSheet(order);
+      const data = await punchOrderToSheet(order, dispatchLocation);
       if (data.success) {
         handleDownloadPDF();
         setTimeout(() => navigate("/all/orders-history"), 500);
@@ -252,18 +255,22 @@ export default function CRMVerifiedDetailsPage() {
 
 
         <div className="relative">
-          {/* 3-Dot Button */}
+          <select
+            value={dispatchLocation}
+            onChange={(e) => setDispatchLocation(e.target.value)}
+            className="border rounded me-3 px-3 py-1 bg-white shadow-sm"
+          >
+            <option value="Delhi">Delhi</option>
+            <option value="Mumbai">Mumbai</option>
+          </select>
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
             className="p-2 rounded hover:bg-gray-200 cursor-pointer"
           >
             <FaEllipsisV size={18} />
           </button>
-
-          {/* Dropdown Menu */}
           {menuOpen && (
             <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg border rounded z-50">
-
               {/* ✅ Order PDF */}
               <ul>
                 <li className="p-2">

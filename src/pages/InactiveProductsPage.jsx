@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { useInactiveProducts, useToggleProductStatus } from "../hooks/useProducts";
+import { useInactiveProducts, useToggleProductStatus, useDeleteProduct } from "../hooks/useProducts";
 import { toast } from "react-toastify";
+import { FiTrash2 } from "react-icons/fi";
 
 export default function InactiveProductsPage() {
   const { data: products = [], isLoading, isError, isFetching } = useInactiveProducts();
   const { mutate: toggleStatus } = useToggleProductStatus();
+  const { mutate: deleteProduct } = useDeleteProduct(); // ✅ added
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -20,6 +22,16 @@ export default function InactiveProductsPage() {
       prod.product_id?.toString().includes(term)
     );
   });
+
+  // ✅ Delete Handler
+  const handleDelete = (id) => {
+    if (window.confirm("Delete this product permanently?")) {
+      deleteProduct(id, {
+        onSuccess: () => toast.success("Product deleted permanently ✅"),
+        onError: () => toast.error("Delete failed ❌"),
+      });
+    }
+  };
 
   return (
     <div className="p-4">
@@ -51,12 +63,13 @@ export default function InactiveProductsPage() {
               <th className="border p-2">Price</th>
               <th className="border p-2">Stock</th>
               <th className="border p-2">Active</th>
+              <th className="border p-2">Delete</th> {/* ✅ added column */}
             </tr>
           </thead>
           <tbody>
             {filteredProducts.length === 0 ? (
               <tr>
-                <td colSpan="7" className="text-center text-gray-500 py-4 italic">
+                <td colSpan="8" className="text-center text-gray-500 py-4 italic">
                   No matching inactive products found.
                 </td>
               </tr>
@@ -88,6 +101,15 @@ export default function InactiveProductsPage() {
                         )
                       }
                     />
+                  </td>
+                  {/* ✅ Delete Button */}
+                  <td className="border p-2">
+                    <button
+                      onClick={() => handleDelete(prod.product_id)}
+                      className="text-red-600 hover:text-red-800 cursor-pointer"
+                    >
+                      <FiTrash2 />
+                    </button>
                   </td>
                 </tr>
               ))
