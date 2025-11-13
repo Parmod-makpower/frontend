@@ -1,14 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import {
+  FaBoxOpen,
+  FaClipboardCheck,
+  FaShippingFast,
+  FaTimesCircle,
+} from "react-icons/fa";
 import API from "../../api/axios";
+import MobilePageHeader from "../../components/MobilePageHeader";
 
 export default function OrderTrackPage() {
-  const [orderId, setOrderId] = useState("");
+  const { orderId } = useParams();
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchOrder = async () => {
-    if (!orderId) return;
+  useEffect(() => {
+    if (orderId) fetchOrder();
+  }, [orderId]);
 
+  const fetchOrder = async () => {
     setLoading(true);
     try {
       const res = await API.get(`/track-order/${orderId}/`);
@@ -21,114 +31,200 @@ export default function OrderTrackPage() {
     }
   };
 
+  // ---------------- PROGRESS BAR LOGIC ----------------
+  const status = orderData?.status?.toUpperCase() || "";
+  const dispatchCount = orderData?.dispatch_data?.length || 0;
+
+  const steps =
+    status === "REJECTED" && dispatchCount === 0
+      ? [
+          { label: "Order Placed", icon: <FaBoxOpen /> },
+          { label: "Order Rejected", icon: <FaTimesCircle />, color: "bg-red-600" },
+        ]
+      : [
+          { label: "Order Placed", icon: <FaBoxOpen /> },
+          {
+            label:
+              status === "HOLD"
+                ? "Hold"
+                : status === "PENDING"
+                ? "Pending"
+                : "Approved",
+            icon: <FaClipboardCheck />,
+            color:
+              status === "HOLD"
+                ? "bg-yellow-400"
+                : status === "PENDING"
+                ? "bg-gray-400"
+                : "bg-blue-600",
+            textColor:
+              status === "HOLD"
+                ? "text-yellow-600"
+                : status === "PENDING"
+                ? "text-gray-600"
+                : "text-blue-600",
+          },
+          { label: "Dispatched", icon: <FaShippingFast /> },
+        ];
+
+  const getStatusStepIndex = (status) => {
+    const s = status?.toUpperCase();
+    switch (s) {
+      case "PLACED":
+      case "PENDING":
+        return 0;
+      case "HOLD":
+      case "APPROVED":
+        return 1;
+      case "DISPATCHED":
+        return 2;
+      case "REJECTED":
+        return 1;
+      default:
+        return 0;
+    }
+  };
+
+  const currentStep =
+    dispatchCount > 0 ? 2 : getStatusStepIndex(orderData?.status);
+  const isRejected = status === "REJECTED" && dispatchCount === 0;
+
+  // ---------------- JSX RETURN ----------------
   return (
-    <div className="p-4 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Order Tracking</h1>
-
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Enter Order ID"
-          className="border p-2 flex-1 rounded"
-          value={orderId}
-          onChange={(e) => setOrderId(e.target.value)}
-        />
-        <button
-          onClick={fetchOrder}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Track
-        </button>
-      </div>
-
+    <div className="p-4 max-w-4xl mx-auto">
+      <MobilePageHeader title="Orders — Details" />
       {loading && <p className="mt-4">Loading...</p>}
-{orderData && (
-  <div className="mt-8">
-    
-    {/* Header Info */}
-    <div className="mb-6 p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-2">Order Details</h2>
-      <p><strong>Order ID:</strong> {orderData.order_id}</p>
-      <p><strong>SS User:</strong> {orderData.ss_user}</p>
-      <p><strong>Status:</strong> {orderData.status}</p>
-      <p><strong>Total Amount:</strong> ₹{orderData.total_amount}</p>
-    </div>
 
-    {/* Comparison Table */}
-    <div className="overflow-x-auto">
-      <table className="min-w-full text-sm border rounded-lg shadow">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border px-3 py-2 text-left">Product</th>
-            <th className="border px-3 py-2 text-center">SS Qty</th>
-            <th className="border px-3 py-2 text-center">CRM Qty</th>
-            <th className="border px-3 py-2 text-center">CRM Status</th>
-            <th className="border px-3 py-2 text-center">Dispatch Qty</th>
-          </tr>
-        </thead>
+      {orderData && (
+        <div className="pt-[60px] sm:pt-0">
+          {/* ✅ Progress Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-y-6 relative mb-10">
+            {steps.map((step, index) => {
+              const isCompleted = index <= currentStep;
+              const isCurrent = index === currentStep;
+              const circleColor =
+                isRejected && index === 1
+                  ? "bg-red-600"
+                  : step.color
+                  ? step.color
+                  : isCompleted
+                  ? "bg-blue-600"
+                  : "bg-gray-300";
 
-        <tbody>
+              return (
+                <div
+                  key={index}
+                  className="flex flex-col items-center text-center flex-1 min-w-[70px] relative z-10"
+                >
+                  <div
+                    className={`flex items-center justify-center w-10 h-10 rounded-full text-white ${circleColor}`}
+                  >
+                    {step.icon}
+                  </div>
+                  <p
+                    className={`mt-2 text-xs sm:text-sm font-medium ${
+                      isCurrent
+                        ? step.textColor
+                          ? step.textColor
+                          : isRejected
+                          ? "text-red-600"
+                          : "text-blue-600"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {step.label}
+                  </p>
+                </div>
+              );
+            })}
 
-          {orderData.ss_items.map((ssItem, index) => {
-            const crmItem = orderData.crm_data?.items.find(
-              (ci) => ci.product_id === ssItem.product_id
-            );
+            {/* Progress Line */}
+            <div className="absolute top-5 left-[5%] right-[5%] h-1 bg-gray-200 z-0">
+              <div
+                className={`h-1 ${
+                  isRejected ? "bg-red-600" : "bg-blue-600"
+                } transition-all duration-500 ease-in-out`}
+                style={{
+                  width: `${(currentStep / (steps.length - 1)) * 100}%`,
+                }}
+              />
+            </div>
+          </div>
 
-            const dispatchItem = orderData.dispatch_data.find(
-              (di) => di.product === ssItem.product_name
-            );
+          {/* ✅ Comparison Table */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm border rounded-lg shadow">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="border px-3 py-2 text-left">Product</th>
+                  <th className="border px-3 py-2 text-center">SS Qty</th>
+                  <th className="border px-3 py-2 text-center">CRM Qty</th>
+                  <th className="border px-3 py-2 text-center">Dispatch Qty</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(() => {
+                  const ssItems = orderData.ss_items || [];
+                  const crmItems = orderData.crm_data?.items || [];
+                  const dispatchItems = orderData.dispatch_data || [];
 
-            return (
-              <tr key={index} className="hover:bg-gray-50">
+                  const allProductNames = [
+                    ...new Set([
+                      ...ssItems.map((i) => i.product_name),
+                      ...crmItems.map((i) => i.product_name),
+                      ...dispatchItems.map((i) => i.product),
+                    ]),
+                  ];
 
-                {/* Product */}
-                <td className="border px-3 py-2 font-medium">
-                  {ssItem.product_name}
-                </td>
+                  return allProductNames.map((name, index) => {
+                    const ssItem = ssItems.find((s) => s.product_name === name);
+                    const crmItem = crmItems.find((c) => c.product_name === name);
+                    const dispatchItem = dispatchItems.find(
+                      (d) => d.product === name
+                    );
 
-                {/* SS Qty */}
-                <td className="border px-3 py-2 text-center bg-blue-50">
-                  {ssItem.quantity}
-                </td>
+                    const isExtraCRMItem = !ssItem && crmItem;
+                    const isExtraDispatchItem =
+                      !ssItem && !crmItem && dispatchItem;
 
-                {/* CRM Qty */}
-                <td className="border px-3 py-2 text-center bg-yellow-50">
-                  {crmItem ? crmItem.quantity : "--"}
-                </td>
+                    let rowBg = "";
+                    if (isExtraCRMItem) rowBg = "bg-orange-50";
+                    if (isExtraDispatchItem) rowBg = "bg-green-100";
 
-                {/* CRM Status */}
-                <td className="border px-3 py-2 text-center">
-                  {!crmItem ? (
-                    <span className="text-gray-500">PENDING</span>
-                  ) : crmItem.is_rejected ? (
-                    <span className="text-red-600 font-semibold">REJECTED</span>
-                  ) : (
-                    <span className="text-green-600 font-semibold">APPROVED</span>
-                  )}
-                </td>
+                    return (
+                      <tr key={index} className={`hover:bg-gray-50 ${rowBg}`}>
+                        <td className="border px-3 py-2 font-medium">{name}</td>
 
-                {/* Dispatch Qty */}
-                <td className="border px-3 py-2 text-center bg-green-50">
-                  {dispatchItem ? dispatchItem.quantity : "--"}
-                </td>
+                        <td className="border px-3 py-2 text-center bg-blue-50">
+                          {ssItem ? ssItem.quantity : "--"}
+                        </td>
 
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+                        <td className="border px-3 py-2 text-center bg-yellow-50">
+                          {crmItem ? (
+                            crmItem.is_rejected ? (
+                              <span className="text-red-600 font-semibold">
+                                REJECTED
+                              </span>
+                            ) : (
+                              crmItem.quantity
+                            )
+                          ) : (
+                            "--"
+                          )}
+                        </td>
 
-    {/* CRM Notes */}
-    {orderData.crm_data && (
-      <div className="mt-4 p-3 bg-blue-50 border rounded">
-        <strong>CRM Notes:</strong> {orderData.crm_data.notes || "No notes"}
-      </div>
-    )}
-
-  </div>
-)}
-
+                        <td className="border px-3 py-2 text-center bg-green-50">
+                          {dispatchItem ? dispatchItem.quantity : "--"}
+                        </td>
+                      </tr>
+                    );
+                  });
+                })()}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

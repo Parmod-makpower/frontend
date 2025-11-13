@@ -25,8 +25,6 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import CategorySearchPage from "./pages/CategorySearchPage";
 import AllCategoriesPage from "./pages/AllCategoriesPage";
 import ConfirmOrderPage from "./pages/SS/ConfirmOrderPage";
-import SSHistoryPage from "./pages/SS/SSHistoryPage";
-import SSOrderTrackingPage from "./pages/SS/SSOrderTrackingPage";
 import CRMSSFormPage from "./pages/CRM/CRMSSFormPage";
 import CRMSSListPage from "./pages/CRM/CRMSSListPage";
 import CRMOrderListPage from "./pages/CRM/CRMOrderListPage";
@@ -43,6 +41,7 @@ import SSPendingOrders from "./pages/ADMIN/SSPendingOrders";
 import SSPendingOrderItems from "./pages/ADMIN/SSPendingOrderItems";
 import CargoDetailsPage from "./pages/ADMIN/CargoDetailsPage";
 import OrderTrackPage from "./pages/CRM/OrderTrackPage";
+import OrderListPage from "./pages/OrderListPage";
 
 
 export default function App() {
@@ -95,7 +94,8 @@ export default function App() {
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
-            <Route path="/track" element={<OrderTrackPage />} />
+            <Route path="/orders-tracking" element={<OrderListPage />} />
+            <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
 
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
@@ -124,8 +124,7 @@ export default function App() {
             <Route path="/ss-page" element={<ProtectedRoute allowedRoles={['SS']}><HomePage /></ProtectedRoute>} />
             <Route path="/cart" element={<ProtectedRoute allowedRoles={['SS']}><CartPage /></ProtectedRoute>} />
             <Route path="/confirm-order" element={<ProtectedRoute allowedRoles={['SS']}><ConfirmOrderPage /></ProtectedRoute>} />
-            <Route path="/ss/history" element={<ProtectedRoute allowedRoles={['SS']}><SSHistoryPage /></ProtectedRoute>} />
-            <Route path="/orders/:orderId/track" element={<ProtectedRoute allowedRoles={['SS']}><SSOrderTrackingPage /></ProtectedRoute>} />
+            <Route path="/ss/history" element={<ProtectedRoute allowedRoles={['SS']}><OrderListPage /></ProtectedRoute>} />
           </Route>
 
           <Route path="/no-permission" element={<NoPermission />} />

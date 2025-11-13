@@ -1,23 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import BottomNav from "./BottomNav";
-import {
-  FaUserCircle, FaSearch,
-  FaHome,
-  FaGift,
-  FaUsers,
-  FaBox,
-  FaHistory,
-  FaShoppingCart,
-  FaList,
-  FaPlus,
-  FaCheck,
-  FaBoxOpen,
-  FaSignOutAlt,
-  FaChartLine,
-  FaHourglassHalf,
-  FaBan
-} from "react-icons/fa";
+import {  FaUserCircle, FaSearch, FaHome,  FaGift,  FaUsers,  FaBox,  FaHistory,  FaShoppingCart,  FaList,  FaPlus,  FaSignOutAlt,  FaChartLine,  FaHourglassHalf,  FaBan, FaRoute} from "react-icons/fa";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSchemes } from "../hooks/useSchemes";
@@ -142,7 +126,8 @@ export default function DashboardLayout() {
       { label: "Super Stockist", path: "/crm-ss/list", icon: <FaUsers /> },
       { label: "Pending Orders", path: "/admin/pending-orders", icon: <FaHourglassHalf /> },
       { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> },
-      { label: "Cargos", path: "/cargo-details", icon: <FaBox /> }
+      { label: "Cargos", path: "/cargo-details", icon: <FaBox /> },
+      { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> }
     );
   }
   if (user.role === "CRM") {
@@ -152,7 +137,8 @@ export default function DashboardLayout() {
       { label: "Super Stockist", path: "/crm-ss/list", icon: <FaUsers /> },
       { label: "New Orders", path: "/crm/orders", icon: <FaBox /> },
       { label: "History", path: "/all/orders-history", icon: <FaHistory /> },
-      { label: "Stock", path: "/available-stock", icon: <FaChartLine /> }
+      { label: "Stock", path: "/available-stock", icon: <FaChartLine /> },
+      { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> }
     );
   }
   if (user.role === "SS") {

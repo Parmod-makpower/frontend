@@ -123,7 +123,7 @@ export default function CartPage() {
                         : makpower_image
                     }
                     alt={item.product_name}
-                    className="w-22 h-22 object-contain bg-gray-50 rounded-lg border self-center"
+                    className="w-20 h-20 object-contain bg-gray-50 rounded-lg border self-center"
                   />
 
                   <div className="flex-1">
