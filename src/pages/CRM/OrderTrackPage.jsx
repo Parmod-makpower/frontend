@@ -38,34 +38,34 @@ export default function OrderTrackPage() {
   const steps =
     status === "REJECTED" && dispatchCount === 0
       ? [
-          { label: "Order Placed", icon: <FaBoxOpen /> },
-          { label: "Order Rejected", icon: <FaTimesCircle />, color: "bg-red-600" },
-        ]
+        { label: "Order Placed", icon: <FaBoxOpen /> },
+        { label: "Order Rejected", icon: <FaTimesCircle />, color: "bg-red-600" },
+      ]
       : [
-          { label: "Order Placed", icon: <FaBoxOpen /> },
-          {
-            label:
-              status === "HOLD"
-                ? "Hold"
-                : status === "PENDING"
+        { label: "Order Placed", icon: <FaBoxOpen /> },
+        {
+          label:
+            status === "HOLD"
+              ? "Hold"
+              : status === "PENDING"
                 ? "Pending"
                 : "Approved",
-            icon: <FaClipboardCheck />,
-            color:
-              status === "HOLD"
-                ? "bg-yellow-400"
-                : status === "PENDING"
+          icon: <FaClipboardCheck />,
+          color:
+            status === "HOLD"
+              ? "bg-yellow-400"
+              : status === "PENDING"
                 ? "bg-gray-400"
                 : "bg-blue-600",
-            textColor:
-              status === "HOLD"
-                ? "text-yellow-600"
-                : status === "PENDING"
+          textColor:
+            status === "HOLD"
+              ? "text-yellow-600"
+              : status === "PENDING"
                 ? "text-gray-600"
                 : "text-blue-600",
-          },
-          { label: "Dispatched", icon: <FaShippingFast /> },
-        ];
+        },
+        { label: "Dispatched", icon: <FaShippingFast /> },
+      ];
 
   const getStatusStepIndex = (status) => {
     const s = status?.toUpperCase();
@@ -106,10 +106,10 @@ export default function OrderTrackPage() {
                 isRejected && index === 1
                   ? "bg-red-600"
                   : step.color
-                  ? step.color
-                  : isCompleted
-                  ? "bg-blue-600"
-                  : "bg-gray-300";
+                    ? step.color
+                    : isCompleted
+                      ? "bg-blue-600"
+                      : "bg-gray-300";
 
               return (
                 <div
@@ -122,15 +122,14 @@ export default function OrderTrackPage() {
                     {step.icon}
                   </div>
                   <p
-                    className={`mt-2 text-xs sm:text-sm font-medium ${
-                      isCurrent
+                    className={`mt-2 text-xs sm:text-sm font-medium ${isCurrent
                         ? step.textColor
                           ? step.textColor
                           : isRejected
-                          ? "text-red-600"
-                          : "text-blue-600"
+                            ? "text-red-600"
+                            : "text-blue-600"
                         : "text-gray-500"
-                    }`}
+                      }`}
                   >
                     {step.label}
                   </p>
@@ -141,9 +140,8 @@ export default function OrderTrackPage() {
             {/* Progress Line */}
             <div className="absolute top-5 left-[5%] right-[5%] h-1 bg-gray-200 z-0">
               <div
-                className={`h-1 ${
-                  isRejected ? "bg-red-600" : "bg-blue-600"
-                } transition-all duration-500 ease-in-out`}
+                className={`h-1 ${isRejected ? "bg-red-600" : "bg-blue-600"
+                  } transition-all duration-500 ease-in-out`}
                 style={{
                   width: `${(currentStep / (steps.length - 1)) * 100}%`,
                 }}
@@ -152,7 +150,7 @@ export default function OrderTrackPage() {
           </div>
 
           {/* ✅ Comparison Table */}
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto mb-20">
             <table className="min-w-full text-sm border rounded-lg shadow">
               <thead className="bg-gray-100">
                 <tr>
