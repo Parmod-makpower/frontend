@@ -157,7 +157,7 @@ const OrderListPage = () => {
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
       <MobilePageHeader title="My Orders" />
 
-      <div className="space-y-4 pt-[60px] sm:pt-0">
+      <div className="space-y-4 pt-[60px] sm:pt-0 mb-20">
         {orders.length === 0 ? (
           <p className="text-center text-gray-500 italic mt-4">
             No orders found
