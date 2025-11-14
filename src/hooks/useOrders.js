@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrdersByRole } from "../api/ordersApi";
 
-export const useOrders = () => {
+export const useOrders = (filters) => {
   return useQuery({
-    queryKey: ["ordersByRole"],
-    queryFn: fetchOrdersByRole,
+    queryKey: ["ordersByRole", filters],
+    queryFn: () => fetchOrdersByRole(filters),
+    enabled: false,   // 🚀 API auto-call stop
     keepPreviousData: true,
-    staleTime: 0,
-    refetchOnMount: true,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 };

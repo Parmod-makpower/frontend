@@ -8,12 +8,36 @@ import {
   FaHeadphonesAlt,
   FaBoxOpen,
   FaCalendarAlt,
+  FaFilter,
 } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import OrderFilterDrawer from "../components/OrderFilterDrawer";
+import { IoChevronBack } from "react-icons/io5";
+
 
 const OrderListPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { data: orders = [], isLoading, isError } = useOrders();
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const [filters, setFilters] = useState({
+    order_id: "",
+    party_name: "",
+    from_date: "",
+    to_date: "",
+  });
+  const { data: orders = [], isLoading, isError, refetch } = useOrders(filters);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      refetch();
+    }, 200); // 200ms delay safe kar deta hai
+
+    return () => clearTimeout(timer);
+  }, []);
+
+
 
   if (isLoading)
     return <p className="text-center mt-10 text-gray-600">Loading orders...</p>;
@@ -134,6 +158,7 @@ const OrderListPage = () => {
               {badge.label}
             </span>
           </div>
+          <p>{order.ss_name}</p>
         </div>
 
         {/* Time */}
@@ -154,8 +179,44 @@ const OrderListPage = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto">
-      <MobilePageHeader title="My Orders" />
+    <div className="px-4">
+
+      <div className="fixed sm:hidden top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow flex items-center justify-between">
+
+        <button
+          onClick={() => window.history.back()}
+          className="text-gray-700 hover:text-blue-600 text-2xl font-bold px-1 transition-transform hover:scale-105"
+        >
+          <IoChevronBack />
+        </button>
+        <div className="text-sm text-gray-700 ps-3">
+          Filter Orders: <span className="font-semibold">{orders.length}</span>
+        </div>
+
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="px-3 py-2 text-blue-800 text-sm flex items-center gap-2"
+        >
+          <FaFilter /> Filters
+        </button>
+      </div>
+
+      {/* 🔥 ORDER COUNT for mobile */}
+
+
+      <div className="hidden sm:flex justify-between items-center mb-3 bg-red-300 px-3 py-1 rounded">
+        <p className="text-sm ">
+          Filter Orders: <span className="font-semibold">{orders.length}</span>
+        </p>
+
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="px-3 py-1 text-blue-800 text-sm flex items-center gap-2 border border-blue rounded cursor-pointer hover:bg-blue-800 hover:text-white"
+        >
+          <FaFilter /> Filters
+        </button>
+      </div>
+
 
       <div className="space-y-4 pt-[60px] sm:pt-0 mb-20">
         {orders.length === 0 ? (
@@ -164,17 +225,33 @@ const OrderListPage = () => {
           </p>
         ) : (
           <>
-            {today.length > 0 && <SectionTitle title="Today" />}
-            {today.map((order) => renderOrderCard(order))}
+          {today.length > 0 && <SectionTitle title="Today" />}
+<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  {today.map((order) => renderOrderCard(order))}
+</div>
 
-            {yesterday.length > 0 && <SectionTitle title="Yesterday" />}
-            {yesterday.map((order) => renderOrderCard(order))}
+{yesterday.length > 0 && <SectionTitle title="Yesterday" />}
+<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  {yesterday.map((order) => renderOrderCard(order))}
+</div>
 
-            {older.length > 0 && <SectionTitle title="Older Orders" />}
-            {older.map((order) => renderOrderCard(order))}
+{older.length > 0 && <SectionTitle title="Older Orders" />}
+<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  {older.map((order) => renderOrderCard(order))}
+</div>
+
           </>
         )}
       </div>
+      <OrderFilterDrawer
+        open={drawerOpen}
+        setOpen={setDrawerOpen}
+        filters={filters}
+        setFilters={setFilters}
+        onApply={() => refetch()}   // 🔥 Only Apply → API
+      />
+
+
     </div>
   );
 };
