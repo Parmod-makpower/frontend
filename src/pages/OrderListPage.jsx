@@ -158,7 +158,7 @@ const OrderListPage = () => {
               {badge.label}
             </span>
           </div>
-          <p>{order.ss_name}</p>
+          {/* <p>{order.ss_name}</p> */}
         </div>
 
         {/* Time */}
@@ -225,20 +225,20 @@ const OrderListPage = () => {
           </p>
         ) : (
           <>
-          {today.length > 0 && <SectionTitle title="Today" />}
-<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-  {today.map((order) => renderOrderCard(order))}
-</div>
+            {today.length > 0 && <SectionTitle title="Today" />}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {today.map((order) => renderOrderCard(order))}
+            </div>
 
-{yesterday.length > 0 && <SectionTitle title="Yesterday" />}
-<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-  {yesterday.map((order) => renderOrderCard(order))}
-</div>
+            {yesterday.length > 0 && <SectionTitle title="Yesterday" />}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {yesterday.map((order) => renderOrderCard(order))}
+            </div>
 
-{older.length > 0 && <SectionTitle title="Older Orders" />}
-<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-  {older.map((order) => renderOrderCard(order))}
-</div>
+            {older.length > 0 && <SectionTitle title="Older Orders" />}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {older.map((order) => renderOrderCard(order))}
+            </div>
 
           </>
         )}
