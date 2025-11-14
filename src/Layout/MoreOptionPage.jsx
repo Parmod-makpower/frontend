@@ -11,6 +11,7 @@ import {
   FaBan,
   FaHourglassHalf,
   FaUser,
+  FaRoute,
 } from "react-icons/fa";
 import MobilePageHeader from "../components/MobilePageHeader";
 import ClearCacheButton from "../components/ClearCacheButton";
@@ -46,6 +47,11 @@ export default function MoreOptionsPage() {
             label: "Pending Orders",
             icon: <FaHourglassHalf className="text-red-600" />,
             action: () => navigate("/admin/pending-orders"),
+          },
+        {
+            label: "Track-Orders",
+            icon: <FaRoute className="text-red-600" />,
+            action: () => navigate("/orders-tracking"),
           },
          {
             label: "Products",

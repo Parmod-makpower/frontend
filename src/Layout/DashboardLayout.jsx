@@ -138,7 +138,7 @@ export default function DashboardLayout() {
       { label: "New Orders", path: "/crm/orders", icon: <FaBox /> },
       { label: "History", path: "/all/orders-history", icon: <FaHistory /> },
       { label: "Stock", path: "/available-stock", icon: <FaChartLine /> },
-      { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> }
+      // { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> }
     );
   }
   if (user.role === "SS") {
