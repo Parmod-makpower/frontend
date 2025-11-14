@@ -1,7 +1,18 @@
 import { useState } from "react";
 import { FaFilter, FaTimes } from "react-icons/fa";
+import { useCachedSSUsers } from "../auth/useSS";
+import { useAuth } from "../context/AuthContext";
+
 
 const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
+    const { user } = useAuth();
+    const { data: ssUsers = [] } = useCachedSSUsers();
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
+    const filteredParties = ssUsers.filter((u) =>
+        u.party_name.toLowerCase().includes(filters.party_name.toLowerCase())
+    );
+
     const handleChange = (e) => {
         setFilters({
             ...filters,
@@ -33,7 +44,7 @@ const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
             {/* Offcanvas Panel */}
             <div
                 className={`fixed right-0 top-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 
-        ${open ? "translate-x-0" : "translate-x-full"}`}
+        ${open ? "translate-x-0" : "translate-x-full"} `}
             >
                 {/* Header */}
                 <div className="flex justify-between items-center p-4 border-b">
@@ -41,7 +52,7 @@ const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
                         <FaFilter /> Filters
                     </h2>
                     <button onClick={() => setOpen(false)}>
-                        <FaTimes className="text-xl" />
+                        <FaTimes className="text-xl cursor-pointer" />
                     </button>
                 </div>
 
@@ -58,18 +69,46 @@ const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
                             className="w-full mt-1 p-2 border rounded-lg"
                         />
                     </div>
-
-                    <div>
+                     {(user?.role === "ADMIN" || user?.role === "CRM") && (
+                    <div className="relative">
                         <label className="text-sm font-medium">Party Name</label>
                         <input
                             type="text"
                             name="party_name"
                             value={filters.party_name}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                handleChange(e);
+                                setShowSuggestions(true);
+                            }}
                             placeholder="Search party"
                             className="w-full mt-1 p-2 border rounded-lg"
+                            autoComplete="off"
                         />
+
+                        {/* Suggestions Box */}
+                        {showSuggestions && filters.party_name.length > 0 && (
+                            <div className="absolute left-0 right-0 bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto z-50 shadow-md">
+                                {filteredParties.length > 0 ? (
+                                    filteredParties.map((party) => (
+                                        <div
+                                            key={party.id}
+                                            className="p-2 hover:bg-blue-50 cursor-pointer"
+                                            onClick={() => {
+                                                setFilters({ ...filters, party_name: party.party_name });
+                                                setShowSuggestions(false);
+                                            }}
+                                        >
+                                            {party.party_name}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="p-2 text-gray-500">No match found</div>
+                                )}
+                            </div>
+                        )}
                     </div>
+                     )}
+
 
                     <div>
                         <label className="text-sm font-medium">From Date</label>

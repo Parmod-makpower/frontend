@@ -158,7 +158,10 @@ const OrderListPage = () => {
               {badge.label}
             </span>
           </div>
-          {/* <p>{order.ss_name}</p> */}
+          {(user?.role === "ADMIN" || user?.role === "CRM") && (
+            <p className="text-xs">{order.ss_name}</p>
+          )}
+
         </div>
 
         {/* Time */}
@@ -204,14 +207,14 @@ const OrderListPage = () => {
       {/* 🔥 ORDER COUNT for mobile */}
 
 
-      <div className="hidden sm:flex justify-between items-center mb-3 bg-red-300 px-3 py-1 rounded">
+      <div className="hidden sm:flex justify-between items-center mb-5 bg-gray-200 px-4 py-1 rounded">
         <p className="text-sm ">
           Filter Orders: <span className="font-semibold">{orders.length}</span>
         </p>
 
         <button
           onClick={() => setDrawerOpen(true)}
-          className="px-3 py-1 text-blue-800 text-sm flex items-center gap-2 border border-blue rounded cursor-pointer hover:bg-blue-800 hover:text-white"
+          className="px-3 py-1 text-blue-800 text-sm flex items-center gap-2 rounded cursor-pointer hover:bg-blue-800 hover:text-white"
         >
           <FaFilter /> Filters
         </button>
@@ -226,17 +229,17 @@ const OrderListPage = () => {
         ) : (
           <>
             {today.length > 0 && <SectionTitle title="Today" />}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {today.map((order) => renderOrderCard(order))}
             </div>
 
             {yesterday.length > 0 && <SectionTitle title="Yesterday" />}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {yesterday.map((order) => renderOrderCard(order))}
             </div>
 
             {older.length > 0 && <SectionTitle title="Older Orders" />}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {older.map((order) => renderOrderCard(order))}
             </div>
 
