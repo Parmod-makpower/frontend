@@ -31,8 +31,8 @@ export default function DistributorMeetForm() {
     };
 
     return (
-        <div className="min-h-screen flex sm:items-center pt-5 justify-center bg-gradient-to-b from-white to-red-50 p-0 sm:p-4">
-            <div className="w-full max-w-sm bg-white shadow rounded p-6 sm:border border-red-300">
+        <div className="min-h-screen p-0 m-0 flex items-center justify-center sm:bg-gradient-to-b from-white to-red-50 p-0 sm:p-4">
+            <div className="w-full max-w-sm bg-white shado rounded p-6 sm:border border-red-300">
 
                 <div className="flex justify-center mb-3">
                     <img src={logo} className="h-10 object-contain drop-shadow-[0_4px_10px_rgba(255,90,90,0.4)]" />
