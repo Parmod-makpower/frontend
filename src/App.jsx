@@ -42,6 +42,7 @@ import SSPendingOrderItems from "./pages/ADMIN/SSPendingOrderItems";
 import CargoDetailsPage from "./pages/ADMIN/CargoDetailsPage";
 import OrderTrackPage from "./pages/CRM/OrderTrackPage";
 import OrderListPage from "./pages/OrderListPage";
+import DistributorMeetForm from "./components/form/DistributorMeetForm";
 
 
 export default function App() {
@@ -78,6 +79,7 @@ export default function App() {
        <Toaster position="top-center" reverseOrder={false} />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/form" element={<DistributorMeetForm />} />
             <Route path="" element={<HomeRedirector />} />
             <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
 
