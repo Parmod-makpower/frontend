@@ -259,6 +259,7 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">Product Name</th>
               <th className="px-4 py-2 border">Cartoon</th>
               <th className="px-4 py-2 border">Guarantee</th>
+              <th className="px-4 py-2 border">M-Stock</th>
               <th className="px-4 py-2 border">Stock</th>
               <th className="px-4 py-2 border">V_Stock</th>
               <th className="px-4 py-2 border">Price</th>
@@ -282,6 +283,7 @@ export default function ProductPage() {
                 <td className="px-4 py-2 border">{prod.product_name}</td>
                 <td className="px-4 py-2 border bg-yellow-200">{prod.cartoon_size}</td>
                 <td className="px-4 py-2 border">{prod.guarantee}</td>
+                <td className="px-4 py-2 border bg-red-200">{prod.mumbai_stock || 0}</td>
                 <td className="px-4 py-2 border bg-red-200">{prod.live_stock || 0}</td>
                 <td className="px-4 py-2 border bg-red-200">{prod.virtual_stock || 0}</td>
                 <td className="px-4 py-2 border bg-blue-200">{prod.price}</td>
