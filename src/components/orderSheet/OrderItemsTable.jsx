@@ -16,7 +16,8 @@ export default function OrderItemsTable({
           <th className="px-4 py-3 text-center border border-black">SS Order</th>
           <th className="px-4 py-3 text-center border border-black">Approved</th>
           <th className="px-4 py-3 text-center border border-black">SS-Stock</th>
-          <th className="px-4 py-3 text-center border border-black">Stock</th>
+          <th className="px-4 py-3 text-center border border-black">Delhi</th>
+          <th className="px-4 py-3 text-center border border-black">Mumbai</th>
           <th className="px-4 py-3 text-center border border-black">Carton</th>
           <th className="px-4 py-3 text-center border border-black">Price</th>
           <th className="px-4 py-3 text-center border border-black">Total</th>
@@ -62,6 +63,9 @@ export default function OrderItemsTable({
                 {productData?.virtual_stock ?? "-"}
               </td>
 
+              <td className="px-4 py-2 border text-center bg-purple-300">
+                {productData?.mumbai_stock ?? "-"}
+              </td>
               <td className="px-4 py-2 border text-center">
                 {productData?.cartoon_size ?? "-"}
               </td>
@@ -99,7 +103,7 @@ export default function OrderItemsTable({
 
         {/* ✅ Grand Total */}
         <tr className="bg-gray-100 font-bold text-gray-800">
-          <td colSpan="7" className="px-4 py-2 text-right border">
+          <td colSpan="8" className="px-4 py-2 text-right border">
             Estimate Total:
           </td>
           <td colSpan="2" className="px-4 py-2 border">
