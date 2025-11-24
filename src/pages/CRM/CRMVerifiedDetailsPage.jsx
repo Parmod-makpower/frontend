@@ -95,7 +95,14 @@ export default function CRMVerifiedDetailsPage() {
 
 
   const handleDownloadPDF = () => {
-    DispatchPDF(order, enrichedItems, remarks, orderCode, dispatchLocation);
+    DispatchPDF(
+  order,
+  enrichedItems,
+  remarks,
+  orderCode,
+  order.punched ? order.dispatch_location : dispatchLocation   // 🔥 FIX
+);
+
     
   };
 
@@ -255,14 +262,18 @@ export default function CRMVerifiedDetailsPage() {
 
 
         <div className="relative">
-          <select
-            value={dispatchLocation}
-            onChange={(e) => setDispatchLocation(e.target.value)}
-            className="border rounded me-3 px-3 py-1 bg-white shadow-sm"
-          >
-            <option value="Delhi">Delhi</option>
-            <option value="Mumbai">Mumbai</option>
-          </select>
+         <select
+  value={order.punched ? order.dispatch_location : dispatchLocation}
+  onChange={(e) => setDispatchLocation(e.target.value)}
+  disabled={order.punched}   // 🔥 यही main point है
+  className={`border rounded me-3 px-3 py-1 bg-white shadow-sm ${
+    order.punched ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+  }`}
+>
+  <option value="Delhi">Delhi</option>
+  <option value="Mumbai">Mumbai</option>
+</select>
+
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
             className="p-2 rounded hover:bg-gray-200 cursor-pointer"

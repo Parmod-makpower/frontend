@@ -34,8 +34,8 @@ export default function OrderItemsTable({
           return (
             <tr key={item.product} className="hover:bg-gray-50 bg-white">
               <td className="px-4 py-2 border gap-2">
-                {item.product_name}
-                {item.is_scheme_item && <FaGift className="text-orange-500" />}
+                <span className="flex items-center gap-1">
+                {item.is_scheme_item && <FaGift className="text-pink-500 " />}{item.product_name}</span>
               </td>
 
               <td className="px-4 py-2 border text-center">

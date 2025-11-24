@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { verifyCRMOrder, deleteCRMOrder, holdCRMOrder, RejectCRMOrder } from "../../hooks/useCRMOrders";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 import { Loader2, Trash2 } from "lucide-react";
-import { FaGift, FaPauseCircle, FaTimesCircle, FaTrashAlt } from "react-icons/fa";
+import { FaGift, FaPauseCircle, FaTimesCircle } from "react-icons/fa";
 import ConfirmModal from "../../components/ConfirmModal";
 import PDFDownloadButton from "../../components/PDFDownloadButton";
 import { useSchemes } from "../../hooks/useSchemes";
@@ -31,7 +31,60 @@ export default function CRMOrderDetailPage() {
 
   // ✅ Edited items (restore from localStorage or backend)
   const [editedItems, setEditedItems] = useState([]);
+  // ---------------- SCHEME CALCULATION LOGIC ----------------
   const { data: schemes = [] } = useSchemes();
+
+  const getSchemeMultiplier = (scheme, items) => {
+    return Math.min(
+      ...scheme.conditions.map((cond) => {
+        const matched = items.find(
+          (p) =>
+            p.product === cond.product ||
+            p.product_name === cond.product_name
+        );
+        if (!matched) return 0;
+        return Math.floor(matched.quantity / cond.min_quantity);
+      })
+    );
+  };
+
+  const mergeRewards = (eligibleSchemes) => {
+    const rewardMap = {};
+
+    eligibleSchemes.forEach((scheme) => {
+      const multiplier = scheme.multiplier;
+
+      scheme.rewards.forEach((r) => {
+        const productName = r.product_name || r.product;
+        const qty = r.quantity * multiplier;
+
+        if (rewardMap[productName]) {
+          rewardMap[productName].quantity += qty;
+        } else {
+          rewardMap[productName] = {
+            product_name: productName,
+            quantity: qty,
+          };
+        }
+      });
+    });
+
+    return Object.values(rewardMap);
+  };
+
+  // CRM Edited Items (order sheet items)
+  const ssItems = editedItems || [];
+
+  // Apply Scheme Logic
+  const eligibleSchemes = schemes
+    .map((scheme) => ({
+      ...scheme,
+      multiplier: getSchemeMultiplier(scheme, ssItems),
+    }))
+    .filter((s) => s.multiplier > 0);
+
+  const mergedRewards = mergeRewards(eligibleSchemes);
+
 
   const hasScheme = (productId) =>
     schemes.some(
@@ -269,6 +322,67 @@ export default function CRMOrderDetailPage() {
     }
   });
 
+  // ⭐ ADD A SINGLE REWARD ITEM
+  const addRewardItem = (reward) => {
+    setEditedItems((prev) => {
+      const existing = prev.find((i) => i.product === reward.product_id);
+
+      if (existing) {
+        // agar reward pehle se added hai → qty increase
+        return prev.map((i) =>
+          i.product === reward.product_id
+            ? {
+              ...i,
+              quantity: Number(i.quantity) + Number(reward.quantity),
+              is_scheme_item: true,
+            }
+            : i
+        );
+      }
+
+      // otherwise → new item add
+      const product = allProducts.find(
+        (p) =>
+          p.product_id === reward.product_id ||
+          p.product_name === reward.product_name
+      );
+
+      return [
+        ...prev,
+        {
+          product: product?.product_id,
+          product_name: product?.product_name,
+          quantity: reward.quantity,
+          original_quantity: "Scheme",
+          price: product?.price ?? 0,
+          ss_virtual_stock: product?.virtual_stock ?? 0,
+          is_scheme_item: true,
+        },
+      ];
+    });
+  };
+  const handleAddAllRewards = () => {
+    mergedRewards.forEach((reward) => {
+      if (!isRewardAlreadyAdded(reward)) {
+        addRewardItem({
+          product_id: reward.product_id,
+          product_name: reward.product_name,
+          quantity: reward.quantity,
+        });
+      }
+    });
+
+    alert("All rewards added!");
+  };
+
+  const isRewardAlreadyAdded = (reward) => {
+    return editedItems.some(
+      (item) =>
+        item.product_name === reward.product_name ||
+        item.product === reward.product_id
+    );
+  };
+
 
   if (!order)
     return (
@@ -340,8 +454,8 @@ export default function CRMOrderDetailPage() {
                       }
                     }}
                     className="flex gap-2 items-center cursor-pointer"
-                  ><FaPauseCircle  size={15} className="text-yellow-500" />
-                     Hold Order
+                  ><FaPauseCircle size={15} className="text-yellow-500" />
+                    Hold Order
                   </button>
                 </li>
                 <li className="p-2 border-t">
@@ -361,8 +475,8 @@ export default function CRMOrderDetailPage() {
                       }
                     }}
                     className="flex gap-2 items-center cursor-pointer"
-                  ><FaTimesCircle  size={15} className="text-red-500" />
-                     Reject Order
+                  ><FaTimesCircle size={15} className="text-red-500" />
+                    Reject Order
                   </button>
                 </li>
                 {/* <li className="border-t p-2"> <button
@@ -413,7 +527,77 @@ export default function CRMOrderDetailPage() {
               setItemToDelete={setItemToDelete}
               setShowDeleteModal={setShowDeleteModal}
             />
+            {/* ---------------- SCHEME TABLE ---------------- */}
+            {eligibleSchemes.length > 0 && (
+              <div className="overflow-x-auto my-3">
+                <table className="min-w-full text-sm border rounded-lg shadow bg-white">
+                  <thead className="bg-pink-100">
+                    <tr>
+                      <th className="border px-3 py-2 text-left">Scheme Product</th>
+                      <th className="border px-3 py-2 text-left">Rewards</th>
+                      <th className="border px-3 py-2 text-center">
+                        <button
+                          onClick={handleAddAllRewards}
+                          className="px-3 py-1 bg-blue-500 text-white rounded text-xs cursor-pointer" >  Add All
+                        </button>
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {eligibleSchemes
+                      .filter((scheme) =>
+                        scheme.rewards.some((r) => !isRewardAlreadyAdded(r))
+                      )
+                      .map((scheme) => (
+
+                        <tr key={scheme.id} >
+                          <td className="border px-3 py-2">
+                            {scheme.conditions
+                              .map((c) => `${c.product_name} (${c.min_quantity})`)
+                              .join(", ")}
+                          </td>
+
+                          <td className="border px-3 py-2">
+                            {scheme.rewards
+                              .map((r) => {
+                                const total = r.quantity * scheme.multiplier;
+                                return `${total} ${r.product_name} Free`;
+                              })
+                              .join(", ")}
+                          </td>
+
+                          {/* ⭐ ADD BUTTON (ROW WISE) */}
+                          <td className="border px-3 py-2 text-center">
+                            <button
+                              onClick={() => {
+                                scheme.rewards.forEach((r) => {
+                                  if (!isRewardAlreadyAdded(r)) {
+                                    addRewardItem({
+                                      product_id: r.product,
+                                      product_name: r.product_name,
+                                      quantity: r.quantity * scheme.multiplier,
+                                    });
+                                  }
+                                });
+                                alert("Reward added!");
+                              }}
+
+                              className="px-3 py-1 bg-blue-500 text-white rounded text-xs cursor-pointer"
+                            >
+                              Add
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+
           </div>
+
         </div>
 
         <div></div>

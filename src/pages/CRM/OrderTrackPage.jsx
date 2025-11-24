@@ -8,11 +8,65 @@ import {
 } from "react-icons/fa";
 import API from "../../api/axios";
 import MobilePageHeader from "../../components/MobilePageHeader";
+import { useSchemes } from "../../hooks/useSchemes";
+
 
 export default function OrderTrackPage() {
   const { orderId } = useParams();
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(false);
+  // ---------------- SCHEME CALCULATION LOGIC ----------------
+const { data: schemes = [] } = useSchemes();
+
+const getSchemeMultiplier = (scheme, items) => {
+  return Math.min(
+    ...scheme.conditions.map((cond) => {
+      const matched = items.find(
+        (p) => p.product === cond.product_name || p.product_name === cond.product_name
+      );
+      if (!matched) return 0;
+      return Math.floor(matched.quantity / cond.min_quantity);
+    })
+  );
+};
+
+const mergeRewards = (eligibleSchemes) => {
+  const rewardMap = {};
+
+  eligibleSchemes.forEach((scheme) => {
+    const multiplier = scheme.multiplier;
+
+    scheme.rewards.forEach((r) => {
+      const productName = r.product_name || r.product;
+      const qty = r.quantity * multiplier;
+
+      if (rewardMap[productName]) {
+        rewardMap[productName].quantity += qty;
+      } else {
+        rewardMap[productName] = {
+          product_name: productName,
+          quantity: qty,
+        };
+      }
+    });
+  });
+
+  return Object.values(rewardMap);
+};
+
+// SS items (real order items)
+const ssItems = orderData?.ss_items || [];
+
+// Find eligible schemes
+const eligibleSchemes = schemes
+  .map((scheme) => ({
+    ...scheme,
+    multiplier: getSchemeMultiplier(scheme, ssItems),
+  }))
+  .filter((s) => s.multiplier > 0);
+
+const mergedRewards = mergeRewards(eligibleSchemes); // Final rewards list
+
 
   useEffect(() => {
     if (orderId) fetchOrder();
@@ -223,6 +277,44 @@ export default function OrderTrackPage() {
           </div>
         </div>
       )}
+
+      {/* ---------------- SCHEME  TABLE ---------------- */}
+{eligibleSchemes.length > 0 && (
+  <div className="overflow-x-auto mt-10 mb-20">
+    <h2 className="text-lg font-bold mb-3 text-green-700">Applied Schemes & Rewards</h2>
+
+    <table className="min-w-full text-sm border rounded-lg shadow">
+      <thead className="bg-green-100">
+        <tr>
+          <th className="border px-3 py-2 text-left">Scheme Conditions</th>
+          <th className="border px-3 py-2 text-left">Rewards</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {eligibleSchemes.map((scheme) => (
+          <tr key={scheme.id} className="hover:bg-green-50">
+            <td className="border px-3 py-2">
+              {scheme.conditions
+                .map((c) => ` ${c.product_name}`)
+                .join(", ")}
+            </td>
+
+            <td className="border px-3 py-2">
+              {scheme.rewards
+                .map((r) => {
+                  const total = r.quantity * scheme.multiplier;
+                  return `${total}  ${r.product_name || r.product} Free`;
+                })
+                .join(", ")}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
+
     </div>
   );
 }

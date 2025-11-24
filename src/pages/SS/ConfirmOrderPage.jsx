@@ -80,7 +80,7 @@ export default function ConfirmOrderPage() {
         price: Number(p.price) || 0,
         ss_virtual_stock: p.virtual_stock || 0, // ✅ Added: Send virtual stock
       })),
-      eligibleSchemes: mergedRewards,
+      // eligibleSchemes: mergedRewards,
       total: selectedProducts.reduce(
         (sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1),
         0
