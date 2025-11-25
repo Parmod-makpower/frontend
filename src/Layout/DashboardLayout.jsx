@@ -141,7 +141,7 @@ export default function DashboardLayout() {
       { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> }
     );
   }
-  if (user.role === "SS") {
+  if (user.role === "SS" || user.role === "DS") {
     navItems.push(
       { label: "Home", path: "/", icon: <FaHome /> },
       { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },
@@ -216,7 +216,7 @@ export default function DashboardLayout() {
                         </span>
                       </div>
 
-                      {user?.role === "SS" && (
+                      {(user?.role === "SS" || user?.role === "DS") && (
                         <div className="ml-3 flex items-center">
                           {isAdded(p.id) ? (
                             <>
@@ -289,7 +289,7 @@ export default function DashboardLayout() {
 
         {/* Right side */}
         <div className="flex items-center gap-4">
-          {user.role === "SS" && (
+          {(user.role === "SS" || user?.role === "DS") && (
             <NavLink to="/cart" className="relative text-gray-700 hover:text-blue-600">
               <FaShoppingCart className="text-2xl" />
               {cartCount > 0 && (

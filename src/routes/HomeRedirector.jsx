@@ -17,6 +17,8 @@ export default function HomeRedirector() {
     return <Navigate to="/CRMDashboard" replace />;
   } else if (role === "ss") {
     return <Navigate to="/home" replace />;
+  } else if (role === "ds") {
+    return <Navigate to="/home" replace />;
   } else {
     return <div className="p-4 text-red-600"> (Unauthorized User)</div>;
   }

@@ -153,7 +153,7 @@ export default function BatteryPage() {
                   </div>
 
                   {/* 👉 Right Side: Add/Quantity Control */}
-                  {user?.role === "SS" && (
+                  {(user?.role === "SS" || user?.role === "DS") && (
                     <div className="ml-3 flex items-center">
                       {isAdded(prodId) ? (
                         <>

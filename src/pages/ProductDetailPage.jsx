@@ -239,7 +239,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ✅ Sticky Bottom Add to Cart Bar with Quantity / Cartoon Handling */}
-      {user?.role === "SS" && (
+      {(user?.role === "SS" || user?.role === "DS") && (
         <div className="left-0 w-full bg-white p-3 flex gap-3 z-50">
           {product.sub_category === "GIFT ITEM" || product.sub_category === "Z GIFT ITEM" ? (
            <></>

@@ -126,8 +126,8 @@ export default function App() {
            
             <Route path="/ss/ds" element={<ProtectedRoute allowedRoles={['SS']}><SSDSPage /></ProtectedRoute>} />
             <Route path="/ss-page" element={<ProtectedRoute allowedRoles={['SS']}><HomePage /></ProtectedRoute>} />
-            <Route path="/cart" element={<ProtectedRoute allowedRoles={['SS']}><CartPage /></ProtectedRoute>} />
-            <Route path="/confirm-order" element={<ProtectedRoute allowedRoles={['SS']}><ConfirmOrderPage /></ProtectedRoute>} />
+            <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+            <Route path="/confirm-order" element={<ProtectedRoute ><ConfirmOrderPage /></ProtectedRoute>} />
             <Route path="/ss/history" element={<ProtectedRoute allowedRoles={['SS']}><OrderListPage /></ProtectedRoute>} />
           </Route>
 

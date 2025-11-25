@@ -92,7 +92,7 @@ export default function ProductCard({
         </p>
 
         {/* 🛒 Add / Quantity Control */}
-        {user?.role === "SS" && (
+        {(user?.role === "SS" || user?.role === "DS" ) && (
           <div className="mt-auto">
             {!isInCart ? (
               <button

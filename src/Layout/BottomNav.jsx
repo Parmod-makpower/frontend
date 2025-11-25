@@ -28,6 +28,7 @@ export default function BottomNav() {
   const isAdmin = user?.role === "ADMIN";
   const isCrm = user?.role === "CRM";
   const isSs = user?.role === "SS";
+  const isDs = user?.role === "DS";
 
   // Common items sabko milेंगे
   const baseItems = [
@@ -38,7 +39,7 @@ export default function BottomNav() {
 
   // Cart सिर्फ SS को (Admin & CRM को नहीं)
   const cartItem =
-    isSs && {
+    (isSs || isDs) && {
       path: "/cart",
       icon: (
         <div className="relative">
@@ -56,6 +57,11 @@ export default function BottomNav() {
   // Role-specific items
   const roleItems = {
     SS: [
+      { path: "/user-schemes", icon: <FaGift />, label: "Schemes" },
+      { path: "/all-categories", icon: <FaBox />, label: "Category" },
+      cartItem,
+    ],
+    DS: [
       { path: "/user-schemes", icon: <FaGift />, label: "Schemes" },
       { path: "/all-categories", icon: <FaBox />, label: "Category" },
       cartItem,

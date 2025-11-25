@@ -157,7 +157,7 @@ export default function SearchBarPage() {
           </div>
 
           {/* RIGHT */}
-          {user?.role === "SS" && (
+          {(user?.role === "SS" || user?.role === "DS") && (
             <div className="ml-3 flex items-center">
               {selectedItem ? (
                 hasCartoon ? (

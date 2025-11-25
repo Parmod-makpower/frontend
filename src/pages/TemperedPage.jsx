@@ -134,7 +134,7 @@ export default function TemperedPage() {
                     <div className="flex justify-between gap-4 text-gray-500 text-[11px] sm:text-xs">
                       <span className="truncate font-medium">Category: {prod.sub_category}</span>
 
-                      {user?.role === "SS" && (
+                      {(user?.role === "SS" || user?.role === "DS") && (
                         <div className="ml-3 flex items-center">
                           {selectedProducts.some((p) => p.id === prodId) ? (
                             <>

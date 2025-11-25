@@ -321,6 +321,66 @@ export default function CRMOrderDetailPage() {
       categoryWiseTotals[matchedKeyword].approvedQty += Number(item.quantity || 0);
     }
   });
+useEffect(() => {
+  if (!editedItems || editedItems.length === 0) return;
+
+  // STEP 1 — Add or Update Scheme Reward Items
+  mergedRewards.forEach(reward => {
+    const product = allProducts.find(
+      p =>
+        p.product_id === reward.product_id ||
+        p.product_name === reward.product_name
+    );
+
+    const exists = editedItems.some(
+      i =>
+        i.product === product?.product_id ||
+        i.product_name === product?.product_name
+    );
+
+    if (exists) {
+      // update qty
+      setEditedItems(prev =>
+        prev.map(i =>
+          i.product === product?.product_id
+            ? { ...i, quantity: reward.quantity, is_scheme_item: true }
+            : i
+        )
+      );
+    } else {
+      // add new
+      setEditedItems(prev => [
+        ...prev,
+        {
+          product: product?.product_id,
+          product_name: product?.product_name,
+          quantity: reward.quantity,
+          original_quantity: "Scheme",
+          price: product?.price ?? 0,
+          ss_virtual_stock: product?.virtual_stock ?? 0,
+          is_scheme_item: true,
+        }
+      ]);
+    }
+  });
+
+  // STEP 3 — Remove Reward items if scheme not eligible anymore
+  setEditedItems(prev =>
+    prev.filter(item => {
+      if (!item.is_scheme_item) return true;
+
+      const stillValid = mergedRewards.some(
+        r =>
+          r.product_id === item.product ||
+          r.product_name === item.product_name
+      );
+
+      return stillValid;
+    })
+  );
+
+}, [mergedRewards, editedItems.length, allProducts]);
+
 
   // ⭐ ADD A SINGLE REWARD ITEM
   const addRewardItem = (reward) => {
@@ -527,75 +587,7 @@ export default function CRMOrderDetailPage() {
               setItemToDelete={setItemToDelete}
               setShowDeleteModal={setShowDeleteModal}
             />
-            {/* ---------------- SCHEME TABLE ---------------- */}
-            {eligibleSchemes.length > 0 && (
-              <div className="overflow-x-auto my-3">
-                <table className="min-w-full text-sm border rounded-lg shadow bg-white">
-                  <thead className="bg-pink-100">
-                    <tr>
-                      <th className="border px-3 py-2 text-left">Scheme Product</th>
-                      <th className="border px-3 py-2 text-left">Rewards</th>
-                      <th className="border px-3 py-2 text-center">
-                        <button
-                          onClick={handleAddAllRewards}
-                          className="px-3 py-1 bg-blue-500 text-white rounded text-xs cursor-pointer" >  Add All
-                        </button>
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {eligibleSchemes
-                      .filter((scheme) =>
-                        scheme.rewards.some((r) => !isRewardAlreadyAdded(r))
-                      )
-                      .map((scheme) => (
-
-                        <tr key={scheme.id} >
-                          <td className="border px-3 py-2">
-                            {scheme.conditions
-                              .map((c) => `${c.product_name} (${c.min_quantity})`)
-                              .join(", ")}
-                          </td>
-
-                          <td className="border px-3 py-2">
-                            {scheme.rewards
-                              .map((r) => {
-                                const total = r.quantity * scheme.multiplier;
-                                return `${total} ${r.product_name} Free`;
-                              })
-                              .join(", ")}
-                          </td>
-
-                          {/* ⭐ ADD BUTTON (ROW WISE) */}
-                          <td className="border px-3 py-2 text-center">
-                            <button
-                              onClick={() => {
-                                scheme.rewards.forEach((r) => {
-                                  if (!isRewardAlreadyAdded(r)) {
-                                    addRewardItem({
-                                      product_id: r.product,
-                                      product_name: r.product_name,
-                                      quantity: r.quantity * scheme.multiplier,
-                                    });
-                                  }
-                                });
-                                alert("Reward added!");
-                              }}
-
-                              className="px-3 py-1 bg-blue-500 text-white rounded text-xs cursor-pointer"
-                            >
-                              Add
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-
+          
           </div>
 
         </div>

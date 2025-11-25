@@ -16,9 +16,7 @@ export default function SSDSPage() {
     mobile: "",
     password: "",
     name: "",
-    email: "",
     party_name: "",
-    dob: "",
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -90,9 +88,7 @@ export default function SSDSPage() {
       mobile: user.mobile,
       password: "",
       name: user.name || "",
-      email: user.email || "",
       party_name: user.party_name || "",
-      dob: user.dob || "",
     });
     setErrors({});
   };

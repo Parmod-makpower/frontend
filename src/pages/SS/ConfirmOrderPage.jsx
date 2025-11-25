@@ -217,7 +217,8 @@ export default function ConfirmOrderPage() {
       </div>
 
       {/* Place Order Button */}
-      <div className="text-center">
+        {user?.role === "SS" && (
+          <div className="text-center">
         <button
           onClick={handlePlaceOrder}
           disabled={isPlacingOrder}
@@ -227,6 +228,8 @@ export default function ConfirmOrderPage() {
         </button>
       </div>
 
+        )}
+      
       {/* Loading Animation */}
       {isPlacingOrder && (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-50">
