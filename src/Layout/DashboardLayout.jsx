@@ -141,7 +141,21 @@ export default function DashboardLayout() {
       { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> }
     );
   }
-  if (user.role === "SS" || user.role === "DS") {
+  if (user.role === "ASM") {
+    navItems.push(
+      { label: "Home", path: "/", icon: <FaHome /> },
+      { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },
+      { label: "Categories", path: "/all-categories", icon: <FaList /> }
+    );
+  }
+  if (user.role === "DS" ) {
+    navItems.push(
+      { label: "Home", path: "/", icon: <FaHome /> },
+      { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },
+      { label: "Categories", path: "/all-categories", icon: <FaList /> }
+    );
+  }
+  if (user.role === "SS") {
     navItems.push(
       { label: "Home", path: "/", icon: <FaHome /> },
       { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },

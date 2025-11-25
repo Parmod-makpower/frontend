@@ -321,65 +321,84 @@ export default function CRMOrderDetailPage() {
       categoryWiseTotals[matchedKeyword].approvedQty += Number(item.quantity || 0);
     }
   });
+  
 useEffect(() => {
+  // keep same behaviour as your original code:
   if (!editedItems || editedItems.length === 0) return;
 
-  // STEP 1 — Add or Update Scheme Reward Items
-  mergedRewards.forEach(reward => {
-    const product = allProducts.find(
-      p =>
-        p.product_id === reward.product_id ||
-        p.product_name === reward.product_name
-    );
+  setEditedItems(prev => {
+    // shallow copy of previous items
+    const updated = [...prev];
+    let changed = false;
 
-    const exists = editedItems.some(
-      i =>
-        i.product === product?.product_id ||
-        i.product_name === product?.product_name
-    );
-
-    if (exists) {
-      // update qty
-      setEditedItems(prev =>
-        prev.map(i =>
-          i.product === product?.product_id
-            ? { ...i, quantity: reward.quantity, is_scheme_item: true }
-            : i
-        )
+    // helper: find index by product id or product_name
+    const findIndex = (prodId, prodName) =>
+      updated.findIndex(
+        i =>
+          (i.product !== undefined && i.product === prodId) ||
+          (i.product_name !== undefined && i.product_name === prodName)
       );
-    } else {
-      // add new
-      setEditedItems(prev => [
-        ...prev,
-        {
-          product: product?.product_id,
-          product_name: product?.product_name,
-          quantity: reward.quantity,
-          original_quantity: "Scheme",
-          price: product?.price ?? 0,
-          ss_virtual_stock: product?.virtual_stock ?? 0,
-          is_scheme_item: true,
-        }
-      ]);
-    }
-  });
 
-  // STEP 3 — Remove Reward items if scheme not eligible anymore
-  setEditedItems(prev =>
-    prev.filter(item => {
+    // STEP 1 — Add or Update Scheme Reward Items
+    mergedRewards.forEach(reward => {
+      const product = allProducts.find(
+        p =>
+          p.product_id === reward.product_id ||
+          p.product_name === reward.product_name
+      );
+      if (!product) return;
+
+      const idx = findIndex(product.product_id, product.product_name);
+
+      if (idx >= 0) {
+        // update quantity & mark as scheme item (only if different)
+        const prevQty = Number(updated[idx].quantity) || 0;
+        const newQty = Number(reward.quantity) || 0;
+        if (prevQty !== newQty || !updated[idx].is_scheme_item) {
+          updated[idx] = {
+            ...updated[idx],
+            quantity: newQty,
+            is_scheme_item: true,
+            // keep original_quantity as-is (so original Quantity label isn't lost)
+          };
+          changed = true;
+        }
+      } else {
+        // add new scheme reward item
+        updated.push({
+          product: product.product_id,
+          product_name: product.product_name,
+          quantity: Number(reward.quantity) || 0,
+          original_quantity: "Scheme",
+          price: product.price ?? 0,
+          ss_virtual_stock: product.virtual_stock ?? 0,
+          is_scheme_item: true,
+        });
+        changed = true;
+      }
+    });
+
+    // STEP 2 — Remove reward items that are no longer valid
+    const filtered = updated.filter(item => {
       if (!item.is_scheme_item) return true;
 
       const stillValid = mergedRewards.some(
-        r =>
-          r.product_id === item.product ||
-          r.product_name === item.product_name
+        r => r.product_id === item.product || r.product_name === item.product_name
       );
 
-      return stillValid;
-    })
-  );
+      if (!stillValid) {
+        changed = true;
+        return false; // remove it
+      }
+      return true;
+    });
 
-}, [mergedRewards, editedItems.length, allProducts]);
+    // FINAL guard — if nothing actually changed, return prev to avoid re-render
+    if (!changed) return prev;
+
+    return filtered;
+  });
+}, [mergedRewards, allProducts]); // note: same deps as your last working variant
 
 
   // ⭐ ADD A SINGLE REWARD ITEM
