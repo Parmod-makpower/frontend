@@ -19,12 +19,12 @@ export default function CRMDashboard() {
       icon: <FaUsers className="text-3xl text-blue-500" />,
       url: "/crm-ss/list",
     },
-    // {
-    //   title: "Create Order",  // ✅ नया कार्ड
-    //   desc: "Place a new customer order.",
-    //   icon: <FaBoxOpen className="text-3xl text-orange-600" />,
-    //   url: "/crm/create-order",
-    // },
+    {
+      title: "Create Order",  // ✅ नया कार्ड
+      desc: "Place a new customer order.",
+      icon: <FaBoxOpen className="text-3xl text-orange-600" />,
+      url: "/crm/create-order",
+    },
     {
       title: "New Orders",
       desc: "Check and verify incoming orders.",

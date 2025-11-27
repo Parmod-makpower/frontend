@@ -12,6 +12,7 @@ import OrderItemsTable from "../../components/orderSheet/OrderItemsTable";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { FaEllipsisV } from "react-icons/fa";
 import TemperedSummaryPanel from "../../components/orderSheet/TemperedSummaryPanel";
+import SSPDF from "../../components/orderSheet/SSPDF";
 
 export default function CRMOrderDetailPage() {
   const { orderId } = useParams();
@@ -28,6 +29,10 @@ export default function CRMOrderDetailPage() {
   const [loadingApprove, setLoadingApprove] = useState(false);
   const [showTemperedPanel, setShowTemperedPanel] = useState(false);
   const isTempered = order?.note?.toLowerCase()?.includes("tempered");
+  const [selectedCity, setSelectedCity] = useState("Delhi");
+  const [manualAvailabilityMap, setManualAvailabilityMap] = useState({});
+
+
 
   // ✅ Edited items (restore from localStorage or backend)
   const [editedItems, setEditedItems] = useState([]);
@@ -76,12 +81,14 @@ export default function CRMOrderDetailPage() {
   const ssItems = editedItems || [];
 
   // Apply Scheme Logic
-  const eligibleSchemes = schemes
-    .map((scheme) => ({
-      ...scheme,
-      multiplier: getSchemeMultiplier(scheme, ssItems),
-    }))
-    .filter((s) => s.multiplier > 0);
+ const eligibleSchemes = schemes
+  .filter(s => !s.in_box) // ⭐ यहाँ in_box वाली schemes को ignore कर दिया
+  .map((scheme) => ({
+    ...scheme,
+    multiplier: getSchemeMultiplier(scheme, ssItems),
+  }))
+  .filter((s) => s.multiplier > 0);
+
 
   const mergedRewards = mergeRewards(eligibleSchemes);
 
@@ -321,84 +328,84 @@ export default function CRMOrderDetailPage() {
       categoryWiseTotals[matchedKeyword].approvedQty += Number(item.quantity || 0);
     }
   });
-  
-useEffect(() => {
-  // keep same behaviour as your original code:
-  if (!editedItems || editedItems.length === 0) return;
 
-  setEditedItems(prev => {
-    // shallow copy of previous items
-    const updated = [...prev];
-    let changed = false;
+  useEffect(() => {
+    // keep same behaviour as your original code:
+    if (!editedItems || editedItems.length === 0) return;
 
-    // helper: find index by product id or product_name
-    const findIndex = (prodId, prodName) =>
-      updated.findIndex(
-        i =>
-          (i.product !== undefined && i.product === prodId) ||
-          (i.product_name !== undefined && i.product_name === prodName)
-      );
+    setEditedItems(prev => {
+      // shallow copy of previous items
+      const updated = [...prev];
+      let changed = false;
 
-    // STEP 1 — Add or Update Scheme Reward Items
-    mergedRewards.forEach(reward => {
-      const product = allProducts.find(
-        p =>
-          p.product_id === reward.product_id ||
-          p.product_name === reward.product_name
-      );
-      if (!product) return;
+      // helper: find index by product id or product_name
+      const findIndex = (prodId, prodName) =>
+        updated.findIndex(
+          i =>
+            (i.product !== undefined && i.product === prodId) ||
+            (i.product_name !== undefined && i.product_name === prodName)
+        );
 
-      const idx = findIndex(product.product_id, product.product_name);
+      // STEP 1 — Add or Update Scheme Reward Items
+      mergedRewards.forEach(reward => {
+        const product = allProducts.find(
+          p =>
+            p.product_id === reward.product_id ||
+            p.product_name === reward.product_name
+        );
+        if (!product) return;
 
-      if (idx >= 0) {
-        // update quantity & mark as scheme item (only if different)
-        const prevQty = Number(updated[idx].quantity) || 0;
-        const newQty = Number(reward.quantity) || 0;
-        if (prevQty !== newQty || !updated[idx].is_scheme_item) {
-          updated[idx] = {
-            ...updated[idx],
-            quantity: newQty,
+        const idx = findIndex(product.product_id, product.product_name);
+
+        if (idx >= 0) {
+          // update quantity & mark as scheme item (only if different)
+          const prevQty = Number(updated[idx].quantity) || 0;
+          const newQty = Number(reward.quantity) || 0;
+          if (prevQty !== newQty || !updated[idx].is_scheme_item) {
+            updated[idx] = {
+              ...updated[idx],
+              quantity: newQty,
+              is_scheme_item: true,
+              // keep original_quantity as-is (so original Quantity label isn't lost)
+            };
+            changed = true;
+          }
+        } else {
+          // add new scheme reward item
+          updated.push({
+            product: product.product_id,
+            product_name: product.product_name,
+            quantity: Number(reward.quantity) || 0,
+            original_quantity: "Scheme",
+            price: product.price ?? 0,
+            ss_virtual_stock: product.virtual_stock ?? 0,
             is_scheme_item: true,
-            // keep original_quantity as-is (so original Quantity label isn't lost)
-          };
+          });
           changed = true;
         }
-      } else {
-        // add new scheme reward item
-        updated.push({
-          product: product.product_id,
-          product_name: product.product_name,
-          quantity: Number(reward.quantity) || 0,
-          original_quantity: "Scheme",
-          price: product.price ?? 0,
-          ss_virtual_stock: product.virtual_stock ?? 0,
-          is_scheme_item: true,
-        });
-        changed = true;
-      }
+      });
+
+      // STEP 2 — Remove reward items that are no longer valid
+      const filtered = updated.filter(item => {
+        if (!item.is_scheme_item) return true;
+
+        const stillValid = mergedRewards.some(
+          r => r.product_id === item.product || r.product_name === item.product_name
+        );
+
+        if (!stillValid) {
+          changed = true;
+          return false; // remove it
+        }
+        return true;
+      });
+
+      // FINAL guard — if nothing actually changed, return prev to avoid re-render
+      if (!changed) return prev;
+
+      return filtered;
     });
-
-    // STEP 2 — Remove reward items that are no longer valid
-    const filtered = updated.filter(item => {
-      if (!item.is_scheme_item) return true;
-
-      const stillValid = mergedRewards.some(
-        r => r.product_id === item.product || r.product_name === item.product_name
-      );
-
-      if (!stillValid) {
-        changed = true;
-        return false; // remove it
-      }
-      return true;
-    });
-
-    // FINAL guard — if nothing actually changed, return prev to avoid re-render
-    if (!changed) return prev;
-
-    return filtered;
-  });
-}, [mergedRewards, allProducts]); // note: same deps as your last working variant
+  }, [mergedRewards, allProducts]); // note: same deps as your last working variant
 
 
   // ⭐ ADD A SINGLE REWARD ITEM
@@ -462,6 +469,13 @@ useEffect(() => {
     );
   };
 
+  const updateManualAvailability = (productId, value) => {
+    setManualAvailabilityMap(prev => ({
+      ...prev,
+      [productId]: value,
+    }));
+  };
+
 
   if (!order)
     return (
@@ -471,10 +485,10 @@ useEffect(() => {
     );
 
   return (
-    <div className="p-4 mx-auto sm:border rounded pb-20 bg-green-100">
+    <div className="p-4 sm:border rounded pb-20 sm:pb-7 bg-green-100 sm:sticky sm:top-[50px]">
       {/* Header */}
       <MobilePageHeader title={order.order_id} />
-      <div className="pb-4 flex flex-col flex-row items-center justify-between pt-[65px] sm:pt-0">
+      <div className="pb-4 flex flex-col flex-row items-center justify-between pt-[65px] sm:pt-0 ">
         {/* Left Section — Order Info */}
         <div>
           <h2 className="text-base font-semibold text-gray-800 hidden sm:flex">{order.order_id}</h2>
@@ -483,6 +497,16 @@ useEffect(() => {
 
         {/* Right Section — PDF Button */}
         <div className="relative">
+
+          <select
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="border p-1 me-2 px-2 rounded"
+          >
+            <option value="Delhi">Delhi</option>
+            <option value="Mumbai">Mumbai</option>
+          </select>
+
           {/* 3-dot button */}
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
@@ -497,25 +521,16 @@ useEffect(() => {
 
               {/* ✅ PDF Download */}
               <ul>
-                <li className="p-2"><button
-                  onClick={() => {
-                    setMenuOpen(false);
-                  }}
-                >
-                  <PDFDownloadButton
-                    order={order}
-                    items={editedItems.map((item) => {
-                      const productData = allProducts.find(
-                        (p) => p.product_id === item.product
-                      );
-                      return {
-                        ...item,
-                        virtual_stock: productData?.virtual_stock ?? 0,
-                        price: productData?.price ?? item.price ?? 0,
-                      };
-                    })}
-                  />
-                </button></li>
+
+                <li className="p-2 border-t">
+                  <SSPDF
+              order={order}
+              manualAvailabilityMap={manualAvailabilityMap}
+              selectedCity={selectedCity}
+              allProducts={allProducts}
+              items={editedItems}
+            />
+                </li>
                 <li className="p-2 border-t">
                   <button
                     onClick={async () => {
@@ -571,6 +586,7 @@ useEffect(() => {
               </ul>
             </div>
           )}
+
         </div>
 
       </div>
@@ -598,15 +614,20 @@ useEffect(() => {
         </div>
 
         <div className="md:col-span-3">
+           
           <div className="max-h-[69vh] overflow-y-auto border p-0 m-0 rounded">
+           
             <OrderItemsTable
               editedItems={editedItems}
               allProducts={allProducts}
               handleEditQuantity={handleEditQuantity}
               setItemToDelete={setItemToDelete}
               setShowDeleteModal={setShowDeleteModal}
+              selectedCity={selectedCity}
+              manualAvailabilityMap={manualAvailabilityMap}
+              updateManualAvailability={updateManualAvailability}
             />
-          
+
           </div>
 
         </div>

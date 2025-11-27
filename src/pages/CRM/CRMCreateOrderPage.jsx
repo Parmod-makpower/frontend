@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaCheckCircle, FaBoxOpen, FaShoppingCart } from "react-icons/fa";
 import { useCachedSSUsers } from "../../auth/useSS";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 import { useSchemes } from "../../hooks/useSchemes";
@@ -8,14 +6,23 @@ import { useAuth } from "../../context/AuthContext";
 import { usePlaceOrder } from "../../hooks/usePlaceOrder";
 import { useSelectedProducts } from "../../hooks/useSelectedProducts"; // ✅ global hook
 import MobilePageHeader from "../../components/MobilePageHeader";
+import ConfirmModal from "../../components/ConfirmModal";
 
 export default function CRMCreateOrderPage() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { data: ssUsers = [] } = useCachedSSUsers();
   const { data: allProducts = [] } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
   const placeOrderMutation = usePlaceOrder();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [ssSearch, setSsSearch] = useState("");
+  const [showSSList, setShowSSList] = useState(false);
+
+  const filteredSS = ssUsers.filter((ss) =>
+    ss.party_name.toLowerCase().includes(ssSearch.toLowerCase())
+  );
+
+
 
   const {
     selectedProducts,
@@ -27,7 +34,6 @@ export default function CRMCreateOrderPage() {
 
   const [selectedSS, setSelectedSS] = useState("");
   const [selectedSSName, setSelectedSSName] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -155,7 +161,12 @@ export default function CRMCreateOrderPage() {
     const order = {
       user_id: selectedSS,
       crm_id: user?.id,
-      items: selectedProducts.map((p) => ({ id: p.id, quantity: p.quantity, price: Number(p.price) || 0 })),
+      items: selectedProducts.map((p) => ({
+        id: p.id,
+        quantity: p.quantity,
+        price: Number(p.price) || 0,
+        ss_virtual_stock: p.virtual_stock || 0,
+      })),
       eligibleSchemes: mergedRewards,
       total: selectedProducts.reduce((sum, p) => sum + (Number(p.price) || 0) * (p.quantity || 1), 0),
     };
@@ -170,10 +181,6 @@ export default function CRMCreateOrderPage() {
         localStorage.removeItem("crm_selected_ss");
         localStorage.removeItem("crm_selected_ss_name");
         setShowSuccess(data.order.order_id);
-      },
-      onError: () => {
-        setIsPlacingOrder(false);
-        alert("Order failed, please try again.");
       },
     });
   };
@@ -203,24 +210,44 @@ export default function CRMCreateOrderPage() {
       <div className="grid grid-cols-12 gap-6 pt-[60px] sm:pt-0">
         {/* LEFT */}
         <div className="col-span-4 space-y-6 p-10 bg-gray-100">
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium mb-2">Select Super Stockist</label>
-            <select
-              value={selectedSS}
+
+            <input
+              type="text"
+              value={ssSearch}
               onChange={(e) => {
-                setSelectedSS(e.target.value);
-                const ssObj = ssUsers.find((ss) => ss.id === Number(e.target.value));
-                setSelectedSSName(ssObj ? ssObj.party_name || ssObj.name : "");
+                setSsSearch(e.target.value);
+                setShowSSList(true);
               }}
+              placeholder="Search Super Stockist..."
               className="border rounded px-3 py-2 w-full"
-            >
-              <option value="">-- Select SS --</option>
-              {ssUsers.map((ss) => (
-                <option key={ss.id} value={ss.id}>
-                  {ss.party_name || ss.name}
-                </option>
-              ))}
-            </select>
+              autoComplete="off"
+            />
+
+            {/* Suggestion Dropdown */}
+            {showSSList && ssSearch.length > 0 && (
+              <div className="absolute left-0 right-0 mt-1 bg-white border rounded shadow max-h-60 overflow-y-auto z-50">
+                {filteredSS.length > 0 ? (
+                  filteredSS.map((ss) => (
+                    <div
+                      key={ss.id}
+                      className="px-3 py-2 cursor-pointer hover:bg-blue-50"
+                      onClick={() => {
+                        setSelectedSS(ss.id);
+                        setSelectedSSName(ss.party_name);
+                        setSsSearch(ss.party_name);
+                        setShowSSList(false);
+                      }}
+                    >
+                      {ss.party_name}
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-gray-500">No match found</div>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -324,35 +351,32 @@ export default function CRMCreateOrderPage() {
 
           <div className="text-center">
             <button
-              onClick={handlePlaceOrder}
+              onClick={() => setShowConfirm(true)}
+
               disabled={isPlacingOrder}
-              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-md cursor-pointer"
+              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-md cursor-pointer"
             >
-              {isPlacingOrder ? "Placing Order..." : "Place Order"}
+              {isPlacingOrder ? "Placing Order..." : "Submit"}
             </button>
           </div>
         </div>
       </div>
 
-      {showSuccess && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center animate-fadeIn">
-            <FaCheckCircle className="text-green-500 text-5xl mx-auto mb-4 animate-bounce" />
-            <h3 className="text-xl font-bold text-green-600 mb-2">Order Placed Successfully!</h3>
-            <p className="text-gray-700 mb-2">Order ID: <span className="font-mono">{showSuccess}</span></p>
-            <button onClick={() => { setShowSuccess(false); navigate("/crm/orders"); }} className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2 mx-auto">
-              <FaBoxOpen /> Go to Orders
-            </button>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={showConfirm}
+        title="Confirm Order"
+        message="Are you sure you want to submit this order?"
+        confirmText="Yes, Place Order"
+        cancelText="No"
+        confirmColor="bg-green-600 hover:bg-green-700"
+        loading={isPlacingOrder}
+        onCancel={() => setShowConfirm(false)}
+        onConfirm={() => {
+          setShowConfirm(false);
+          handlePlaceOrder();
+        }}
+      />
 
-      {isPlacingOrder && (
-        <div className="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-50">
-          <FaShoppingCart className="text-white text-6xl animate-bounce mb-4" />
-          <p className="text-white text-lg animate-pulse">Placing your order...</p>
-        </div>
-      )}
     </div>
   );
 }

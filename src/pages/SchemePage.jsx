@@ -65,6 +65,7 @@ export default function SchemePage() {
                 <th className="px-4 py-2 border">#</th>
                 <th className="px-4 py-2 border text-left">Conditions</th>
                 <th className="px-4 py-2 border text-left">Rewards</th>
+                <th className="px-4 py-2 border text-center">In Box</th>
                 <th className="px-4 py-2 border text-center">Actions</th>
               </tr>
             </thead>
@@ -72,7 +73,7 @@ export default function SchemePage() {
               {filteredSchemes.map((scheme, index) => (
                 <tr key={scheme.id} className="hover:bg-gray-50">
                   <td className="px-4 py-2 border text-center">{index + 1}</td>
-                 
+
                   <td className="px-4 py-2 border">
                     <ul className="list-disc ml-5 text-sm text-gray-700 space-y-1">
                       {scheme.conditions.map((c) => (
@@ -94,18 +95,26 @@ export default function SchemePage() {
                       ))}
                     </ul>
                   </td>
+                  <td className="px-4 py-2 border text-center">
+                    <span
+                      className={`px-3 py-1 rounded text-white text-sm ${scheme.in_box ? "bg-green-500" : "bg-red-500"
+                        }`}
+                    >
+                      {scheme.in_box ? "Yes" : "No"}
+                    </span>
+                  </td>
 
                   <td className="px-4 py-2 border text-center">
                     <div className="flex justify-center gap-2">
                       <button
                         onClick={() => navigate(`/schemes/edit/${scheme.id}`)}
-                        className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 rounded text-sm text-white flex items-center gap-1"
+                        className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 rounded text-sm text-white flex items-center gap-1 cursor-pointer"
                       >
                         <FaEdit /> Edit
                       </button>
                       <button
                         onClick={() => deleteScheme.mutate(scheme.id)}
-                        className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm flex items-center gap-1"
+                        className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm flex items-center gap-1 cursor-pointer"
                       >
                         <FaTrash /> Delete
                       </button>

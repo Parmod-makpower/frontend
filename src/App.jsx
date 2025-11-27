@@ -44,6 +44,8 @@ import OrderTrackPage from "./pages/CRM/OrderTrackPage";
 import OrderListPage from "./pages/OrderListPage";
 import DistributorMeetForm from "./components/form/DistributorMeetForm";
 import ProductUsageReportPage from "./pages/ProductUsageReportPage";
+import CRMASMFormPage from "./pages/CRM/CRMASMFormPage";
+import CRMASMListPage from "./pages/CRM/CRMASMListPage";
 
 
 export default function App() {
@@ -118,6 +120,9 @@ export default function App() {
             <Route path="/cargo-details" element={<ProtectedRoute ><CargoDetailsPage /></ProtectedRoute>} />
            
 
+            <Route path="/crm-asm/add" element={<ProtectedRoute ><CRMASMFormPage /></ProtectedRoute>} />
+            <Route path="/crm-asm/edit" element={<ProtectedRoute ><CRMASMFormPage /></ProtectedRoute>} />
+            <Route path="/crm-asm/list" element={<ProtectedRoute ><CRMASMListPage /></ProtectedRoute>} />
             <Route path="/crm-ss/add" element={<ProtectedRoute ><CRMSSFormPage /></ProtectedRoute>} />
             <Route path="/crm-ss/list" element={<ProtectedRoute ><CRMSSListPage /></ProtectedRoute>} />
             <Route path="/crm/create-order" element={<ProtectedRoute allowedRoles={['CRM']}><CRMCreateOrderPage /></ProtectedRoute>} />

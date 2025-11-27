@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import BottomNav from "./BottomNav";
-import {  FaUserCircle, FaSearch, FaHome,  FaGift,  FaUsers,  FaBox,  FaHistory,  FaShoppingCart,  FaList,  FaPlus,  FaSignOutAlt,  FaChartLine,  FaHourglassHalf,  FaBan, FaRoute} from "react-icons/fa";
+import { FaUserCircle, FaSearch, FaHome, FaGift, FaUsers, FaBox, FaHistory, FaShoppingCart, FaList, FaPlus, FaSignOutAlt, FaChartLine, FaHourglassHalf, FaBan, FaRoute, FaBoxOpen } from "react-icons/fa";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSchemes } from "../hooks/useSchemes";
@@ -16,6 +16,29 @@ export default function DashboardLayout() {
   // Profile Dropdown State
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const profileRef = useRef(null);
+  const navRef = useRef(null);
+  const [isNavFixed, setIsNavFixed] = useState(false);
+  const [navOffsetTop, setNavOffsetTop] = useState(0);
+
+  useEffect(() => {
+    if (navRef.current) {
+      setNavOffsetTop(navRef.current.offsetTop);
+    }
+  }, []);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY >= navOffsetTop) {
+        setIsNavFixed(true);
+      } else {
+        setIsNavFixed(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [navOffsetTop]);
+
+
 
   // Search State
   const [searchTerm, setSearchTerm] = useState("");
@@ -134,7 +157,9 @@ export default function DashboardLayout() {
     navItems.push(
       { label: "Home", path: "/", icon: <FaHome /> },
       { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },
+      // { label: "ASM", path: "/crm-asm/list", icon: <FaUsers /> },
       { label: "Super Stockist", path: "/crm-ss/list", icon: <FaUsers /> },
+      { label: "Create Orders", path: "/crm/create-order", icon: <FaBoxOpen /> },
       { label: "New Orders", path: "/crm/orders", icon: <FaBox /> },
       { label: "History", path: "/all/orders-history", icon: <FaHistory /> },
       { label: "Stock", path: "/available-stock", icon: <FaChartLine /> },
@@ -148,7 +173,7 @@ export default function DashboardLayout() {
       { label: "Categories", path: "/all-categories", icon: <FaList /> }
     );
   }
-  if (user.role === "DS" ) {
+  if (user.role === "DS") {
     navItems.push(
       { label: "Home", path: "/", icon: <FaHome /> },
       { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },
@@ -167,7 +192,7 @@ export default function DashboardLayout() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* ✅ Top NavBar */}
-      <header className="hidden md:flex justify-between items-center bg-white shadow-md px-4 py-4 sticky top-0 z-50">
+      <header className="hidden md:flex justify-between items-center bg-white shadow-md px-4 py-4">
         <h1 className="text-xl md:text-2xl font-bold text-blue-600">
           <img src={logo} className="w-35" />
         </h1>
@@ -344,7 +369,15 @@ export default function DashboardLayout() {
       </header>
 
       {/* 🧭 Desktop Menu */}
-      <nav className="hidden md:flex bg-white shadow-sm px-4 py-2 gap-3 sticky top-[72px] z-40 border-b">
+      <nav
+        ref={navRef}
+        className={
+          `hidden md:flex bg-white shadow-sm px-4 py-2 gap-3 border-b z-40 transition-all
+     ${isNavFixed ? "fixed top-0 left-0 right-0 shadow-md" : ""}
+`
+        }
+      >
+
         {navItems.map((item) => (
           <NavLink
             key={item.path}

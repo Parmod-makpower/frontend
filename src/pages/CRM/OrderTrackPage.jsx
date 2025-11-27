@@ -16,56 +16,56 @@ export default function OrderTrackPage() {
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(false);
   // ---------------- SCHEME CALCULATION LOGIC ----------------
-const { data: schemes = [] } = useSchemes();
+  const { data: schemes = [] } = useSchemes();
 
-const getSchemeMultiplier = (scheme, items) => {
-  return Math.min(
-    ...scheme.conditions.map((cond) => {
-      const matched = items.find(
-        (p) => p.product === cond.product_name || p.product_name === cond.product_name
-      );
-      if (!matched) return 0;
-      return Math.floor(matched.quantity / cond.min_quantity);
-    })
-  );
-};
+  const getSchemeMultiplier = (scheme, items) => {
+    return Math.min(
+      ...scheme.conditions.map((cond) => {
+        const matched = items.find(
+          (p) => p.product === cond.product_name || p.product_name === cond.product_name
+        );
+        if (!matched) return 0;
+        return Math.floor(matched.quantity / cond.min_quantity);
+      })
+    );
+  };
 
-const mergeRewards = (eligibleSchemes) => {
-  const rewardMap = {};
+  const mergeRewards = (eligibleSchemes) => {
+    const rewardMap = {};
 
-  eligibleSchemes.forEach((scheme) => {
-    const multiplier = scheme.multiplier;
+    eligibleSchemes.forEach((scheme) => {
+      const multiplier = scheme.multiplier;
 
-    scheme.rewards.forEach((r) => {
-      const productName = r.product_name || r.product;
-      const qty = r.quantity * multiplier;
+      scheme.rewards.forEach((r) => {
+        const productName = r.product_name || r.product;
+        const qty = r.quantity * multiplier;
 
-      if (rewardMap[productName]) {
-        rewardMap[productName].quantity += qty;
-      } else {
-        rewardMap[productName] = {
-          product_name: productName,
-          quantity: qty,
-        };
-      }
+        if (rewardMap[productName]) {
+          rewardMap[productName].quantity += qty;
+        } else {
+          rewardMap[productName] = {
+            product_name: productName,
+            quantity: qty,
+          };
+        }
+      });
     });
-  });
 
-  return Object.values(rewardMap);
-};
+    return Object.values(rewardMap);
+  };
 
-// SS items (real order items)
-const ssItems = orderData?.ss_items || [];
+  // SS items (real order items)
+  const ssItems = orderData?.ss_items || [];
 
-// Find eligible schemes
-const eligibleSchemes = schemes
-  .map((scheme) => ({
-    ...scheme,
-    multiplier: getSchemeMultiplier(scheme, ssItems),
-  }))
-  .filter((s) => s.multiplier > 0);
+  // Find eligible schemes
+  const eligibleSchemes = schemes
+    .map((scheme) => ({
+      ...scheme,
+      multiplier: getSchemeMultiplier(scheme, ssItems),
+    }))
+    .filter((s) => s.multiplier > 0);
 
-const mergedRewards = mergeRewards(eligibleSchemes); // Final rewards list
+  const mergedRewards = mergeRewards(eligibleSchemes); // Final rewards list
 
 
   useEffect(() => {
@@ -146,9 +146,10 @@ const mergedRewards = mergeRewards(eligibleSchemes); // Final rewards list
   // ---------------- JSX RETURN ----------------
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <MobilePageHeader title="Orders — Details" />
+      <MobilePageHeader title={orderId} />
       {loading && <p className="mt-4">Loading...</p>}
 
+     
       {orderData && (
         <div className="pt-[60px] sm:pt-0">
           {/* ✅ Progress Bar */}
@@ -177,12 +178,12 @@ const mergedRewards = mergeRewards(eligibleSchemes); // Final rewards list
                   </div>
                   <p
                     className={`mt-2 text-xs sm:text-sm font-medium ${isCurrent
+                      ? step.textColor
                         ? step.textColor
-                          ? step.textColor
-                          : isRejected
-                            ? "text-red-600"
-                            : "text-blue-600"
-                        : "text-gray-500"
+                        : isRejected
+                          ? "text-red-600"
+                          : "text-blue-600"
+                      : "text-gray-500"
                       }`}
                   >
                     {step.label}
@@ -279,41 +280,53 @@ const mergedRewards = mergeRewards(eligibleSchemes); // Final rewards list
       )}
 
       {/* ---------------- SCHEME  TABLE ---------------- */}
-{eligibleSchemes.length > 0 && (
-  <div className="overflow-x-auto mt-10 mb-20">
-    <h2 className="text-lg font-bold mb-3 text-green-700">Applied Schemes & Rewards</h2>
+      {eligibleSchemes.length > 0 && (
+        <div className="overflow-x-auto mt-10 mb-20">
+          <h2 className="text-lg font-bold mb-3 text-pink-500">Applied Schemes & Rewards</h2>
 
-    <table className="min-w-full text-sm border rounded-lg shadow">
-      <thead className="bg-green-100">
-        <tr>
-          <th className="border px-3 py-2 text-left">Scheme Conditions</th>
-          <th className="border px-3 py-2 text-left">Rewards</th>
-        </tr>
-      </thead>
+          <table className="min-w-full text-sm border rounded-lg shadow">
+            <thead className="bg-green-100">
+              <tr>
+                <th className="border px-3 py-2 text-left">Scheme Conditions</th>
+                <th className="border px-3 py-2 text-left">Rewards</th>
 
-      <tbody>
-        {eligibleSchemes.map((scheme) => (
-          <tr key={scheme.id} className="hover:bg-green-50">
-            <td className="border px-3 py-2">
-              {scheme.conditions
-                .map((c) => ` ${c.product_name}`)
-                .join(", ")}
-            </td>
+              </tr>
+            </thead>
 
-            <td className="border px-3 py-2">
-              {scheme.rewards
-                .map((r) => {
-                  const total = r.quantity * scheme.multiplier;
-                  return `${total}  ${r.product_name || r.product} Free`;
-                })
-                .join(", ")}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)}
+            <tbody>
+              {eligibleSchemes.map((scheme) => (
+                <tr key={scheme.id} className="hover:bg-green-50">
+                  <td className="border px-3 py-2">
+                    {scheme.conditions
+                      .map((c) => ` ${c.product_name}`)
+                      .join(", ")}
+                  </td>
+
+                  <td className="border px-3 py-2">
+                    {scheme.rewards
+                      .map((r) => {
+                        const total = r.quantity * scheme.multiplier;
+
+                        return (
+                          <>
+                            {total} {r.product_name || r.product} Free{" "}
+                            {scheme.in_box && (
+                              <span className="text-orange-600 font-bold text-xs">
+                                ( Scheme contains box )
+                              </span>
+                            )}
+                          </>
+                        );
+                      })
+                      .reduce((prev, curr) => [prev, ", ", curr])}
+                  </td>
+
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
     </div>
   );
