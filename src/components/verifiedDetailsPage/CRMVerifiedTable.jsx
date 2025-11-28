@@ -1,7 +1,6 @@
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 export default function CRMVerifiedTable({
-  title,
   items,
   order,
   user,
@@ -23,15 +22,11 @@ export default function CRMVerifiedTable({
   }, 0);
 
   return (
-    <div className="border rounded shadow-sm">
-      <div className="flex items-center justify-between px-4 py-2 bg-blue-100 border font-semibold">
-        <span>{title}</span>
-      </div>
-
+    <div className=" rounded shadow-sm">
       <div className="overflow-x-auto select-none">
         <table className="min-w-full text-sm text-left text-gray-700 border">
           <thead className="bg-gray-200 text-gray-900 text-sm font-semibold">
-            <tr>
+            <tr className="text-center">
               <th className="p-3 border">S.No</th>
               <th className="p-3 border">Category</th>
               <th className="p-3 border">Product</th>
@@ -40,7 +35,8 @@ export default function CRMVerifiedTable({
               <th className="p-3 border">Price</th>
               <th className="p-3 border">Total</th>
               <th className="p-3 border">SS-Stock</th>
-              <th className="p-3 border">Stock</th>
+              <th className="p-3 border">Delhi</th>
+              <th className="p-3 border">Mumbai</th>
               {(!order.punched || user?.role === "ADMIN") && <th className="p-3 border">Action</th>}
                {user?.role == "ADMIN" && (<th className="p-3 border">ID</th>)}
             </tr>
@@ -54,6 +50,7 @@ export default function CRMVerifiedTable({
                   const price = Number(r.price) || 0;
                   const ssStock = Number(r.ss_virtual_stock) || 0;
                   const stock = Number(r.virtual_stock) || 0;
+                  const mumbai_stock = Number(r.mumbai_stock) || 0;
 
                   const total =
                     ssStock > 0 || (ssStock <= 0 && stock > 0)
@@ -61,7 +58,7 @@ export default function CRMVerifiedTable({
                       : (0).toFixed(1);
 
                   return (
-                    <tr key={idx} className="border-t hover:bg-gray-50">
+                    <tr key={idx} className="border-t hover:bg-gray-50 text-center">
                       <td className="p-3 border text-center">{idx + 1}</td>
                       <td className="p-3 border">{r.sub_category}</td>
                       <td className="p-3 border">{r.product_name}</td>
@@ -71,10 +68,11 @@ export default function CRMVerifiedTable({
                       <td className="p-3 border bg-blue-100">₹{total}</td>
                       <td className="p-3 border bg-red-100">{ssStock}</td>
                       <td className="p-3 border bg-red-200">{stock || "0"}</td>
+                      <td className="p-3 border bg-purple-200">{mumbai_stock || "0"}</td>
 
                       {(!order.punched || user?.role === "ADMIN") && (
-                        <td className="p-3 border text-center">
-                          <div className="flex justify-around">
+                        <td className="p-3 border text-center bg-gray-200">
+                          <div className="flex justify-around ">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -92,7 +90,7 @@ export default function CRMVerifiedTable({
                                 e.stopPropagation();
                                 handleDeleteItem(r.id);
                               }}
-                              className="flex items-center gap-2 text-red-600 border border-red-600 rounded-md px-2 hover:bg-red-600 hover:text-white transition-all duration-150"
+                              className="flex items-center gap-2 text-red-600 border border-red-600 rounded-md px-2 hover:bg-red-600 hover:text-white transition-all duration-150 cursor-pointer"
                             >
                               <FiTrash2 /> Delete
                             </button>
@@ -106,14 +104,14 @@ export default function CRMVerifiedTable({
                 })}
 
                 {/* ✅ Total Row */}
-                <tr className="bg-blue-100 font-semibold">
+                {/* <tr className="bg-blue-300 font-semibold">
                   <td colSpan={6} className="p-3 border text-right">
                     Estimate Total
                   </td>
                   <td colSpan={3} className="p-3 border">
                     ₹{estimateTotal.toFixed(1)}
                   </td>
-                </tr>
+                </tr> */}
               </>
             ) : (
               <tr>

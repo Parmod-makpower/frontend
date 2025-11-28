@@ -23,9 +23,7 @@ export default function CRMVerifiedDetailsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [dispatchLocation, setDispatchLocation] = useState("Delhi");
-
-
+  
   const order = location.state?.order;
   const { data: cargos, isLoading } = useCargoDetails();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,6 +40,8 @@ export default function CRMVerifiedDetailsPage() {
   const [cargoMobile, setCargoMobile] = useState("");
   const [cargoLocation, setCargoLocation] = useState("");
   const [cargoParcel, setCargoParcel] = useState("");
+  const [dispatchLocation, setDispatchLocation] = useState(  order?.dispatch_location || "Delhi");
+
 
 
   const { data: allProducts = [] } = useCachedProducts();
@@ -74,6 +74,7 @@ export default function CRMVerifiedDetailsPage() {
         sub_category: found?.sub_category ?? "-",
         rack_no: found?.rack_no ?? "-",
         product_name: found?.product_name ?? "-", // ✅ ensure available
+        mumbai_stock: found?.mumbai_stock ?? null,
       };
     });
 
@@ -96,14 +97,14 @@ export default function CRMVerifiedDetailsPage() {
 
   const handleDownloadPDF = () => {
     DispatchPDF(
-  order,
-  enrichedItems,
-  remarks,
-  orderCode,
-  order.punched ? order.dispatch_location : dispatchLocation   // 🔥 FIX
-);
+      order,
+      enrichedItems,
+      remarks,
+      orderCode,
+      order.punched ? order.dispatch_location : dispatchLocation   // 🔥 FIX
+    );
 
-    
+
   };
 
   const handleOrderPunch = () => {
@@ -173,7 +174,7 @@ export default function CRMVerifiedDetailsPage() {
     try {
       const res = await API.delete(`/crm/verified/item/${itemId}/delete/`);
       alert(res.data.message);
-      navigate(0);
+      navigate("/all/orders-history/");
     } catch (err) {
       alert(err.response?.data?.error || "Failed to delete item.");
     }
@@ -207,7 +208,7 @@ export default function CRMVerifiedDetailsPage() {
     return <div className="p-6 text-red-600">No order data provided.</div>;
 
   return (
-    <div className="p-4 sm:p-6 space-y-4 pb-20">
+    <div className="p-4 sm:p-0 space-y-4 pb-20">
       <ConfirmModal
         isOpen={isModalOpen}
         title="Confirm Order Punch"
@@ -222,9 +223,9 @@ export default function CRMVerifiedDetailsPage() {
 
       <MobilePageHeader title={orderCode} />
 
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-gray-300 p-2 border">
 
-        <div className="font-semibold border rounded bg-gray-200 px-4 p-2">
+        <div className="font-semibold rounded bg-white px-4 p-1">
           {orderCode}
         </div>
 
@@ -262,59 +263,27 @@ export default function CRMVerifiedDetailsPage() {
 
 
         <div className="relative">
-         <select
-  value={order.punched ? order.dispatch_location : dispatchLocation}
-  onChange={(e) => setDispatchLocation(e.target.value)}
-  disabled={order.punched}   // 🔥 यही main point है
-  className={`border rounded me-3 px-3 py-1 bg-white shadow-sm ${
-    order.punched ? "bg-gray-100 cursor-not-allowed" : "bg-white"
-  }`}
->
-  <option value="Delhi">Delhi</option>
-  <option value="Mumbai">Mumbai</option>
-</select>
-
-          <button
-            onClick={() => setMenuOpen((prev) => !prev)}
-            className="p-2 rounded hover:bg-gray-200 cursor-pointer"
+          <select
+            value={order.punched ? order.dispatch_location : dispatchLocation}
+            onChange={(e) => setDispatchLocation(e.target.value)}
+            disabled={order.punched}   // 🔥 यही main point है
+            className={`border rounded me-3 px-3 py-1 bg-white shadow-sm cursor-pointer ${order.punched ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+              }`}
           >
-            <FaEllipsisV size={18} />
-          </button>
-          {menuOpen && (
-            <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg border rounded z-50">
-              {/* ✅ Order PDF */}
-              <ul>
-                <li className="p-2">
-                  <PDFDownloadButton
-                    order={order}
-                    items={enrichedItems.map((item) => ({
-                      ...item,
-                      virtual_stock:
-                        allProducts.find((p) => p.product_id === item.product)
-                          ?.virtual_stock ?? 0,
-                      price:
-                        allProducts.find((p) => p.product_id === item.product)
-                          ?.price ?? item.price ?? 0,
-                    }))}
-                  />
-                </li>
-                <li className="p-2 border-t">
-                  {order.punched && (
+            <option value="Delhi">Delhi</option>
+            <option value="Mumbai">Mumbai</option>
+          </select>
+           {order.punched && (
                     <button
                       onClick={() => {
                         setMenuOpen(false);
                         handleDownloadPDF();
                       }}
-                      className="w-full text-left hover:bg-gray-100 "
-                    >
-                      🚚 Dispatch PDF
+                      className="px-2 p-1 rounded bg-orange-600 text-white hover:bg-blue-700 cursor-pointer" > 🚚 Dispatch PDF
                     </button>
                   )}
-                </li>
-              </ul>
-
-            </div>
-          )}
+             
+         
         </div>
 
         {/* Hidden PDFDownloadButton trigger */}
@@ -340,7 +309,6 @@ export default function CRMVerifiedDetailsPage() {
 
       {/* ✅ Verified Table */}
       <CRMVerifiedTable
-        title="CRM — Verified Items"
         items={enrichedItems}
         order={order}
         user={user}
