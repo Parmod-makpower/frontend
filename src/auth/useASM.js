@@ -12,7 +12,7 @@ export const useCachedASMUsers = () => {
   return useQuery({
     queryKey: ["asm-users"],
     queryFn: getASMUsers,
-    staleTime: 1000 * 60 * 0,
+    staleTime: 1000 * 60 * 1,
     gcTime: 1000 * 60 * 60 * 24,
     refetchInterval: false,
     refetchOnWindowFocus: true,

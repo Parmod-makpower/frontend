@@ -5,14 +5,13 @@ import { useCachedProducts } from "../../hooks/useCachedProducts";
 import { Loader2, Trash2 } from "lucide-react";
 import { FaGift, FaPauseCircle, FaTimesCircle } from "react-icons/fa";
 import ConfirmModal from "../../components/ConfirmModal";
-import PDFDownloadButton from "../../components/PDFDownloadButton";
 import { useSchemes } from "../../hooks/useSchemes";
 import ReminderTable from "../../components/orderSheet/ReminderTable";
 import OrderItemsTable from "../../components/orderSheet/OrderItemsTable";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { FaEllipsisV } from "react-icons/fa";
 import TemperedSummaryPanel from "../../components/orderSheet/TemperedSummaryPanel";
-import SSPDF from "../../components/orderSheet/SSPDF";
+import SSPDF from "../../components/pdf/SSPDF";
 
 export default function CRMOrderDetailPage() {
   const { orderId } = useParams();

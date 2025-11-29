@@ -1,6 +1,5 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Download } from "lucide-react";
 
 export default function PDFDownloadButton({ order, items = [] }) {
   const handleDownloadPDF = () => {
@@ -161,9 +160,7 @@ export default function PDFDownloadButton({ order, items = [] }) {
   return (
     <button
       onClick={handleDownloadPDF}
-      className="flex gap-2 justify-center items-center cursor-pointer"
-    > <Download size={18} className="text-blue-500"/>
-       SS PDF
-    </button>
+      className="ms-2 px-2 p-1 rounded bg-green-600 text-white hover:bg-blue-700 cursor-pointer"
+    > SS PDF </button>
   );
 }

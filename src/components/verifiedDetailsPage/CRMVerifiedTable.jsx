@@ -8,6 +8,7 @@ export default function CRMVerifiedTable({
   setEditQty,
   setShowEditModal,
   handleDeleteItem,
+  handleSingleRowPunch,
 }) {
   const estimateTotal = items.reduce((sum, item) => {
     const qty = Number(item.quantity) || 0;
@@ -39,6 +40,7 @@ export default function CRMVerifiedTable({
               <th className="p-3 border">Mumbai</th>
               {(!order.punched || user?.role === "ADMIN") && <th className="p-3 border">Action</th>}
                {user?.role == "ADMIN" && (<th className="p-3 border">ID</th>)}
+               {user?.role == "ADMIN" && (<th className="p-3 border">Punch</th>)}
             </tr>
           </thead>
 
@@ -98,6 +100,11 @@ export default function CRMVerifiedTable({
                         </td>
                       )}
                       {user?.role == "ADMIN" && (<td className="p-3 border bg-red-200">{r.id}</td>)}
+                      {user?.role == "ADMIN" && ( <td
+                      className="p-3 border text-blue-600 underline hover:bg-blue-400 hover:text-white cursor-pointer"
+                      onClick={() => handleSingleRowPunch(r)}>
+                      punch
+                    </td>)}
                        
                     </tr>
                   );

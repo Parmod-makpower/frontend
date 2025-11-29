@@ -7,15 +7,14 @@ import { punchOrderToSheet } from "../../api/punchApi";
 import API from "../../api/axios";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import ConfirmModal from "../../components/ConfirmModal";
-import PDFDownloadButton from "../../components/PDFDownloadButton";
-import DispatchPDF from "../../components/DispatchPDF";
+import PDFDownloadButton from "../../components/pdf/PDFDownloadButton";
+import DispatchPDF from "../../components/pdf/DispatchPDF";
 import { useCargoDetails } from "../../hooks/useCargoDetails";
 // 🧩 Newly modular components
 import CRMVerifiedTable from "../../components/verifiedDetailsPage/CRMVerifiedTable";
 import AddProductModal from "../../components/verifiedDetailsPage/AddProductModal";
 import EditQuantityModal from "../../components/verifiedDetailsPage/EditQuantityModal";
 import RemarksSection from "../../components/verifiedDetailsPage/RemarksSection";
-import { FaEllipsisV } from "react-icons/fa";
 
 export default function CRMVerifiedDetailsPage() {
   const { user } = useAuth();
@@ -23,7 +22,7 @@ export default function CRMVerifiedDetailsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-  
+
   const order = location.state?.order;
   const { data: cargos, isLoading } = useCargoDetails();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,7 +39,7 @@ export default function CRMVerifiedDetailsPage() {
   const [cargoMobile, setCargoMobile] = useState("");
   const [cargoLocation, setCargoLocation] = useState("");
   const [cargoParcel, setCargoParcel] = useState("");
-  const [dispatchLocation, setDispatchLocation] = useState(  order?.dispatch_location || "Delhi");
+  const [dispatchLocation, setDispatchLocation] = useState(order?.dispatch_location || "Delhi");
 
 
 
@@ -204,11 +203,44 @@ export default function CRMVerifiedDetailsPage() {
     cargoParcel,
   };
 
+ const handleSingleRowPunch = async (item) => {
+  try {
+    // 🔥 punchOrderToSheet ko ek proper order object dena padega
+    const singleOrder = {
+      id: order.id,
+      order_id: order.order_id,
+      ss_party_name: order.ss_party_name,
+      crm_name: order.crm_name,
+      dispatch_location: order.dispatch_location || dispatchLocation,
+      items: [
+        {
+          product_name: item.product_name,
+          quantity: item.quantity,
+          id: item.id,
+        }
+      ]
+    };
+
+    const res = await punchOrderToSheet(singleOrder, dispatchLocation);
+
+    if (res.success) {
+      alert("Row punched successfully!");
+    } else {
+      alert("Error punching row: " + res.error);
+    }
+
+  } catch (err) {
+    console.log(err);
+    alert("Something went wrong while punching this row.");
+  }
+};
+
+
   if (!order)
     return <div className="p-6 text-red-600">No order data provided.</div>;
 
   return (
-    <div className="p-4 sm:p-0 space-y-4 pb-20">
+    <div className="p-4 sm:p-0 space-y-4 pb-30">
       <ConfirmModal
         isOpen={isModalOpen}
         title="Confirm Order Punch"
@@ -223,9 +255,9 @@ export default function CRMVerifiedDetailsPage() {
 
       <MobilePageHeader title={orderCode} />
 
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-gray-300 p-2 border">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-gray-300 p-2 border mt-[60px] sm:mt-0">
 
-        <div className="font-semibold rounded bg-white px-4 p-1">
+        <div className="hidden sm:block font-semibold rounded bg-white px-4 p-1">
           {orderCode}
         </div>
 
@@ -273,37 +305,29 @@ export default function CRMVerifiedDetailsPage() {
             <option value="Delhi">Delhi</option>
             <option value="Mumbai">Mumbai</option>
           </select>
-           {order.punched && (
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        handleDownloadPDF();
-                      }}
-                      className="px-2 p-1 rounded bg-orange-600 text-white hover:bg-blue-700 cursor-pointer" > 🚚 Dispatch PDF
-                    </button>
-                  )}
-             
-         
+          {order.punched && (
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                handleDownloadPDF();
+              }}
+              className="px-2 p-1 rounded bg-orange-600 text-white hover:bg-blue-700 cursor-pointer" > 🚚 Dispatch PDF
+            </button>
+          )}
+           <PDFDownloadButton
+          id="verified-order-pdf-btn"
+          order={order}
+          items={enrichedItems.map((item) => ({
+            ...item,
+            virtual_stock:
+              allProducts.find((p) => p.product_id === item.product)
+                ?.virtual_stock ?? 0,
+            price:
+              allProducts.find((p) => p.product_id === item.product)
+                ?.price ?? item.price ?? 0,
+          }))}
+        />
         </div>
-
-        {/* Hidden PDFDownloadButton trigger */}
-        <div className="hidden">
-          <PDFDownloadButton
-            id="verified-order-pdf-btn"
-            order={order}
-            items={enrichedItems.map((item) => ({
-              ...item,
-              virtual_stock:
-                allProducts.find((p) => p.product_id === item.product)
-                  ?.virtual_stock ?? 0,
-              price:
-                allProducts.find((p) => p.product_id === item.product)
-                  ?.price ?? item.price ?? 0,
-            }))}
-          />
-        </div>
-
-
       </div>
 
 
@@ -316,6 +340,7 @@ export default function CRMVerifiedDetailsPage() {
         setEditQty={setEditQty}
         setShowEditModal={setShowEditModal}
         handleDeleteItem={handleDeleteItem}
+        handleSingleRowPunch={handleSingleRowPunch} 
       />
 
       {/* ✅ Add Product Button */}
