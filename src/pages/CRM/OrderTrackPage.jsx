@@ -280,7 +280,7 @@ export default function OrderTrackPage() {
       )}
 
       {/* ---------------- SCHEME  TABLE ---------------- */}
-      {eligibleSchemes.length > 0 && (
+      {status === "PENDING" && eligibleSchemes.length > 0 && (
         <div className="overflow-x-auto mt-10 mb-20">
           <h2 className="text-lg font-bold mb-3 text-pink-500">Applied Schemes & Rewards</h2>
 

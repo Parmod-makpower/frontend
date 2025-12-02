@@ -29,7 +29,31 @@ export default function UserSchemesPage() {
     <div className="p-2 pb-20">
       <MobilePageHeader title="Available Schemes" />
 
+     
       <div className="pt-[60px] sm:pt-0">
+         {/* TWS vali Scheme Hatana K liya bs Is block ko remove kr dana  */}
+        {/* ⭐ SPECIAL COMBINED SCHEME CARD ⭐ */}
+        <div className="mb-4 shadow-lg rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 text-white p-4">
+          <h2 className="text-sm font-bold flex items-center gap-2 mb-1">
+            <FaGift className="text-lg" /> Special Combined Scheme
+          </h2>
+
+          <p className="text-[12px] leading-5">
+            TW01 + TW15 + TW16 ka <b>total 150 quantity</b> purchase karne par
+            <span className="font-bold"> 1 Suitcase FREE</span> milega.
+          </p>
+
+          <p className="text-[11px] mt-2 opacity-90">
+            (Sirf in 3 items ke total qty par scheme apply hogi – mixed quantity allowed)
+          </p>
+
+          <div className="mt-3 flex gap-2">
+            <span className="px-2 py-1 rounded bg-white/20 text-[10px]">TW01</span>
+            <span className="px-2 py-1 rounded bg-white/20 text-[10px]">TW15</span>
+            <span className="px-2 py-1 rounded bg-white/20 text-[10px]">TW16</span>
+          </div>
+        </div> {/* TWS vali Scheme Hatana K liya bs Is block ko remove kr dana  */}
+
         {schemes.length === 0 ? (
           <p className="text-gray-500 text-center">No schemes available.</p>
         ) : (

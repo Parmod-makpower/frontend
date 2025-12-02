@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useCachedSSUsers } from "../../auth/useSS";
-import { useCachedProducts } from "../../hooks/useCachedProducts";
+import { all_active_inactive_product } from "../../hooks/all_active_inactive_product";
 import { useSchemes } from "../../hooks/useSchemes";
 import { useAuth } from "../../context/AuthContext";
 import { usePlaceOrder } from "../../hooks/usePlaceOrder";
@@ -11,7 +11,7 @@ import ConfirmModal from "../../components/ConfirmModal";
 export default function CRMCreateOrderPage() {
   const { user } = useAuth();
   const { data: ssUsers = [] } = useCachedSSUsers();
-  const { data: allProducts = [] } = useCachedProducts();
+  const { data: allProducts = [] } = all_active_inactive_product();
   const { data: schemes = [] } = useSchemes();
   const placeOrderMutation = usePlaceOrder();
   const [showConfirm, setShowConfirm] = useState(false);

@@ -112,7 +112,7 @@ export default function CRMOrderListPage() {
             {badge.icon}
             {badge.label}
           </span>
-          <p></p>
+          
         </div>
 
         {/* Party Name */}

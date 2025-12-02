@@ -476,6 +476,66 @@ export default function CRMOrderDetailPage() {
     }));
   };
 
+  // ⭐ CUSTOM COMBINED SCHEME — TW01 + TW15 + TW16 → Suitcase (ID:188) hatana k liya bs isko remove kr dana 
+useEffect(() => {
+  if (!editedItems || editedItems.length === 0) return;
+
+  // ⭐ DIRECT PRODUCT IDs USE KARO
+  const ID_TW01 = 1119;
+  const ID_TW15 = 1133;
+  const ID_TW16 = 1132;
+
+  const SUITCASE_ID = 188;
+
+  // ⭐ Quantities fetch karo (0 fallback)
+  const qty1 = editedItems.find(i => i.product === ID_TW01)?.quantity || 0;
+  const qty2 = editedItems.find(i => i.product === ID_TW15)?.quantity || 0;
+  const qty3 = editedItems.find(i => i.product === ID_TW16)?.quantity || 0;
+
+  // ⭐ TOTAL MIX quantity
+  const totalQty = qty1 + qty2 + qty3;
+
+  // ⭐ REWARD FORMULA → 144 quantity = 1 suitcase
+  const rewardQty = Math.floor(totalQty / 144);
+
+  setEditedItems(prev => {
+    const existing = prev.find(i => i.product === SUITCASE_ID);
+
+    // ❌ No reward → Remove suitcase
+    if (rewardQty === 0) {
+      return prev.filter(i => i.product !== SUITCASE_ID);
+    }
+
+    // 🔄 Update existing suitcase quantity
+    if (existing) {
+      if (existing.quantity !== rewardQty) {
+        return prev.map(i =>
+          i.product === SUITCASE_ID
+            ? { ...i, quantity: rewardQty, is_scheme_item: true }
+            : i
+        );
+      }
+      return prev; // nothing changed
+    }
+
+    // ⭐ Add new suitcase as reward
+    const product = allProducts.find(p => p.product_id === SUITCASE_ID);
+    if (!product) return prev;
+
+    return [
+      ...prev,
+      {
+        product: SUITCASE_ID,
+        product_name: product.product_name,
+        quantity: rewardQty,
+        original_quantity: "Scheme",
+        price: product.price ?? 0,
+        ss_virtual_stock: product.virtual_stock ?? 0,
+        is_scheme_item: true,
+      },
+    ];
+  });
+}, [editedItems, allProducts]);
 
   if (!order)
     return (
