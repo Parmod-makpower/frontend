@@ -1,7 +1,7 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { verifyCRMOrder, deleteCRMOrder, holdCRMOrder, RejectCRMOrder } from "../../hooks/useCRMOrders";
-import { useCachedProducts } from "../../hooks/useCachedProducts";
+import { all_active_inactive_product } from "../../hooks/all_active_inactive_product";
 import { Loader2, Trash2 } from "lucide-react";
 import { FaGift, FaPauseCircle, FaTimesCircle } from "react-icons/fa";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -153,7 +153,7 @@ export default function CRMOrderDetailPage() {
   }, [editedItems, orderId]);
 
   // ✅ All cached products
-  const { data: allProducts = [] } = useCachedProducts();
+  const { data: allProducts = [] } = all_active_inactive_product();
 
   // ✅ Product search
   const [searchTerm, setSearchTerm] = useState("");

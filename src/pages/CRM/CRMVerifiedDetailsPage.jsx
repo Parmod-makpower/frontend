@@ -2,7 +2,7 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useCachedProducts } from "../../hooks/useCachedProducts";
+import { all_active_inactive_product } from "../../hooks/all_active_inactive_product";
 import { punchOrderToSheet } from "../../api/punchApi";
 import API from "../../api/axios";
 import MobilePageHeader from "../../components/MobilePageHeader";
@@ -41,9 +41,10 @@ export default function CRMVerifiedDetailsPage() {
   const [cargoParcel, setCargoParcel] = useState("");
   const [dispatchLocation, setDispatchLocation] = useState(order?.dispatch_location || "Delhi");
 
+  const [pdfFilter, setPdfFilter] = useState("ALL");
 
 
-  const { data: allProducts = [] } = useCachedProducts();
+  const { data: allProducts = [] } = all_active_inactive_product();
 
   const crmMapping = {
     "Ankita Dhingra": "AD-AP",
@@ -95,15 +96,29 @@ export default function CRMVerifiedDetailsPage() {
 
 
   const handleDownloadPDF = () => {
+    let filteredItems = enrichedItems;
+
+    if (pdfFilter === "ACCESSORIES") {
+      filteredItems = enrichedItems.filter(
+        item => !(item.sub_category?.toLowerCase().includes("battery") ||
+          item.product_name?.toLowerCase().includes("battery"))
+      );
+    }
+
+    if (pdfFilter === "BATTERY") {
+      filteredItems = enrichedItems.filter(
+        item => item.sub_category?.toLowerCase().includes("battery") ||
+          item.product_name?.toLowerCase().includes("battery")
+      );
+    }
+
     DispatchPDF(
       order,
-      enrichedItems,
+      filteredItems,
       remarks,
       orderCode,
       order.punched ? order.dispatch_location : dispatchLocation   // 🔥 FIX
     );
-
-
   };
 
   const handleOrderPunch = () => {
@@ -203,37 +218,37 @@ export default function CRMVerifiedDetailsPage() {
     cargoParcel,
   };
 
- const handleSingleRowPunch = async (item) => {
-  try {
-    // 🔥 punchOrderToSheet ko ek proper order object dena padega
-    const singleOrder = {
-      id: order.id,
-      order_id: order.order_id,
-      ss_party_name: order.ss_party_name,
-      crm_name: order.crm_name,
-      dispatch_location: order.dispatch_location || dispatchLocation,
-      items: [
-        {
-          product_name: item.product_name,
-          quantity: item.quantity,
-          id: item.id,
-        }
-      ]
-    };
+  const handleSingleRowPunch = async (item) => {
+    try {
+      // 🔥 punchOrderToSheet ko ek proper order object dena padega
+      const singleOrder = {
+        id: order.id,
+        order_id: order.order_id,
+        ss_party_name: order.ss_party_name,
+        crm_name: order.crm_name,
+        dispatch_location: order.dispatch_location || dispatchLocation,
+        items: [
+          {
+            product_name: item.product_name,
+            quantity: item.quantity,
+            id: item.id,
+          }
+        ]
+      };
 
-    const res = await punchOrderToSheet(singleOrder, dispatchLocation);
+      const res = await punchOrderToSheet(singleOrder, dispatchLocation);
 
-    if (res.success) {
-      alert("Row punched successfully!");
-    } else {
-      alert("Error punching row: " + res.error);
+      if (res.success) {
+        alert("Row punched successfully!");
+      } else {
+        alert("Error punching row: " + res.error);
+      }
+
+    } catch (err) {
+      console.log(err);
+      alert("Something went wrong while punching this row.");
     }
-
-  } catch (err) {
-    console.log(err);
-    alert("Something went wrong while punching this row.");
-  }
-};
+  };
 
 
   if (!order)
@@ -314,19 +329,30 @@ export default function CRMVerifiedDetailsPage() {
               className="px-2 p-1 rounded bg-orange-600 text-white hover:bg-blue-700 cursor-pointer" > 🚚 Dispatch PDF
             </button>
           )}
-           <PDFDownloadButton
-          id="verified-order-pdf-btn"
-          order={order}
-          items={enrichedItems.map((item) => ({
-            ...item,
-            virtual_stock:
-              allProducts.find((p) => p.product_id === item.product)
-                ?.virtual_stock ?? 0,
-            price:
-              allProducts.find((p) => p.product_id === item.product)
-                ?.price ?? item.price ?? 0,
-          }))}
-        />
+          <select
+            value={pdfFilter}
+            onChange={(e) => setPdfFilter(e.target.value)}
+            className="border rounded me-3 px-3 ms-2 py-1 bg-white shadow-sm cursor-pointer"
+          >
+            <option value="ALL">All</option>
+            <option value="ACCESSORIES">Accessories</option>
+            <option value="BATTERY">Battery</option>
+          </select>
+           {!order.punched && (
+          <PDFDownloadButton
+            id="verified-order-pdf-btn"
+            order={order}
+            items={enrichedItems.map((item) => ({
+              ...item,
+              virtual_stock:
+                allProducts.find((p) => p.product_id === item.product)
+                  ?.virtual_stock ?? 0,
+              price:
+                allProducts.find((p) => p.product_id === item.product)
+                  ?.price ?? item.price ?? 0,
+            }))}
+          />
+          )}
         </div>
       </div>
 
@@ -340,7 +366,7 @@ export default function CRMVerifiedDetailsPage() {
         setEditQty={setEditQty}
         setShowEditModal={setShowEditModal}
         handleDeleteItem={handleDeleteItem}
-        handleSingleRowPunch={handleSingleRowPunch} 
+        handleSingleRowPunch={handleSingleRowPunch}
       />
 
       {/* ✅ Add Product Button */}
