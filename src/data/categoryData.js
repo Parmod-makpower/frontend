@@ -14,7 +14,7 @@ const categories = [
     subcategories: [
       {
         label: "Neckband",
-        keyword: "BLUETOOTH",
+        keyword: "NECKBAND",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532730/yrbmszliqozzvl9j9cmw.webp"
       },
       {

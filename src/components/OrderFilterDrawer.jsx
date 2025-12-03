@@ -69,45 +69,45 @@ const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
                             className="w-full mt-1 p-2 border rounded-lg"
                         />
                     </div>
-                     {(user?.role === "ADMIN" || user?.role === "CRM") && (
-                    <div className="relative">
-                        <label className="text-sm font-medium">Party Name</label>
-                        <input
-                            type="text"
-                            name="party_name"
-                            value={filters.party_name}
-                            onChange={(e) => {
-                                handleChange(e);
-                                setShowSuggestions(true);
-                            }}
-                            placeholder="Search party"
-                            className="w-full mt-1 p-2 border rounded-lg"
-                            autoComplete="off"
-                        />
+                    {(user?.role === "ADMIN" || user?.role === "CRM") && (
+                        <div className="relative">
+                            <label className="text-sm font-medium">Party Name</label>
+                            <input
+                                type="text"
+                                name="party_name"
+                                value={filters.party_name}
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    setShowSuggestions(true);
+                                }}
+                                placeholder="Search party"
+                                className="w-full mt-1 p-2 border rounded-lg"
+                                autoComplete="off"
+                            />
 
-                        {/* Suggestions Box */}
-                        {showSuggestions && filters.party_name.length > 0 && (
-                            <div className="absolute left-0 right-0 bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto z-50 shadow-md">
-                                {filteredParties.length > 0 ? (
-                                    filteredParties.map((party) => (
-                                        <div
-                                            key={party.id}
-                                            className="p-2 hover:bg-blue-50 cursor-pointer"
-                                            onClick={() => {
-                                                setFilters({ ...filters, party_name: party.party_name });
-                                                setShowSuggestions(false);
-                                            }}
-                                        >
-                                            {party.party_name}
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="p-2 text-gray-500">No match found</div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                     )}
+                            {/* Suggestions Box */}
+                            {showSuggestions && filters.party_name.length > 0 && (
+                                <div className="absolute left-0 right-0 bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto z-50 shadow-md">
+                                    {filteredParties.length > 0 ? (
+                                        filteredParties.map((party) => (
+                                            <div
+                                                key={party.id}
+                                                className="p-2 hover:bg-blue-50 cursor-pointer"
+                                                onClick={() => {
+                                                    setFilters({ ...filters, party_name: party.party_name });
+                                                    setShowSuggestions(false);
+                                                }}
+                                            >
+                                                {party.party_name}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="p-2 text-gray-500">No match found</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
 
                     <div>

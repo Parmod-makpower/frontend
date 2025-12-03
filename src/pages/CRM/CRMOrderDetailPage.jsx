@@ -408,66 +408,6 @@ export default function CRMOrderDetailPage() {
   }, [mergedRewards, allProducts]); // note: same deps as your last working variant
 
 
-  // ⭐ ADD A SINGLE REWARD ITEM
-  const addRewardItem = (reward) => {
-    setEditedItems((prev) => {
-      const existing = prev.find((i) => i.product === reward.product_id);
-
-      if (existing) {
-        // agar reward pehle se added hai → qty increase
-        return prev.map((i) =>
-          i.product === reward.product_id
-            ? {
-              ...i,
-              quantity: Number(i.quantity) + Number(reward.quantity),
-              is_scheme_item: true,
-            }
-            : i
-        );
-      }
-
-      // otherwise → new item add
-      const product = allProducts.find(
-        (p) =>
-          p.product_id === reward.product_id ||
-          p.product_name === reward.product_name
-      );
-
-      return [
-        ...prev,
-        {
-          product: product?.product_id,
-          product_name: product?.product_name,
-          quantity: reward.quantity,
-          original_quantity: "Scheme",
-          price: product?.price ?? 0,
-          ss_virtual_stock: product?.virtual_stock ?? 0,
-          is_scheme_item: true,
-        },
-      ];
-    });
-  };
-  const handleAddAllRewards = () => {
-    mergedRewards.forEach((reward) => {
-      if (!isRewardAlreadyAdded(reward)) {
-        addRewardItem({
-          product_id: reward.product_id,
-          product_name: reward.product_name,
-          quantity: reward.quantity,
-        });
-      }
-    });
-
-    alert("All rewards added!");
-  };
-
-  const isRewardAlreadyAdded = (reward) => {
-    return editedItems.some(
-      (item) =>
-        item.product_name === reward.product_name ||
-        item.product === reward.product_id
-    );
-  };
 
   const updateManualAvailability = (productId, value) => {
     setManualAvailabilityMap(prev => ({
@@ -476,66 +416,7 @@ export default function CRMOrderDetailPage() {
     }));
   };
 
-  // ⭐ CUSTOM COMBINED SCHEME — TW01 + TW15 + TW16 → Suitcase (ID:188) hatana k liya bs isko remove kr dana 
-// useEffect(() => {
-//   if (!editedItems || editedItems.length === 0) return;
-
-//   // ⭐ DIRECT PRODUCT IDs USE KARO
-//   const ID_TW01 = 1119;
-//   const ID_TW15 = 1133;
-//   const ID_TW16 = 1132;
-
-//   const SUITCASE_ID = 188;
-
-//   // ⭐ Quantities fetch karo (0 fallback)
-//   const qty1 = editedItems.find(i => i.product === ID_TW01)?.quantity || 0;
-//   const qty2 = editedItems.find(i => i.product === ID_TW15)?.quantity || 0;
-//   const qty3 = editedItems.find(i => i.product === ID_TW16)?.quantity || 0;
-
-//   // ⭐ TOTAL MIX quantity
-//   const totalQty = qty1 + qty2 + qty3;
-
-//   // ⭐ REWARD FORMULA → 144 quantity = 1 suitcase
-//   const rewardQty = Math.floor(totalQty / 144);
-
-//   setEditedItems(prev => {
-//     const existing = prev.find(i => i.product === SUITCASE_ID);
-
-//     // ❌ No reward → Remove suitcase
-//     if (rewardQty === 0) {
-//       return prev.filter(i => i.product !== SUITCASE_ID);
-//     }
-
-//     // 🔄 Update existing suitcase quantity
-//     if (existing) {
-//       if (existing.quantity !== rewardQty) {
-//         return prev.map(i =>
-//           i.product === SUITCASE_ID
-//             ? { ...i, quantity: rewardQty, is_scheme_item: true }
-//             : i
-//         );
-//       }
-//       return prev; // nothing changed
-//     }
-
-//     // ⭐ Add new suitcase as reward
-//     const product = allProducts.find(p => p.product_id === SUITCASE_ID);
-//     if (!product) return prev;
-
-//     return [
-//       ...prev,
-//       {
-//         product: SUITCASE_ID,
-//         product_name: product.product_name,
-//         quantity: rewardQty,
-//         original_quantity: "Scheme",
-//         price: product.price ?? 0,
-//         ss_virtual_stock: product.virtual_stock ?? 0,
-//         is_scheme_item: true,
-//       },
-//     ];
-//   });
-// }, [editedItems, allProducts]);
+  
 
   if (!order)
     return (
@@ -554,7 +435,7 @@ export default function CRMOrderDetailPage() {
           <h2 className="text-base font-semibold text-gray-800 hidden sm:flex">{order.order_id}</h2>
           <p className="text-sm text-blue-600">{order.ss_party_name}</p>
         </div>
-
+    
         {/* Right Section — PDF Button */}
         <div className="relative">
 
