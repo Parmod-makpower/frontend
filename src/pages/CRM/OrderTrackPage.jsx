@@ -147,11 +147,20 @@ export default function OrderTrackPage() {
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <MobilePageHeader title={orderId} />
-      {loading && <p className="mt-4">Loading...</p>}
+      {loading && (
+        <div className="flex items-center justify-center mt-50 mb-6">
+          <div className="flex flex-col items-center">
+            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-sm text-gray-600 mt-3 animate-pulse">
+              Loading, please wait...
+            </p>
+          </div>
+        </div>
+      )}
 
-     
       {orderData && (
         <div className="pt-[60px] sm:pt-0">
+
           {/* ✅ Progress Bar */}
           <div className="flex flex-wrap items-center justify-between gap-y-6 relative mb-10">
             {steps.map((step, index) => {
