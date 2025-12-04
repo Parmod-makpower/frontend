@@ -12,9 +12,9 @@ import {
   FaHourglassHalf,
   FaUser,
   FaRoute,
+  FaBoxOpen,
 } from "react-icons/fa";
 import MobilePageHeader from "../components/MobilePageHeader";
-import ClearCacheButton from "../components/ClearCacheButton";
 
 export default function MoreOptionsPage() {
   const { user, logout } = useAuth();
@@ -33,6 +33,11 @@ export default function MoreOptionsPage() {
             label: "Users",
             icon: <FaUsers className="text-green-600" />,
             action: () => navigate("/crm-ss/list"),
+          },
+          {
+            label: "Create Order",
+            icon: <FaBoxOpen className="text-orange-600" />,
+            action: () => navigate("/crm/create-order"),
           },
           {
             label: "Available Stock",
@@ -106,7 +111,7 @@ export default function MoreOptionsPage() {
   ];
 
   return (
-    <div className="max-w-md mx-auto px-4 relative">
+    <div className="max-w-md mx-auto px-4 relative mb-50">
       {/* Header */}
       <MobilePageHeader title="More Options" />
 
@@ -124,7 +129,6 @@ export default function MoreOptionsPage() {
           </div>
         </div>
       </div>
-    {user?.role == "ADMIN" && (<ClearCacheButton/>)}
       {/* Options */}
       <div className="space-y-3">
         {options.map(({ label, icon, action, danger }, idx) => (
