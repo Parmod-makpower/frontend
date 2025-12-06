@@ -234,7 +234,7 @@ export default function CRMCreateOrderPage() {
 
   // ---------- UI ----------
   return (
-    <div className="mx-auto px-3 pb-24 max-w-6xl">
+    <div className="mx-auto px-3 pb-24">
       <MobilePageHeader title="CRM Create Order" />
 
       {/* Success toast */}
