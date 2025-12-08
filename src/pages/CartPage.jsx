@@ -1,7 +1,7 @@
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { Link, useNavigate } from "react-router-dom";
 import { useSchemes } from "../hooks/useSchemes";
-import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import {
   FaGift,
   FaCheckCircle,
@@ -13,6 +13,8 @@ import {
 import MobilePageHeader from "../components/MobilePageHeader";
 import makpower_image from "../assets/images/makpower_image.webp";
 import { useEffect } from "react";
+import QuantitySelector from "../components/QuantitySelector";
+
 
 export default function CartPage() {
   const {
@@ -25,31 +27,38 @@ export default function CartPage() {
 
   const { data: schemes = [] } = useSchemes();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // ✅ Initialize only missing cartoon selections on mount
- useEffect(() => {
-  selectedProducts.forEach((p) => {
-    // ✅ अगर product cartoon type का है
-    if (p.quantity_type === "CARTOON" && p.cartoon_size && p.cartoon_size > 1) {
-      if (!cartoonSelection[p.id]) {
-        updateCartoon(p.id, 1); // default 1 cartoon
-        updateQuantity(p.id, p.cartoon_size * 1);
-      } else {
-        updateQuantity(p.id, cartoonSelection[p.id] * p.cartoon_size);
+  useEffect(() => {
+    selectedProducts.forEach((p) => {
+
+      // ⭐ DS user — unlock everything, no MOQ, no auto correction
+      if (user?.role === "DS") {
+        return; // do nothing
       }
-    } 
-    // ✅ अगर product MOQ type का है
-    else {
+
+      // ⭐ SS user — Cartoon products
+      if (p.quantity_type === "CARTOON" && p.cartoon_size > 1) {
+        if (!cartoonSelection[p.id]) {
+          updateCartoon(p.id, 1);
+          updateQuantity(p.id, p.cartoon_size);
+        } else {
+          updateQuantity(p.id, cartoonSelection[p.id] * p.cartoon_size);
+        }
+        return;
+      }
+
+      // ⭐ SS user — Normal products with MOQ
       const moq = p.moq || 1;
       const qty = parseInt(p.quantity);
 
       if (isNaN(qty) || qty < moq) {
         updateQuantity(p.id, moq);
       }
-    }
-  });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+    });
+  }, []);
+
 
 
 
@@ -151,76 +160,22 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {/* Product Details */}
+                {/* Product Details  const hasCartoon = item.quantity_type == "CARTOON";*/}
                 <div className="flex flex-row items-center justify-between">
                   <div className="flex flex-row items-center gap-2">
-                    {hasCartoon ? (
-                      <>
-                        <select
-                          value={cartoonSelection[item.id] || 1}
-                          onChange={(e) => updateCartoon(item.id, parseInt(e.target.value))}
-                          className="border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none w-32"
-                        >
-                          {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
-                            <option key={n} value={n}>
-                              {n} Cartoon{n > 1 ? "s" : ""}
-                            </option>
-                          ))}
-                        </select>
+                    <QuantitySelector
+                      user={user}
+                      item={item}
+                      prod={item}
+                      cartoonSelection={cartoonSelection}
+                      updateQuantity={updateQuantity}
+                      updateCartoon={updateCartoon}
+                      isCartPage={true}
+                      isqty={true}
+                    />
 
-                        <input
-                          type="number"
-                          value={item.quantity || 0}
-                          readOnly
-                          className="w-20 border rounded px-2 py-1 text-sm bg-gray-100"
-                        />
-
-                      </>
-                    ) :
-                      (
-                        <div className="flex flex-col items-start">
-                          <input
-                            type="number"
-                            min={1}
-                            value={item.quantity === "" ? "" : item.quantity}
-                            onChange={(e) => {
-                              const val = e.target.value;
-
-                              // Empty allow करो ताकि user कुछ भी type कर सके
-                              if (val === "") {
-                                updateQuantity(item.id, "");
-                                item.showMoqError = true;
-                                return;
-                              }
-
-                              const parsed = parseInt(val);
-                              if (!isNaN(parsed)) {
-                                updateQuantity(item.id, parsed); // अभी कुछ भी type करने दो
-                                item.showMoqError = parsed < (item.moq || 1);
-                              }
-                            }}
-                            onBlur={(e) => {
-                              const val = parseInt(e.target.value);
-                              const moq = item.moq || 1;
-
-                              if (isNaN(val) || val < moq) {
-                                updateQuantity(item.id, moq); // auto set to MOQ
-                                item.showMoqError = false;
-                              }
-                            }}
-                            className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${item.showMoqError ? "border-red-400" : ""
-                              }`}
-                          />
-
-
-                          {item.showMoqError && (
-                            <p className="text-xs text-red-500 mt-1">
-                              Minimum quantity: {item.moq}
-                            </p>
-                          )}
-                        </div>
-                      )}
                   </div>
+
 
                   <div className="font-bold">
                     {!isNaN(price)

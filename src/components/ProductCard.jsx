@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaBan } from "react-icons/fa6";
 import makpower_image from "../assets/images/makpower_image.webp";
+import QuantitySelector from "./QuantitySelector";
+
 
 export default function ProductCard({
   prod,
@@ -90,9 +92,7 @@ export default function ProductCard({
             </span>
           )}
         </p>
-
-        {/* 🛒 Add / Quantity Control */}
-        {(user?.role === "SS" || user?.role === "DS" ) && (
+        {(user?.role === "SS" || user?.role === "DS") && (
           <div className="mt-auto">
             {!isInCart ? (
               <button
@@ -107,53 +107,21 @@ export default function ProductCard({
               </button>
             ) : (
               <>
-                {selectedItem.quantity_type == "CARTOON" ? (
-                  <select
-                    value={cartoonSelection[selectedItem.id] || 1}
-                    onChange={(e) =>
-                      updateCartoon(selectedItem.id, parseInt(e.target.value))
-                    }
-                    className="w-full border rounded py-1 ps-2 text-sm focus:ring-2 focus:ring-gray-100 outline-none mt-2"
-                  >
-                    {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
-                      <option key={n} value={n}>
-                        {n} Carton = {n * (prod.cartoon_size || 1)} Pcs 
-                      </option>
-                    ))}
+                <QuantitySelector
+                  user={user}
+                  item={selectedItem}
+                  prod={prod}
+                  cartoonSelection={cartoonSelection}
+                  updateQuantity={updateQuantity}
+                  updateCartoon={updateCartoon}
+                  isqty={false}
+                />
 
-                  </select>
-                ) : (
-                  <input
-                    type="number"
-                    min={1}
-                    value={
-                      selectedItem.quantity === "" ? "" : selectedItem.quantity
-                    }
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "") {
-                        updateQuantity(selectedItem.id, "");
-                        return;
-                      }
-                      const parsed = parseInt(val);
-                      if (!isNaN(parsed)) {
-                        updateQuantity(selectedItem.id, parsed);
-                      }
-                    }}
-                    onBlur={(e) => {
-                      const val = parseInt(e.target.value);
-                      const moq = selectedItem.moq || 1;
-                      if (isNaN(val) || val < moq) {
-                        updateQuantity(selectedItem.id, moq);
-                      }
-                    }}
-                    className="w-full border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none mt-2"
-                  />
-                )}
               </>
             )}
           </div>
         )}
+
       </div>
     </div>
   );

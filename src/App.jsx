@@ -46,7 +46,7 @@ import DistributorMeetForm from "./components/form/DistributorMeetForm";
 import ProductUsageReportPage from "./pages/ProductUsageReportPage";
 import CRMASMFormPage from "./pages/CRM/CRMASMFormPage";
 import CRMASMListPage from "./pages/CRM/CRMASMListPage";
-
+import PartyOrderTrackPage from "./pages/reports/PartyOrderTrackPage";
 
 export default function App() {
   useEffect(() => {
@@ -102,13 +102,14 @@ export default function App() {
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
             <Route path="/orders-tracking" element={<OrderListPage />} />
             <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
+            <Route path="/reports/party/:partyId" element={<PartyOrderTrackPage />} />
+
 
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
             <Route path="/available-stock" element={<ProtectedRoute ><AvailableStock /></ProtectedRoute>} />
 
-            <Route path="/ad" element={<CRMOrderDetailPage />} />
-            <Route path="/users-all" element={<ProtectedRoute allowedRoles={['ADMIN']}><UserHierarchy /></ProtectedRoute>} />
+            <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
             <Route path="/admin/crm" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminCRMPage /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductPage /></ProtectedRoute>} />
             <Route path="/sale-name" element={<ProtectedRoute allowedRoles={['ADMIN']}><SaleNamePage /></ProtectedRoute>} />
