@@ -17,7 +17,7 @@ export default function CRMDashboard() {
       title: "Super Stockist",
       desc: "Add user, manage their team.",
       icon: <FaUsers className="text-3xl text-blue-500" />,
-      url: "/crm-ss/list",
+      url: "/all-users/list",
     },
     {
       title: "Create Order",  // ✅ नया कार्ड

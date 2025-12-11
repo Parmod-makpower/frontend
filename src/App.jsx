@@ -43,6 +43,7 @@ import OrderListPage from "./pages/OrderListPage";
 import DistributorMeetForm from "./components/form/DistributorMeetForm";
 import ProductUsageReportPage from "./pages/ProductUsageReportPage";
 import PartyOrderTrackPage from "./pages/reports/PartyOrderTrackPage";
+import DealerFormPage from "./components/form/DealerFormPage";
 
 export default function App() {
   useEffect(() => {
@@ -79,6 +80,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/form" element={<DistributorMeetForm />} />
+          <Route path="/dealer" element={<DealerFormPage />} />
           <Route path="/product-usage" element={<ProductUsageReportPage />} />
             <Route path="" element={<HomeRedirector />} />
             <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
