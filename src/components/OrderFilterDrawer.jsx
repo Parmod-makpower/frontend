@@ -10,8 +10,9 @@ const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
     const [showSuggestions, setShowSuggestions] = useState(false);
 
     const filteredParties = ssUsers.filter((u) =>
-        u.party_name.toLowerCase().includes(filters.party_name.toLowerCase())
-    );
+  (u.party_name || "").toLowerCase().includes((filters.party_name || "").toLowerCase())
+);
+
 
     const handleChange = (e) => {
         setFilters({

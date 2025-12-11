@@ -123,7 +123,7 @@ export default function AddNewUser() {
         toast.success("User added successfully");
       }
 
-      navigate("/crm-ss/list");
+      navigate("/all-users/list");
     } catch (err) {
       setErrors(extractErrors(err));
     } finally {
