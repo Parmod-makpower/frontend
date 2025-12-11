@@ -15,10 +15,12 @@ export default function UserTable({
         <thead className="bg-gray-200 text-gray-900 text-sm font-semibold">
           <tr className="bg-gray-200">
             <th className="p-3 border">S.NO</th>
+            <th className="p-3 border">Role</th>
             <th className="p-3 border">ID</th>
             {user?.role === "ADMIN" && (<th className="p-3 border">CRM</th>)}
             <th className="p-3 border">Name</th>
             <th className="p-3 border">Party Name</th>
+            <th className="p-3 border">Created_By</th>
             <th className="p-3 border">Mobile</th>
             <th className="p-3 border">Status</th>
             <th className="p-3 border">Action</th>
@@ -30,10 +32,12 @@ export default function UserTable({
           {list.map((item, index) => (
             <tr key={item.id} className="border-t">
               <td className="p-3 border text-center">{index + 1}</td>
+              <td className="p-3 border">{item.role}</td>
               <td className="p-3 border">{item.user_id}</td>
               {user?.role === "ADMIN" && (<td className="p-3 border">{item.crm_name}</td>)}
               <td className="p-3 border">{item.name}</td>
               <td className="p-3 border">{item.party_name}</td>
+              <td className="p-3 border">{item.created_by}</td>
               <td className="p-3 border">{item.mobile}</td>
               <td className="p-3 border text-center">
                 <span

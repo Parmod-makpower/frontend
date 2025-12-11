@@ -4,8 +4,6 @@ import { Toaster } from "react-hot-toast";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
-import AdminCRMPage from "./pages/AdminCRMPage";
-import SSDSPage from "./pages/SS/SSDSPage";
 import NotFound from "./pages/NotFound";
 import NoPermission from "./pages/NoPermission";
 import DashboardLayout from "./Layout/DashboardLayout";
@@ -25,8 +23,8 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import CategorySearchPage from "./pages/CategorySearchPage";
 import AllCategoriesPage from "./pages/AllCategoriesPage";
 import ConfirmOrderPage from "./pages/SS/ConfirmOrderPage";
-import CRMSSFormPage from "./pages/CRM/CRMSSFormPage";
-import CRMSSListPage from "./pages/CRM/CRMSSListPage";
+import AddNewUser from "./pages/CRM/AddNewUser";
+import AllUsersList from "./pages/CRM/AllUsersList";
 import CRMOrderListPage from "./pages/CRM/CRMOrderListPage";
 import UserSchemesPage from "./pages/UserSchemesPage";
 import CRMVerifiedHistoryPage from "./pages/CRM/CRMVerifiedHistoryPage";
@@ -44,8 +42,6 @@ import OrderTrackPage from "./pages/CRM/OrderTrackPage";
 import OrderListPage from "./pages/OrderListPage";
 import DistributorMeetForm from "./components/form/DistributorMeetForm";
 import ProductUsageReportPage from "./pages/ProductUsageReportPage";
-import CRMASMFormPage from "./pages/CRM/CRMASMFormPage";
-import CRMASMListPage from "./pages/CRM/CRMASMListPage";
 import PartyOrderTrackPage from "./pages/reports/PartyOrderTrackPage";
 
 export default function App() {
@@ -110,7 +106,6 @@ export default function App() {
             <Route path="/available-stock" element={<ProtectedRoute ><AvailableStock /></ProtectedRoute>} />
 
             <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
-            <Route path="/admin/crm" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminCRMPage /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductPage /></ProtectedRoute>} />
             <Route path="/sale-name" element={<ProtectedRoute allowedRoles={['ADMIN']}><SaleNamePage /></ProtectedRoute>} />
             <Route path="/schemes" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemePage /></ProtectedRoute>} />
@@ -120,17 +115,12 @@ export default function App() {
             <Route path="/admin/pending-orders/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SSPendingOrderItems /></ProtectedRoute>} />
             <Route path="/cargo-details" element={<ProtectedRoute ><CargoDetailsPage /></ProtectedRoute>} />
            
-
-            <Route path="/crm-asm/add" element={<ProtectedRoute ><CRMASMFormPage /></ProtectedRoute>} />
-            <Route path="/crm-asm/edit" element={<ProtectedRoute ><CRMASMFormPage /></ProtectedRoute>} />
-            <Route path="/crm-asm/list" element={<ProtectedRoute ><CRMASMListPage /></ProtectedRoute>} />
-            <Route path="/crm-ss/add" element={<ProtectedRoute ><CRMSSFormPage /></ProtectedRoute>} />
-            <Route path="/crm-ss/list" element={<ProtectedRoute ><CRMSSListPage /></ProtectedRoute>} />
+            <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />
+            <Route path="/all-users/list" element={<ProtectedRoute ><AllUsersList /></ProtectedRoute>} />
             <Route path="/crm/create-order" element={<ProtectedRoute allowedRoles={['CRM']}><CRMCreateOrderPage /></ProtectedRoute>} />
             <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
             <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
            
-            <Route path="/ss/ds" element={<ProtectedRoute allowedRoles={['SS']}><SSDSPage /></ProtectedRoute>} />
             <Route path="/ss-page" element={<ProtectedRoute allowedRoles={['SS']}><HomePage /></ProtectedRoute>} />
             <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
             <Route path="/confirm-order" element={<ProtectedRoute ><ConfirmOrderPage /></ProtectedRoute>} />

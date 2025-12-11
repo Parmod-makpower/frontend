@@ -32,7 +32,7 @@ export default function MoreOptionsPage() {
           {
             label: "Users",
             icon: <FaUsers className="text-green-600" />,
-            action: () => navigate("/crm-ss/list"),
+            action: () => navigate("/all-users/list"),
           },
           {
             label: "Create Order",
@@ -72,11 +72,6 @@ export default function MoreOptionsPage() {
             label: "Sale Name",
             icon: <FaBox className="text-yellow-600" />,
             action: () => navigate("/sale-name"),
-          },
-          {
-            label: "Super Stockist",
-            icon: <FaUser className="text-blue-600" />,
-            action: () => navigate("/crm-ss/list"),
           },
           
           {

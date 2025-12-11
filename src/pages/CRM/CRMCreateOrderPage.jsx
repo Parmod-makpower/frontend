@@ -8,6 +8,8 @@ import { usePlaceOrder } from "../../hooks/usePlaceOrder";
 import { useSelectedProducts } from "../../hooks/useSelectedProducts";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import ConfirmModal from "../../components/ConfirmModal";
+import SSSearchInput from "../../components/SearchInput/SSSearchInput";
+import ProductSearchInput from "../../components/SearchInput/ProductSearchInput";
 
 export default function CRMCreateOrderPage() {
   const { user } = useAuth();
@@ -19,8 +21,6 @@ export default function CRMCreateOrderPage() {
   // UI / state
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(null);
-  const [ssSearch, setSsSearch] = useState("");
-  const [showSSList, setShowSSList] = useState(false);
   const [selectedSS, setSelectedSS] = useState("");
   const [selectedSSName, setSelectedSSName] = useState("");
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -37,11 +37,6 @@ export default function CRMCreateOrderPage() {
     removeProduct,
     setSelectedProducts,
   } = useSelectedProducts();
-
-  // Filtered SS list for suggestions
-  const filteredSS = ssUsers.filter((ss) =>
-    ss.party_name.toLowerCase().includes(ssSearch.toLowerCase())
-  );
 
   // ---------- LocalStorage load on mount ----------
   useEffect(() => {
@@ -210,22 +205,6 @@ export default function CRMCreateOrderPage() {
     p.product_name.toLowerCase().includes((searchTerm || "").toLowerCase())
   );
 
-  const handleKeyDown = (e) => {
-    if (!filteredProducts) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightIndex((prev) => (prev + 1) % filteredProducts.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightIndex((prev) => (prev === -1 ? filteredProducts.length - 1 : (prev - 1 + filteredProducts.length) % filteredProducts.length));
-    } else if (e.key === "Enter") {
-      if (highlightIndex >= 0 && filteredProducts[highlightIndex]) {
-        e.preventDefault();
-        handleAddProduct(filteredProducts[highlightIndex]);
-      }
-    }
-  };
-
   // ---------- small helpers ----------
   const formatCurrency = (v) => {
     if (v == null || isNaN(v)) return "0.00";
@@ -249,80 +228,20 @@ export default function CRMCreateOrderPage() {
       <div className="grid grid-cols-12 gap-4 pt-[60px] sm:pt-2">
         {/* LEFT: selectors + search */}
         <div className="col-span-12 sm:col-span-4 space-y-6 bg-white p-4 sm:p-6 rounded-lg shadow-sm">
-          <div className="relative">
-            <label className="block text-sm font-semibold mb-1">Select Super Stockist</label>
-            <input
-              type="text"
-              value={ssSearch}
-              onChange={(e) => {
-                setSsSearch(e.target.value);
-                setShowSSList(true);
-              }}
-              placeholder="Search Super Stockist..."
-              className="border rounded-md px-3 py-2 w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-              autoComplete="off"
-            />
+          <SSSearchInput
+            ssList={ssUsers}
+            value={selectedSSName}
+            onSelect={(ss) => {
+              setSelectedSS(ss.id);
+              setSelectedSSName(ss.party_name);
+            }}
+          />
 
-            {/* SS suggestion */}
-            {showSSList && ssSearch.length > 0 && (
-              <div className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg max-h-56 overflow-y-auto z-50">
-                {filteredSS.length > 0 ? (
-                  filteredSS.map((ss) => (
-                    <div
-                      key={ss.id}
-                      className="px-3 py-2 cursor-pointer hover:bg-blue-50"
-                      onClick={() => {
-                        setSelectedSS(ss.id);
-                        setSelectedSSName(ss.party_name);
-                        setSsSearch(ss.party_name);
-                        setShowSSList(false);
-                      }}
-                    >
-                      {ss.party_name}
-                    </div>
-                  ))
-                ) : (
-                  <div className="px-3 py-2 text-gray-500">No match found</div>
-                )}
-              </div>
-            )}
-          </div>
+          <ProductSearchInput
+            products={allProducts}
+            onSelect={(prod) => handleAddProduct(prod)}
+          />
 
-          <div>
-            <label className="block text-sm font-semibold mb-1">Search Product</label>
-            <input
-              type="text"
-              ref={searchInputRef}
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setHighlightIndex(-1);
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder="Type product name..."
-              className="border rounded-md px-3 py-2 w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-            />
-
-            {/* Product suggestions */}
-            {searchTerm && (
-              <div className="max-h-64 overflow-y-auto border rounded-lg shadow bg-white mt-2">
-                {filteredProducts.length > 0 ? (
-                  filteredProducts.map((prod, index) => (
-                    <div
-                      key={prod.id ?? prod.product_id}
-                      className={`px-3 py-2 cursor-pointer flex justify-between items-center ${highlightIndex === index ? "bg-blue-50" : "hover:bg-gray-100"}`}
-                      onClick={() => handleAddProduct(prod)}
-                    >
-                      <div className="text-sm">{prod.product_name}</div>
-                      <div className="text-xs text-gray-500">{prod.virtual_stock ?? "--"}</div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="px-3 py-2 text-gray-500">No products found</p>
-                )}
-              </div>
-            )}
-          </div>
 
           {/* optional: quick actions or notes area */}
           <div className="pt-2">
@@ -413,9 +332,8 @@ export default function CRMCreateOrderPage() {
               <button
                 onClick={() => setShowConfirm(true)}
                 disabled={isPlacingOrder}
-                className={`inline-flex items-center gap-2 px-6 py-2 rounded-md text-white shadow-md ${
-                  isPlacingOrder ? "bg-green-400 cursor-not-allowed" : "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
-                }`}
+                className={`inline-flex items-center gap-2 px-6 py-2 rounded-md text-white shadow-md ${isPlacingOrder ? "bg-green-400 cursor-not-allowed" : "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                  }`}
               >
                 {isPlacingOrder ? "Placing Order..." : "Submit"}
               </button>

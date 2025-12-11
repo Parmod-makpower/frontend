@@ -74,7 +74,7 @@ export default function BottomNav() {
     ADMIN: [
       { path: "/schemes", icon: <FaGift />, label: "Schemes" },
       { path: "/all/orders-history", icon: <FaBox />, label: "Orders" },
-      { path: "/admin/crm", icon: <FaUsers />, label: "Users" },
+      { path: "/all-users/list", icon: <FaUsers />, label: "Users" },
     ],
   };
 

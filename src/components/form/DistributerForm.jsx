@@ -1,12 +1,15 @@
 import { FaUser, FaMobileAlt, FaLock, FaBuilding, FaSave } from "react-icons/fa";
+import SSSearchInput from "../SearchInput/SSSearchInput";
 
-export default function UserForm({
+export default function DistributerForm({
   form,
   errors,
   loading,
   onChange,
   onSubmit,
   isEditMode,
+  ssList,
+  setForm, // ✅ added
 }) {
   return (
     <form
@@ -14,40 +17,6 @@ export default function UserForm({
       className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white shadow-md rounded-lg p-4"
       noValidate
     >
-
-      {/* Role Selection */}
-      <div>
-        <label className="text-gray-700 mb-1">Role</label>
-        <select
-          name="role"
-          value={form.role}
-          onChange={onChange}
-          className="border p-2 rounded w-full"
-          required
-        >
-          <option value="">Select Role</option>
-          <option value="SS">Super Stockist</option>
-          <option value="DS">Distributor</option>
-          <option value="ASM">ASM</option>
-          <option value="CRM">CRM</option>
-        </select>
-        {errors.role && <p className="text-red-600 text-sm">{errors.role[0]}</p>}
-      </div>
-
-      {/* CRM Selection */}
-      <div>
-        <label className="text-gray-700 mb-1">CRM</label>
-        <input
-          name="crm"
-          value={form.crm}
-          onChange={onChange}
-          placeholder="Enter CRM (or creator)"
-          className="border p-2 rounded w-full"
-          required
-        />
-        {errors.crm && <p className="text-red-600 text-sm">{errors.crm[0]}</p>}
-      </div>
-
       {/* Name */}
       <div>
         <label className="flex items-center gap-2 text-gray-700 mb-1">
@@ -77,12 +46,10 @@ export default function UserForm({
           className="border p-2 rounded w-full"
           required
         />
-        {errors.mobile && (
-          <p className="text-red-600 text-sm">{errors.mobile[0]}</p>
-        )}
+        {errors.mobile && <p className="text-red-600 text-sm">{errors.mobile[0]}</p>}
       </div>
 
-      {/* Password (Only Create Mode) */}
+      {/* Password */}
       {!isEditMode && (
         <div>
           <label className="flex items-center gap-2 text-gray-700 mb-1">
@@ -97,9 +64,7 @@ export default function UserForm({
             className="border p-2 rounded w-full"
             required
           />
-          {errors.password && (
-            <p className="text-red-600 text-sm">{errors.password[0]}</p>
-          )}
+          {errors.password && <p className="text-red-600 text-sm">{errors.password[0]}</p>}
         </div>
       )}
 
@@ -116,19 +81,32 @@ export default function UserForm({
           className="border p-2 rounded w-full"
           required
         />
-        {errors.party_name && (
-          <p className="text-red-600 text-sm">{errors.party_name[0]}</p>
-        )}
+        {errors.party_name && <p className="text-red-600 text-sm">{errors.party_name[0]}</p>}
       </div>
 
-      {/* Submit Button */}
+      {/* Super Stockist */}
+      <div className="md:col-span-2">
+        <SSSearchInput
+          ssList={ssList}
+          value={form.ss_name || ""}
+          label="Select Super Stockist"
+          onSelect={(ss) => {
+            setForm((prev) => ({
+              ...prev,
+              ss: ss.id,
+              ss_name: ss.party_name,
+            }));
+          }}
+        />
+        {errors.ss && <p className="text-red-600 text-sm">{errors.ss[0]}</p>}
+      </div>
+
+      {/* Submit */}
       <div className="md:col-span-2">
         <button
           type="submit"
           className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded text-white ${
-            isEditMode
-              ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-green-600 hover:bg-green-700"
+            isEditMode ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"
           }`}
           disabled={loading}
         >
