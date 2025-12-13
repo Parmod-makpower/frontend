@@ -520,7 +520,7 @@ export default function CRMOrderDetailPage() {
                     setShowDeleteOrderModal(true);
                   }}
                   className="flex gap-2 justify-center items-center cursor-pointer"
-                ><FaTrashAlt size={15} className="text-red-500" />
+                >
                   Delete Order
                 </button></li> */}
 

@@ -1,5 +1,10 @@
-import { useState, useMemo } from "react";
-import { useCachedSSUsers, toggleSSStatus, deleteSSUser, updateSSUser } from "../../auth/useSS";
+import { useState, useMemo, useEffect } from "react";
+import {
+  useCachedSSUsers,
+  toggleSSStatus,
+  deleteSSUser,
+  updateSSUser,
+} from "../../auth/useSS";
 import UserTable from "../../components/UserTable";
 import ChangePasswordModal from "../../components/ChangePasswordModal";
 import { useNavigate } from "react-router-dom";
@@ -7,23 +12,51 @@ import toast from "react-hot-toast";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { useAuth } from "../../context/AuthContext";
 
+const ROLE_OPTIONS = ["ALL", "SS", "DS", "ASM", "CRM"];
+const ROLE_STORAGE_KEY = "users_selected_role";
+
 export default function AllUsersList() {
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [selectedRole, setSelectedRole] = useState(() => {
+    return localStorage.getItem(ROLE_STORAGE_KEY) || "ALL";
+  });
+
   const navigate = useNavigate();
   const { user } = useAuth();
-  // ✅ useQuery से users लाना
-  const { data: ssList = [], isLoading, error, refetch } = useCachedSSUsers();
 
-  // ✅ Search filter (party name OR mobile)
+  const {
+    data: ssList = [],
+    isLoading,
+    error,
+    refetch,
+  } = useCachedSSUsers();
+
+  useEffect(() => {
+    localStorage.setItem(ROLE_STORAGE_KEY, selectedRole);
+  }, [selectedRole]);
+
+  // ✅ Search + Role Filter
   const filteredList = useMemo(() => {
-    if (!searchTerm.trim()) return ssList;
-    return ssList.filter(user =>
-      user.party_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.mobile.includes(searchTerm)
-    );
-  }, [searchTerm, ssList]);
+    const term = searchTerm.toLowerCase();
+
+    return ssList.filter((u) => {
+      const roleMatch =
+        selectedRole === "ALL" || u.role === selectedRole;
+
+      const partyName = u.party_name?.toLowerCase() || "";
+      const mobile = u.mobile?.toString() || "";
+
+      const searchMatch =
+        !term ||
+        partyName.includes(term) ||
+        mobile.includes(searchTerm);
+
+      return roleMatch && searchMatch;
+    });
+  }, [searchTerm, selectedRole, ssList]);
 
   const handleEdit = (user) => {
     navigate("/add-new-user", { state: { editData: user } });
@@ -32,8 +65,10 @@ export default function AllUsersList() {
   const handleToggle = async (id, currentStatus) => {
     try {
       await toggleSSStatus(id, !currentStatus);
-      toast.success(currentStatus ? "User deactivated" : "User activated");
-      refetch(); // ✅ cache invalidate
+      toast.success(
+        currentStatus ? "User deactivated" : "User activated"
+      );
+      refetch();
     } catch {
       toast.error("Failed to toggle status");
     }
@@ -44,37 +79,59 @@ export default function AllUsersList() {
       try {
         await deleteSSUser(id);
         toast.success("User deleted");
-        refetch(); // ✅ refresh list
+        refetch();
       } catch {
         toast.error("Failed to delete user");
       }
     }
   };
 
-  if (isLoading) return <p className="p-4">Loading users...</p>;
-  if (error) return <p className="p-4 text-red-500">Failed to load users</p>;
+  if (isLoading) return <p className="p-4 text-sm">Loading users...</p>;
+  if (error)
+    return (
+      <p className="p-4 text-sm text-red-500">
+        Failed to load users
+      </p>
+    );
 
   return (
-    <div className="p-4">
+    <div className="p-3 sm:p-4">
       <MobilePageHeader title="Super Stockist" />
-      {/* <button
-        onClick={() => navigate("/crm-ss/add")}
-        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 mb-2 rounded"
-      >
-        <FaPlus /> Add User
-      </button> */}
-      {/* Search Input */}
-      <div className="sm:pt-0 pt-[60px] mb-4">
-        <input
-          type="text"
-          placeholder="Search by Party Name or Mobile"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="border p-2 rounded w-full"
-        />
+
+      {/* 🔍 Toolbar */}
+      <div className="sm:pt-0 pt-[60px] mb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          {/* Search */}
+          <input
+            type="text"
+            placeholder="Search Party / Mobile"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border px-3 py-2 rounded text-sm w-full sm:w-1/2 focus:outline-none focus:ring-1 focus:ring-green-500"
+          />
+
+          {/* Role Select */}
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="border px-3 py-2 rounded text-sm bg-white cursor-pointer w-full sm:w-32"
+          >
+            {ROLE_OPTIONS.map((role) => (
+              <option key={role} value={role}>
+                {role}
+              </option>
+            ))}
+          </select>
+
+          {/* Add Button */}
+          {/* <button
+            onClick={() => navigate("/add-new-user")}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center justify-center w-full sm:w-auto"
+          >
+            + Add User
+          </button> */}
+        </div>
       </div>
-
-
 
       {/* Users Table */}
       <UserTable
@@ -95,10 +152,12 @@ export default function AllUsersList() {
         onClose={() => setShowModal(false)}
         onSave={async (newPass) => {
           try {
-            await updateSSUser(selectedUser.id, { password: newPass });
+            await updateSSUser(selectedUser.id, {
+              password: newPass,
+            });
             toast.success("Password updated");
             setShowModal(false);
-            refetch(); // ✅ fresh data
+            refetch();
           } catch {
             toast.error("Password update failed");
           }
