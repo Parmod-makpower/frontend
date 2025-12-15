@@ -1,20 +1,25 @@
-// 📁 src/main.jsx
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+
 import { getAllProducts } from "./api/productApi";
 import { getSchemes } from "./api/schemeApi";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // ✅ QueryClient Setup
-const queryClient = new QueryClient();
-const localStoragePersister = createSyncStoragePersister({
+export const queryClient = new QueryClient();
+
+// ✅ Persister (EXPORT)
+export const localStoragePersister = createSyncStoragePersister({
   storage: window.localStorage,
 });
+
+// ✅ Persist cache
 persistQueryClient({
   queryClient,
   persister: localStoragePersister,
@@ -50,18 +55,17 @@ function Root() {
     preloadData();
   }, [user]);
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  );
+  return <App />;
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <AuthProvider>
-      <Root />
-    </AuthProvider>
+    {/* ✅ QueryClientProvider सबसे ऊपर */}
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Root />
+      </AuthProvider>
+    </QueryClientProvider>
   </React.StrictMode>
 );

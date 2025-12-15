@@ -19,6 +19,11 @@ export default function DashboardLayout() {
   const navRef = useRef(null);
   const [isNavFixed, setIsNavFixed] = useState(false);
   const [navOffsetTop, setNavOffsetTop] = useState(0);
+  const handleLogout = () => {
+  logout(() => {
+    navigate("/login");
+  });
+};
 
   useEffect(() => {
     if (navRef.current) {
@@ -353,7 +358,7 @@ export default function DashboardLayout() {
                 </div>
                 <div className="px-4 py-2 text-sm text-gray-800 border-b">
                   <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="flex items-center gap-1 text-red-600 hover:text-red-800 cursor-pointer"
                     title="Logout"
                   >

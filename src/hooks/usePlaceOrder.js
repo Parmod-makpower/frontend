@@ -27,3 +27,31 @@ export const usePlaceOrder = () => {
     },
   });
 };
+
+
+
+export const usePlaceOrderDS = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (order) => {
+      const res = await API.post("/ds-orders/create/", order);
+      return res.data;
+    },
+    onSuccess: (newOrder) => {
+      // ✅ तुरंत history invalidate करके fresh लाओ
+      queryClient.invalidateQueries(["dsOrderHistory"]);
+
+      // ✅ Local cache में तुरंत नया order inject करो
+      queryClient.setQueryData(["dsOrderHistory"], (oldData) => {
+        if (!oldData?.results) {
+          return { results: [newOrder] };
+        }
+        return {
+          ...oldData,
+          results: [newOrder, ...oldData.results].slice(0, 20),
+        };
+      });
+    },
+  });
+};

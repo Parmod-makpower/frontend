@@ -44,6 +44,8 @@ import DistributorMeetForm from "./components/form/DistributorMeetForm";
 import ProductUsageReportPage from "./pages/ProductUsageReportPage";
 import PartyOrderTrackPage from "./pages/reports/PartyOrderTrackPage";
 import DealerFormPage from "./components/form/DealerFormPage";
+import ConfirmOrderPageDS from "./pages/DS/ConfirmOrderPageDS";
+import DSOrdersPage from "./pages/DS/DSOrdersPage";
 
 export default function App() {
   useEffect(() => {
@@ -125,8 +127,11 @@ export default function App() {
            
             <Route path="/ss-page" element={<ProtectedRoute allowedRoles={['SS']}><HomePage /></ProtectedRoute>} />
             <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
-            <Route path="/confirm-order" element={<ProtectedRoute ><ConfirmOrderPage /></ProtectedRoute>} />
+            <Route path="/confirm-order" element={<ProtectedRoute allowedRoles={['SS']}><ConfirmOrderPage /></ProtectedRoute>} />
             <Route path="/ss/history" element={<ProtectedRoute allowedRoles={['SS']}><OrderListPage /></ProtectedRoute>} />
+
+             <Route path="/confirm-order-ds" element={<ProtectedRoute allowedRoles={['DS']}><ConfirmOrderPageDS /></ProtectedRoute>} />
+             <Route path="/ds/my-orders" element={<ProtectedRoute allowedRoles={['DS']}><DSOrdersPage /></ProtectedRoute>} />
           </Route>
 
           <Route path="/no-permission" element={<NoPermission />} />

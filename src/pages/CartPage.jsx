@@ -74,7 +74,11 @@ export default function CartPage() {
   };
 
   const handleProceed = () => {
-    navigate("/confirm-order");
+    if (user.role == "DS") {
+      navigate("/confirm-order-ds");
+    }else{
+      navigate("/confirm-order");
+    }
   };
 
   const getSchemeMultiplier = (scheme) => {

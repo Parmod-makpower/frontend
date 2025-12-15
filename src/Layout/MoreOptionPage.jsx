@@ -21,9 +21,11 @@ export default function MoreOptionsPage() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
+  logout(() => {
     navigate("/login");
-  };
+  });
+};
+
 
   // ✅ role आधारित options
   const options = [
@@ -88,6 +90,16 @@ export default function MoreOptionsPage() {
             label: "My Order",
             icon: <FaBox className="text-orange-600" />,
             action: () => navigate("/ss/history"),
+          },
+         
+        ]
+      : []),
+    ...(user?.role === "DS"
+      ? [
+          {
+            label: "My Order",
+            icon: <FaBox className="text-orange-600" />,
+            action: () => navigate("/ds/my-orders"),
           },
          
         ]
