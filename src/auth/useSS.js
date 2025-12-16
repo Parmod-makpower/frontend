@@ -24,7 +24,28 @@ export const useCachedSSUsers = () => {
   });
 };
 
+// ✅ API call function
+const getSSUsersDealers = async () => {
+  const res = await API.get("/accounts/users/ss/");
+  return res.data;
+};
 
+// ✅ Custom hook with caching
+export const useCachedSSUsersDealers = () => {
+  return useQuery({
+    queryKey: ["ss-users-dealer"],      // unique key for cache
+    queryFn: getSSUsersDealers,
+
+    staleTime: 1000 * 60 * 5,   
+    gcTime: 1000 * 60 * 60 * 24, 
+
+    refetchInterval: false,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+
+    keepPreviousData: true,
+  });
+};
 
 export const createSSUser = async (data) => {
   const res = await API.post("/accounts/ss-users/", data);
