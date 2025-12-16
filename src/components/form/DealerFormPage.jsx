@@ -29,6 +29,7 @@ export default function DealerFormPage() {
     mobile: "",
     block: "",
     district: "",
+    quantity: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -60,6 +61,9 @@ export default function DealerFormPage() {
     else if (form.mobile.length < 10) newErrors.mobile = "Mobile must be 10 digits";
     if (!form.block.trim()) newErrors.block = "Block is required";
     if (!form.district.trim()) newErrors.district = "District is required";
+    if (!form.quantity) newErrors.quantity = "Quantity is required";
+    else if (Number(form.quantity) <= 0)
+      newErrors.quantity = "Quantity must be greater than 0";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -70,7 +74,7 @@ export default function DealerFormPage() {
 
     const newDealer = { id: Date.now(), ...form, ...special };
     setDealerList([...dealerList, newDealer]);
-    setForm({ dealer_name: "", shop_name: "", mobile: "", block: "", district: "" });
+    setForm({ dealer_name: "", shop_name: "", mobile: "", block: "", district: "", quantity: "" });
   };
 
   const handleDelete = (id) => setDealerList(dealerList.filter((d) => d.id !== id));
@@ -102,24 +106,24 @@ export default function DealerFormPage() {
           <h2 className="text-md font-semibold mb-1">Special Fields</h2>
           <div className="space-y-2">
             <div className="flex gap-2">
-            <div>
-              <label className="block text-xs font-medium mb-1">Full Name</label>
-              <input
-                placeholder="Your Name"
-                value={special.your_name}
-                onChange={(e) => handleSpecialChange("your_name", e.target.value)}
-                className="w-full border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-yellow-300"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1">SS Name</label>
-              <input
-                placeholder="Super Stockist Name"
-                value={special.super_stockist_name}
-                onChange={(e) => handleSpecialChange("super_stockist_name", e.target.value)}
-                className="w-full border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-yellow-300"
-              />
-            </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Full Name</label>
+                <input
+                  placeholder="Your Name"
+                  value={special.your_name}
+                  onChange={(e) => handleSpecialChange("your_name", e.target.value)}
+                  className="w-full border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-yellow-300"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">SS Name</label>
+                <input
+                  placeholder="Super Stockist Name"
+                  value={special.super_stockist_name}
+                  onChange={(e) => handleSpecialChange("super_stockist_name", e.target.value)}
+                  className="w-full border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-yellow-300"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-xs font-medium mb-1">Distributor Name</label>
@@ -140,6 +144,7 @@ export default function DealerFormPage() {
               { key: "mobile", label: "Mobile", type: "tel" },
               { key: "block", label: "Block", type: "text" },
               { key: "district", label: "District", type: "text" },
+              { key: "quantity", label: "Quantity", type: "number" },
             ].map((field) => (
               <div key={field.key} className="col-2">
                 <label className="block text-xs font-medium mb-1">{field.label}</label>
@@ -149,9 +154,8 @@ export default function DealerFormPage() {
                   value={form[field.key]}
                   onChange={(e) => handleChange(field.key, e.target.value)}
                   maxLength={field.key === "mobile" ? 10 : undefined}
-                  className={`w-full border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 ${
-                    errors[field.key] ? "focus:ring-red-400 border-red-400" : "focus:ring-blue-300"
-                  }`}
+                  className={`w-full border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 ${errors[field.key] ? "focus:ring-red-400 border-red-400" : "focus:ring-blue-300"
+                    }`}
                 />
                 {errors[field.key] && (
                   <p className="text-red-500 text-[10px] mt-0.5">{errors[field.key]}</p>
@@ -179,7 +183,7 @@ export default function DealerFormPage() {
                 <table className="min-w-full border text-sm text-xs sm:text-sm">
                   <thead className="bg-orange-50">
                     <tr>
-                      {["Your Name", "SS", "Distributor", "Dealer", "Shop", "Mobile", "Block", "District",  "Action"].map((head) => (
+                      {["Your Name", "SS", "Distributor", "Dealer", "Shop", "Mobile", "Block", "District", "Qty", "Action"].map((head) => (
                         <th key={head} className="p-2 border text-[10px] sm:text-xs">{head}</th>
                       ))}
                     </tr>
@@ -187,7 +191,7 @@ export default function DealerFormPage() {
                   <tbody>
                     {dealerList.map((d) => (
                       <tr key={d.id} className="odd:bg-white even:bg-gray-50 text-[10px] sm:text-xs">
-                         <td className="p-1 border">{d.your_name}</td>
+                        <td className="p-1 border">{d.your_name}</td>
                         <td className="p-1 border">{d.super_stockist_name}</td>
                         <td className="p-1 border">{d.distributor_name}</td>
                         <td className="p-1 border">{d.dealer_name}</td>
@@ -195,6 +199,7 @@ export default function DealerFormPage() {
                         <td className="p-1 border">{d.mobile}</td>
                         <td className="p-1 border">{d.block}</td>
                         <td className="p-1 border">{d.district}</td>
+                        <td className="p-1 border text-center">{d.quantity}</td>
                         <td className="p-1 border text-center">
                           <button
                             onClick={() => handleDelete(d.id)}
