@@ -42,7 +42,6 @@ import OrderTrackPage from "./pages/CRM/OrderTrackPage";
 import OrderListPage from "./pages/OrderListPage";
 import DistributorMeetForm from "./components/form/DistributorMeetForm";
 import ProductUsageReportPage from "./pages/ProductUsageReportPage";
-import PartyOrderTrackPage from "./pages/reports/PartyOrderTrackPage";
 import DealerFormPage from "./components/form/DealerFormPage";
 import ConfirmOrderPageDS from "./pages/DS/ConfirmOrderPageDS";
 import DSOrdersPage from "./pages/DS/DSOrdersPage";
@@ -102,9 +101,7 @@ export default function App() {
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
             <Route path="/orders-tracking" element={<OrderListPage />} />
             <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
-            <Route path="/reports/party/:partyId" element={<PartyOrderTrackPage />} />
-
-
+            
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
             <Route path="/available-stock" element={<ProtectedRoute ><AvailableStock /></ProtectedRoute>} />
