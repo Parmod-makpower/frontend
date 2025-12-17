@@ -6,7 +6,7 @@ export default function ReminderTable({ recentRejectedItems }) {
       </h3>
 
       {recentRejectedItems?.length > 0 ? (
-        <table className="w-full border border-yellow-200 text-sm">
+        <table className="w-full border border-yellow-200 text-xs">
           <thead className="bg-yellow-100 text-yellow-800">
             <tr>
               <th className="px-2 py-2 border">Product</th>

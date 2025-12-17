@@ -42,30 +42,30 @@ export default function OrderItemsTable({
 
   return (
     <table className="w-full text-sm text-left sm:table-fix">
-      <thead className="bg-gray-600 border text-white sticky top-0 z-10">
+      <thead className="bg-gray-600 border text-white sticky top-0 z-10 text-center">
         <tr>
-          <th className="px-4 py-3 border border-black">Product</th>
-          <th className="px-4 py-3 text-center border border-black">SS Order</th>
-          <th className="px-4 py-3 text-center border border-black">Approved</th>
-          <th className="px-4 py-3 text-center border border-black">SS-Stock</th>
+          <th className="py-2 border border-black">Product</th>
+          <th className="py-2 text-center border border-black">SS Order</th>
+          <th className="py-2 text-center border border-black">Approved</th>
+          <th className="py-2 text-center border border-black">SS-Stock</th>
 
           {selectedCity === "Delhi" && (
-            <th className="px-4 py-3 text-center border border-black">Delhi</th>
+            <th className="py-2 text-center border border-black">Delhi</th>
           )}
 
           {selectedCity === "Mumbai" && (
-            <th className="px-4 py-3 text-center border border-black">Mumbai</th>
+            <th className="py-2 text-center border border-black">Mumbai</th>
           )}
 
-          <th className="px-4 py-3 text-center border border-black">Availability</th>
-          <th className="px-4 py-3 text-center border border-black">Carton</th>
-          <th className="px-4 py-3 text-center border border-black">Price</th>
-          <th className="px-4 py-3 text-center border border-black">Total</th>
-          <th className="px-4 py-3 text-center border border-black">Actions</th>
+          <th className="py-2 text-center border border-black">Availability</th>
+          <th className="py-2 text-center border border-black">Carton</th>
+          <th className="py-2 text-center border border-black">Price</th>
+          <th className="py-2 text-center border border-black">Total</th>
+          <th className="py-2 text-center border border-black">Actions</th>
         </tr>
       </thead>
 
-      <tbody>
+      <tbody className="text-xs">
         {editedItems.map((item) => {
           const productData = allProducts.find(
             (p) => p.product_id === item.product
@@ -76,7 +76,7 @@ export default function OrderItemsTable({
           return (
             <tr key={item.product} className="hover:bg-gray-50 bg-white">
               {/* Product */}
-              <td className="px-4 py-2 border gap-2">
+              <td className="px-4 py-1 border gap-2 ">
                 <span className="flex items-center gap-1">
                   {item.is_scheme_item && <FaGift className="text-pink-500" />}
                   {item.product_name}
@@ -84,12 +84,12 @@ export default function OrderItemsTable({
               </td>
 
               {/* SS Order */}
-              <td className="px-4 py-2 border text-center">
+              <td className="px-4 py-1 border text-center">
                 {item.original_quantity}
               </td>
 
               {/* Approved Qty */}
-              <td className="px-4 py-2 border text-center">
+              <td className="py-1 border text-center">
                 <input
                   type="number"
                   min="0"
@@ -103,26 +103,26 @@ export default function OrderItemsTable({
               </td>
 
               {/* SS Stock */}
-              <td className="px-4 py-2 border text-center bg-red-300">
+              <td className="px-4 py-1 border text-center bg-red-300">
                 {item.ss_virtual_stock}
               </td>
 
               {/* Delhi Stock */}
               {selectedCity === "Delhi" && (
-                <td className="px-4 py-2 border text-center bg-red-300">
+                <td className="px-4 py-1 border text-center bg-red-300">
                   {productData?.virtual_stock ?? "-"}
                 </td>
               )}
 
               {/* Mumbai Stock */}
               {selectedCity === "Mumbai" && (
-                <td className="px-4 py-2 border text-center bg-purple-300">
+                <td className="px-4 py-1 border text-center bg-purple-300">
                   {productData?.mumbai_stock ?? "-"}
                 </td>
               )}
 
               {/* MANUAL + AUTO AVAILABILITY */}
-              <td className="px-4 py-2 border text-center">
+              <td className="py-1 border text-center">
                 <select
                   value={finalAvail}
                   onChange={(e) =>
@@ -140,17 +140,17 @@ export default function OrderItemsTable({
               </td>
 
               {/* Carton */}
-              <td className="px-4 py-2 border text-center">
+              <td className="px-4 py-1 border text-center">
                 {productData?.cartoon_size ?? "-"}
               </td>
 
               {/* Price */}
-              <td className="px-4 py-2 border text-center">
+              <td className="px-4 py-1 border text-center">
                 {productData?.price ? `₹${productData.price}` : ""}
               </td>
 
               {/* Total */}
-              <td className="px-4 py-2 border text-center bg-blue-100">
+              <td className="px-4 py-1 border text-center bg-blue-100">
                 ₹
                 {finalAvail === "Available"
                   ? (
@@ -161,7 +161,7 @@ export default function OrderItemsTable({
               </td>
 
               {/* Delete */}
-              <td className="px-4 py-2 border text-center">
+              <td className="px-4 py-1 border text-center">
                 <button
                   onClick={() => {
                     setItemToDelete(item.product);
@@ -184,7 +184,7 @@ export default function OrderItemsTable({
             Estimate Total:
           </td>
 
-          <td colSpan="2" className="px-4 py-2 border">
+          <td colSpan="2" className="px-4 py-1 border ">
             ₹
             {editedItems
               .reduce((sum, item) => {

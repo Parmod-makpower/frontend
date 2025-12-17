@@ -1,23 +1,26 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { verifyCRMOrder, deleteCRMOrder, holdCRMOrder, RejectCRMOrder } from "../../hooks/useCRMOrders";
+import { verifyCRMOrder, holdCRMOrder, RejectCRMOrder } from "../../hooks/useCRMOrders";
 import { all_active_inactive_product } from "../../hooks/all_active_inactive_product";
 import { Loader2, Trash2 } from "lucide-react";
-import { FaGift, FaPauseCircle, FaTimesCircle } from "react-icons/fa";
+import { FaGift } from "react-icons/fa";
 import ConfirmModal from "../../components/ConfirmModal";
 import { useSchemes } from "../../hooks/useSchemes";
 import ReminderTable from "../../components/orderSheet/ReminderTable";
 import OrderItemsTable from "../../components/orderSheet/OrderItemsTable";
 import MobilePageHeader from "../../components/MobilePageHeader";
-import { FaEllipsisV } from "react-icons/fa";
 import TemperedSummaryPanel from "../../components/orderSheet/TemperedSummaryPanel";
-import SSPDF from "../../components/pdf/SSPDF";
+import SamplingSheetPanel from "../../components/SamplingSheetPanel";
+import OrderActionMenu from "../../components/orderSheet/OrderActionMenu";
+
 
 export default function CRMOrderDetailPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
+
+  const [showSampling, setShowSampling] = useState(false);
+
 
   const [itemToDelete, setItemToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -26,7 +29,6 @@ export default function CRMOrderDetailPage() {
   const [order, setOrder] = useState(passedOrder || null);
   const [notes, setNotes] = useState(passedOrder?.notes || "");
   const [loadingApprove, setLoadingApprove] = useState(false);
-  const [showTemperedPanel, setShowTemperedPanel] = useState(false);
   const isTempered = order?.note?.toLowerCase()?.includes("tempered");
   const [selectedCity, setSelectedCity] = useState("Delhi");
   const [manualAvailabilityMap, setManualAvailabilityMap] = useState({});
@@ -80,24 +82,19 @@ export default function CRMOrderDetailPage() {
   const ssItems = editedItems || [];
 
   // Apply Scheme Logic
- const eligibleSchemes = schemes
-  .filter(s => !s.in_box) // ⭐ यहाँ in_box वाली schemes को ignore कर दिया
-  .map((scheme) => ({
-    ...scheme,
-    multiplier: getSchemeMultiplier(scheme, ssItems),
-  }))
-  .filter((s) => s.multiplier > 0);
+  const eligibleSchemes = schemes
+    .filter(s => !s.in_box) // ⭐ यहाँ in_box वाली schemes को ignore कर दिया
+    .map((scheme) => ({
+      ...scheme,
+      multiplier: getSchemeMultiplier(scheme, ssItems),
+    }))
+    .filter((s) => s.multiplier > 0);
 
 
   const mergedRewards = mergeRewards(eligibleSchemes);
 
 
-  const hasScheme = (productId) =>
-    schemes.some(
-      (scheme) =>
-        Array.isArray(scheme.conditions) &&
-        scheme.conditions.some((cond) => cond.product === productId)
-    );
+
   // ✅ Generate reward text for a product
   const getSchemeText = (productId) => {
     const scheme = schemes.find((s) =>
@@ -235,7 +232,7 @@ export default function CRMOrderDetailPage() {
     const payload = {
       status: "APPROVED",
       notes,
-      dispatch_location: selectedCity, 
+      dispatch_location: selectedCity,
       total_amount: editedItems.reduce((sum, item) => {
         const qty = Number(item.quantity) || 0;
         const price = Number(item.price) || 0;
@@ -261,26 +258,6 @@ export default function CRMOrderDetailPage() {
       alert("Failed to verify order");
     } finally {
       setLoadingApprove(false);
-    }
-  };
-
-
-  const [showDeleteOrderModal, setShowDeleteOrderModal] = useState(false);
-  const [loadingDelete, setLoadingDelete] = useState(false);
-
-  const handleDeleteOrder = async () => {
-    if (!order) return;
-    setLoadingDelete(true);
-    try {
-      await deleteCRMOrder(order.id);
-      alert("✅ Order deleted and stock restored!");
-      navigate("/crm/orders"); // back to list
-    } catch (err) {
-      console.error("❌ Delete failed:", err);
-      alert("Failed to delete order");
-    } finally {
-      setLoadingDelete(false);
-      setShowDeleteOrderModal(false);
     }
   };
 
@@ -416,7 +393,7 @@ export default function CRMOrderDetailPage() {
     }));
   };
 
-  
+
 
   if (!order)
     return (
@@ -435,100 +412,37 @@ export default function CRMOrderDetailPage() {
           <h2 className="text-base font-semibold text-gray-800 hidden sm:flex">{order.order_id}</h2>
           <p className="text-sm text-blue-600">{order.ss_party_name}</p>
         </div>
-    
-        {/* Right Section — PDF Button */}
-        <div className="relative">
+        <SamplingSheetPanel
+          isOpen={showSampling}
+          onClose={() => setShowSampling(false)}
+          partyName={order.ss_party_name}
+        />
 
+
+        <div className="flex items-center gap-2">
           <select
             value={selectedCity}
             onChange={(e) => setSelectedCity(e.target.value)}
-            className="border p-1 me-2 px-2 rounded"
+            className="border p-1 px-2 rounded"
           >
             <option value="Delhi">Delhi</option>
             <option value="Mumbai">Mumbai</option>
           </select>
 
-          {/* 3-dot button */}
-          <button
-            onClick={() => setMenuOpen((prev) => !prev)}
-            className="p-2 rounded hover:bg-gray-200 cursor-pointer"
-          >
-            <FaEllipsisV size={18} />
-          </button>
-
-          {/* Dropdown Menu */}
-          {menuOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg  border z-50">
-
-              {/* ✅ PDF Download */}
-              <ul>
-
-                <li className="p-2 border-t">
-                  <SSPDF
-              order={order}
-              manualAvailabilityMap={manualAvailabilityMap}
-              selectedCity={selectedCity}
-              allProducts={allProducts}
-              items={editedItems}
-            />
-                </li>
-                <li className="p-2 border-t">
-                  <button
-                    onClick={async () => {
-                      setMenuOpen(false);
-
-                      const ok = window.confirm("Are you sure you want to place this order on HOLD?");
-                      if (!ok) return;
-
-                      try {
-                        await holdCRMOrder(order.id, { notes });
-                        navigate("/crm/orders");
-                      } catch (err) {
-                        console.error("Hold error:", err);
-                        alert("Failed to Hold Order");
-                      }
-                    }}
-                    className="flex gap-2 items-center cursor-pointer"
-                  ><FaPauseCircle size={15} className="text-yellow-500" />
-                    Hold Order
-                  </button>
-                </li>
-                <li className="p-2 border-t">
-                  <button
-                    onClick={async () => {
-                      setMenuOpen(false);
-
-                      const ok = window.confirm("Are you sure you want to Reject this order?");
-                      if (!ok) return;
-
-                      try {
-                        await RejectCRMOrder(order.id, { notes });
-                        navigate("/crm/orders");
-                      } catch (err) {
-                        console.error("Reject error:", err);
-                        alert("Failed to Reject Order");
-                      }
-                    }}
-                    className="flex gap-2 items-center cursor-pointer"
-                  ><FaTimesCircle size={15} className="text-red-500" />
-                    Reject Order
-                  </button>
-                </li>
-                {/* <li className="border-t p-2"> <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    setShowDeleteOrderModal(true);
-                  }}
-                  className="flex gap-2 justify-center items-center cursor-pointer"
-                >
-                  Delete Order
-                </button></li> */}
-
-              </ul>
-            </div>
-          )}
-
+          <OrderActionMenu
+            order={order}
+            notes={notes}
+            navigate={navigate}
+            holdCRMOrder={holdCRMOrder}
+            RejectCRMOrder={RejectCRMOrder}
+            setShowSampling={setShowSampling}
+            manualAvailabilityMap={manualAvailabilityMap}
+            selectedCity={selectedCity}
+            allProducts={allProducts}
+            items={editedItems}
+          />
         </div>
+
 
       </div>
 
@@ -546,7 +460,7 @@ export default function CRMOrderDetailPage() {
               />
             </div>
           )}
-          <div className="md:col-span-3 mt-2">
+          <div className="md:col-span-3">
             <div className="max-h-[40vh] overflow-y-auto border p-0 m-0 rounded">
 
               <ReminderTable recentRejectedItems={order.recent_rejected_items} />
@@ -555,9 +469,9 @@ export default function CRMOrderDetailPage() {
         </div>
 
         <div className="md:col-span-3">
-           
+
           <div className="max-h-[69vh] overflow-y-auto border p-0 m-0 rounded">
-           
+
             <OrderItemsTable
               editedItems={editedItems}
               allProducts={allProducts}
@@ -664,19 +578,6 @@ export default function CRMOrderDetailPage() {
           handleVerify();
           setShowConfirmModal(false);
         }}
-      />
-
-      {/* 🗑️ Delete Order Modal */}
-      <ConfirmModal
-        isOpen={showDeleteOrderModal}
-        title="Delete Order?"
-        message="Are you sure you want to delete this order?"
-        confirmText="Yes, Delete"
-        confirmColor="bg-red-500 hover:bg-red-600"
-        loading={loadingDelete}
-        onCancel={() => setShowDeleteOrderModal(false)}
-        onConfirm={handleDeleteOrder}
-        icon={Trash2}
       />
 
       {/* 🧹 Delete Item Modal */}
