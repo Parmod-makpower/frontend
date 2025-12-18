@@ -1,21 +1,31 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MobilePageHeader from "../../components/MobilePageHeader";
+
 import {
   FaCalendarAlt,
   FaHeadphonesAlt,
-  FaIdBadge,
   FaMobileAlt,
-  FaShoppingBag,
+  FaSyncAlt,
 } from "react-icons/fa";
 import { useCRMOrders } from "../../hooks/useCRMOrders";
 import CRMOrderListFilterMenu from "../../components/CRMOrderListFilterMenu";
 import { IoChevronBack } from "react-icons/io5";
 
+
 export default function CRMOrderListPage() {
   const navigate = useNavigate();
-  const [filterStatus, setFilterStatus] = useState("PENDING");
-  const { data: orders = [], isLoading, isFetching } = useCRMOrders(filterStatus);
+  const STORAGE_KEY = "crm_order_filter_status";
+
+const [filterStatus, setFilterStatus] = useState(() => {
+  return localStorage.getItem(STORAGE_KEY) || "PENDING";
+});
+
+  const {
+  data: orders = [],
+  isLoading,
+  isFetching,
+  refetch,
+} = useCRMOrders(filterStatus);
 
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -137,37 +147,85 @@ export default function CRMOrderListPage() {
 
   // ✅ FINAL RENDER
   return (
-    <div className="p-3  pb-24">
-      {/* <MobilePageHeader title="My Orders" /> */}
+    <div className="px-3  pb-24">
+     
+  {/* Updating indicator */}
+  {isFetching && (
+    <p className="text-center text-[11px] text-gray-500 mt-1 animate-pulse">
+      Updating orders...
+    </p>
+  )}
 
-      {isFetching && (
-        <p className="text-center text-xs text-gray-500 mt-1 animate-pulse">
-          Updating orders...
-        </p>
-      )}
+  {/* ===== HEADER ===== */}
+  <div
+    className="
+      fixed sm:static top-0 left-0 right-0 z-50
+      bg-blue-100
+      border-b sm:border
+      shadow-sm sm:shadow
+      px-3 py-2
+      rounded-none sm:rounded
+    "
+  >
+    <div className="flex items-center gap-2">
+     
 
-      <div className="fixed sm:static top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow flex items-center gap-2 sm:rounded  sm:border sm:border-black sm:py-2 ">
-        <button
-          onClick={() => window.history.back()}
-          className="sm:hidden text-gray-700 hover:text-blue-600 text-2xl font-bold px-1 transition-transform hover:scale-105"
-        >
-          <IoChevronBack />
-        </button>
-
+      {/* Search box */}
+      <div
+        className="
+          flex items-center
+          flex-1
+          bg-white
+          rounded
+          px-3 py-2
+          focus-within:ring-0 
+        "
+      >
         <input
           type="text"
-          placeholder="Search by Order ID or Party Name..."
+          placeholder="Search Order / Party"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400 "
+          className="
+            w-full
+            bg-transparent
+            text-xs sm:text-sm
+            outline-none
+            placeholder-gray-400
+          "
         />
+      </div>
+
+      {/* Filter */}
+      <div className="shrink-0">
         <CRMOrderListFilterMenu
           filterStatus={filterStatus}
           setFilterStatus={setFilterStatus}
         />
       </div>
 
-
+      {/* Refresh */}
+      <button
+        onClick={() => refetch()}
+        disabled={isFetching}
+        className="
+          shrink-0
+          p-2
+          rounded
+          border
+          bg-white
+          text-blue-500 cursor-pointer
+          hover:bg-gray-100
+          transition
+          disabled:opacity-50
+        "
+      >
+        <FaSyncAlt
+          className={`text-sm ${isFetching ? "animate-spin" : ""}`}
+        />
+      </button>
+    </div>
+  </div>
 
 
       <div className="space-y-4 pt-[60px] sm:pt-5">
