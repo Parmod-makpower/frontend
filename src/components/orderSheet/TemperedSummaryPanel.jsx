@@ -5,12 +5,12 @@ export default function TemperedSummaryPanel({
   totalProducts,
   categoryWiseTotals
 }) {
-    const getShortName = (cat) => {
-  if (cat === "UV TEMPERED") return "UV";
-  if (cat === "TEMPERED BODYGUARD") return "Bodyguard";
-  if (cat === "TEMPERED SUPER X") return "Super X";
-  return cat;
-};
+  const getShortName = (cat) => {
+    if (cat === "UV TEMPERED") return "UV";
+    if (cat === "TEMPERED BODYGUARD") return "Bodyguard";
+    if (cat === "TEMPERED SUPER X") return "Super X";
+    return cat;
+  };
 
   return (
     <div className="bg-gray-100 rounded w-full">
@@ -33,30 +33,45 @@ export default function TemperedSummaryPanel({
             <thead className="bg-red-100">
               <tr>
                 <th className="p-2 border text-center">Category</th>
-                <th className="p-2 border text-center">SS Order Qty</th>
-                <th className="p-2 border text-center">Approved Qty</th>
+                <th className="p-2 border text-center">quantity</th>
+                <th className="p-2 border text-center">Items</th>
               </tr>
             </thead>
-
             <tbody>
               {Object.keys(categoryWiseTotals).map((cat) => (
                 <tr key={cat}>
-                  <td className="p-2 border font-sm text-center">{getShortName(cat)}</td>
-                  <td className="p-2 border text-center">
-                    {categoryWiseTotals[cat].ssQty}
+                  <td className="p-2 border text-center font-medium">
+                    {getShortName(cat)}
                   </td>
+
+                  {/* 🆕 Order Items */}
                   <td className="p-2 border text-center">
-                    {categoryWiseTotals[cat].approvedQty}
+                    {categoryWiseTotals[cat].orderItems} / {categoryWiseTotals[cat].approvedQty}
                   </td>
+
+                  {/* 🆕 Available Items */}
+                  <td className="p-2 border text-center">
+                    <span
+                      className={`px-2 py-0.5 rounded text-xs font-semibold ${categoryWiseTotals[cat].availableItems <
+                          categoryWiseTotals[cat].orderItems
+                          ? "bg-red-100 text-red-600"
+                          : "bg-green-100 text-green-700"
+                        }`}
+                    >
+                      {categoryWiseTotals[cat].orderItems} / {categoryWiseTotals[cat].availableItems} 
+                    </span>
+                  </td>
+
+
                 </tr>
               ))}
-
               <tr>
                 <td className="p-2 border font-sm text-center">Total</td>
-                <td className="p-2 border text-center">{totalSSOrderQty}</td>
-                <td className="p-2 border text-center">{totalApprovedQty}</td>
+                <td className="p-2 border text-center">{totalSSOrderQty} / {totalApprovedQty}</td>
+                <td className="p-2 border text-center"></td>
               </tr>
             </tbody>
+
           </table>
         </div>
       )}

@@ -283,28 +283,46 @@ export default function CRMOrderDetailPage() {
   ];
 
   // ✅ Category Wise Quantity Calculation
-  const categoryWiseTotals = {};
+ // ✅ Category Wise Quantity + Item Count Calculation
+const categoryWiseTotals = {};
 
-  editedItems.forEach((item) => {
-    const product = allProducts.find(p => p.product_id === item.product);
-    const subCat = product?.sub_category?.toUpperCase() ?? "";
+editedItems.forEach((item) => {
+  const product = allProducts.find(p => p.product_id === item.product);
+  const subCat = product?.sub_category?.toUpperCase() ?? "";
 
-    const matchedKeyword = temperedKeywords.find((kw) =>
-      subCat.includes(kw)
-    );
+  const matchedKeyword = temperedKeywords.find((kw) =>
+    subCat.includes(kw)
+  );
 
-    if (matchedKeyword) {
-      if (!categoryWiseTotals[matchedKeyword]) {
-        categoryWiseTotals[matchedKeyword] = {
-          ssQty: 0,
-          approvedQty: 0,
-        };
-      }
-
-      categoryWiseTotals[matchedKeyword].ssQty += Number(item.original_quantity || 0);
-      categoryWiseTotals[matchedKeyword].approvedQty += Number(item.quantity || 0);
+  if (matchedKeyword) {
+    if (!categoryWiseTotals[matchedKeyword]) {
+      categoryWiseTotals[matchedKeyword] = {
+        ssQty: 0,
+        approvedQty: 0,
+        orderItems: 0,        // 🆕 total models in order
+        availableItems: 0,    // 🆕 available models
+      };
     }
-  });
+
+    categoryWiseTotals[matchedKeyword].ssQty += Number(item.original_quantity || 0);
+    categoryWiseTotals[matchedKeyword].approvedQty += Number(item.quantity || 0);
+
+    // 🆕 Count models
+    categoryWiseTotals[matchedKeyword].orderItems += 1;
+
+    // 🆕 Available logic
+    const manualAvail = manualAvailabilityMap[item.product];
+    const availableStock =
+      manualAvail !== undefined
+        ? Number(manualAvail)
+        : Number(item.ss_virtual_stock || 0);
+
+    if (availableStock > 0) {
+      categoryWiseTotals[matchedKeyword].availableItems += 1;
+    }
+  }
+});
+
 
   useEffect(() => {
     // keep same behaviour as your original code:

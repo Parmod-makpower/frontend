@@ -11,7 +11,7 @@ export const useCRMOrders = (status = "PENDING") => {
   return useQuery({
     queryKey: ["crmOrders", status],   // ✅ status ke hisaab se caching
     queryFn: () => getCRMOrders(status),
-    staleTime: 1000 * 60 * 70, 
+    staleTime: 1000 * 60 * 5, 
     gcTime: 1000 * 60 * 60 * 24,
 
     refetchOnWindowFocus: true,
