@@ -13,7 +13,7 @@ export const useCachedSSUsers = () => {
     queryKey: ["ss-users"],      // unique key for cache
     queryFn: getSSUsers,
 
-    staleTime: 1000 * 60 * 5,   
+    staleTime: 1000 * 60 * 60 * 3,   
     gcTime: 1000 * 60 * 60 * 24, 
 
     refetchInterval: false,
@@ -24,19 +24,19 @@ export const useCachedSSUsers = () => {
   });
 };
 
-// ✅ API call function
+// ✅  dealer only form k liyaform k liya
 const getSSUsersDealers = async () => {
   const res = await API.get("/accounts/users/ss/");
   return res.data;
 };
 
-// ✅ Custom hook with caching
+// ✅  dealer only form k liyaform k liya
 export const useCachedSSUsersDealers = () => {
   return useQuery({
     queryKey: ["ss-users-dealer"],      // unique key for cache
     queryFn: getSSUsersDealers,
 
-    staleTime: 1000 * 60 * 5,   
+    staleTime: 1000 * 60 * 60 * 4,   
     gcTime: 1000 * 60 * 60 * 24, 
 
     refetchInterval: false,

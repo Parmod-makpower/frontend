@@ -9,7 +9,6 @@ import NoPermission from "./pages/NoPermission";
 import DashboardLayout from "./Layout/DashboardLayout";
 import UserHierarchy from "./pages/UserHierarchy";
 import ProductPage from "./pages/ProductPage";
-import AvailableStock from "./pages/AvailableStock";
 import SchemePage from "./pages/SchemePage";
 import SchemeForm from "./pages/SchemeForm";
 import CartPage from "./pages/CartPage";
@@ -46,6 +45,9 @@ import DealerFormPage from "./components/form/DealerFormPage";
 import ConfirmOrderPageDS from "./pages/DS/ConfirmOrderPageDS";
 import DSOrdersPage from "./pages/DS/DSOrdersPage";
 import SamplingSheetPage from "./pages/CRM/SamplingSheetPage";
+import DispatchOrderDeletePage from "./pages/DispatchOrderDeletePage";
+import OrderGoogleSheet from "./pages/CRM/OrderGoogleSheet";
+import NotInStockReportPage from "./pages/CRM/NotInStockReportPage";
 
 export default function App() {
   useEffect(() => {
@@ -105,7 +107,9 @@ export default function App() {
             
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
-            <Route path="/available-stock" element={<ProtectedRoute ><AvailableStock /></ProtectedRoute>} />
+            <Route path="/dispatch-orders/delete-all" element={<ProtectedRoute ><DispatchOrderDeletePage /></ProtectedRoute>} />
+            <Route path="/google-sheet" element={<ProtectedRoute ><OrderGoogleSheet /></ProtectedRoute>} />
+            <Route path="/not-in-stock-reports" element={<ProtectedRoute><NotInStockReportPage /></ProtectedRoute>} />
 
             <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductPage /></ProtectedRoute>} />

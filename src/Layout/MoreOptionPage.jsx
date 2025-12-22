@@ -44,7 +44,7 @@ export default function MoreOptionsPage() {
           {
             label: "Available Stock",
             icon: <FaChartLine className="text-orange-600" />,
-            action: () => navigate("/available-stock"),
+            action: () => navigate("/not-in-stock-reports"),
           },
         ]
       : []),

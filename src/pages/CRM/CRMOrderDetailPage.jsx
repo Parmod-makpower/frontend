@@ -12,12 +12,16 @@ import MobilePageHeader from "../../components/MobilePageHeader";
 import TemperedSummaryPanel from "../../components/orderSheet/TemperedSummaryPanel";
 import SamplingSheetPanel from "../../components/SamplingSheetPanel";
 import OrderActionMenu from "../../components/orderSheet/OrderActionMenu";
+import { useQueryClient } from "@tanstack/react-query";
+
 
 
 export default function CRMOrderDetailPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
+
 
   const [showSampling, setShowSampling] = useState(false);
 
@@ -247,6 +251,7 @@ export default function CRMOrderDetailPage() {
 
     try {
       await verifyCRMOrder(order.id, payload);
+      queryClient.invalidateQueries({ queryKey: ["crmOrders"] });
       alert("Order approved successfully");
 
       // ✅ Clear localStorage after success

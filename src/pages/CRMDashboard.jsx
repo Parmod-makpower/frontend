@@ -38,10 +38,10 @@ export default function CRMDashboard() {
       url: "/all/orders-history",
     },
     {
-      title: "Stock",
+      title: "Not-In-Stock",
       desc: "Track live stock updates.",
       icon: <FaChartLine className="text-3xl text-cyan-600" />,
-      url: "/available-stock",
+      url: "/not-in-stock-reports",
     },
     {
       title: "Category",

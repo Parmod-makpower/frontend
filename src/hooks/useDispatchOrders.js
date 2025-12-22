@@ -12,3 +12,28 @@ export const useDispatchOrders = (orderId) => {
     retry: 1,
   });
 };
+
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+
+// 🔥 Delete ALL dispatch orders
+const deleteAllDispatchOrders = async () => {
+  const res = await API.delete("/dispatch-orders/delete-all/");
+  return res.data;
+};
+
+export const useDeleteAllDispatchOrders = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteAllDispatchOrders,
+
+    onSuccess: () => {
+      // ✅ related cache clear / refetch
+      queryClient.invalidateQueries(["dispatchOrders"]);
+      queryClient.invalidateQueries(["crmOrders"]);
+    },
+  });
+};
+
