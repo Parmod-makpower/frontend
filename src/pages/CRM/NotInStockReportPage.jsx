@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useNotInStockReport } from "../../hooks/CRM/useNotInSrockreport";
+import { useNotInStockReport } from "../../hooks/CRM/useNotInStockReport";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 
 /* =======================
