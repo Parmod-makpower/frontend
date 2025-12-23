@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { verifyCRMOrder, holdCRMOrder, RejectCRMOrder } from "../../hooks/useCRMOrders";
 import { all_active_inactive_product } from "../../hooks/all_active_inactive_product";
 import { Loader2, Trash2 } from "lucide-react";
-import { FaGift } from "react-icons/fa";
 import ConfirmModal from "../../components/ConfirmModal";
 import { useSchemes } from "../../hooks/useSchemes";
 import OrderItemsTable from "../../components/orderSheet/OrderItemsTable";
@@ -285,7 +284,6 @@ export default function CRMOrderDetailPage() {
     "TEMPERED SUPER X"
   ];
 
-  // ✅ Category Wise Quantity Calculation
   // ✅ Category Wise Quantity + Item Count Calculation
   const categoryWiseTotals = {};
 
@@ -325,7 +323,6 @@ export default function CRMOrderDetailPage() {
       }
     }
   });
-
 
   useEffect(() => {
     // keep same behaviour as your original code:
@@ -405,16 +402,12 @@ export default function CRMOrderDetailPage() {
     });
   }, [mergedRewards, allProducts]); // note: same deps as your last working variant
 
-
-
   const updateManualAvailability = (productId, value) => {
     setManualAvailabilityMap(prev => ({
       ...prev,
       [productId]: value,
     }));
   };
-
-
 
   if (!order)
     return (
@@ -458,7 +451,6 @@ export default function CRMOrderDetailPage() {
         </div>
       </div>
 
-
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="md:col-span-1">
           {isTempered ? (
@@ -475,92 +467,34 @@ export default function CRMOrderDetailPage() {
           )}
         </div>
         <div className="md:col-span-4">
+          <OrderItemsTable
+            editedItems={editedItems}
+            allProducts={allProducts}
+            handleEditQuantity={handleEditQuantity}
+            setItemToDelete={setItemToDelete}
+            setShowDeleteModal={setShowDeleteModal}
+            selectedCity={selectedCity}
+            manualAvailabilityMap={manualAvailabilityMap}
+            updateManualAvailability={updateManualAvailability}
 
-          <div className="max-h-[69vh] overflow-y-auto border p-0 m-0 rounded">
-
-            <OrderItemsTable
-              editedItems={editedItems}
-              allProducts={allProducts}
-              handleEditQuantity={handleEditQuantity}
-              setItemToDelete={setItemToDelete}
-              setShowDeleteModal={setShowDeleteModal}
-              selectedCity={selectedCity}
-              manualAvailabilityMap={manualAvailabilityMap}
-              updateManualAvailability={updateManualAvailability}
-            />
-
-          </div>
-
-        </div>
-
-        <div></div>
-        <div className="">
-
-          {/* Label */}
-          <label className="block text-sm font-medium mb-2">
-            Add Product
-          </label>
-
-          {/* Search Input */}
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setHighlightIndex(-1);
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder="Search product and press Enter..."
-            className="border rounded px-3 py-2 w-full mb-2"
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            filteredProducts={filteredProducts}
+            highlightIndex={highlightIndex}
+            setHighlightIndex={setHighlightIndex}
+            handleAddProductBySearch={handleAddProductBySearch}
+            handleKeyDown={handleKeyDown}
+            getSchemeText={getSchemeText}
           />
-          {/* Dropdown List */}
-          {searchTerm && (
-            <div className="max-h-60 overflow-y-auto border rounded shadow bg-white w-full">
-
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((prod, index) => {
-                  const schemeText = getSchemeText(prod.product_id);
-
-                  return (
-                    <div
-                      key={prod.product_id}
-                      className={`px-3 py-2 cursor-pointer ${highlightIndex === index ? "bg-blue-100" : "hover:bg-gray-100"
-                        }`}
-                      onClick={() => handleAddProductBySearch(prod)}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">{prod.product_name}</span>
-
-                        {schemeText && (
-                          <FaGift className="text-pink-500 text-sm animate-pulse ml-2" />
-                        )}
-                      </div>
-
-                      {/* Scheme reward text */}
-                      {schemeText && (
-                        <p className="text-[11px] text-pink-600 mt-1 font-semibold">
-                          {schemeText}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="px-3 py-2 text-gray-500 text-sm">No products found</p>
-              )}
-
-            </div>
-          )}
         </div>
-
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-5">
         <button
           onClick={() => setShowConfirmModal(true)}
           disabled={loadingApprove}
-          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white shadow-md w-full sm:w-auto ${loadingApprove
+          className={`flex items-center justify-center gap-2 px-6 py-2 rounded text-white shadow-md w-full sm:w-auto ${loadingApprove
             ? "bg-blue-400 cursor-not-allowed"
-            : "bg-blue-500 hover:bg-green-600"
+            : "bg-blue-600 hover:bg-green-600"
             } cursor-pointer`}
         >
           {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
