@@ -433,7 +433,7 @@ export default function CRMOrderDetailPage() {
           <h2 className="text-base font-semibold text-gray-800 hidden sm:flex">{order.order_id}</h2>
           <p className="text-sm text-blue-600">{order.ss_party_name}</p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <select
             value={selectedCity}
@@ -459,27 +459,22 @@ export default function CRMOrderDetailPage() {
       </div>
 
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="md:col-span-1">
-          {isTempered && (
-            <div className="md:col-span-4">
-              <TemperedSummaryPanel
-                totalSSOrderQty={totalSSOrderQty}
-                totalApprovedQty={totalApprovedQty}
-                totalProducts={totalProducts}
-                categoryWiseTotals={categoryWiseTotals}
-              />
+          {isTempered ? (
+            <TemperedSummaryPanel
+              totalSSOrderQty={totalSSOrderQty}
+              totalApprovedQty={totalApprovedQty}
+              totalProducts={totalProducts}
+              categoryWiseTotals={categoryWiseTotals}
+            />
+          ) : (
+            <div className="max-h-[69vh] overflow-y-auto border p-0 m-0 rounded">
+              <SamplingSheetPanel partyName={order.ss_party_name} />
             </div>
           )}
-          <div className="md:col-span-3">
-            <div className="max-h-[40vh] overflow-y-auto border p-0 m-0 rounded">
-            <SamplingSheetPanel  partyName={order.ss_party_name} />
-            </div>
-          </div>
         </div>
-
-        <div className="md:col-span-3">
+        <div className="md:col-span-4">
 
           <div className="max-h-[69vh] overflow-y-auto border p-0 m-0 rounded">
 

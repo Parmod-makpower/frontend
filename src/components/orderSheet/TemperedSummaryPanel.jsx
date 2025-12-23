@@ -16,10 +16,10 @@ export default function TemperedSummaryPanel({
     <div className="bg-gray-100 rounded w-full">
 
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-3 border-b bg-gray-600 text-white rounded">
-        <h2 className="font-bold">Tempered Order Summary</h2>
+      <div className="flex justify-between items-center px-4 py-2 border-b bg-gray-600 text-white rounded">
+        <h2 className=" text-sm">Tempered Order Summary</h2>
 
-        <div className="text-sm font-semibold">
+        <div className="text-xs font-semibold">
           <span className="text-green-600 bg-white p-1 px-2 rounded">
             {totalProducts}
           </span>
@@ -29,7 +29,7 @@ export default function TemperedSummaryPanel({
       {/* Category Table */}
       {categoryWiseTotals && Object.keys(categoryWiseTotals).length > 0 && (
         <div className="mt-1 overflow-x-auto">
-          <table className="w-full text-sm border">
+          <table className="w-full text-xs border">
             <thead className="bg-red-100">
               <tr>
                 <th className="p-2 border text-center">Category</th>

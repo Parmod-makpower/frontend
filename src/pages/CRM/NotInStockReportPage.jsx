@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNotInStockReport } from "../../hooks/CRM/useNotInStockReport";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
+import { FileText } from "lucide-react";
+import generateNotInStockPDF from "../../components/pdf/NotInStockPDF";
 
 /* =======================
    🔽 AUTOCOMPLETE INPUT
@@ -17,9 +19,7 @@ function AutocompleteInput({ options = [], value, onSelect, placeholder }) {
     }, [value]);
 
     const filtered = options
-        .filter(o =>
-            o.toLowerCase().includes(term.toLowerCase())
-        )
+        .filter(o => o.toLowerCase().includes(term.toLowerCase()))
         .slice(0, 10);
 
     /* outside click close */
@@ -90,15 +90,23 @@ export default function NotInStockReportPage() {
 
     /* filters */
     const FILTER_KEY = "not_in_stock_filters";
-
     const savedFilters = JSON.parse(localStorage.getItem(FILTER_KEY) || "{}");
 
     const [party, setParty] = useState(savedFilters.party || "");
     const [orderNo, setOrderNo] = useState(savedFilters.orderNo || "");
+    const [item, setItem] = useState(savedFilters.item || "");
     const [fromDate, setFromDate] = useState(savedFilters.fromDate || "");
     const [toDate, setToDate] = useState(savedFilters.toDate || "");
+    const [selectedIds, setSelectedIds] = useState([]);
+
+    const toggleRow = id => {
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
+    };
 
     const { data: products = [] } = useCachedProducts();
+
     const productStockMap = useMemo(() => {
         const map = {};
         products.forEach(p => {
@@ -109,13 +117,13 @@ export default function NotInStockReportPage() {
         return map;
     }, [products]);
 
-
     /* normalize */
     const normalizedData = useMemo(() => {
         return data.map(row => ({
             ...row,
             _party: row.party_name || "",
             _order: row.order_no || "",
+            _item: row.product || "",
             _date: row.date ? new Date(row.date) : null,
         }));
     }, [data]);
@@ -131,28 +139,29 @@ export default function NotInStockReportPage() {
         [data]
     );
 
+    const itemOptions = useMemo(
+        () => [...new Set(data.map(d => d.product).filter(Boolean))],
+        [data]
+    );
+
     useEffect(() => {
-        const filters = {
-            party,
-            orderNo,
-            fromDate,
-            toDate,
-        };
-
-        localStorage.setItem(FILTER_KEY, JSON.stringify(filters));
-    }, [party, orderNo, fromDate, toDate]);
-
+        localStorage.setItem(
+            FILTER_KEY,
+            JSON.stringify({ party, orderNo, item, fromDate, toDate })
+        );
+    }, [party, orderNo, item, fromDate, toDate]);
 
     /* table filter */
     const filteredData = useMemo(() => {
         return normalizedData.filter(row => {
             if (party && row._party !== party) return false;
             if (orderNo && row._order !== orderNo) return false;
+            if (item && row._item !== item) return false;
             if (fromDate && row._date < new Date(fromDate)) return false;
             if (toDate && row._date > new Date(toDate)) return false;
             return true;
         });
-    }, [normalizedData, party, orderNo, fromDate, toDate]);
+    }, [normalizedData, party, orderNo, item, fromDate, toDate]);
 
     const formatDate = d => {
         if (!d) return "";
@@ -170,7 +179,7 @@ export default function NotInStockReportPage() {
             <div className="grid grid-cols-12 gap-4">
                 {/* TABLE */}
                 <div className="col-span-12 md:col-span-10">
-                    <div className="borde h-[74vh] overflow-y-auto">
+                    <div className="h-[74vh] overflow-y-auto">
                         <table className="w-full border text-sm text-center">
                             <thead className="bg-blue-100 border sticky top-0">
                                 <tr>
@@ -182,24 +191,58 @@ export default function NotInStockReportPage() {
                                     <th className="border bg-red-200">Stock</th>
                                     <th className="border">Date</th>
                                     <th className="border">Balance</th>
+                                    <th className="border">
+                                        <input
+                                            type="checkbox"
+                                            checked={
+                                                filteredData.length > 0 &&
+                                                filteredData.every(r => selectedIds.includes(r.id))
+                                            }
+                                            onChange={e =>
+                                                setSelectedIds(
+                                                    e.target.checked ? filteredData.map(r => r.id) : []
+                                                )
+                                            }
+                                        />
+                                    </th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 {filteredData.map((r, i) => (
-                                    <tr key={r.id} className="odd:bg-white even:bg-green-50">
+                                    <tr
+                                        key={r.id}
+                                        className={`${selectedIds.includes(r.id)
+                                                ? "bg-yellow-200"
+                                                : i % 2 === 0
+                                                    ? "bg-white"
+                                                    : "bg-green-50"
+                                            }`}
+                                    >
                                         <td className="border">{i + 1}</td>
                                         <td className="border">{r.party_name}</td>
                                         <td className="border">{r.order_no}</td>
-                                        <td className="border">{r.product}</td>
+                                        <td className="border max-w-[120px]">{r.product}</td>
                                         <td className="border">{r.original_quantity}</td>
-                                        <td className="border bg-red-200">{productStockMap[r.product?.trim().toLowerCase()] ?? 0}</td>
+                                        <td className="border bg-red-200">
+                                            {productStockMap[r.product?.trim().toLowerCase()] ?? 0}
+                                        </td>
                                         <td className="border">{formatDate(r.date)}</td>
                                         <td className="border">{r.balance_qty}</td>
+                                        <td className="border">
+                                            <input
+                                            className="cursor-pointer"
+                                                type="checkbox"
+                                                checked={selectedIds.includes(r.id)}
+                                                onChange={() => toggleRow(r.id)}
+                                            />
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
+
                     <div className="text-xs mt-2">
                         Showing <b>{filteredData.length}</b> of <b>{data.length}</b>
                     </div>
@@ -207,8 +250,26 @@ export default function NotInStockReportPage() {
 
                 {/* FILTERS */}
                 <div className="col-span-12 md:col-span-2">
-                    <div className="border rounde p-4 bg-gray-50 space-y-3">
-                        <h3 className="font-semibold text-sm border-b pb-2">Filters</h3>
+                    <div className="border p-4 bg-gray-50 space-y-3">
+                        <div className="flex items-center justify-between border-b pb-2">
+                            <h3 className="font-semibold text-sm">Filters</h3>
+
+                            <FileText
+                                className={`w-5 h-5 cursor-pointer ${selectedIds.length === 0
+                                        ? "text-gray-300"
+                                        : "text-red-600 hover:scale-110"
+                                    }`}
+                                onClick={() => {
+                                    if (selectedIds.length === 0)
+                                        return alert("Please select at least one row");
+
+                                    generateNotInStockPDF(
+                                        filteredData.filter(r => selectedIds.includes(r.id)),
+                                        productStockMap
+                                    );
+                                }}
+                            />
+                        </div>
 
                         <div>
                             <label className="text-xs">Party Name</label>
@@ -227,6 +288,16 @@ export default function NotInStockReportPage() {
                                 value={orderNo}
                                 onSelect={setOrderNo}
                                 placeholder="Type order no..."
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-xs">Item Name</label>
+                            <AutocompleteInput
+                                options={itemOptions}
+                                value={item}
+                                onSelect={setItem}
+                                placeholder="Type item name..."
                             />
                         </div>
                         <div>
@@ -248,16 +319,17 @@ export default function NotInStockReportPage() {
                                 className="w-full border px-2 py-1 text-sm rounded"
                             />
                         </div>
+
                         <button
                             onClick={() => {
                                 setParty("");
                                 setOrderNo("");
+                                setItem("");
                                 setFromDate("");
                                 setToDate("");
                                 localStorage.removeItem(FILTER_KEY);
                             }}
-
-                            className="w-full bg-red-500 text-white text-sm py-1 rounded cursor-pointer"
+                            className="w-full bg-red-500 text-white text-sm py-1 rounded"
                         >
                             Clear
                         </button>
