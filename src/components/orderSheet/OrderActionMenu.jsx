@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { FaEllipsisV, FaPauseCircle, FaTimesCircle, FaClipboardList } from "react-icons/fa";
+import { useQueryClient } from "@tanstack/react-query";
+import { FaEllipsisV, FaPauseCircle, FaTimesCircle } from "react-icons/fa";
 import SSPDF from "../pdf/SSPDF";
 
 export default function OrderActionMenu({
@@ -8,7 +9,6 @@ export default function OrderActionMenu({
   navigate,
   holdCRMOrder,
   RejectCRMOrder,
-  setShowSampling,
   manualAvailabilityMap,
   selectedCity,
   allProducts,
@@ -16,6 +16,7 @@ export default function OrderActionMenu({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const queryClient = useQueryClient();
 
   // ✅ Outside click close
   useEffect(() => {
@@ -60,20 +61,6 @@ export default function OrderActionMenu({
               />
             </li>
 
-            {/* Sampling */}
-            <li className="border-b">
-              <button
-                onClick={() => {
-                  setShowSampling(true);
-                  setMenuOpen(false);
-                }}
-                className="flex w-full items-center gap-2 px-3 py-2 hover:bg-gray-100"
-              >
-                <FaClipboardList className="text-green-500" />
-                Sampling Sheet
-              </button>
-            </li>
-
             {/* Hold */}
             <li  className="border-b">
               <button
@@ -85,6 +72,10 @@ export default function OrderActionMenu({
                   if (!ok) return;
 
                   await holdCRMOrder(order.id, { notes });
+                  queryClient.invalidateQueries({
+                    queryKey: ["crmOrders"],
+                    exact: false,
+                  });
                   navigate("/crm/orders");
                 }}
                 className="flex w-full items-center gap-2 px-3 py-2 hover:bg-gray-100"
@@ -105,6 +96,10 @@ export default function OrderActionMenu({
                   if (!ok) return;
 
                   await RejectCRMOrder(order.id, { notes });
+                  queryClient.invalidateQueries({
+                    queryKey: ["crmOrders"],
+                    exact: false,
+                  });
                   navigate("/crm/orders");
                 }}
                 className="flex w-full items-center gap-2 px-3 py-2 hover:bg-gray-100"

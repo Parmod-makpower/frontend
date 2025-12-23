@@ -89,20 +89,25 @@ export default function NotInStockReportPage() {
     const { data = [], isLoading, error } = useNotInStockReport();
 
     /* filters */
-    const [party, setParty] = useState("");
-    const [orderNo, setOrderNo] = useState("");
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
+    const FILTER_KEY = "not_in_stock_filters";
+
+    const savedFilters = JSON.parse(localStorage.getItem(FILTER_KEY) || "{}");
+
+    const [party, setParty] = useState(savedFilters.party || "");
+    const [orderNo, setOrderNo] = useState(savedFilters.orderNo || "");
+    const [fromDate, setFromDate] = useState(savedFilters.fromDate || "");
+    const [toDate, setToDate] = useState(savedFilters.toDate || "");
+
     const { data: products = [] } = useCachedProducts();
     const productStockMap = useMemo(() => {
-    const map = {};
-    products.forEach(p => {
-        if (p.product_name) {
-            map[p.product_name.trim().toLowerCase()] = p.virtual_stock ?? 0;
-        }
-    });
-    return map;
-}, [products]);
+        const map = {};
+        products.forEach(p => {
+            if (p.product_name) {
+                map[p.product_name.trim().toLowerCase()] = p.virtual_stock ?? 0;
+            }
+        });
+        return map;
+    }, [products]);
 
 
     /* normalize */
@@ -125,6 +130,18 @@ export default function NotInStockReportPage() {
         () => [...new Set(data.map(d => d.order_no).filter(Boolean))],
         [data]
     );
+
+    useEffect(() => {
+        const filters = {
+            party,
+            orderNo,
+            fromDate,
+            toDate,
+        };
+
+        localStorage.setItem(FILTER_KEY, JSON.stringify(filters));
+    }, [party, orderNo, fromDate, toDate]);
+
 
     /* table filter */
     const filteredData = useMemo(() => {
@@ -237,8 +254,10 @@ export default function NotInStockReportPage() {
                                 setOrderNo("");
                                 setFromDate("");
                                 setToDate("");
+                                localStorage.removeItem(FILTER_KEY);
                             }}
-                            className="w-full bg-red-500 text-white text-sm py-1 rounded"
+
+                            className="w-full bg-red-500 text-white text-sm py-1 rounded cursor-pointer"
                         >
                             Clear
                         </button>

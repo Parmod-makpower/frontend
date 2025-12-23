@@ -6,14 +6,12 @@ import { Loader2, Trash2 } from "lucide-react";
 import { FaGift } from "react-icons/fa";
 import ConfirmModal from "../../components/ConfirmModal";
 import { useSchemes } from "../../hooks/useSchemes";
-import ReminderTable from "../../components/orderSheet/ReminderTable";
 import OrderItemsTable from "../../components/orderSheet/OrderItemsTable";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import TemperedSummaryPanel from "../../components/orderSheet/TemperedSummaryPanel";
-import SamplingSheetPanel from "../../components/SamplingSheetPanel";
+import SamplingSheetPanel from "../../components/orderSheet/SamplingSheetPanel";
 import OrderActionMenu from "../../components/orderSheet/OrderActionMenu";
 import { useQueryClient } from "@tanstack/react-query";
-
 
 
 export default function CRMOrderDetailPage() {
@@ -21,10 +19,6 @@ export default function CRMOrderDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
-
-
-  const [showSampling, setShowSampling] = useState(false);
-
 
   const [itemToDelete, setItemToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -251,7 +245,11 @@ export default function CRMOrderDetailPage() {
 
     try {
       await verifyCRMOrder(order.id, payload);
-      queryClient.invalidateQueries({ queryKey: ["crmOrders"] });
+      queryClient.invalidateQueries({
+        queryKey: ["crmOrders"],
+        exact: false,
+      });
+
       alert("Order approved successfully");
 
       // ✅ Clear localStorage after success
@@ -288,45 +286,45 @@ export default function CRMOrderDetailPage() {
   ];
 
   // ✅ Category Wise Quantity Calculation
- // ✅ Category Wise Quantity + Item Count Calculation
-const categoryWiseTotals = {};
+  // ✅ Category Wise Quantity + Item Count Calculation
+  const categoryWiseTotals = {};
 
-editedItems.forEach((item) => {
-  const product = allProducts.find(p => p.product_id === item.product);
-  const subCat = product?.sub_category?.toUpperCase() ?? "";
+  editedItems.forEach((item) => {
+    const product = allProducts.find(p => p.product_id === item.product);
+    const subCat = product?.sub_category?.toUpperCase() ?? "";
 
-  const matchedKeyword = temperedKeywords.find((kw) =>
-    subCat.includes(kw)
-  );
+    const matchedKeyword = temperedKeywords.find((kw) =>
+      subCat.includes(kw)
+    );
 
-  if (matchedKeyword) {
-    if (!categoryWiseTotals[matchedKeyword]) {
-      categoryWiseTotals[matchedKeyword] = {
-        ssQty: 0,
-        approvedQty: 0,
-        orderItems: 0,        // 🆕 total models in order
-        availableItems: 0,    // 🆕 available models
-      };
+    if (matchedKeyword) {
+      if (!categoryWiseTotals[matchedKeyword]) {
+        categoryWiseTotals[matchedKeyword] = {
+          ssQty: 0,
+          approvedQty: 0,
+          orderItems: 0,        // 🆕 total models in order
+          availableItems: 0,    // 🆕 available models
+        };
+      }
+
+      categoryWiseTotals[matchedKeyword].ssQty += Number(item.original_quantity || 0);
+      categoryWiseTotals[matchedKeyword].approvedQty += Number(item.quantity || 0);
+
+      // 🆕 Count models
+      categoryWiseTotals[matchedKeyword].orderItems += 1;
+
+      // 🆕 Available logic
+      const manualAvail = manualAvailabilityMap[item.product];
+      const availableStock =
+        manualAvail !== undefined
+          ? Number(manualAvail)
+          : Number(item.ss_virtual_stock || 0);
+
+      if (availableStock > 0) {
+        categoryWiseTotals[matchedKeyword].availableItems += 1;
+      }
     }
-
-    categoryWiseTotals[matchedKeyword].ssQty += Number(item.original_quantity || 0);
-    categoryWiseTotals[matchedKeyword].approvedQty += Number(item.quantity || 0);
-
-    // 🆕 Count models
-    categoryWiseTotals[matchedKeyword].orderItems += 1;
-
-    // 🆕 Available logic
-    const manualAvail = manualAvailabilityMap[item.product];
-    const availableStock =
-      manualAvail !== undefined
-        ? Number(manualAvail)
-        : Number(item.ss_virtual_stock || 0);
-
-    if (availableStock > 0) {
-      categoryWiseTotals[matchedKeyword].availableItems += 1;
-    }
-  }
-});
+  });
 
 
   useEffect(() => {
@@ -435,13 +433,7 @@ editedItems.forEach((item) => {
           <h2 className="text-base font-semibold text-gray-800 hidden sm:flex">{order.order_id}</h2>
           <p className="text-sm text-blue-600">{order.ss_party_name}</p>
         </div>
-        <SamplingSheetPanel
-          isOpen={showSampling}
-          onClose={() => setShowSampling(false)}
-          partyName={order.ss_party_name}
-        />
-
-
+        
         <div className="flex items-center gap-2">
           <select
             value={selectedCity}
@@ -458,15 +450,12 @@ editedItems.forEach((item) => {
             navigate={navigate}
             holdCRMOrder={holdCRMOrder}
             RejectCRMOrder={RejectCRMOrder}
-            setShowSampling={setShowSampling}
             manualAvailabilityMap={manualAvailabilityMap}
             selectedCity={selectedCity}
             allProducts={allProducts}
             items={editedItems}
           />
         </div>
-
-
       </div>
 
 
@@ -485,8 +474,7 @@ editedItems.forEach((item) => {
           )}
           <div className="md:col-span-3">
             <div className="max-h-[40vh] overflow-y-auto border p-0 m-0 rounded">
-
-              <ReminderTable recentRejectedItems={order.recent_rejected_items} />
+            <SamplingSheetPanel  partyName={order.ss_party_name} />
             </div>
           </div>
         </div>
@@ -530,7 +518,6 @@ editedItems.forEach((item) => {
             placeholder="Search product and press Enter..."
             className="border rounded px-3 py-2 w-full mb-2"
           />
-
           {/* Dropdown List */}
           {searchTerm && (
             <div className="max-h-60 overflow-y-auto border rounded shadow bg-white w-full">
@@ -569,10 +556,6 @@ editedItems.forEach((item) => {
 
             </div>
           )}
-
-          {/* Submit Button */}
-
-
         </div>
 
       </div>
