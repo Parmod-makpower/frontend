@@ -48,7 +48,6 @@ import SamplingSheetPage from "./pages/CRM/SamplingSheetPage";
 import DispatchOrderDeletePage from "./pages/DispatchOrderDeletePage";
 import OrderGoogleSheet from "./pages/CRM/OrderGoogleSheet";
 import NotInStockReportPage from "./pages/CRM/NotInStockReportPage";
-import QRScanPage from "./pages/QRScanPage";
 
 export default function App() {
   useEffect(() => {
@@ -105,7 +104,6 @@ export default function App() {
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
             <Route path="/orders-tracking" element={<OrderListPage />} />
             <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
-            <Route path="/qr" element={<QRScanPage />} />
             
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
