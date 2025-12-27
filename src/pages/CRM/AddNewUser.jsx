@@ -6,12 +6,15 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { FaSave } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import MobilePageHeader from "../../components/MobilePageHeader";
+import { useQueryClient } from "@tanstack/react-query";
+
 
 export default function AddNewUser() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const location = useLocation();
   const editData = location.state?.editData || null;
+  const queryClient = useQueryClient();
 
   const { data: allUsers = [] } = useCachedSSUsers();
 
@@ -122,7 +125,7 @@ export default function AddNewUser() {
         await createSSUser(payload);
         toast.success("User added successfully");
       }
-
+      queryClient.invalidateQueries({ queryKey: ["ss-users"] });
       navigate("/all-users/list");
     } catch (err) {
       setErrors(extractErrors(err));

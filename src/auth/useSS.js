@@ -24,6 +24,21 @@ export const useCachedSSUsers = () => {
   });
 };
 
+export const createSSUser = async (data) => {
+  const res = await API.post("/accounts/ss-users/", data);
+  return res.data;
+};
+
+export const updateSSUser = async (id, data) => {
+  const res = await API.put(`/accounts/ss-users/${id}/`, data);
+  return res.data;
+};
+
+export const toggleSSStatus = async (id, is_active) => {
+  const res = await API.patch(`/accounts/ss-users/${id}/`, { is_active });
+  return res.data;
+};
+
 // ✅  dealer only form k liyaform k liya
 const getSSUsersDealers = async () => {
   const res = await API.get("/accounts/users/ss/");
@@ -45,24 +60,4 @@ export const useCachedSSUsersDealers = () => {
 
     keepPreviousData: true,
   });
-};
-
-export const createSSUser = async (data) => {
-  const res = await API.post("/accounts/ss-users/", data);
-  return res.data;
-};
-
-export const updateSSUser = async (id, data) => {
-  const res = await API.put(`/accounts/ss-users/${id}/`, data);
-  return res.data;
-};
-
-export const deleteSSUser = async (id) => {
-  const res = await API.delete(`/accounts/ss-users/${id}/`);
-  return res.data;
-};
-
-export const toggleSSStatus = async (id, is_active) => {
-  const res = await API.patch(`/accounts/ss-users/${id}/`, { is_active });
-  return res.data;
 };

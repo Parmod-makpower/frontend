@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from "react";
 import {
   useCachedSSUsers,
   toggleSSStatus,
-  deleteSSUser,
   updateSSUser,
 } from "../../auth/useSS";
 import UserTable from "../../components/UserTable";
@@ -74,17 +73,6 @@ export default function AllUsersList() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      try {
-        await deleteSSUser(id);
-        toast.success("User deleted");
-        refetch();
-      } catch {
-        toast.error("Failed to delete user");
-      }
-    }
-  };
 
   if (isLoading) return <p className="p-4 text-sm">Loading users...</p>;
   if (error)
@@ -139,7 +127,6 @@ export default function AllUsersList() {
         list={filteredList}
         onEdit={handleEdit}
         onToggleStatus={handleToggle}
-        onDelete={handleDelete}
         onChangePassword={(user) => {
           setSelectedUser(user);
           setShowModal(true);
