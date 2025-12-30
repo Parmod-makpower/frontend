@@ -184,12 +184,12 @@ export default function NotInStockReportPage() {
                             <thead className="bg-blue-100 border sticky top-0">
                                 <tr>
                                     <th className="border">#</th>
-                                    <th className="border">Party</th>
+                                    <th className="border">Date</th>
                                     <th className="border">Order</th>
+                                    <th className="border">Party</th>
                                     <th className="border">Item</th>
                                     <th className="border">Qty</th>
                                     <th className="border bg-red-200">Stock</th>
-                                    <th className="border">Date</th>
                                     <th className="border">Balance</th>
                                     <th className="border">
                                         <input
@@ -220,14 +220,14 @@ export default function NotInStockReportPage() {
                                             }`}
                                     >
                                         <td className="border">{i + 1}</td>
-                                        <td className="border">{r.party_name}</td>
+                                        <td className="border">{formatDate(r.date)}</td>
                                         <td className="border">{r.order_no}</td>
+                                        <td className="border">{r.party_name}</td>
                                         <td className="border max-w-[120px]">{r.product}</td>
                                         <td className="border">{r.original_quantity}</td>
                                         <td className="border bg-red-200">
                                             {productStockMap[r.product?.trim().toLowerCase()] ?? 0}
                                         </td>
-                                        <td className="border">{formatDate(r.date)}</td>
                                         <td className="border">{r.balance_qty}</td>
                                         <td className="border">
                                             <input

@@ -152,6 +152,12 @@ const categories = [
     image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1761543453/ugzsgnxyhh8flgubhubz.webp",
     subcategories: []
   },
+  {
+    label: "Card Reader",
+    keyword: "CARD READER",
+    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1767088035/kz8nduuyymmsisukhwub.webp",
+    subcategories: []
+  },
    {
     label: "CABLE",
     keyword: "CABLE",

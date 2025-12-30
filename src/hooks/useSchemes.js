@@ -12,7 +12,7 @@ export const useSchemes = () => {
     queryKey: ["schemes"],
     queryFn: getSchemes,
    
-    staleTime: 1000 * 60 * 34,          
+    staleTime: 1000 * 60 * 60 * 7,          
     gcTime: 1000 * 60 * 60 * 24 ,   
 
     refetchInterval: false,
