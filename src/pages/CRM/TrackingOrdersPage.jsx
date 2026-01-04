@@ -24,12 +24,25 @@ const TrackingOrdersPage = () => {
     };
 
     const selectAllOrders = () => {
-        if (selectedOrders.length === orders.length) {
-            setSelectedOrders([]);
+        const visibleIds = filteredOrders.map(o => o.id);
+
+        const allSelected = visibleIds.every(id =>
+            selectedOrders.includes(id)
+        );
+
+        if (allSelected) {
+            // sirf visible orders unselect
+            setSelectedOrders(prev =>
+                prev.filter(id => !visibleIds.includes(id))
+            );
         } else {
-            setSelectedOrders(orders.map(o => o.id));
+            // sirf visible orders select
+            setSelectedOrders(prev =>
+                Array.from(new Set([...prev, ...visibleIds]))
+            );
         }
     };
+
 
 
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -117,9 +130,10 @@ const TrackingOrdersPage = () => {
                                             <input
                                                 type="checkbox"
                                                 checked={
-                                                    orders.length > 0 &&
-                                                    selectedOrders.length === orders.length
+                                                    filteredOrders.length > 0 &&
+                                                    filteredOrders.every(o => selectedOrders.includes(o.id))
                                                 }
+
                                                 onChange={selectAllOrders}
                                             />
                                         </th>
