@@ -10,7 +10,6 @@ import {
   FaBox,
   FaBan,
   FaHourglassHalf,
-  FaUser,
   FaRoute,
   FaBoxOpen,
 } from "react-icons/fa";
@@ -74,12 +73,6 @@ export default function MoreOptionsPage() {
             label: "Sale Name",
             icon: <FaBox className="text-yellow-600" />,
             action: () => navigate("/sale-name"),
-          },
-          
-          {
-            label: "Cargos details",
-            icon: <FaBox className="text-gray-600" />,
-            action: () => navigate("/cargo-details"),
           },
           
         ]

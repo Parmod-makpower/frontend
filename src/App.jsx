@@ -36,9 +36,8 @@ import BatteryPage from "./pages/BatteryPage";
 import CRMCreateOrderPage from "./pages/CRM/CRMCreateOrderPage";
 import SSPendingOrders from "./pages/ADMIN/SSPendingOrders";
 import SSPendingOrderItems from "./pages/ADMIN/SSPendingOrderItems";
-import CargoDetailsPage from "./pages/ADMIN/CargoDetailsPage";
 import OrderTrackPage from "./pages/CRM/OrderTrackPage";
-import OrderListPage from "./pages/OrderListPage";
+import OrderListPage from "./pages/SS/OrderListPage";
 import DistributorMeetForm from "./components/form/DistributorMeetForm";
 import ProductUsageReportPage from "./pages/ProductUsageReportPage";
 import DealerFormPage from "./components/form/DealerFormPage";
@@ -48,6 +47,7 @@ import SamplingSheetPage from "./pages/CRM/SamplingSheetPage";
 import DispatchOrderDeletePage from "./pages/DispatchOrderDeletePage";
 import OrderGoogleSheet from "./pages/CRM/OrderGoogleSheet";
 import NotInStockReportPage from "./pages/CRM/NotInStockReportPage";
+import TrackingOrdersPage from "./pages/CRM/TrackingOrdersPage";
 
 export default function App() {
   useEffect(() => {
@@ -102,7 +102,7 @@ export default function App() {
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
-            <Route path="/orders-tracking" element={<OrderListPage />} />
+            <Route path="/orders-tracking" element={<TrackingOrdersPage />} />
             <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
             
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
@@ -120,8 +120,6 @@ export default function App() {
             <Route path="/admin/pending-orders" element={<ProtectedRoute allowedRoles={['ADMIN']}><SSPendingOrders /></ProtectedRoute>} />
             <Route path="/admin/pending-orders/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SSPendingOrderItems /></ProtectedRoute>} />
             <Route path="/sampling-sheet" element={<ProtectedRoute allowedRoles={['ADMIN']}><SamplingSheetPage /></ProtectedRoute>} />
-            <Route path="/cargo-details" element={<ProtectedRoute ><CargoDetailsPage /></ProtectedRoute>} />
-           
             <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />
             <Route path="/all-users/list" element={<ProtectedRoute ><AllUsersList /></ProtectedRoute>} />
             <Route path="/crm/create-order" element={<ProtectedRoute allowedRoles={['CRM']}><CRMCreateOrderPage /></ProtectedRoute>} />
@@ -133,7 +131,6 @@ export default function App() {
             <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
             <Route path="/confirm-order" element={<ProtectedRoute allowedRoles={['SS']}><ConfirmOrderPage /></ProtectedRoute>} />
             <Route path="/ss/history" element={<ProtectedRoute allowedRoles={['SS']}><OrderListPage /></ProtectedRoute>} />
-
              <Route path="/confirm-order-ds" element={<ProtectedRoute allowedRoles={['DS']}><ConfirmOrderPageDS /></ProtectedRoute>} />
              <Route path="/ds/my-orders" element={<ProtectedRoute allowedRoles={['DS']}><DSOrdersPage /></ProtectedRoute>} />
           </Route>

@@ -1,5 +1,5 @@
 // src/pages/CRMVerifiedDetailsPage.jsx
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { all_active_inactive_product } from "../../hooks/all_active_inactive_product";
@@ -9,7 +9,6 @@ import MobilePageHeader from "../../components/MobilePageHeader";
 import ConfirmModal from "../../components/ConfirmModal";
 import PDFDownloadButton from "../../components/pdf/PDFDownloadButton";
 import DispatchPDF from "../../components/pdf/DispatchPDF";
-import { useCargoDetails } from "../../hooks/useCargoDetails";
 // 🧩 Newly modular components
 import CRMVerifiedTable from "../../components/verifiedDetailsPage/CRMVerifiedTable";
 import AddProductModal from "../../components/verifiedDetailsPage/AddProductModal";
@@ -18,13 +17,11 @@ import RemarksSection from "../../components/verifiedDetailsPage/RemarksSection"
 
 export default function CRMVerifiedDetailsPage() {
   const { user } = useAuth();
-  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const order = location.state?.order;
-  const { data: cargos, isLoading } = useCargoDetails();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [remarks, setRemarks] = useState("");
@@ -35,10 +32,6 @@ export default function CRMVerifiedDetailsPage() {
   const [newProduct, setNewProduct] = useState("");
   const [newQty, setNewQty] = useState("");
   const [newPrice, setNewPrice] = useState("");
-  const [cargoName, setCargoName] = useState("");
-  const [cargoMobile, setCargoMobile] = useState("");
-  const [cargoLocation, setCargoLocation] = useState("");
-  const [cargoParcel, setCargoParcel] = useState("");
   const [dispatchLocation, setDispatchLocation] = useState(order?.dispatch_location || "Delhi");
 
   const [pdfFilter, setPdfFilter] = useState("ALL");
@@ -193,31 +186,7 @@ export default function CRMVerifiedDetailsPage() {
       alert(err.response?.data?.error || "Failed to delete item.");
     }
   };
-
-  const matchedCargo = useMemo(() => {
-    if (!cargos || !order?.ss_party_name) return null;
-
-    return cargos.find(
-      (c) => c.user_name?.trim().toLowerCase() === order.ss_party_name.trim().toLowerCase()
-    );
-  }, [cargos, order?.ss_party_name]);
-
-  useMemo(() => {
-    if (matchedCargo) {
-      setCargoName(matchedCargo.cargo_name || "");
-      setCargoMobile(matchedCargo.cargo_mobile_number || "");
-      setCargoLocation(matchedCargo.cargo_location || "");
-      setCargoParcel(matchedCargo.parcel_size || "");
-    }
-  }, [matchedCargo]);
-
-  const cargoDetails = {
-    cargoName,
-    cargoMobile,
-    cargoLocation,
-    cargoParcel,
-  };
-
+ 
   const handleSingleRowPunch = async (item) => {
     try {
       // 🔥 punchOrderToSheet ko ek proper order object dena padega
@@ -275,39 +244,6 @@ export default function CRMVerifiedDetailsPage() {
         <div className="hidden sm:block font-semibold rounded bg-white px-4 p-1">
           {orderCode}
         </div>
-
-        {/* <input
-    className="font-semibold border rounded bg-gray-200 px-4 p-2"
-    type="text"
-    placeholder="Cargo Name"
-    value={cargoName}
-    onChange={(e) => setCargoName(e.target.value)}
-  />
-
-  <input
-    className="font-semibold border rounded bg-gray-200 px-4 p-2"
-    type="text"
-    placeholder="Mobile"
-    value={cargoMobile}
-    onChange={(e) => setCargoMobile(e.target.value)}
-  />
-
-  <input
-    className="font-semibold border rounded bg-gray-200 px-4 p-2"
-    type="text"
-    placeholder="Location"
-    value={cargoLocation}
-    onChange={(e) => setCargoLocation(e.target.value)}
-  />
-
-  <input
-    className="font-semibold border rounded bg-gray-200 px-4 p-2"
-    type="text"
-    placeholder="Parcel Size"
-    value={cargoParcel}
-    onChange={(e) => setCargoParcel(e.target.value)}
-  /> */}
-
 
         <div className="relative">
           <select

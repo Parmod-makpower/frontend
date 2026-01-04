@@ -22,7 +22,7 @@ export const all_active_inactive_product = () => {
     queryKey: ["all-a_i_products/"],
     queryFn: getAllProducts,
 
-    staleTime: 1000 * 60 * 85, // 1 hour
+    staleTime: 1000 * 60 * 60 * 4, // 1 hour
     gcTime: 1000 * 60 * 60 * 24, // 24 hour cache
 
     refetchInterval: false,

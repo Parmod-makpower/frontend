@@ -213,10 +213,10 @@ export default function NotInStockReportPage() {
                                     <tr
                                         key={r.id}
                                         className={`${selectedIds.includes(r.id)
-                                                ? "bg-yellow-200"
-                                                : i % 2 === 0
-                                                    ? "bg-white"
-                                                    : "bg-green-50"
+                                            ? "bg-yellow-200"
+                                            : i % 2 === 0
+                                                ? "bg-white"
+                                                : "bg-green-50"
                                             }`}
                                     >
                                         <td className="border">{i + 1}</td>
@@ -231,7 +231,7 @@ export default function NotInStockReportPage() {
                                         <td className="border">{r.balance_qty}</td>
                                         <td className="border">
                                             <input
-                                            className="cursor-pointer"
+                                                className="cursor-pointer"
                                                 type="checkbox"
                                                 checked={selectedIds.includes(r.id)}
                                                 onChange={() => toggleRow(r.id)}
@@ -256,8 +256,8 @@ export default function NotInStockReportPage() {
 
                             <FileText
                                 className={`w-5 h-5 cursor-pointer ${selectedIds.length === 0
-                                        ? "text-gray-300"
-                                        : "text-red-600 hover:scale-110"
+                                    ? "text-gray-300"
+                                    : "text-red-600 hover:scale-110"
                                     }`}
                                 onClick={() => {
                                     if (selectedIds.length === 0)

@@ -3,15 +3,15 @@ import { FaFilter, FaTimes } from "react-icons/fa";
 import { useCachedSSUsers } from "../auth/useSS";
 import { useAuth } from "../context/AuthContext";
 
-
-const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
+{/* FILTERS */}
+const TrackingFilter = ({ open, setOpen, filters, setFilters, onApply, inline = false, }) => {
     const { user } = useAuth();
     const { data: ssUsers = [] } = useCachedSSUsers();
     const [showSuggestions, setShowSuggestions] = useState(false);
 
     const filteredParties = ssUsers.filter((u) =>
-  (u.party_name || "").toLowerCase().includes((filters.party_name || "").toLowerCase())
-);
+        (u.party_name || "").toLowerCase().includes((filters.party_name || "").toLowerCase())
+    );
 
 
     const handleChange = (e) => {
@@ -35,44 +35,51 @@ const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
     return (
         <>
             {/* Backdrop */}
-            {open && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-40 z-40"
+            {open && !inline && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 z-40"
                     onClick={() => setOpen(false)}
                 />
             )}
 
             {/* Offcanvas Panel */}
             <div
-                className={`fixed right-0 top-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 
-        ${open ? "translate-x-0" : "translate-x-full"} `}
+                className={
+                    inline
+                        ? "bg-gray-50 border p-4  space-y-3"
+                        : `fixed right-0 top-0 p-4 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 
+         ${open ? "translate-x-0" : "translate-x-full"}`
+                }
             >
+
                 {/* Header */}
-                <div className="flex justify-between items-center p-4 border-b">
-                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                <div className="flex items-center justify-between border-b pb-2">
+                    <h2 className="font-semibold text-sm flex items-center gap-1 ">
                         <FaFilter /> Filters
                     </h2>
-                    <button onClick={() => setOpen(false)}>
-                        <FaTimes className="text-xl cursor-pointer" />
-                    </button>
+                    {!inline && (
+                        <button onClick={() => setOpen(false)}>
+                            <FaTimes className="text-xl cursor-pointer" />
+                        </button>
+                    )}
+
                 </div>
 
                 {/* Body */}
-                <div className="p-4 space-y-4">
+                
                     <div>
-                        <label className="text-sm font-medium">Order ID</label>
+                        <label className="text-xs">Order ID</label>
                         <input
                             type="text"
                             name="order_id"
                             value={filters.order_id}
                             onChange={handleChange}
                             placeholder="Search order ID"
-                            className="w-full mt-1 p-2 border rounded-lg"
+                            className="w-full border px-2 py-1 text-sm rounded"
                         />
                     </div>
                     {(user?.role === "ADMIN" || user?.role === "CRM") && (
                         <div className="relative">
-                            <label className="text-sm font-medium">Party Name</label>
+                            <label className="text-xs">Party Name</label>
                             <input
                                 type="text"
                                 name="party_name"
@@ -82,7 +89,7 @@ const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
                                     setShowSuggestions(true);
                                 }}
                                 placeholder="Search party"
-                                className="w-full mt-1 p-2 border rounded-lg"
+                                className="w-full border px-2 py-1 text-sm rounded"
                                 autoComplete="off"
                             />
 
@@ -112,33 +119,33 @@ const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
 
 
                     <div>
-                        <label className="text-sm font-medium">From Date</label>
+                        <label className="text-xs">From Date</label>
                         <input
                             type="date"
                             name="from_date"
                             value={filters.from_date}
                             onChange={handleChange}
-                            className="w-full mt-1 p-2 border rounded-lg"
+                            className="w-full border px-2 py-1 text-sm rounded"
                         />
                     </div>
 
                     <div>
-                        <label className="text-sm font-medium">To Date</label>
+                        <label className="text-xs">To Date</label>
                         <input
                             type="date"
                             name="to_date"
                             value={filters.to_date}
                             onChange={handleChange}
-                            className="w-full mt-1 p-2 border rounded-lg"
+                            className="w-full border px-2 py-1 text-sm rounded"
                         />
                     </div>
-                </div>
+                
 
                 {/* Footer */}
-                <div className="p-4 border-t flex justify-between">
+                <div className="pt-4 border-t flex gap-2">
                     <button
                         onClick={clearFilters}
-                        className="px-4 py-2 bg-gray-200 rounded-lg font-medium"
+                        className="w-full bg-gray-500 text-white text-sm py-1 rounded"
                     >
                         Clear
                     </button>
@@ -148,7 +155,7 @@ const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
                             onApply();
                             setOpen(false);
                         }}
-                        className="px-5 py-2 bg-blue-600 text-white rounded-lg font-medium cursor-pointer"
+                        className="w-full bg-red-500 text-white text-sm py-1 rounded"
                     >
                         Apply
                     </button>
@@ -158,4 +165,4 @@ const OrderFilterDrawer = ({ open, setOpen, filters, setFilters, onApply }) => {
     );
 };
 
-export default OrderFilterDrawer;
+export default TrackingFilter;

@@ -153,7 +153,6 @@ export default function DashboardLayout() {
       { label: "Users", path: "/all-users/list", icon: <FaUsers /> },
       { label: "Pending Orders", path: "/admin/pending-orders", icon: <FaHourglassHalf /> },
       { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> },
-      { label: "Cargos", path: "/cargo-details", icon: <FaBox /> },
       { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> }
     );
   }

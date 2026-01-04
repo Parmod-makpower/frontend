@@ -1,26 +1,20 @@
-import { useOrders } from "../hooks/useOrders";
-import { useAuth } from "../context/AuthContext";
+import { useOrders } from "../../hooks/useOrders";
+import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import MobilePageHeader from "../components/MobilePageHeader";
 import {
   FaBolt,
   FaMobileAlt,
   FaHeadphonesAlt,
   FaBoxOpen,
   FaCalendarAlt,
-  FaFilter,
 } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import OrderFilterDrawer from "../components/OrderFilterDrawer";
-import { IoChevronBack } from "react-icons/io5";
+import MobilePageHeader from "../../components/MobilePageHeader";
 
 
 const OrderListPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
   const [filters, setFilters] = useState({
     order_id: "",
     party_name: "",
@@ -183,44 +177,7 @@ const OrderListPage = () => {
 
   return (
     <div className="px-4">
-
-      <div className="fixed sm:hidden top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow flex items-center justify-between">
-
-        <button
-          onClick={() => window.history.back()}
-          className="text-gray-700 hover:text-blue-600 text-2xl font-bold px-1 transition-transform hover:scale-105"
-        >
-          <IoChevronBack />
-        </button>
-        <div className="text-sm text-gray-700 ps-3">
-          Filter Orders: <span className="font-semibold">{orders.length}</span>
-        </div>
-
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="px-3 py-2 text-blue-800 text-sm flex items-center gap-2"
-        >
-          <FaFilter /> Filters
-        </button>
-      </div>
-
-      {/* 🔥 ORDER COUNT for mobile */}
-
-
-      <div className="hidden sm:flex justify-between items-center mb-5 bg-gray-200 px-4 py-1 rounded">
-        <p className="text-sm ">
-          Filter Orders: <span className="font-semibold">{orders.length}</span>
-        </p>
-
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="px-3 py-1 text-blue-800 text-sm flex items-center gap-2 rounded cursor-pointer hover:bg-blue-800 hover:text-white"
-        >
-          <FaFilter /> Filters
-        </button>
-      </div>
-
-
+      <MobilePageHeader title="My Orders" />
       <div className="space-y-4 pt-[60px] sm:pt-0 mb-20">
         {orders.length === 0 ? (
           <p className="text-center text-gray-500 italic mt-4">
@@ -246,17 +203,7 @@ const OrderListPage = () => {
           </>
         )}
       </div>
-      <OrderFilterDrawer
-        open={drawerOpen}
-        setOpen={setDrawerOpen}
-        filters={filters}
-        setFilters={setFilters}
-        onApply={() => refetch()}   // 🔥 Only Apply → API
-      />
-
-
     </div>
   );
 };
-
 export default OrderListPage;

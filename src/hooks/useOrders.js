@@ -5,9 +5,9 @@ export const useOrders = (filters) => {
   return useQuery({
     queryKey: ["ordersByRole", filters],
     queryFn: () => fetchOrdersByRole(filters),
-    enabled: false,   // 🚀 API auto-call stop
+    enabled: true,   // 🚀 API auto-call stop
     keepPreviousData: true,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
 };
