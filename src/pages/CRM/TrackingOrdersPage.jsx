@@ -159,6 +159,7 @@ const TrackingOrdersPage = () => {
                                     </th>
 
                                     <th className="border">Date</th>
+                                    <th className="border">Time</th>
                                     <th className="border">View</th>
                                 </tr>
                             </thead>
@@ -192,7 +193,7 @@ const TrackingOrdersPage = () => {
                                             </td>
                                         )}
                                             <td className="border">{i + 1}</td>
-                                            <td className="border font-medium">{o.order_id}</td>
+                                            <td className="border font-medium ">{o.order_id}</td>
 
                                             {(user?.role === "ADMIN" || user?.role === "CRM") && (
                                                 <td className="border">{o.ss_name}</td>
@@ -217,6 +218,13 @@ const TrackingOrdersPage = () => {
                                             <td className="border text-xs text-gray-600">
                                                 <FaCalendarAlt className="inline mr-1 text-gray-400" />
                                                 {new Date(o.created_at).toLocaleDateString("en-IN")}
+                                            </td>
+                                            <td className="border text-xs text-gray-600">
+                                                {new Date(o.created_at).toLocaleTimeString("en-IN", {
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                    hour12: true
+                                                })}
                                             </td>
                                             <td className="border cursor-pointer" onClick={() =>
                                                 navigate(`/orders-tracking/${o.order_id}`)
