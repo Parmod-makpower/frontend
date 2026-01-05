@@ -11,7 +11,7 @@ export const useVirtualStock = () => {
     queryKey: ["virtual-stock"],
     queryFn: fetchVirtualStock,
 
-    staleTime: 1000 * 30, // 30 seconds
+    staleTime: 1000 * 50, // 50 seconds
 
     refetchInterval: false,
     refetchOnWindowFocus: false,
