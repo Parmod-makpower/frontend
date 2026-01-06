@@ -181,6 +181,12 @@ const categories = [
     ]
   },
    {
+    label: "Gift items",
+    keyword: "GIFT ITEM",
+    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1767694831/mlw9pe3w1x7zleapa98z.webp",
+    subcategories: []
+  },
+   {
     label: "Handfree",
     keyword: "HANDSFREE",
     image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1758532741/jbul9qzghqqkbb9jv639.webp",

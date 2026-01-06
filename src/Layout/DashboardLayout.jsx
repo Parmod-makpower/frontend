@@ -303,9 +303,7 @@ export default function DashboardLayout() {
                               )}
                             </>
                           ) : (
-                            !isAdded(p.id) &&
-                            p.sub_category !== "GIFT ITEM" &&
-                            p.sub_category !== "Z GIFT ITEM" && (
+                            !isAdded(p.id) && (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
