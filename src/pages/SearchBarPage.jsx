@@ -195,15 +195,14 @@ export default function SearchBarPage() {
                   />
                 )
               ) : (
-                p.sub_category !== "GIFT ITEM" &&
-                p.sub_category !== "Z GIFT ITEM" && (
+                
                   <button
                     onClick={() => handleAddProduct(p)}
                     className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
                   >
                     <FaPlus className="text-sm" />
                   </button>
-                )
+                
               )}
             </div>
           )}
