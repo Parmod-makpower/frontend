@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaSearch, FaBell } from "react-icons/fa";
+import { FaSearch, FaBell, FaGift } from "react-icons/fa";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -136,6 +136,22 @@ export default function HomePage() {
           />
         </Slider>
       </div>
+
+{/* 🎉 Mahotsav Scheme Floating Button */}
+<button
+  onClick={() => navigate("/mahotsav-schemes")}
+  className="
+    fixed right-4 top-1/2 -translate-y-1/2 z-50
+    bg-pink-600 text-white font-semibold
+    px-4 py-3 rounded-full shadow-lg
+    flex items-center gap-2
+    animate-bounce
+    hover:bg-red-700
+    transition-all duration-300
+  "
+>
+  <FaGift /> Mahotsav
+</button>
 
       {/* ⭐ Trending Products Component */}
       <SlidingProductsCards trendingIds={trendingIds} title={"Trending Products."} />

@@ -48,6 +48,7 @@ import DispatchOrderDeletePage from "./pages/DispatchOrderDeletePage";
 import OrderGoogleSheet from "./pages/CRM/OrderGoogleSheet";
 import NotInStockReportPage from "./pages/CRM/NotInStockReportPage";
 import TrackingOrdersPage from "./pages/CRM/TrackingOrdersPage";
+import MAHOTSAV from "./pages/MAHOTSAV";
 
 export default function App() {
   useEffect(() => {
@@ -106,6 +107,7 @@ export default function App() {
             <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
             
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
+            <Route path="/mahotsav-schemes" element={<ProtectedRoute ><MAHOTSAV /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
             <Route path="/dispatch-orders/delete-all" element={<ProtectedRoute ><DispatchOrderDeletePage /></ProtectedRoute>} />
             <Route path="/google-sheet" element={<ProtectedRoute ><OrderGoogleSheet /></ProtectedRoute>} />
