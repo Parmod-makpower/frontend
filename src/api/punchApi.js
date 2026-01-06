@@ -7,7 +7,6 @@ export const punchOrderToSheet = async (order, dispatchLocation) => {
     throw new Error("No items to punch");
   }
 
-  // ✅ IST timestamp in proper format
   const now = new Date();
   const istTimestamp = now.toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -26,17 +25,19 @@ export const punchOrderToSheet = async (order, dispatchLocation) => {
     ss_party_name: order.ss_party_name,
     crm_name: order.crm_name,
     dispatch_location: dispatchLocation,
+    is_single_row: order.is_single_row || false, // 🔥 FIX
     items: order.items.map(i => ({
       product_name: i.product_name,
       quantity: i.quantity,
       id: i.id,
-      timestamp: istTimestamp, // include timestamp for each item
+      timestamp: istTimestamp,
     })),
   };
 
   const response = await API.post("/punch-to-sheet/", payload);
   return response.data;
 };
+
 
 
 export const submitMeetForm = async (formData) => {

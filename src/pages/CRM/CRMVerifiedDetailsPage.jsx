@@ -14,6 +14,7 @@ import CRMVerifiedTable from "../../components/verifiedDetailsPage/CRMVerifiedTa
 import AddProductModal from "../../components/verifiedDetailsPage/AddProductModal";
 import EditQuantityModal from "../../components/verifiedDetailsPage/EditQuantityModal";
 import RemarksSection from "../../components/verifiedDetailsPage/RemarksSection";
+import FullPageLoader from "../../components/FullPageLoader";
 
 export default function CRMVerifiedDetailsPage() {
   const { user } = useAuth();
@@ -186,44 +187,50 @@ export default function CRMVerifiedDetailsPage() {
       alert(err.response?.data?.error || "Failed to delete item.");
     }
   };
- 
+
   const handleSingleRowPunch = async (item) => {
-    try {
-      // 🔥 punchOrderToSheet ko ek proper order object dena padega
-      const singleOrder = {
-        id: order.id,
-        order_id: order.order_id,
-        ss_party_name: order.ss_party_name,
-        crm_name: order.crm_name,
-        dispatch_location: order.dispatch_location || dispatchLocation,
-        items: [
-          {
-            product_name: item.product_name,
-            quantity: item.quantity,
-            id: item.id,
-          }
-        ]
-      };
+  try {
+    setLoading(true);
 
-      const res = await punchOrderToSheet(singleOrder, dispatchLocation);
+    const singleOrder = {
+      id: order.id,
+      order_id: order.order_id,
+      ss_party_name: order.ss_party_name,
+      crm_name: order.crm_name,
+      dispatch_location: dispatchLocation,
+      is_single_row: true,
+      items: [
+        {
+          product_name: item.product_name,
+          quantity: item.quantity,
+          id: item.id,
+        },
+      ],
+    };
 
-      if (res.success) {
-        alert("Row punched successfully!");
-      } else {
-        alert("Error punching row: " + res.error);
-      }
+    const res = await punchOrderToSheet(singleOrder, dispatchLocation);
 
-    } catch (err) {
-      console.log(err);
-      alert("Something went wrong while punching this row.");
+    if (res.success) {
+      alert("Row punched successfully!");
+    } else {
+      alert("Error punching row: " + res.error);
     }
-  };
+  } catch (err) {
+    alert("Something went wrong while punching this row.");
+  } finally {
+    setLoading(false); // ✅ ALWAYS STOP LOADER
+  }
+};
 
 
   if (!order)
     return <div className="p-6 text-red-600">No order data provided.</div>;
 
   return (
+    <>
+    {loading && (
+      <FullPageLoader text="Please wait, punching order..." />
+    )}
     <div className="p-4 sm:p-0 space-y-4 pb-30">
       <ConfirmModal
         isOpen={isModalOpen}
@@ -274,20 +281,20 @@ export default function CRMVerifiedDetailsPage() {
             <option value="ACCESSORIES">Accessories</option>
             <option value="BATTERY">Battery</option>
           </select>
-           {!order.punched && (
-          <PDFDownloadButton
-            id="verified-order-pdf-btn"
-            order={order}
-            items={enrichedItems.map((item) => ({
-              ...item,
-              virtual_stock:
-                allProducts.find((p) => p.product_id === item.product)
-                  ?.virtual_stock ?? 0,
-              price:
-                allProducts.find((p) => p.product_id === item.product)
-                  ?.price ?? item.price ?? 0,
-            }))}
-          />
+          {!order.punched && (
+            <PDFDownloadButton
+              id="verified-order-pdf-btn"
+              order={order}
+              items={enrichedItems.map((item) => ({
+                ...item,
+                virtual_stock:
+                  allProducts.find((p) => p.product_id === item.product)
+                    ?.virtual_stock ?? 0,
+                price:
+                  allProducts.find((p) => p.product_id === item.product)
+                    ?.price ?? item.price ?? 0,
+              }))}
+            />
           )}
         </div>
       </div>
@@ -360,5 +367,6 @@ export default function CRMVerifiedDetailsPage() {
             : "Order Punch"}
       </button>
     </div>
+    </>
   );
 }

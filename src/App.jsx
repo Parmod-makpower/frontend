@@ -48,7 +48,6 @@ import DispatchOrderDeletePage from "./pages/DispatchOrderDeletePage";
 import OrderGoogleSheet from "./pages/CRM/OrderGoogleSheet";
 import NotInStockReportPage from "./pages/CRM/NotInStockReportPage";
 import TrackingOrdersPage from "./pages/CRM/TrackingOrdersPage";
-import LocationRedirect from "./pages/LocationRedirect";
 
 export default function App() {
   useEffect(() => {
@@ -86,7 +85,6 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/form" element={<DistributorMeetForm />} />
           <Route path="/dealer" element={<DealerFormPage />} />
-          <Route path="/lucky-draw" element={<LocationRedirect />} />
           <Route path="/product-usage" element={<ProductUsageReportPage />} />
             <Route path="" element={<HomeRedirector />} />
             <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
