@@ -10,6 +10,7 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { getAllProducts } from "./api/productApi";
 import { getSchemes } from "./api/schemeApi";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { StockProvider } from "./context/StockContext";
 
 // ✅ QueryClient Setup
 export const queryClient = new QueryClient();
@@ -64,7 +65,9 @@ root.render(
     {/* ✅ QueryClientProvider सबसे ऊपर */}
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <StockProvider>
         <Root />
+        </StockProvider>
       </AuthProvider>
     </QueryClientProvider>
   </React.StrictMode>

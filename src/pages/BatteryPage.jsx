@@ -8,14 +8,15 @@ import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
 import { FaPlus, FaGift } from "react-icons/fa";
 import { IoChevronBack } from "react-icons/io5";
-import { Search as SearchIcon } from "lucide-react";
+import { useStock } from "../context/StockContext";
+
 
 export default function BatteryPage() {
   const { user } = useAuth();
   const { categoryKeyword } = useParams();
   const navigate = useNavigate();
   const searchRef = useRef();
-
+  const { getStockValue } = useStock();
   const { data: allProductsRaw = [], isLoading } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
   const { selectedProducts, addProduct, updateQuantity, updateCartoon, cartoonSelection } = useSelectedProducts();
@@ -104,6 +105,8 @@ export default function BatteryPage() {
 
               const selectedItem = selectedProducts.find((p) => p.id === prodId);
               const hasCartoon = selectedItem?.quantity_type == "CARTOON";
+              const stockValue = getStockValue(prod);
+              const outOfStock = stockValue <= (prod.moq || 1);
 
               return (
                 <div
@@ -118,7 +121,7 @@ export default function BatteryPage() {
                     <div className="flex items-center gap-2 font-medium truncate text-gray-800">
                       {prod.product_name}
 
-                      {prod.virtual_stock > (prod.moq ?? 0) ? (
+                      {!outOfStock ? (
                         <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                           In Stock
                         </span>
@@ -141,7 +144,7 @@ export default function BatteryPage() {
                     <p className="text-[12px] sm:text-xs flex items-center font-medium ">
                       {prod.guarantee && prod.guarantee !== "nan" && prod.guarantee !== "null" && prod.guarantee !== null ? (
                         <span className="text-orange-600 text-[10px] ">
-                           {prod.guarantee} guarantee
+                          {prod.guarantee} guarantee
                         </span>
                       ) : null}
 

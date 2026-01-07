@@ -9,6 +9,8 @@ import useFuseSearch from "../hooks/useFuseSearch";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
+import { useStock } from "../context/StockContext";
+
 
 function Loader() {
   return (
@@ -36,9 +38,10 @@ export default function SearchBarPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const searchRef = useRef();
   const navigate = useNavigate();
+  const { getStockValue } = useStock();
   const { data: allProductsRaw = [], isLoading } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
-
+  
   // ✅ Auto focus searchbox
   useEffect(() => {
     searchRef.current?.focus();
@@ -90,7 +93,7 @@ export default function SearchBarPage() {
 
   const isAdded = (id) => selectedProducts.some((p) => p.id === id);
 
-  const handleAddProduct = (product) => {
+ const handleAddProduct = (product) => {
     if (!isAdded(product.id)) {
       const moq = product.moq || 1;
       const initialQty =
@@ -102,22 +105,30 @@ export default function SearchBarPage() {
     }
   };
 
+
+
   // ✅ FINAL FOCUS-FIXED ROW COMPONENT
-  const Row = useCallback(
-    ({ index, style }) => {
-      const p = normalizeProduct(searchResults[index]);
-      const selectedItem = selectedProducts.find((x) => x.id === p.id);
-      const hasCartoon = selectedItem?.quantity_type === "CARTOON";
+ const Row = useCallback(
+  ({ index, style }) => {
+    const p = normalizeProduct(searchResults[index]);
+    const selectedItem = selectedProducts.find((x) => x.id === p.id);
 
-      // ✅ Local quantity (no global rerender on typing)
-      const [localQty, setLocalQty] = useState(
-        selectedItem?.quantity ?? ""
-      );
+    const currentStock = getStockValue(p);
+    const outOfStock = currentStock <= (p.moq || 1);
 
-      // ✅ Sync global → local
-      useEffect(() => {
-        setLocalQty(selectedItem?.quantity ?? "");
-      }, [selectedItem?.quantity]);
+    // ✅ FIX: Local quantity state
+    const [localQty, setLocalQty] = useState(
+      selectedItem?.quantity ?? ""
+    );
+
+    // ✅ FIX: Cartoon check
+    const hasCartoon = selectedItem?.quantity_type === "CARTOON";
+
+    // ✅ Sync global → local
+    useEffect(() => {
+      setLocalQty(selectedItem?.quantity ?? "");
+    }, [selectedItem?.quantity]);
+
 
       return (
         <div
@@ -133,7 +144,7 @@ export default function SearchBarPage() {
             <div className="flex items-center gap-2 font-medium truncate text-gray-800">
               {p._displayName}
 
-              {p.virtual_stock > (p.moq ?? 0) ? (
+              {!outOfStock ? (
                 <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                   In Stock
                 </span>

@@ -8,10 +8,13 @@ import { useSchemes } from "../hooks/useSchemes";
 import useFuseSearch from "../hooks/useFuseSearch";
 import logo from "../assets/images/logo.png";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
+import { useStock } from "../context/StockContext";
+
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { getStockValue } = useStock();
 
   // Profile Dropdown State
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -19,6 +22,7 @@ export default function DashboardLayout() {
   const navRef = useRef(null);
   const [isNavFixed, setIsNavFixed] = useState(false);
   const [navOffsetTop, setNavOffsetTop] = useState(0);
+  
   const handleLogout = () => {
   logout(() => {
     navigate("/login");
@@ -222,7 +226,12 @@ export default function DashboardLayout() {
                 <p className="p-3 text-gray-500">No products found.</p>
               ) : (
                 <>
-                  {searchResultsLimited.map((p) => (
+                  {searchResultsLimited.map((p) => {
+  const currentStock = getStockValue(p);
+  const outOfStock = currentStock <= (p.moq || 1);
+
+  return (
+
                     <div
                       key={p.id + p._displayName}
 
@@ -236,7 +245,7 @@ export default function DashboardLayout() {
                       >
                         <span className="font-medium flex items-center gap-2">
                           {p._displayName}
-                          {p.virtual_stock > p.moq ? (
+                          {!outOfStock ? (
                             <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                               In Stock
                             </span>
@@ -319,7 +328,7 @@ export default function DashboardLayout() {
                         </div>
                       )}
                     </div>
-                  ))}
+                  );})}
                 </>
               )}
             </div>

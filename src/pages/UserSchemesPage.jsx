@@ -4,6 +4,8 @@ import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useStock } from "../context/StockContext";
+
 
 import {
   FaShoppingCart,
@@ -19,6 +21,7 @@ export default function UserSchemesPage() {
   const { data: allProducts = [] } = useCachedProducts();
   const { selectedProducts, addProduct } = useSelectedProducts();
   const { user } = useAuth();
+  const { getStockValue } = useStock();
   const navigate = useNavigate();
 
   if (isLoading) return <div className="p-4">Loading schemes...</div>;
@@ -49,7 +52,9 @@ export default function UserSchemesPage() {
 
                       const prodId = prod.id ?? prod.product_id;
                       const isInCart = selectedProducts.some((p) => p.id === prodId);
-                      const outOfStock = prod.virtual_stock <= prod.moq;
+                      const currentStock = getStockValue(prod);
+                      const outOfStock = currentStock <= (prod.moq || 1);
+
 
                       const handleAddToCart = (e) => {
                         e.stopPropagation();

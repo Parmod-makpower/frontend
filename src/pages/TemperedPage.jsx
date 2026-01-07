@@ -1,6 +1,4 @@
 
-
-// 📁 src/pages/TemperedPage.jsx
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCachedProducts } from "../hooks/useCachedProducts";
@@ -10,13 +8,15 @@ import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
 import { FaPlus, FaGift, FaCheck } from "react-icons/fa";
 import { Search as SearchIcon } from "lucide-react";
+import { useStock } from "../context/StockContext";
+
 
 export default function TemperedPage() {
   const { user } = useAuth();
   const { categoryKeyword } = useParams();
   const navigate = useNavigate();
   const searchRef = useRef();
-
+  const { getStockValue } = useStock();
   const { data: allProductsRaw = [], isLoading } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
   const { selectedProducts, addProduct, updateQuantity, updateCartoon, cartoonSelection } = useSelectedProducts();
@@ -105,6 +105,9 @@ export default function TemperedPage() {
                 : prod.sale_names?.split?.(",") || [];
               const showAll = showAllMap[prodId] || false;
               const displayArray = showAll ? saleArray : saleArray.slice(0, 10);
+              const stockValue = getStockValue(prod);
+const outOfStock = stockValue <= (prod.moq || 1);
+
 
               return (
                 <div
@@ -117,7 +120,7 @@ export default function TemperedPage() {
                   >
                     <div className="flex items-center gap-2 font-medium truncate text-gray-800">
                       {prod.product_name}
-                      {prod.virtual_stock > (prod.moq ?? 0) ? (
+                     {!outOfStock ? (
                         <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                           In Stock
                         </span>

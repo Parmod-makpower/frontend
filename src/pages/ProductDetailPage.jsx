@@ -4,6 +4,7 @@ import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSchemes } from "../hooks/useSchemes";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
+import { useStock } from "../context/StockContext";
 import {
   FaGift,
   FaCheckCircle,
@@ -20,7 +21,7 @@ export default function ProductDetailPage() {
   const { user } = useAuth();
   const { productId } = useParams();
   const navigate = useNavigate();
-
+  const { getStockValue } = useStock();
   const { data: allProductsRaw = [], isLoading: isProductLoading } = useCachedProducts();
   const { data: schemes = [], isLoading: isSchemeLoading } = useSchemes();
   const {
@@ -42,6 +43,7 @@ export default function ProductDetailPage() {
       setProduct(found);
     }
   }, [allProductsRaw, productId]);
+  
 
   if (isProductLoading || !product || isSchemeLoading)
     return <div className="p-6 text-center">Loading...</div>;
@@ -67,6 +69,11 @@ export default function ProductDetailPage() {
       addProduct({ ...product, id: product.id, quantity: initialQty });
     }
   };
+ 
+
+const currentStock = getStockValue(product);
+const outOfStock = currentStock <= product.moq;
+
 
   const images = [
     product?.image
@@ -76,6 +83,7 @@ export default function ProductDetailPage() {
       ? `https://res.cloudinary.com/djyr368zj/${product.image2}?f_auto,q_auto,w_600,dpr_auto`
       : null,
   ].filter(Boolean);
+  
 
   const handleNext = () => setCurrentIndex((prev) => (prev + 1) % images.length);
   const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
@@ -140,15 +148,16 @@ export default function ProductDetailPage() {
 
             {/* Stock */}
             <div className="flex items-center gap-2">
-              {product.virtual_stock > product.moq ? (
-                <span className="flex items-center gap-2 text-green-600 font-semibold">
-                  <FaCheckCircle /> In Stock
-                </span>
-              ) : (
-                <span className="flex items-center gap-2 text-red-600 font-semibold">
-                  <FaTimesCircle /> Out of Stock
-                </span>
-              )}
+              {!outOfStock ? (
+  <span className="text-green-600 flex gap-2">
+    <FaCheckCircle /> In Stock
+  </span>
+) : (
+  <span className="text-red-600 flex gap-2">
+    <FaTimesCircle /> Out of Stock 
+  </span>
+)}
+
             </div>
 
             {/* Price */}

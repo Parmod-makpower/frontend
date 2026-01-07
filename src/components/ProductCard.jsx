@@ -9,7 +9,7 @@ import { useState } from "react";
 import { FaBan } from "react-icons/fa6";
 import makpower_image from "../assets/images/makpower_image.webp";
 import QuantitySelector from "./QuantitySelector";
-
+import { useStock } from "../context/StockContext";
 
 export default function ProductCard({
   prod,
@@ -26,6 +26,9 @@ export default function ProductCard({
   const prodId = prod.id ?? prod.product_id;
   const isInCart = selectedProducts.some((p) => p.id === prodId);
   const selectedItem = selectedProducts.find((p) => p.id === prodId);
+  const { getStockValue } = useStock();
+const currentStock = getStockValue(prod);
+const outOfStock = currentStock <= (prod.moq || 1);
 
   const [imgSrc, setImgSrc] = useState(
     prod?.image
@@ -73,7 +76,7 @@ export default function ProductCard({
         </h3>
 
         <div className="flex items-center gap-1 mt-1">
-          {prod.virtual_stock > prod.moq ? (
+          {!outOfStock ? (
             <span className="flex items-center gap-1 text-[#16a34a] text-[10px] md:text-xs font-semibold">
               <FaCheckCircle /> In Stock
             </span>

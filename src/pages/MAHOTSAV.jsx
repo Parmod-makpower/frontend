@@ -6,12 +6,15 @@ import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaTimesCircle, FaFire } from "react-icons/fa";
 import makpower_image from "../assets/images/makpower_image.webp";
 import MobilePageHeader from "../components/MobilePageHeader";
+import { useStock } from "../context/StockContext";
+
 
 export default function MAHOTSAV() {
   const { data: allProducts = [], isLoading } = useCachedProducts();
   const { selectedProducts, addProduct } = useSelectedProducts();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { getStockValue } = useStock();
 
   // ✅ Mahotsav Products
   const PRODUCT_IDS = [
@@ -93,7 +96,9 @@ export default function MAHOTSAV() {
             {products.map((prod) => {
               const prodId = prod.id ?? prod.product_id;
               const isInCart = selectedProducts.some((p) => p.id === prodId);
-              const outOfStock = prod.virtual_stock <= prod.moq;
+              const stockValue = getStockValue(prod);
+              const outOfStock = stockValue <= (prod.moq || 1);
+
 
               return (
                 <div
