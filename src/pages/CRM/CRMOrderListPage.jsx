@@ -10,11 +10,14 @@ import {
 import { useCRMOrders } from "../../hooks/useCRMOrders";
 import CRMOrderListFilterMenu from "../../components/CRMOrderListFilterMenu";
 import { IoChevronBack } from "react-icons/io5";
+import SimpleOrderCreateModal from "../../components/orderSheet/SimpleOrderCreatePage";
 
 
 export default function CRMOrderListPage() {
   const navigate = useNavigate();
   const STORAGE_KEY = "crm_order_filter_status";
+  const [showModal, setShowModal] = useState(false);
+
 
 const [filterStatus, setFilterStatus] = useState(() => {
   return localStorage.getItem(STORAGE_KEY) || "PENDING";
@@ -196,6 +199,14 @@ const [filterStatus, setFilterStatus] = useState(() => {
         />
       </div>
 
+      <button
+  onClick={() => setShowModal(true)}
+  className="shrink-0 px-3 py-1 rounded border bg-white text-blue-700 hover:bg-gray-100 cursor-pointer"
+>
+  Create Order
+</button>
+
+
       {/* Filter */}
       <div className="shrink-0">
         <CRMOrderListFilterMenu
@@ -224,9 +235,14 @@ const [filterStatus, setFilterStatus] = useState(() => {
           className={`text-sm ${isFetching ? "animate-spin" : ""}`}
         />
       </button>
+
     </div>
   </div>
 
+<SimpleOrderCreateModal
+  showModal={showModal}
+  setShowModal={setShowModal}
+/>
 
       <div className="space-y-4 pt-[60px] sm:pt-5">
         {filteredOrders.length === 0 ? (
