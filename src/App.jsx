@@ -33,7 +33,6 @@ import SubCategoryPage from "./pages/SubCategoryPage";
 import CRMDashboard from "./pages/CRMDashboard";
 import TemperedPage from "./pages/TemperedPage";
 import BatteryPage from "./pages/BatteryPage";
-import CRMCreateOrderPage from "./pages/CRM/CRMCreateOrderPage";
 import SSPendingOrders from "./pages/ADMIN/SSPendingOrders";
 import SSPendingOrderItems from "./pages/ADMIN/SSPendingOrderItems";
 import OrderTrackPage from "./pages/CRM/OrderTrackPage";
@@ -126,7 +125,6 @@ export default function App() {
             <Route path="/sampling-sheet" element={<ProtectedRoute allowedRoles={['ADMIN']}><SamplingSheetPage /></ProtectedRoute>} />
             <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />
             <Route path="/all-users/list" element={<ProtectedRoute ><AllUsersList /></ProtectedRoute>} />
-            <Route path="/crm/create-order" element={<ProtectedRoute allowedRoles={['CRM']}><CRMCreateOrderPage /></ProtectedRoute>} />
             <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
             <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
              

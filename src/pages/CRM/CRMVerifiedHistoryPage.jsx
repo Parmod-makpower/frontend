@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useVerifiedOrders } from "../../hooks/useVerifiedOrders";
+import { useDebounce } from "../../hooks/useVerifiedOrders";
 import MobilePageHeader from "../../components/MobilePageHeader";
 
 export default function CRMVerifiedHistoryPage() {
@@ -11,12 +12,18 @@ export default function CRMVerifiedHistoryPage() {
     return saved === "true" ? true : null;
   });
 
-  const [q, setQ] = useState("");
 
-  const { data, isLoading, isError } = useVerifiedOrders({
-    q,
-    punched: punchedFilter,
-  });
+const [q, setQ] = useState("");
+const debouncedQ = useDebounce(q, 500);
+
+// minimum 3 character rule
+const finalQ = debouncedQ.length >= 3 ? debouncedQ : "";
+
+const { data, isLoading, isError } = useVerifiedOrders({
+  q: finalQ,
+  punched: punchedFilter,
+});
+
 
   const results = data || [];
 

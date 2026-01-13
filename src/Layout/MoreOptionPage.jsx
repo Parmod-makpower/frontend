@@ -38,13 +38,9 @@ export default function MoreOptionsPage() {
             icon: <FaUsers className="text-green-600" />,
             action: () => navigate("/all-users/list"),
           },
+          
           {
-            label: "Create Order",
-            icon: <FaBoxOpen className="text-orange-600" />,
-            action: () => navigate("/crm/create-order"),
-          },
-          {
-            label: "Available Stock",
+            label: "Not In Stock",
             icon: <FaChartLine className="text-orange-600" />,
             action: () => navigate("/not-in-stock-reports"),
           },

@@ -165,7 +165,6 @@ export default function DashboardLayout() {
       { label: "Home", path: "/", icon: <FaHome /> },
       { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },
       { label: "Users", path: "/all-users/list", icon: <FaUsers /> },
-      { label: "Create Orders", path: "/crm/create-order", icon: <FaBoxOpen /> },
       { label: "New Orders", path: "/crm/orders", icon: <FaBox /> },
       { label: "History", path: "/all/orders-history", icon: <FaHistory /> },
       { label: "Not-In-Stock", path: "/not-in-stock-reports", icon: <FaChartLine /> },

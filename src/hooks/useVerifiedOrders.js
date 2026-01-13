@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import API from "../api/axios";
+import { useEffect, useState } from "react";
 
 export const useVerifiedOrders = ({ q, punched }) => {
   return useQuery({
@@ -7,7 +8,8 @@ export const useVerifiedOrders = ({ q, punched }) => {
     queryFn: async () => {
       const params = {};
 
-      if (q) params.q = q;
+      if (q && q.length >= 3) params.q = q;
+
       if (punched !== null) params.punched = punched;
 
       const { data } = await API.get("/crm/verified/", { params });
@@ -17,3 +19,20 @@ export const useVerifiedOrders = ({ q, punched }) => {
     refetchOnWindowFocus: false,
   });
 };
+
+
+
+
+export function useDebounce(value, delay = 500) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
