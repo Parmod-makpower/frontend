@@ -1,18 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import API from "../api/axios";
 
-export const useDispatchOrders = (orderId) => {
+export const useDispatchOrdersList = (filters) => {
   return useQuery({
-    queryKey: ["dispatchOrders", orderId],
+    queryKey: ["dispatchOrders", filters],
     queryFn: async () => {
-      const { data } = await API.get(`/dispatch-orders/${orderId}/`);
+      const { data } = await API.get("/dispatch-orders/", {
+        params: filters,
+      });
       return data;
     },
-    enabled: !!orderId, // only run if orderId exists
-    retry: 1,
+    staleTime: 1000 * 30,
   });
 };
-
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -37,3 +37,41 @@ export const useDeleteAllDispatchOrders = () => {
   });
 };
 
+export const deleteSelectedDispatchOrders = async (ids) => {
+  const res = await API.post(
+    "/dispatch-orders/delete-selected/",
+    { ids }
+  );
+  return res.data;
+};
+
+
+
+export const downloadDispatchExcel = async () => {
+  const response = await API.get(
+    "/dispatch-orders/excel/download/",
+    { responseType: "blob" }
+  );
+
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", "dispatch_orders.xlsx");
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+};
+
+
+export const uploadDispatchExcel = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const { data } = await API.post(
+    "/dispatch-orders/excel/upload/",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+
+  return data;
+};

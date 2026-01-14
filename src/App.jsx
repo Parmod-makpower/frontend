@@ -105,8 +105,7 @@ export default function App() {
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
             <Route path="/orders-tracking" element={<TrackingOrdersPage />} />
             <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
-            <Route path="/s" element={<SimpleOrderCreatePage />} />
-            
+           
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
             <Route path="/mahotsav-schemes" element={<ProtectedRoute ><MAHOTSAV /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
