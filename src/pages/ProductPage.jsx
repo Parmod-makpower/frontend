@@ -151,6 +151,17 @@ export default function ProductPage() {
         />
 
         <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => {
+              setEditData(null); // ❌ edit mode बंद
+              setForm({
+                product_id: "",
+                product_name: "",
+              });
+              setShowModal(true); // ✅ modal open
+            }}
+            className="px-3 py-1.5 rounded bg-blue-600 text-white text-sm hover:bg-blue-700 cursor-pointer"
+          >  + Add Product  </button>
 
           <button
             onClick={exportProductsExcel}
