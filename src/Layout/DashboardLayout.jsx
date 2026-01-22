@@ -156,6 +156,8 @@ export default function DashboardLayout() {
       { label: "Schemes", path: "/schemes", icon: <FaGift /> },
       { label: "Users", path: "/all-users/list", icon: <FaUsers /> },
       { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> },
+      { label: "Dispatch", path: "/dispatch-entries", icon: <FaBox /> },
+       { label: "Not-In-Stock", path: "/not-in-stock-reports", icon: <FaChartLine /> },
       { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> }
     );
   }
