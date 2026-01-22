@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import BottomNav from "./BottomNav";
-import { FaUserCircle, FaSearch, FaHome, FaGift, FaUsers, FaBox, FaHistory, FaShoppingCart, FaList, FaPlus, FaSignOutAlt, FaChartLine, FaHourglassHalf, FaBan, FaRoute, FaBoxOpen } from "react-icons/fa";
+import { FaUserCircle, FaSearch, FaHome, FaGift, FaUsers, FaBox, FaHistory, FaShoppingCart, FaList, FaPlus, FaSignOutAlt, FaChartLine, FaBan, FaRoute } from "react-icons/fa";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSchemes } from "../hooks/useSchemes";
@@ -155,7 +155,6 @@ export default function DashboardLayout() {
       { label: "Sale Name", path: "/sale-name", icon: <FaBox /> },
       { label: "Schemes", path: "/schemes", icon: <FaGift /> },
       { label: "Users", path: "/all-users/list", icon: <FaUsers /> },
-      { label: "Pending Orders", path: "/admin/pending-orders", icon: <FaHourglassHalf /> },
       { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> },
       { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> }
     );

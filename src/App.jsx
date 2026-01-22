@@ -33,8 +33,6 @@ import SubCategoryPage from "./pages/SubCategoryPage";
 import CRMDashboard from "./pages/CRMDashboard";
 import TemperedPage from "./pages/TemperedPage";
 import BatteryPage from "./pages/BatteryPage";
-import SSPendingOrders from "./pages/ADMIN/SSPendingOrders";
-import SSPendingOrderItems from "./pages/ADMIN/SSPendingOrderItems";
 import OrderTrackPage from "./pages/CRM/OrderTrackPage";
 import OrderListPage from "./pages/SS/OrderListPage";
 import DistributorMeetForm from "./components/form/DistributorMeetForm";
@@ -48,7 +46,6 @@ import OrderGoogleSheet from "./pages/CRM/OrderGoogleSheet";
 import NotInStockReportPage from "./pages/CRM/NotInStockReportPage";
 import TrackingOrdersPage from "./pages/CRM/TrackingOrdersPage";
 import MAHOTSAV from "./pages/MAHOTSAV";
-import SimpleOrderCreatePage from "./components/orderSheet/SimpleOrderCreatePage";
 
 export default function App() {
   useEffect(() => {
@@ -119,8 +116,6 @@ export default function App() {
             <Route path="/schemes" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemePage /></ProtectedRoute>} />
             <Route path="/schemes/new" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
             <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm/></ProtectedRoute>} />
-            <Route path="/admin/pending-orders" element={<ProtectedRoute allowedRoles={['ADMIN']}><SSPendingOrders /></ProtectedRoute>} />
-            <Route path="/admin/pending-orders/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SSPendingOrderItems /></ProtectedRoute>} />
             <Route path="/sampling-sheet" element={<ProtectedRoute allowedRoles={['ADMIN']}><SamplingSheetPage /></ProtectedRoute>} />
             <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />
             <Route path="/all-users/list" element={<ProtectedRoute ><AllUsersList /></ProtectedRoute>} />

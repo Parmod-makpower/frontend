@@ -9,9 +9,7 @@ import {
   FaChartLine,
   FaBox,
   FaBan,
-  FaHourglassHalf,
   FaRoute,
-  FaBoxOpen,
 } from "react-icons/fa";
 import MobilePageHeader from "../components/MobilePageHeader";
 import StockSelector from "../components/StockSelector";
@@ -48,11 +46,6 @@ export default function MoreOptionsPage() {
       : []),
     ...(user?.role === "ADMIN"
       ? [
-        {
-            label: "Pending Orders",
-            icon: <FaHourglassHalf className="text-red-600" />,
-            action: () => navigate("/admin/pending-orders"),
-          },
         {
             label: "Track-Orders",
             icon: <FaRoute className="text-red-600" />,

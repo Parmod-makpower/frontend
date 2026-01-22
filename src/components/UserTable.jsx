@@ -25,7 +25,7 @@ export default function UserTable({
             <th className="p-3 border">Status</th>
             <th className="p-3 border">Action</th>
             <th className="p-3 border">Action</th>
-            <th className="p-3 border">Update</th>
+            {(user?.role === "ADMIN" && <th className="p-3 border">Update</th>)}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 text-xs text-center">
@@ -65,13 +65,13 @@ export default function UserTable({
                 </button>
 
               </td>
-              <td className="p-3 border">
                 {!(user?.role === "CRM" && item.role === "SS") && (
+              <td className="p-3 border">
                   <button onClick={() => onEdit(item)} className="cursor-pointer ms-3 bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded">
                     <FaEdit />
                   </button>
-                )}
               </td>
+                )}
             </tr>
           ))}
         </tbody>

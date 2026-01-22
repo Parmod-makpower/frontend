@@ -42,6 +42,13 @@ export default function AddNewUser() {
     setErrors({ ...errors, [e.target.name]: "" });
   };
 
+  const isEmpty = (value) => {
+  if (value === null || value === undefined) return true;
+  if (typeof value === "string") return value.trim() === "";
+  return value === ""; // numbers / select fields
+};
+
+
   const extractErrors = (err) => {
     const response = err.response?.data;
     if (!response) return { non_field_errors: ["Something went wrong."] };
@@ -79,15 +86,17 @@ export default function AddNewUser() {
     let newErrors = {};
 
     requiredFields.forEach((field) => {
-      if (!form[field]?.trim()) {
-        newErrors[field] = ["This field is required"];
-      }
-    });
+  if (isEmpty(form[field])) {
+    newErrors[field] = ["This field is required"];
+  }
+});
+
 
     // Password required only for new user
-    if (!form.id && !form.password?.trim()) {
-      newErrors.password = ["Password is required"];
-    }
+   if (!form.id && isEmpty(form.password)) {
+  newErrors.password = ["Password is required"];
+}
+
 
 
 

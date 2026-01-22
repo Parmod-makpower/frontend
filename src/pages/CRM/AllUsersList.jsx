@@ -112,12 +112,13 @@ export default function AllUsersList() {
           </select>
 
           {/* Add Button */}
-          {/* <button
+          {user?.role === "ADMIN" && (<button
             onClick={() => navigate("/add-new-user")}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center justify-center w-full sm:w-auto"
           >
             + Add User
-          </button> */}
+          </button>)}
+          
         </div>
       </div>
 
