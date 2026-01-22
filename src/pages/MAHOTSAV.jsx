@@ -3,7 +3,7 @@ import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { FaCheckCircle, FaTimesCircle, FaFire } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaFire, FaInfoCircle, FaConciergeBell, FaFireAlt, FaUtensils, FaGift, FaShoppingCart, FaCalendarAlt } from "react-icons/fa";
 import makpower_image from "../assets/images/makpower_image.webp";
 import MobilePageHeader from "../components/MobilePageHeader";
 import { useStock } from "../context/StockContext";
@@ -35,54 +35,108 @@ export default function MAHOTSAV() {
   return (
     <div className="pb-24 bg-gray-50 min-h-screen">
       <MobilePageHeader title="Makpower Mahotsav" />
-
-      {/* 🎉 Banner */}
-      {/* 🎉 Mahotsav Banner */}
-<div className="pt-[65px] sm:pt-0 px-3">
-  <div className="
-    rounded-2xl 
-    bg-gradient-to-br from-pink-500 via-fuchsia-500 to-rose-600
-    p-5 
-    text-white 
-    shadow-xl 
-    relative 
-    overflow-hidden
-  ">
-
-    {/* Decorative circles */}
-    <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full" />
-    <div className="absolute -bottom-12 -left-12 w-40 h-40 bg-white/10 rounded-full" />
+{/* 🎉 Mahotsav Banner */}
+<div className="pt-[60px] sm:pt-0 px-2">
+  <div
+    className="
+      relative overflow-hidden
+      rounded-xl
+      bg-gradient-to-br from-pink-500 via-fuchsia-600 to-rose-600
+      p-3
+      text-white
+      shadow-lg
+    "
+  >
+    {/* soft glow */}
+    <div className="absolute inset-0 bg-white/5 pointer-events-none" />
 
     {/* Header */}
-    <h1 className="text-xl font-extrabold flex items-center gap-2">
-      <FaFire className="animate-pulse text-yellow-300" />
-      Mahotsav Scheme 🎉
-    </h1>
-
-    {/* Date */}
-    <p className="text-sm mt-1 text-white/90">
-      🗓 Valid from <b>1 Jan 2026</b> to <b>31 Mar 2026</b>
-    </p>
-
-    {/* Divider */}
-    <div className="my-3 h-[1px] bg-white/30" />
-
-    {/* Scheme Info */}
-    <div className="
-      text-sm 
-      bg-white/20 
-      backdrop-blur-sm 
-      px-4 py-3 
-      rounded-xl 
-      leading-relaxed
-    ">
-      🛒 Buy <b className="text-yellow-200">300 Quantity</b> of any  
-      <b> Mahotsav Product</b>  
-      <br />
-      🎁 <span className="font-semibold">Get exciting rewards & offers!</span>
+    <div className="flex items-center gap-2">
+      <FaFire className="text-yellow-300 animate-pulse text-sm" />
+      <h1 className="text-sm font-bold tracking-wide">
+        Mahotsav Scheme
+      </h1>
     </div>
 
+    {/* Date */}
+    <div className="flex items-center gap-1 text-[10px] text-white/90 mt-[2px]">
+      <FaCalendarAlt className="text-[10px]" />
+      <span>
+        1 Jan 2026 – 30 Apr 2026
+      </span>
+    </div>
 
+    {/* Info Box */}
+    <div
+      className="
+        mt-2
+        bg-white/15
+        backdrop-blur
+        rounded-lg
+        px-2.5 py-2
+        text-[11px]
+        leading-snug
+      "
+    >
+      <div className="flex items-start gap-1">
+        <FaShoppingCart className="mt-[2px] text-yellow-200 text-xs" />
+        <span>
+          Buy <b className="text-yellow-200">300 Qty</b> of any Mahotsav Product
+        </span>
+      </div>
+
+      <div className="flex items-start gap-1 mt-1">
+        <FaGift className="mt-[2px] text-yellow-200 text-xs" />
+        <span className="font-medium text-yellow-200">
+          Get ANY 1 reward
+        </span>
+      </div>
+    </div>
+
+    {/* 🎁 Rewards */}
+    <div className="mt-3 grid grid-cols-1 gap-2">
+      {/* Reward Card */}
+      {[
+        {
+          icon: <FaUtensils />,
+          label: "Kitchen Cookware Set",
+        },
+        {
+          icon: <FaFireAlt />,
+          label: "Gas Stove 4 Burner",
+        },
+        {
+          icon: <FaConciergeBell />,
+          label: "Steel Dinner Set (48 Pcs)",
+        },
+      ].map((item, idx) => (
+        <div
+          key={idx}
+          className="
+            flex items-center gap-2
+            bg-white/20
+            rounded-lg
+            px-3 py-2
+            text-[11px]
+            font-medium
+            backdrop-blur
+            transition
+            active:scale-95
+          "
+        >
+          <span className="text-yellow-300 text-sm">
+            {item.icon}
+          </span>
+          <span>{item.label}</span>
+        </div>
+      ))}
+    </div>
+
+    {/* Footer note */}
+    <p className="mt-2 text-[10px] text-white/80 italic flex items-center gap-1">
+      <FaInfoCircle className="text-[10px]" />
+      Any one reward on purchase of 300 quantity
+    </p>
   </div>
 </div>
 

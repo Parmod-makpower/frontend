@@ -38,24 +38,33 @@ export default function AllUsersList() {
   }, [selectedRole]);
 
   // ✅ Search + Role Filter
-  const filteredList = useMemo(() => {
-    const term = searchTerm.toLowerCase();
+ const filteredList = useMemo(() => {
+  const term = searchTerm.toLowerCase();
 
-    return ssList.filter((u) => {
+  return ssList
+    .filter((u) => {
       const roleMatch =
         selectedRole === "ALL" || u.role === selectedRole;
 
       const partyName = u.party_name?.toLowerCase() || "";
       const mobile = u.mobile?.toString() || "";
+      const user_id = u.user_id?.toString() || "";
 
       const searchMatch =
         !term ||
         partyName.includes(term) ||
-        mobile.includes(searchTerm);
+        mobile.includes(searchTerm) ||
+        user_id.includes(searchTerm);
 
       return roleMatch && searchMatch;
+    })
+    .sort((a, b) => {
+      const nameA = a.party_name?.toLowerCase() || "";
+      const nameB = b.party_name?.toLowerCase() || "";
+      return nameA.localeCompare(nameB);
     });
-  }, [searchTerm, selectedRole, ssList]);
+}, [searchTerm, selectedRole, ssList]);
+
 
   const handleEdit = (user) => {
     navigate("/add-new-user", { state: { editData: user } });
