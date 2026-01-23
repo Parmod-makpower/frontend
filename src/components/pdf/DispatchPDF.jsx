@@ -110,8 +110,10 @@ if (hasCargo) {
     item.quantity,
     item.rack_no ?? "-",
     item.cartoon_size ?? "-",
-    dispatchLocation?.toLowerCase() === "mumbai" ? "-" : item.ss_virtual_stock ?? "-", // ✅ condition added here
- 
+   dispatchLocation?.toLowerCase() === "mumbai"
+  ? item.mumbai_stock ?? "-"
+  : item.ss_virtual_stock ?? "-"
+
   ]);
 
   autoTable(doc, {
