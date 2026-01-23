@@ -108,6 +108,7 @@ export default function App() {
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
             <Route path="/google-sheet" element={<ProtectedRoute ><OrderGoogleSheet /></ProtectedRoute>} />
             <Route path="/not-in-stock-reports" element={<ProtectedRoute><NotInStockReportPage /></ProtectedRoute>} />
+             <Route path="/sampling-sheet" element={<ProtectedRoute><SamplingSheetPage /></ProtectedRoute>} />
 
             <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductPage /></ProtectedRoute>} />
@@ -115,7 +116,7 @@ export default function App() {
             <Route path="/schemes" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemePage /></ProtectedRoute>} />
             <Route path="/schemes/new" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
             <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm/></ProtectedRoute>} />
-            <Route path="/sampling-sheet" element={<ProtectedRoute allowedRoles={['ADMIN']}><SamplingSheetPage /></ProtectedRoute>} />
+           
              <Route path="/dispatch-entries" element={<ProtectedRoute allowedRoles={['ADMIN']}><DispatchEntriesPage /></ProtectedRoute>} />
 
             <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />

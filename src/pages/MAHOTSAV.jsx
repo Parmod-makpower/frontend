@@ -1,4 +1,7 @@
 // 📁 src/pages/MAHOTSAV.jsx
+import { useSamplingSheet } from "../hooks/SS/useSamplingSheet";
+import { useMemo } from "react";
+
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
@@ -15,6 +18,21 @@ export default function MAHOTSAV() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { getStockValue } = useStock();
+  const { data: samplingData = [] } = useSamplingSheet();
+
+  const partyMahotsavData = useMemo(() => {
+  return samplingData.find(
+    (row) =>
+      row.party_name?.toLowerCase() ===
+      user?.party_name?.toLowerCase()
+  );
+}, [samplingData, user]);
+
+const totalQty = partyMahotsavData?.mahotsav_dispatch_quantity || 0;
+console.log(totalQty);
+
+const combos = Math.floor(totalQty / 300);
+
 
   // ✅ Mahotsav Products
   const PRODUCT_IDS = [
@@ -36,48 +54,96 @@ export default function MAHOTSAV() {
     <div className="pb-24 bg-gray-50 min-h-screen">
       <MobilePageHeader title="Makpower Mahotsav" />
 {/* 🎉 Mahotsav Banner */}
+
 <div className="pt-[60px] sm:pt-0 px-2">
-  <div
-    className="
-      relative overflow-hidden
-      rounded-xl
-      bg-gradient-to-br from-pink-500 via-fuchsia-600 to-rose-600
-      p-3
-      text-white
-      shadow-lg
-    "
-  >
-    {/* soft glow */}
+  <div className="
+    relative overflow-hidden
+    rounded-xl
+    bg-gradient-to-br from-pink-500 via-fuchsia-600 to-rose-600
+    p-3
+    text-white
+    shadow-lg
+  ">
     <div className="absolute inset-0 bg-white/5 pointer-events-none" />
 
-    {/* Header */}
-    <div className="flex items-center gap-2">
-      <FaFire className="text-yellow-300 animate-pulse text-sm" />
-      <h1 className="text-sm font-bold tracking-wide">
-        Mahotsav Scheme
-      </h1>
-    </div>
+   {/* Header */}
+<div className="flex items-center justify-between">
+  <div className="flex items-center gap-2">
+    <FaFire className="text-yellow-300 animate-pulse text-sm" />
+    <h1 className="text-sm font-bold tracking-wide">
+      Mahotsav Scheme
+    </h1>
+  </div>
+
+  {/* 🔐 CRM / ADMIN only button */}
+  {(user?.role === "CRM" || user?.role === "ADMIN") && (
+    <button
+      onClick={() => {
+        navigate(`/sampling-sheet`)
+      }}
+      className="
+        bg-white/20
+        hover:bg-white/30
+        border border-white/30
+        text-white
+        text-[10px]
+        px-3 py-1
+        rounded-full
+        font-semibold
+        transition
+        active:scale-95
+        cursor-pointer
+      "
+    >
+      Manage
+    </button>
+  )}
+</div>
 
     {/* Date */}
     <div className="flex items-center gap-1 text-[10px] text-white/90 mt-[2px]">
       <FaCalendarAlt className="text-[10px]" />
-      <span>
-        1 Jan 2026 – 30 Apr 2026
-      </span>
+      <span>1 Jan 2026 – 30 Apr 2026</span>
+    </div>
+
+    {/* 🧾 Party Summary */}
+    <div className="mt-3 bg-white/15 backdrop-blur rounded-lg p-2.5">
+      <p className="text-[11px] font-semibold text-yellow-200 truncate">
+        {user?.party_name}
+      </p>
+
+      {/* Stats */}
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        {/* Total Qty */}
+        <div className="bg-white/20 rounded-lg px-3 py-2 text-center">
+          <p className="text-[10px] text-white/80">
+            Total Purchase Qty
+          </p>
+          <p className="text-sm font-bold text-yellow-300 leading-tight">
+            {totalQty}
+          </p>
+          <p className="text-[9px] text-white/70">
+            Purchased from company
+          </p>
+        </div>
+
+        {/* Combo */}
+        <div className="bg-white/20 rounded-lg px-3 py-2 text-center">
+          <p className="text-[10px] text-white/80">
+            Eligible Combos
+          </p>
+          <p className="text-sm font-bold text-green-300 leading-tight">
+            {combos}
+          </p>
+          <p className="text-[9px] text-white/70">
+            (300 Qty = 1 Combo)
+          </p>
+        </div>
+      </div>
     </div>
 
     {/* Info Box */}
-    <div
-      className="
-        mt-2
-        bg-white/15
-        backdrop-blur
-        rounded-lg
-        px-2.5 py-2
-        text-[11px]
-        leading-snug
-      "
-    >
+    <div className="mt-3 bg-white/15 backdrop-blur rounded-lg px-2.5 py-2 text-[11px] leading-snug">
       <div className="flex items-start gap-1">
         <FaShoppingCart className="mt-[2px] text-yellow-200 text-xs" />
         <span>
@@ -88,41 +154,21 @@ export default function MAHOTSAV() {
       <div className="flex items-start gap-1 mt-1">
         <FaGift className="mt-[2px] text-yellow-200 text-xs" />
         <span className="font-medium text-yellow-200">
-          Get ANY 1 reward
+          Get ANY 1 reward per combo
         </span>
       </div>
     </div>
 
     {/* 🎁 Rewards */}
-    <div className="mt-3 grid grid-cols-1 gap-2">
-      {/* Reward Card */}
+    <div className="mt-3 grid gap-2">
       {[
-        {
-          icon: <FaUtensils />,
-          label: "Kitchen Cookware Set",
-        },
-        {
-          icon: <FaFireAlt />,
-          label: "Gas Stove 4 Burner",
-        },
-        {
-          icon: <FaConciergeBell />,
-          label: "Steel Dinner Set (48 Pcs)",
-        },
+        { icon: <FaUtensils />, label: "Kitchen Cookware Set" },
+        { icon: <FaFireAlt />, label: "Gas Stove 4 Burner" },
+        { icon: <FaConciergeBell />, label: "Steel Dinner Set (48 Pcs)" },
       ].map((item, idx) => (
         <div
           key={idx}
-          className="
-            flex items-center gap-2
-            bg-white/20
-            rounded-lg
-            px-3 py-2
-            text-[11px]
-            font-medium
-            backdrop-blur
-            transition
-            active:scale-95
-          "
+          className="flex items-center gap-2 bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur"
         >
           <span className="text-yellow-300 text-sm">
             {item.icon}
@@ -135,10 +181,11 @@ export default function MAHOTSAV() {
     {/* Footer note */}
     <p className="mt-2 text-[10px] text-white/80 italic flex items-center gap-1">
       <FaInfoCircle className="text-[10px]" />
-      Any one reward on purchase of 300 quantity
+      Combos calculated on completed quantity only
     </p>
   </div>
 </div>
+
 
 
       {/* 📦 Product Grid */}

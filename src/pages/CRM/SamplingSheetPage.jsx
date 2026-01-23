@@ -1,45 +1,124 @@
-
+import { useState, useMemo } from "react";
+import { FaSearch, FaUsers } from "react-icons/fa";
 import { useSamplingSheet } from "../../hooks/SS/useSamplingSheet";
 
 export default function PartyItemSheetPage() {
   const { data = [], isLoading, error } = useSamplingSheet();
+  const [search, setSearch] = useState("");
+
+  const filteredData = useMemo(() => {
+    const term = search.toLowerCase();
+    return data.filter((row) =>
+      row.party_name?.toLowerCase().includes(term)
+    );
+  }, [search, data]);
 
   if (isLoading) {
-    return <p className="p-4 text-sm">Loading sheet data...</p>;
+    return <p className="p-3 text-xs">Loading sheet data...</p>;
   }
 
   if (error) {
-    return <p className="p-4 text-sm text-red-500">Failed to load data</p>;
+    return <p className="p-3 text-xs text-red-500">Failed to load data</p>;
   }
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-semibold mb-4">
-        Party Item Sheet
-      </h2>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border px-3 py-2 text-left">Party Name</th>
-              <th className="border px-3 py-2 text-left">Items</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row) => (
-              <tr key={row.id}>
-                <td className="border px-3 py-2 font-medium">
-                  {row.party_name}
-                </td>
-                <td className="border px-3 py-2">
-                  {row.items}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="p-3 sm:p-4 max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-3">
+        <FaUsers className="text-green-600 text-sm" />
+        <h2 className="text-sm font-semibold text-gray-800">
+          Party Item Sheet
+        </h2>
       </div>
+
+      {/* Search */}
+      <div className="relative mb-3">
+        <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
+        <input
+          type="text"
+          placeholder="Search Party Name"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="
+            w-full
+            border
+            rounded-md
+            pl-8 pr-3 py-2
+            text-xs
+            focus:outline-none
+            focus:ring-1
+            focus:ring-green-500
+          "
+        />
+      </div>
+
+      {/* 🔒 FIXED HEIGHT TABLE */}
+      <div className="border rounded bg-white overflow-hidden">
+        <div className="max-h-[360px] overflow-y-auto">
+          <table className="w-full text-[11px] border-collapse">
+            {/* Sticky Header */}
+            <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
+              <tr>
+                <th className="border px-3 py-2 text-left font-semibold">
+                  Party Name
+                </th>
+                <th className="border px-3 py-2 text-center font-semibold">
+                  Mahotsav Qty
+                </th>
+                <th className="border px-3 py-2 text-center font-semibold">
+                  Combo
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredData.length === 0 ? (
+                <tr>
+                  <td colSpan="3" className="px-3 py-4 text-center text-gray-500">
+                    No matching party found
+                  </td>
+                </tr>
+              ) : (
+                filteredData.map((row, index) => {
+                  const combo = Math.floor(
+                    (row.mahotsav_dispatch_quantity || 0) / 300
+                  );
+
+
+                  return (
+                    <tr
+                      key={row.id}
+                      className={`
+            ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+            hover:bg-green-50
+            transition
+          `}
+                    >
+                      <td className="border px-3 py-2 font-medium text-gray-800">
+                        {row.party_name}
+                      </td>
+
+                      <td className="border px-3 py-2 text-center font-semibold text-green-700">
+                        {row.mahotsav_dispatch_quantity}
+                      </td>
+
+                      <td className="border px-3 py-2 text-center font-semibold text-blue-700">
+                        {combo}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+
+      {/* Footer Note */}
+      <p className="mt-2 text-[10px] text-gray-400 text-right">
+        Showing {filteredData.length} records
+      </p>
     </div>
   );
 }
