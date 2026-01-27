@@ -9,28 +9,21 @@ export default function PartyItemSheetPage() {
   const {user} = useAuth();
 
   const filteredData = useMemo(() => {
-    const term = search.toLowerCase();
-    return data.filter((row) =>
-      row.party_name?.toLowerCase().includes(term)
-    );
-  }, [search, data]);
+  const term = search.toLowerCase();
 
-//   const filteredData = useMemo(() => {
-//   const term = search.toLowerCase();
+  return data.filter((row) => {
+    // 🔍 party name search
+    const matchParty = row.party_name?.toLowerCase().includes(term);
 
-//   return data.filter((row) => {
-//     // 🔍 party name search
-//     const matchParty = row.party_name?.toLowerCase().includes(term);
+    // 🔐 role based access
+    const isAdmin = user?.role === "ADMIN";
+    const isOwnCRM =
+      user?.role === "CRM" &&
+      row.crm_name?.toLowerCase() === user?.name?.toLowerCase();
 
-//     // 🔐 role based access
-//     const isAdmin = user?.role === "ADMIN";
-//     const isOwnCRM =
-//       user?.role === "CRM" &&
-//       row.crm_name?.toLowerCase() === user?.name?.toLowerCase();
-
-//     return matchParty && (isAdmin || isOwnCRM);
-//   });
-// }, [search, data, user]);
+    return matchParty && (isAdmin || isOwnCRM);
+  });
+}, [search, data, user]);
 
   if (isLoading) {
     return <p className="p-3 text-xs">Loading sheet data...</p>;
