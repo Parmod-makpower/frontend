@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
 import { FaSearch, FaUsers } from "react-icons/fa";
-import { useSamplingSheet } from "../../hooks/SS/useSamplingSheet";
+import { useMahotsavSheet } from "../../hooks/CRM/useMahotsav";
+import { useAuth } from "../../context/AuthContext";
 
 export default function PartyItemSheetPage() {
-  const { data = [], isLoading, error } = useSamplingSheet();
+  const { data = [], isLoading, error } = useMahotsavSheet();
   const [search, setSearch] = useState("");
+  const {user} = useAuth();
 
   const filteredData = useMemo(() => {
     const term = search.toLowerCase();
@@ -12,6 +14,23 @@ export default function PartyItemSheetPage() {
       row.party_name?.toLowerCase().includes(term)
     );
   }, [search, data]);
+
+//   const filteredData = useMemo(() => {
+//   const term = search.toLowerCase();
+
+//   return data.filter((row) => {
+//     // 🔍 party name search
+//     const matchParty = row.party_name?.toLowerCase().includes(term);
+
+//     // 🔐 role based access
+//     const isAdmin = user?.role === "ADMIN";
+//     const isOwnCRM =
+//       user?.role === "CRM" &&
+//       row.crm_name?.toLowerCase() === user?.name?.toLowerCase();
+
+//     return matchParty && (isAdmin || isOwnCRM);
+//   });
+// }, [search, data, user]);
 
   if (isLoading) {
     return <p className="p-3 text-xs">Loading sheet data...</p>;
@@ -62,6 +81,9 @@ export default function PartyItemSheetPage() {
                 <th className="border px-3 py-2 text-left font-semibold">
                   Party Name
                 </th>
+                <th className="border px-3 py-2 text-left font-semibold">
+                  CRM Name
+                </th>
                 <th className="border px-3 py-2 text-center font-semibold">
                   Mahotsav Qty
                 </th>
@@ -94,6 +116,9 @@ export default function PartyItemSheetPage() {
             transition
           `}
                     >
+                      <td className="border px-3 py-2 font-medium text-gray-800">
+                        {row.crm_name}
+                      </td>
                       <td className="border px-3 py-2 font-medium text-gray-800">
                         {row.party_name}
                       </td>

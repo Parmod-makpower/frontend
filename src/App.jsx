@@ -40,7 +40,7 @@ import ProductUsageReportPage from "./pages/ProductUsageReportPage";
 import DealerFormPage from "./components/form/DealerFormPage";
 import ConfirmOrderPageDS from "./pages/DS/ConfirmOrderPageDS";
 import DSOrdersPage from "./pages/DS/DSOrdersPage";
-import SamplingSheetPage from "./pages/CRM/SamplingSheetPage";
+import MahotsavSheetPage from "./pages/CRM/MahotsavSheetPage";
 import DispatchEntriesPage from "./pages/ADMIN/DispatchEntriesPage";
 import OrderGoogleSheet from "./pages/CRM/OrderGoogleSheet";
 import NotInStockReportPage from "./pages/CRM/NotInStockReportPage";
@@ -108,7 +108,7 @@ export default function App() {
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
             <Route path="/google-sheet" element={<ProtectedRoute ><OrderGoogleSheet /></ProtectedRoute>} />
             <Route path="/not-in-stock-reports" element={<ProtectedRoute><NotInStockReportPage /></ProtectedRoute>} />
-             <Route path="/sampling-sheet" element={<ProtectedRoute><SamplingSheetPage /></ProtectedRoute>} />
+             <Route path="/mahotsav-data" element={<ProtectedRoute><MahotsavSheetPage /></ProtectedRoute>} />
 
             <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductPage /></ProtectedRoute>} />

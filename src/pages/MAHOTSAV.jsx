@@ -1,7 +1,6 @@
 // 📁 src/pages/MAHOTSAV.jsx
-import { useSamplingSheet } from "../hooks/SS/useSamplingSheet";
+import { useMahotsavSheet } from "../hooks/CRM/useMahotsav";
 import { useMemo } from "react";
-
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
@@ -18,7 +17,7 @@ export default function MAHOTSAV() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { getStockValue } = useStock();
-  const { data: samplingData = [] } = useSamplingSheet();
+  const { data: samplingData = [] } = useMahotsavSheet();
 
   const partyMahotsavData = useMemo(() => {
   return samplingData.find(
@@ -79,7 +78,7 @@ const combos = Math.floor(totalQty / 300);
   {(user?.role === "CRM" || user?.role === "ADMIN") && (
     <button
       onClick={() => {
-        navigate(`/sampling-sheet`)
+        navigate(`/mahotsav-data`)
       }}
       className="
         bg-white/20
