@@ -182,7 +182,7 @@ export default function AddNewUser() {
             <option value="">Select Role</option>
             {user.role === "ADMIN" && <option value="CRM">CRM</option>}
             {user.role === "ADMIN" && <option value="SS">Super Stockist</option>}
-            <option value="ASM">ASM</option>
+            {/* <option value="ASM">ASM</option> */}
             <option value="DS">Distributor</option>
           </select>
 
@@ -233,7 +233,7 @@ export default function AddNewUser() {
                   <option value="">Select Super Stockist</option>
                   {ssUsers.map((ss) => (
                     <option key={ss.id} value={ss.id}>
-                      {ss.name || ss.mobile}
+                      {ss.party_name || ss.mobile}
                     </option>
                   ))}
                 </select>

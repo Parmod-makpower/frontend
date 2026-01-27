@@ -43,7 +43,7 @@ export default function ProductDetailPage() {
       setProduct(found);
     }
   }, [allProductsRaw, productId]);
-  
+
 
   if (isProductLoading || !product || isSchemeLoading)
     return <div className="p-6 text-center">Loading...</div>;
@@ -69,10 +69,10 @@ export default function ProductDetailPage() {
       addProduct({ ...product, id: product.id, quantity: initialQty });
     }
   };
- 
 
-const currentStock = getStockValue(product);
-const outOfStock = currentStock <= product.moq;
+
+  const currentStock = getStockValue(product);
+  const outOfStock = currentStock <= product.moq;
 
 
   const images = [
@@ -83,10 +83,30 @@ const outOfStock = currentStock <= product.moq;
       ? `https://res.cloudinary.com/djyr368zj/${product.image2}?f_auto,q_auto,w_600,dpr_auto`
       : null,
   ].filter(Boolean);
-  
+
 
   const handleNext = () => setCurrentIndex((prev) => (prev + 1) % images.length);
   const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+
+  const formatGuaranteeForRole = (guarantee, role) => {
+    if (!guarantee || guarantee === "nan") return "";
+
+    // DS ke alawa sab ke liye same
+    if (role !== "DS") return guarantee;
+
+    // number extract karo (6, 9, 12 etc.)
+    const match = guarantee.match(/\d+/);
+
+    // agar number hi nahi mila (eg: LIFETIME)
+    if (!match) return guarantee;
+
+    const originalValue = parseInt(match[0], 10);
+    const updatedValue = Math.max(originalValue - 3, 0);
+
+    // sirf number replace karo, text same rahe
+    return guarantee.replace(match[0], updatedValue.toString());
+  };
+
 
   return (
     <div className=" pb-28">
@@ -149,14 +169,14 @@ const outOfStock = currentStock <= product.moq;
             {/* Stock */}
             <div className="flex items-center gap-2">
               {!outOfStock ? (
-  <span className="text-green-600 flex gap-2">
-    <FaCheckCircle /> In Stock
-  </span>
-) : (
-  <span className="text-red-600 flex gap-2">
-    <FaTimesCircle /> Out of Stock 
-  </span>
-)}
+                <span className="text-green-600 flex gap-2">
+                  <FaCheckCircle /> In Stock
+                </span>
+              ) : (
+                <span className="text-red-600 flex gap-2">
+                  <FaTimesCircle /> Out of Stock
+                </span>
+              )}
 
             </div>
 
@@ -188,9 +208,12 @@ const outOfStock = currentStock <= product.moq;
               {product.guarantee != null && product.guarantee !== "nan" && (
                 <div>
                   <p className="font-medium text-gray-500">Guarantee</p>
-                  <p className="text-gray-800">{product.guarantee}</p>
+                  <p className="text-gray-800">
+                    {formatGuaranteeForRole(product.guarantee, user?.role)}
+                  </p>
                 </div>
               )}
+
 
             </div>
 
@@ -267,7 +290,7 @@ const outOfStock = currentStock <= product.moq;
                 >
                   {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
                     <option key={n} value={n}>
-                       {n} Carton = {n * (product.cartoon_size || 1)} Pcs 
+                      {n} Carton = {n * (product.cartoon_size || 1)} Pcs
                     </option>
                   ))}
                 </select>
