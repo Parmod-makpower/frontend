@@ -14,7 +14,7 @@ export const useMahotsavSheet = () => {
     queryKey: ["mahotsav-data"],
     queryFn: getMahotsavSheet,
 
-    staleTime: 1000 * 60 * 64,
+    staleTime: 1000 * 60 * 7,
     gcTime: 1000 * 60 * 60 * 24,
 
     refetchOnWindowFocus: true,
