@@ -72,18 +72,18 @@ export default function PartyItemSheetPage() {
             <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
               <tr>
                 <th className="border px-3 py-2 text-left font-semibold">
-                  Party Name
+                  CRM Name
                 </th>
                 <th className="border px-3 py-2 text-left font-semibold">
-                  CRM Name
+                  Party Name
                 </th>
                 <th className="border px-3 py-2 text-center font-semibold">
                   Mahotsav Qty
                 </th>
                 <th className="border px-3 py-2 text-center font-semibold">Combo</th>
-                <th className="border px-3 py-2 text-center font-semibold">Gas stove</th>
-                <th className="border px-3 py-2 text-center font-semibold">Kitchen Cookware</th>
-                <th className="border px-3 py-2 text-center font-semibold">Dinner Set</th>
+                <th className="border px-3 py-2 text-center font-semibold">Gas Stove 4 Burner</th>
+                <th className="border px-3 py-2 text-center font-semibold">Kitchen Cookware Set</th>
+                <th className="border px-3 py-2 text-center font-semibold">Dinner Set 48 Pcs</th>
               </tr>
             </thead>
 
