@@ -6,24 +6,24 @@ import { useAuth } from "../../context/AuthContext";
 export default function PartyItemSheetPage() {
   const { data = [], isLoading, error } = useMahotsavSheet();
   const [search, setSearch] = useState("");
-  const {user} = useAuth();
+  const { user } = useAuth();
 
   const filteredData = useMemo(() => {
-  const term = search.toLowerCase();
+    const term = search.toLowerCase();
 
-  return data.filter((row) => {
-    // 🔍 party name search
-    const matchParty = row.party_name?.toLowerCase().includes(term);
+    return data.filter((row) => {
+      // 🔍 party name search
+      const matchParty = row.party_name?.toLowerCase().includes(term);
 
-    // 🔐 role based access
-    const isAdmin = user?.role === "ADMIN";
-    const isOwnCRM =
-      user?.role === "CRM" &&
-      row.crm_name?.toLowerCase() === user?.name?.toLowerCase();
+      // 🔐 role based access
+      const isAdmin = user?.role === "ADMIN";
+      const isOwnCRM =
+        user?.role === "CRM" &&
+        row.crm_name?.toLowerCase() === user?.name?.toLowerCase();
 
-    return matchParty && (isAdmin || isOwnCRM);
-  });
-}, [search, data, user]);
+      return matchParty && (isAdmin || isOwnCRM);
+    });
+  }, [search, data, user]);
 
   if (isLoading) {
     return <p className="p-3 text-xs">Loading sheet data...</p>;
@@ -34,12 +34,12 @@ export default function PartyItemSheetPage() {
   }
 
   return (
-    <div className="p-3 sm:p-4 max-w-4xl mx-auto">
+    <div className="p-1">
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
         <FaUsers className="text-green-600 text-sm" />
         <h2 className="text-sm font-semibold text-gray-800">
-          Party Item Sheet
+          Party Mahotsav Sheet
         </h2>
       </div>
 
@@ -66,7 +66,7 @@ export default function PartyItemSheetPage() {
 
       {/* 🔒 FIXED HEIGHT TABLE */}
       <div className="border rounded bg-white overflow-hidden">
-        <div className="max-h-[360px] overflow-y-auto">
+        <div className="max-h-[460px] overflow-y-auto">
           <table className="w-full text-[11px] border-collapse">
             {/* Sticky Header */}
             <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
@@ -80,9 +80,10 @@ export default function PartyItemSheetPage() {
                 <th className="border px-3 py-2 text-center font-semibold">
                   Mahotsav Qty
                 </th>
-                <th className="border px-3 py-2 text-center font-semibold">
-                  Combo
-                </th>
+                <th className="border px-3 py-2 text-center font-semibold">Combo</th>
+                <th className="border px-3 py-2 text-center font-semibold">Gas stove</th>
+                <th className="border px-3 py-2 text-center font-semibold">Kitchen Cookware</th>
+                <th className="border px-3 py-2 text-center font-semibold">Dinner Set</th>
               </tr>
             </thead>
 
@@ -120,9 +121,10 @@ export default function PartyItemSheetPage() {
                         {row.mahotsav_dispatch_quantity}
                       </td>
 
-                      <td className="border px-3 py-2 text-center font-semibold text-blue-700">
-                        {combo}
-                      </td>
+                      <td className="border px-3 py-2 text-center font-semibold text-blue-700">{combo}</td>
+                      <td className="border px-3 py-2 text-center font-semibold bg-orange-200">{row.gas_stove}</td>
+                      <td className="border px-3 py-2 text-center font-semibold bg-orange-200">{row.kitchen_cookware}</td>
+                      <td className="border px-3 py-2 text-center font-semibold bg-orange-200">{row.dinner_set}</td>
                     </tr>
                   );
                 })
