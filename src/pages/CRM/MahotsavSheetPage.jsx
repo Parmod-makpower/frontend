@@ -26,39 +26,37 @@ export default function PartyItemSheetPage() {
   }, [search, data, user]);
 
   const crmSheetLinks = [
-  {
-    key: "ankita",
-    url: "https://docs.google.com/spreadsheets/d/1ffxuFoXiDj5SewSNOj804PMNSkFwS9G8kF-Sf_CuwfQ/edit?gid=2115773395#gid=2115773395",
-  },
-  {
-    key: "ajit",
-    url: "https://docs.google.com/spreadsheets/d/1FD7Uhslzfw9fNCkc9RaXGetUYFDwbJN3bPjC0ht6suA/edit?gid=191365798#gid=191365798",
-  },
-  {
-    key: "simran",
-    url: "https://docs.google.com/spreadsheets/d/1p8ViqswWQ6Cc5WRiwgYC0xJ3shd7jHFpQyMLZO9dpoM/edit?gid=352048079#gid=352048079",
-  },
-  {
-    key: "prince",
-    url: "https://docs.google.com/spreadsheets/d/1SZgx4sb_Vf1bBLnsbc8Ta8JaTThtPkx8MSeEn4T2qoQ/edit?gid=352048079#gid=352048079",
-  },
-  {
-    key: "harish",
-    url: "https://docs.google.com/spreadsheets/d/1beGiqxt0oxkVDdfbY0z9LJn7FPr9xa0jvbVSgmskU8k/edit?gid=352048079#gid=352048079",
-  },
-];
-
+    {
+      key: "ankita",
+      url: "https://docs.google.com/spreadsheets/d/1ffxuFoXiDj5SewSNOj804PMNSkFwS9G8kF-Sf_CuwfQ/edit?gid=2115773395#gid=2115773395",
+    },
+    {
+      key: "ajit",
+      url: "https://docs.google.com/spreadsheets/d/1FD7Uhslzfw9fNCkc9RaXGetUYFDwbJN3bPjC0ht6suA/edit?gid=191365798#gid=191365798",
+    },
+    {
+      key: "simran",
+      url: "https://docs.google.com/spreadsheets/d/1p8ViqswWQ6Cc5WRiwgYC0xJ3shd7jHFpQyMLZO9dpoM/edit?gid=352048079#gid=352048079",
+    },
+    {
+      key: "prince",
+      url: "https://docs.google.com/spreadsheets/d/1SZgx4sb_Vf1bBLnsbc8Ta8JaTThtPkx8MSeEn4T2qoQ/edit?gid=352048079#gid=352048079",
+    },
+    {
+      key: "harish",
+      url: "https://docs.google.com/spreadsheets/d/1beGiqxt0oxkVDdfbY0z9LJn7FPr9xa0jvbVSgmskU8k/edit?gid=352048079#gid=352048079",
+    },
+  ];
 
   const getCrmSheetLink = (crmName = "") => {
-  const name = crmName.toLowerCase();
+    const name = crmName.toLowerCase();
 
-  const match = crmSheetLinks.find((crm) =>
-    name.includes(crm.key)
-  );
+    const match = crmSheetLinks.find((crm) =>
+      name.includes(crm.key)
+    );
 
-  return match?.url || null;
-};
-
+    return match?.url || null;
+  };
 
 
   if (isLoading) {
@@ -116,7 +114,7 @@ export default function PartyItemSheetPage() {
                 <th className="border px-3 py-2 text-center font-semibold">
                   Mahotsav Qty
                 </th>
-                <th className="border px-3 py-2 text-center font-semibold">Combo</th>
+                <th className="border px-3 py-2 text-center font-semibold">Gift</th>
                 <th className="border px-3 py-2 text-center font-semibold">Gas Stove 4 Burner</th>
                 <th className="border px-3 py-2 text-center font-semibold">Cookware Set</th>
                 <th className="border px-3 py-2 text-center font-semibold">Dinner Set</th>
@@ -144,16 +142,10 @@ export default function PartyItemSheetPage() {
 
                   const balance = combo - (gas + cookware + dinner);
 
-
                   return (
                     <tr
                       key={row.id}
-                      className={`
-            ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-            hover:bg-green-50
-            transition
-          `}
-                    >
+                      className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-green-50 transition`}>
                       <td className="border px-3 py-2 font-medium text-gray-800">
                         {row.crm_name}
                       </td>
@@ -171,20 +163,17 @@ export default function PartyItemSheetPage() {
                       <td className="border px-3 py-2 text-center font-semibold bg-orange-200">{row.dinner_set}</td>
                       <td className={`border px-3 py-2 text-center font-semibold  ${balance < 0 ? "text-red-600" : "text-green-700"} `}> {balance} </td>
                       <td className="border px-3 py-2 text-center">
-                      {getCrmSheetLink(row.crm_name) ? (
-                        <a
-                          href={getCrmSheetLink(row.crm_name)}
-                          target="_blank" rel="noopener noreferrer"
-                          className="inline-block px-2 py-1 text-[10px] font-semibold text-white bg-blue-600 rounded hover:bg-blue-700">
-                          More Details
-                        </a>
-                      ) : (
-                        <span className="text-[10px] text-gray-400">N/A</span>
-                      )}
-                    </td>
-
-
-
+                        {getCrmSheetLink(row.crm_name) ? (
+                          <a
+                            href={getCrmSheetLink(row.crm_name)}
+                            target="_blank" rel="noopener noreferrer"
+                            className="inline-block px-2 py-1 text-[10px] font-semibold text-white bg-blue-600 rounded hover:bg-blue-700">
+                            More Details
+                          </a>
+                        ) : (
+                          <span className="text-[10px] text-gray-400">N/A</span>
+                        )}
+                      </td>
                     </tr>
                   );
                 })

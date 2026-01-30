@@ -129,13 +129,13 @@ const combos = Math.floor(totalQty / 300);
         {/* Combo */}
         <div className="bg-white/20 rounded-lg px-3 py-2 text-center">
           <p className="text-[10px] text-white/80">
-            Eligible Combos
+            Eligible Gift
           </p>
           <p className="text-sm font-bold text-green-300 leading-tight">
             {combos}
           </p>
           <p className="text-[9px] text-white/70">
-            (300 Qty = 1 Combo)
+            (300 Qty = 1 Gift)
           </p>
         </div>
       </div>
@@ -153,7 +153,7 @@ const combos = Math.floor(totalQty / 300);
       <div className="flex items-start gap-1 mt-1">
         <FaGift className="mt-[2px] text-yellow-200 text-xs" />
         <span className="font-medium text-yellow-200">
-          Get ANY 1 reward per combo
+          Get ANY 1 reward per Gift
         </span>
       </div>
     </div>
@@ -180,7 +180,7 @@ const combos = Math.floor(totalQty / 300);
     {/* Footer note */}
     <p className="mt-2 text-[10px] text-white/80 italic flex items-center gap-1">
       <FaInfoCircle className="text-[10px]" />
-      Combos calculated on completed quantity only
+      Gift calculated on completed quantity only
     </p>
   </div>
 </div>

@@ -8,7 +8,6 @@ import { useAuth } from "../../context/AuthContext";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { useQueryClient } from "@tanstack/react-query";
 
-
 export default function AddNewUser() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -97,10 +96,6 @@ export default function AddNewUser() {
   newErrors.password = ["Password is required"];
 }
 
-
-
-
-
     if (Object.keys(newErrors).length) {
       setErrors(newErrors);
       return;
@@ -175,10 +170,7 @@ export default function AddNewUser() {
             value={form.role}
             onChange={handleChange}
             disabled={!!form.id}  // 👈 EDIT MODE ME ROLE DISABLE
-            className={`border p-2 rounded w-full text-sm focus:ring focus:ring-blue-200 ${form.id ? "bg-gray-200 cursor-not-allowed" : ""
-              }`}
-          >
-
+            className={`border p-2 rounded w-full text-sm focus:ring focus:ring-blue-200 ${form.id ? "bg-gray-200 cursor-not-allowed" : "" }`} >
             <option value="">Select Role</option>
             {user.role === "ADMIN" && <option value="CRM">CRM</option>}
             {user.role === "ADMIN" && <option value="SS">Super Stockist</option>}
@@ -247,7 +239,7 @@ export default function AddNewUser() {
             {/* NAME */}
             <div>
               <label className="flex items-center gap-2 text-gray-700 mb-1 text-sm">
-                Name
+                Owner Name
               </label>
               <input
                 name="name"
@@ -255,10 +247,7 @@ export default function AddNewUser() {
                 onChange={handleChange}
                 className="border p-2 rounded w-full text-sm"
               />
-
-              {errors.name && (
-                <p className="text-red-600 text-xs mt-1">{errors.name[0]}</p>
-              )}
+              {errors.name && (<p className="text-red-600 text-xs mt-1">{errors.name[0]}</p>)}
             </div>
 
             {/* MOBILE */}
@@ -281,7 +270,7 @@ export default function AddNewUser() {
             {showPartyField && (
               <div>
                 <label className="flex items-center gap-2 text-gray-700 mb-1 text-sm">
-                  Party Name
+                  Party/Shop Name
                 </label>
                 <input
                   name="party_name"
