@@ -57,13 +57,19 @@ export default function BatteryPage() {
 
   const handleAddProduct = (product) => {
     if (!isAdded(product.id)) {
+      const isDS = user?.role === "DS";
       const moq = product.moq || 1;
-      const initialQty = product.cartoon_size && product.cartoon_size > 1
-        ? product.cartoon_size
-        : moq;
+
+      const initialQty = isDS
+        ? 1
+        : product.cartoon_size && product.cartoon_size > 1
+          ? product.cartoon_size
+          : moq;
+
       addProduct({ ...product, quantity: initialQty });
     }
   };
+
 
   return (
     <div className="flex flex-col h-screen max-h-screen bg-white">
@@ -104,7 +110,10 @@ export default function BatteryPage() {
               const displayArray = showAll ? saleArray : saleArray.slice(0, 10);
 
               const selectedItem = selectedProducts.find((p) => p.id === prodId);
-              const hasCartoon = selectedItem?.quantity_type == "CARTOON";
+              const isDS = user?.role === "DS";
+              const hasCartoon =
+                selectedItem?.quantity_type === "CARTOON" && !isDS;
+
               const stockValue = getStockValue(prod);
               const outOfStock = stockValue <= (prod.moq || 1);
 
@@ -206,14 +215,24 @@ export default function BatteryPage() {
                               }}
                               onBlur={(e) => {
                                 const val = parseInt(e.target.value);
-                                const moq = selectedItem.moq || 1;
 
-                                // Blur पर check करो और fix करो
+                                // 🟢 DS → no MOQ auto-fix
+                                if (isDS) {
+                                  if (!isNaN(val)) {
+                                    updateQuantity(selectedItem.id, val);
+                                  }
+                                  selectedItem.showMoqError = false;
+                                  return;
+                                }
+
+                                // 🔵 SS → MOQ strict
+                                const moq = selectedItem.moq || 1;
                                 if (isNaN(val) || val < moq) {
                                   updateQuantity(selectedItem.id, moq);
                                   selectedItem.showMoqError = false;
                                 }
                               }}
+
                               className={`w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none ${selectedItem.showMoqError ? "border-red-400" : ""
                                 }`}
                             />

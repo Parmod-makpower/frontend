@@ -271,60 +271,80 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ✅ Sticky Bottom Add to Cart Bar with Quantity / Cartoon Handling */}
-      {(user?.role === "SS" || user?.role === "DS") && (
-        <div className="left-0 w-full bg-white p-3 flex gap-3 z-50">
-          {!isInCart ? (
-            <button
-              onClick={handleAddToCart}
-              className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg transition-all duration-300"
-            >
-              <FaShoppingCart className="animate-bounce" /> Add to Cart
-            </button>
-          ) : (
-            <div className="flex-1 flex flex-col gap-2">
-              {selectedItem.quantity_type == "CARTOON" ? (
-                <select
-                  value={cartoonSelection[selectedItem.id] || 1}
-                  onChange={(e) => updateCartoon(selectedItem.id, parseInt(e.target.value))}
-                  className="w-full border rounded py-2 px-3 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                >
-                  {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
-                    <option key={n} value={n}>
-                      {n} Carton = {n * (product.cartoon_size || 1)} Pcs
-                    </option>
-                  ))}
-                </select>
+    {/* ✅ Sticky Bottom Add to Cart Bar (FINAL DS / SS LOGIC) */}
+{(user?.role === "SS" || user?.role === "DS") && (
+  <div className="left-0 w-full bg-white p-3 flex gap-3 z-50 border-t">
+    {!isInCart ? (
+      <button
+        onClick={handleAddToCart}
+        className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg"
+      >
+        <FaShoppingCart /> Add to Cart
+      </button>
+    ) : (
+      <div className="flex-1 flex flex-col gap-2">
+        {(() => {
+          const isDS = user?.role === "DS";
+          const moq = selectedItem.moq || 1;
 
-              ) : (
-                <input
-                  type="number"
-                  min={1}
-                  value={selectedItem.quantity || ""}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "") {
-                      updateQuantity(selectedItem.id, "");
-                      return;
-                    }
-                    const parsed = parseInt(val);
-                    if (!isNaN(parsed)) {
-                      updateQuantity(selectedItem.id, parsed);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const val = parseInt(e.target.value);
-                    const moq = selectedItem.moq || 1;
-                    if (isNaN(val) || val < moq) {
-                      updateQuantity(selectedItem.id, moq);
-                    }
-                  }}
-                  className="w-full border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                />
-              )}
-            </div>
-          )}
-        </div>
-      )}
+          // 🟧 SS ONLY — Cartoon dropdown
+          if (selectedItem.quantity_type === "CARTOON" && !isDS) {
+            return (
+              <select
+                value={cartoonSelection[selectedItem.id] || 1}
+                onChange={(e) =>
+                  updateCartoon(selectedItem.id, parseInt(e.target.value))
+                }
+                className="w-full border rounded py-2 px-3 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+              >
+                {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>
+                    {n} Carton = {n * (product.cartoon_size || 1)} Pcs
+                  </option>
+                ))}
+              </select>
+            );
+          }
+
+          // 🟩 DS + SS — Normal Quantity Input
+          return (
+            <input
+              type="number"
+              min={1}
+              value={selectedItem.quantity || ""}
+              onChange={(e) => {
+                const val = e.target.value;
+
+                // empty typing allowed
+                if (val === "") {
+                  updateQuantity(selectedItem.id, "");
+                  return;
+                }
+
+                const parsed = parseInt(val);
+                if (!isNaN(parsed)) {
+                  updateQuantity(selectedItem.id, parsed);
+                }
+              }}
+              onBlur={(e) => {
+                // 🟢 DS → NO MOQ auto fix
+                if (isDS) return;
+
+                // 🔵 SS → MOQ strict
+                const parsed = parseInt(e.target.value);
+                if (isNaN(parsed) || parsed < moq) {
+                  updateQuantity(selectedItem.id, moq);
+                }
+              }}
+              className="w-full border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+            />
+          );
+        })()}
+      </div>
+    )}
+  </div>
+)}
+
     </div>
   );
 }

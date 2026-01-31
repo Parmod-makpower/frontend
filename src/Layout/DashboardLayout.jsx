@@ -108,15 +108,20 @@ export default function DashboardLayout() {
   const isAdded = (id) => selectedProducts.some((p) => p.id === id);
 
   const handleAddProduct = (product) => {
-    if (!isAdded(product.id)) {
-      const moq = product.moq || 1;
-      const initialQty =
-        product.cartoon_size && product.cartoon_size > 1
-          ? product.cartoon_size
-          : moq;
-      addProduct({ ...product, quantity: initialQty });
-    }
-  };
+  if (!isAdded(product.id)) {
+    const isDS = user?.role === "DS";
+    const moq = product.moq || 1;
+
+    const initialQty = isDS
+      ? 1
+      : product.cartoon_size && product.cartoon_size > 1
+        ? product.cartoon_size
+        : moq;
+
+    addProduct({ ...product, quantity: initialQty });
+  }
+};
+
 
   // Cart count for SS role
   const [cartCount, setCartCount] = useState(0);
@@ -272,46 +277,60 @@ export default function DashboardLayout() {
                         <div className="ml-3 flex items-center">
                           {isAdded(p.id) ? (
                             <>
-                              {/* अगर product.quantity_type === "CARTOON" है तो select दिखाओ */}
-                              {p.quantity_type === "CARTOON" ? (
-                                <select
-                                  value={cartoonSelection[p.id] || 1}
-                                  onChange={(e) =>
-                                    updateCartoon(p.id, parseInt(e.target.value))
-                                  }
-                                  className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                                >
-                                  {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
-                                    <option key={n} value={n}>
-                                      {n} CTN = {n * (p.cartoon_size || 1)} Pcs
-                                    </option>
-                                  ))}
-                                </select>
-                              ) : (
-                                <input
-                                  type="number"
-                                  min={1}
-                                  value={
-                                    selectedProducts.find((x) => x.id === p.id)?.quantity || ""
-                                  }
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (val === "") {
-                                      updateQuantity(p.id, "");
-                                      return;
-                                    }
-                                    const parsed = parseInt(val);
-                                    if (!isNaN(parsed)) updateQuantity(p.id, parsed);
-                                  }}
-                                  onBlur={() => {
-                                    const selectedItem = selectedProducts.find((x) => x.id === p.id);
-                                    const val = parseInt(selectedItem?.quantity);
-                                    const moq = p.moq || 1;
-                                    if (isNaN(val) || val < moq) updateQuantity(p.id, moq);
-                                  }}
-                                  className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                                />
-                              )}
+                              {(() => {
+  const isDS = user?.role === "DS";
+  const selectedItem = selectedProducts.find((x) => x.id === p.id);
+  const moq = p.moq || 1;
+
+  // 🟧 SS ONLY — Cartoon dropdown
+  if (p.quantity_type === "CARTOON" && !isDS) {
+    return (
+      <select
+        value={cartoonSelection[p.id] || 1}
+        onChange={(e) =>
+          updateCartoon(p.id, parseInt(e.target.value))
+        }
+        className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+      >
+        {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
+          <option key={n} value={n}>
+            {n} CTN = {n * (p.cartoon_size || 1)} Pcs
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  // 🟩 DS + SS — Normal quantity input
+  return (
+    <input
+      type="number"
+      min={1}
+      value={selectedItem?.quantity || ""}
+      onChange={(e) => {
+        const val = e.target.value;
+        if (val === "") {
+          updateQuantity(p.id, "");
+          return;
+        }
+        const parsed = parseInt(val);
+        if (!isNaN(parsed)) updateQuantity(p.id, parsed);
+      }}
+      onBlur={() => {
+        // 🟢 DS → no MOQ auto-fix
+        if (isDS) return;
+
+        // 🔵 SS → MOQ strict
+        const val = parseInt(selectedItem?.quantity);
+        if (isNaN(val) || val < moq) {
+          updateQuantity(p.id, moq);
+        }
+      }}
+      className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+    />
+  );
+})()}
+
                             </>
                           ) : (
                             !isAdded(p.id) && (

@@ -13,6 +13,7 @@ import { useStock } from "../context/StockContext";
 
 export default function TemperedPage() {
   const { user } = useAuth();
+  const isDS = user?.role === "DS";
   const { categoryKeyword } = useParams();
   const navigate = useNavigate();
   const searchRef = useRef();
@@ -60,12 +61,17 @@ export default function TemperedPage() {
   const handleAddProduct = (product) => {
     if (!selectedProducts.some((p) => p.id === product.id)) {
       const moq = product.moq || 1;
-      const initialQty = product.cartoon_size && product.cartoon_size > 1
-        ? product.cartoon_size
-        : moq;
+
+      const initialQty = isDS
+        ? 1
+        : product.cartoon_size && product.cartoon_size > 1
+          ? product.cartoon_size
+          : moq;
+
       addProduct({ ...product, quantity: initialQty });
     }
   };
+
 
 
   const toggleShowAll = (productId) => {
@@ -106,7 +112,7 @@ export default function TemperedPage() {
               const showAll = showAllMap[prodId] || false;
               const displayArray = showAll ? saleArray : saleArray.slice(0, 10);
               const stockValue = getStockValue(prod);
-const outOfStock = stockValue <= (prod.moq || 1);
+              const outOfStock = stockValue <= (prod.moq || 1);
 
 
               return (
@@ -120,7 +126,7 @@ const outOfStock = stockValue <= (prod.moq || 1);
                   >
                     <div className="flex items-center gap-2 font-medium truncate text-gray-800">
                       {prod.product_name}
-                     {!outOfStock ? (
+                      {!outOfStock ? (
                         <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                           In Stock
                         </span>
@@ -141,28 +147,45 @@ const outOfStock = stockValue <= (prod.moq || 1);
                         <div className="ml-3 flex items-center">
                           {selectedProducts.some((p) => p.id === prodId) ? (
                             <>
-                              {selectedProducts.find((p) => p.id === prodId)?.quantity_type == "CARTOON" ? (
-                                <select
-                                  value={cartoonSelection[prodId] || 1}
-                                  onChange={(e) => updateCartoon(prodId, parseInt(e.target.value))}
-                                  className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                                >
-                                  {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
-                                    <option key={n} value={n}>
-                                      {n} CTN
-                                    </option>
-                                  ))}
+                              {selectedProducts.find((p) => p.id === prodId)?.quantity_type === "CARTOON" && !isDS
+                                ? (
+                                  <select
+                                    value={cartoonSelection[prodId] || 1}
+                                    onChange={(e) => updateCartoon(prodId, parseInt(e.target.value))}
+                                    className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                  >
+                                    {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
+                                      <option key={n} value={n}>
+                                        {n} CTN
+                                      </option>
+                                    ))}
 
-                                </select>
-                              ) : (
-                                <input
-                                  type="number"
-                                  min={1}
-                                  value={selectedProducts.find((p) => p.id === prodId)?.quantity || ""}
-                                  onChange={(e) => updateQuantity(prodId, parseInt(e.target.value))}
-                                  className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                                />
-                              )}
+                                  </select>
+                                ) : (
+                                  <input
+                                    type="number"
+                                    min={1}
+                                    value={selectedProducts.find((p) => p.id === prodId)?.quantity || ""}
+                                    onChange={(e) => updateQuantity(prodId, parseInt(e.target.value))}
+                                    onBlur={(e) => {
+                                      const val = parseInt(e.target.value);
+
+                                      // 🟢 DS → no MOQ enforcement
+                                      if (isDS) {
+                                        if (!isNaN(val)) updateQuantity(prodId, val);
+                                        return;
+                                      }
+
+                                      // 🔵 SS → MOQ strict
+                                      const moq = selectedProducts.find((p) => p.id === prodId)?.moq || 1;
+                                      if (isNaN(val) || val < moq) {
+                                        updateQuantity(prodId, moq);
+                                      }
+                                    }}
+                                    className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                  />
+
+                                )}
                             </>
                           ) : (
                             <button

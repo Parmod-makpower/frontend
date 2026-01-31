@@ -92,18 +92,20 @@ export default function SearchBarPage() {
     );
 
   const isAdded = (id) => selectedProducts.some((p) => p.id === id);
+const handleAddProduct = (product) => {
+  if (!isAdded(product.id)) {
+    const isDS = user?.role === "DS";
+    const moq = product.moq || 1;
 
- const handleAddProduct = (product) => {
-    if (!isAdded(product.id)) {
-      const moq = product.moq || 1;
-      const initialQty =
-        product.cartoon_size && product.cartoon_size > 1
-          ? product.cartoon_size
-          : moq;
+    const initialQty = isDS
+      ? 1
+      : product.cartoon_size && product.cartoon_size > 1
+        ? product.cartoon_size
+        : moq;
 
-      addProduct({ ...product, quantity: initialQty });
-    }
-  };
+    addProduct({ ...product, quantity: initialQty });
+  }
+};
 
 
 
@@ -122,7 +124,10 @@ export default function SearchBarPage() {
     );
 
     // ✅ FIX: Cartoon check
-    const hasCartoon = selectedItem?.quantity_type === "CARTOON";
+    const isDS = user?.role === "DS";
+const hasCartoon =
+  selectedItem?.quantity_type === "CARTOON" && !isDS;
+
 
     // ✅ Sync global → local
     useEffect(() => {
@@ -192,16 +197,26 @@ export default function SearchBarPage() {
                     value={localQty}
                     onChange={(e) => setLocalQty(e.target.value)}
                     onBlur={() => {
-                      const parsed = parseInt(localQty);
-                      const moq = selectedItem.moq || 1;
+  const parsed = parseInt(localQty);
 
-                      if (isNaN(parsed) || parsed < moq) {
-                        updateQuantity(p.id, moq);
-                        setLocalQty(moq);
-                      } else {
-                        updateQuantity(p.id, parsed);
-                      }
-                    }}
+  // 🟢 DS → no MOQ auto-fix
+  if (isDS) {
+    if (!isNaN(parsed)) {
+      updateQuantity(p.id, parsed);
+    }
+    return;
+  }
+
+  // 🔵 SS → MOQ strict
+  const moq = selectedItem.moq || 1;
+  if (isNaN(parsed) || parsed < moq) {
+    updateQuantity(p.id, moq);
+    setLocalQty(moq);
+  } else {
+    updateQuantity(p.id, parsed);
+  }
+}}
+
                     className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                   />
                 )
