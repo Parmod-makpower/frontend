@@ -25,6 +25,37 @@ export default function PartyItemSheetPage() {
     });
   }, [search, data, user]);
 
+  const totals = useMemo(() => {
+  return filteredData.reduce(
+    (acc, row) => {
+      const qty = Number(row.mahotsav_dispatch_quantity || 0);
+      const combo = Math.floor(qty / 300);
+
+      const gas = Number(row.gas_stove || 0);
+      const cookware = Number(row.kitchen_cookware || 0);
+      const dinner = Number(row.dinner_set || 0);
+
+      acc.qty += qty;
+      acc.combo += combo;
+      acc.gas += gas;
+      acc.cookware += cookware;
+      acc.dinner += dinner;
+      acc.balance += combo - (gas + cookware + dinner);
+
+      return acc;
+    },
+    {
+      qty: 0,
+      combo: 0,
+      gas: 0,
+      cookware: 0,
+      dinner: 0,
+      balance: 0,
+    }
+  );
+}, [filteredData]);
+
+
   const crmSheetLinks = [
     {
       key: "ankita",
@@ -178,6 +209,43 @@ export default function PartyItemSheetPage() {
                   );
                 })
               )}
+              <tr className="font-semibold text-gray-800 bg-green-100">
+        <td className="border px-3 py-2" colSpan={2}>
+          TOTAL
+        </td>
+
+        <td className="border px-3 py-2 text-center text-green-800">
+          {totals.qty}
+        </td>
+
+        <td className="border px-3 py-2 text-center text-blue-800">
+          {totals.combo}
+        </td>
+
+        <td className="border px-3 py-2 text-center ">
+          {totals.gas}
+        </td>
+
+        <td className="border px-3 py-2 text-center">
+          {totals.cookware}
+        </td>
+
+        <td className="border px-3 py-2 text-center ">
+          {totals.dinner}
+        </td>
+
+        <td
+          className={`border px-3 py-2 text-center ${
+            totals.balance < 0 ? "text-red-700" : "text-green-700"
+          }`}
+        >
+          {totals.balance}
+        </td>
+
+        <td className="border px-3 py-2 text-center text-gray-400">
+          —
+        </td>
+      </tr>
             </tbody>
 
           </table>
