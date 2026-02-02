@@ -7,11 +7,19 @@ import "slick-carousel/slick/slick-theme.css";
 import logo from "../assets/images/logo.png";
 import categories from "../data/categoryData";
 import SlidingProductsCards from "../components/SlidingProductsCards";
+import { useStock } from "../context/StockContext";
+
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { stockType } = useStock();
+
   const [searchText, setSearchText] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const stockLetter = stockType === "mumbai" ? "M" : "D";
+  const stockColor =
+  stockType === "mumbai" ? "bg-green-600" : "bg-red-600";
+
 
   // Responsive listener
   useEffect(() => {
@@ -49,7 +57,9 @@ export default function HomePage() {
           alt="MakPower Logo"
         />
         <div className="block sm:hidden text-xl text-[var(--primary-color)]">
-          <FaBell />
+          {/* <FaBell /> */}
+          <span className={`w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-white ${stockColor}`}
+          title={stockType === "mumbai" ? "Mumbai Stock" : "Delhi Stock"} >{stockLetter} </span>
         </div>
       </div>
 

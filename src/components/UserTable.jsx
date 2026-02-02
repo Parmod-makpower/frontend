@@ -7,6 +7,7 @@ export default function UserTable({
   onToggleStatus,
   onDelete,
   onChangePassword,
+  onChangeStock,
 }) {
   return (
     <div className="overflow-x-auto mb-25">
@@ -23,6 +24,7 @@ export default function UserTable({
             <th className="p-3 border">Created_By</th>
             <th className="p-3 border">Mobile</th>
             <th className="p-3 border">Status</th>
+            <th className="p-3 border">Wharehouse</th>
             <th className="p-3 border">Action</th>
             <th className="p-3 border">Action</th>
             {(user?.role === "ADMIN" && <th className="p-3 border">Update</th>)}
@@ -49,6 +51,30 @@ export default function UserTable({
                   {item.is_active ? "Active" : "Inactive"}
                 </span>
               </td>
+
+              <td className="p-3 border text-center">
+  {user?.role === "ADMIN" || user?.role === "CRM" ? (
+    <select
+      value={item.stock_location}
+      onChange={(e) =>
+        onChangeStock(item.id, e.target.value)
+      }
+      className="
+        border px-2 py-1 rounded text-xs
+        bg-white cursor-pointer
+        focus:outline-none focus:ring-1 focus:ring-blue-500
+      "
+    >
+      <option value="DELHI">Delhi</option>
+      <option value="MUMBAI">Mumbai</option>
+    </select>
+  ) : (
+    <span className="font-medium text-gray-700">
+      {item.stock_location}
+    </span>
+  )}
+</td>
+
 
               <td className="p-3 border">
                 <button onClick={() => onChangePassword(item)} className="cursor-pointer  bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded ms-3">

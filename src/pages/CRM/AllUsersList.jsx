@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { useAuth } from "../../context/AuthContext";
+import { updateStockLocation } from "../../auth/useSS";
+
 
 const ROLE_OPTIONS = ["ALL", "SS", "DS", "ASM", "CRM"];
 const ROLE_STORAGE_KEY = "users_selected_role";
@@ -82,6 +84,19 @@ export default function AllUsersList() {
     }
   };
 
+  const handleStockChange = async (id, newStock) => {
+  try {
+    await updateStockLocation(id, newStock);
+    toast.success(
+      `Stock changed to ${newStock === "DELHI" ? "Delhi" : "Mumbai"}`
+    );
+    refetch();
+  } catch {
+    toast.error("Failed to update stock");
+  }
+};
+
+
 
   if (isLoading) return <p className="p-4 text-sm">Loading users...</p>;
   if (error)
@@ -141,6 +156,7 @@ export default function AllUsersList() {
           setSelectedUser(user);
           setShowModal(true);
         }}
+         onChangeStock={handleStockChange}
       />
 
       {/* Change Password Modal */}

@@ -34,6 +34,14 @@ export const updateSSUser = async (id, data) => {
   return res.data;
 };
 
+export const updateStockLocation = async (id, stock_location) => {
+  const res = await API.patch(`/accounts/ss-users/${id}/`, {
+    stock_location,
+  });
+  return res.data;
+};
+
+
 export const toggleSSStatus = async (id, is_active) => {
   const res = await API.patch(`/accounts/ss-users/${id}/`, { is_active });
   return res.data;
