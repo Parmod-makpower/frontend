@@ -12,8 +12,7 @@ import {
   FaRoute,
 } from "react-icons/fa";
 import MobilePageHeader from "../components/MobilePageHeader";
-import StockSelector from "../components/StockSelector";
-import { FaWarehouse } from "react-icons/fa";
+
 
 
 export default function MoreOptionsPage() {
@@ -121,27 +120,6 @@ export default function MoreOptionsPage() {
           </div>
         </div>
       </div>
-      {/* 🏬 Stock Selector */}
-<div className="my-4">
-  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
-    <div className="flex items-center gap-3">
-      <FaWarehouse className="text-blue-600 text-xl" />
-      <div>
-        <div className="text-sm font-semibold text-gray-800">
-          Select Stock Type
-        </div>
-        <div className="text-xs text-gray-500">
-          Order will be placed from selected stock
-        </div>
-      </div>
-    </div>
-
-    {/* Dropdown */}
-    <div>
-      <StockSelector />
-    </div>
-  </div>
-</div>
 
       {/* Options */}
       <div className="space-y-3">
