@@ -28,9 +28,12 @@ export default function MAHOTSAV() {
 }, [samplingData, user]);
 
 const totalQty = partyMahotsavData?.mahotsav_dispatch_quantity || 0;
-console.log(totalQty);
 
 const combos = Math.floor(totalQty / 300);
+const gasStove = Number(partyMahotsavData?.gas_stove || 0);
+const cookware = Number(partyMahotsavData?.kitchen_cookware || 0);
+const dinnerSet = Number(partyMahotsavData?.dinner_set || 0);
+
 
 
   // ✅ Mahotsav Products
@@ -38,7 +41,7 @@ const combos = Math.floor(totalQty / 300);
     101, 143, 141, 123, 74, 67, 73, 79, 76, 1215,
     31, 17, 28, 27, 14, 21, 16,
     1119, 1132, 1120, 1131, 1125, 1121, 1128, 1139,
-    1644, 1144, 1729,1726,
+    1644, 1144, 1729, 1726,
   ];
 
   if (isLoading) {
@@ -160,22 +163,39 @@ const combos = Math.floor(totalQty / 300);
 
     {/* 🎁 Rewards */}
     <div className="mt-3 grid gap-2">
-      {[
-        { icon: <FaUtensils />, label: "Kitchen Cookware Set" },
-        { icon: <FaFireAlt />, label: "Gas Stove 4 Burner" },
-        { icon: <FaConciergeBell />, label: "Steel Dinner Set (48 Pcs)" },
-      ].map((item, idx) => (
-        <div
-          key={idx}
-          className="flex items-center gap-2 bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur"
-        >
-          <span className="text-yellow-300 text-sm">
-            {item.icon}
-          </span>
-          <span>{item.label}</span>
-        </div>
-      ))}
+
+  <div className="flex justify-between items-center bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur">
+    <div className="flex items-center gap-2">
+      <FaUtensils className="text-yellow-300 text-sm" />
+      <span>Kitchen Cookware Set</span>
     </div>
+    <span className="font-bold text-green-600 bg-white px-2 rounded">
+       {cookware}
+    </span>
+  </div>
+
+  <div className="flex justify-between items-center bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur">
+    <div className="flex items-center gap-2">
+      <FaFireAlt className="text-yellow-300 text-sm" />
+      <span>Gas Stove 4 Burner</span>
+    </div>
+    <span className="font-bold text-green-600 bg-white px-2 rounded">
+       {gasStove}
+    </span>
+  </div>
+
+  <div className="flex justify-between items-center bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur">
+    <div className="flex items-center gap-2">
+      <FaConciergeBell className="text-yellow-300 text-sm" />
+      <span>Steel Dinner Set (48 Pcs)</span>
+    </div>
+    <span className="font-bold text-green-600 bg-white px-2 rounded">
+       {dinnerSet}
+    </span>
+  </div>
+
+</div>
+
 
     {/* Footer note */}
     <p className="mt-2 text-[10px] text-white/80 italic flex items-center gap-1">
