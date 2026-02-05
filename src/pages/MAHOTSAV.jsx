@@ -20,19 +20,19 @@ export default function MAHOTSAV() {
   const { data: samplingData = [] } = useMahotsavSheet();
 
   const partyMahotsavData = useMemo(() => {
-  return samplingData.find(
-    (row) =>
-      row.party_name?.toLowerCase() ===
-      user?.party_name?.toLowerCase()
-  );
-}, [samplingData, user]);
+    return samplingData.find(
+      (row) =>
+        row.party_name?.toLowerCase() ===
+        user?.party_name?.toLowerCase()
+    );
+  }, [samplingData, user]);
 
-const totalQty = partyMahotsavData?.mahotsav_dispatch_quantity || 0;
+  const totalQty = partyMahotsavData?.mahotsav_dispatch_quantity || 0;
 
-const combos = Math.floor(totalQty / 300);
-const gasStove = Number(partyMahotsavData?.gas_stove || 0);
-const cookware = Number(partyMahotsavData?.kitchen_cookware || 0);
-const dinnerSet = Number(partyMahotsavData?.dinner_set || 0);
+  const combos = Math.floor(totalQty / 300);
+  const gasStove = Number(partyMahotsavData?.gas_stove || 0);
+  const cookware = Number(partyMahotsavData?.kitchen_cookware || 0);
+  const dinnerSet = Number(partyMahotsavData?.dinner_set || 0);
 
 
 
@@ -55,10 +55,10 @@ const dinnerSet = Number(partyMahotsavData?.dinner_set || 0);
   return (
     <div className="pb-24 bg-gray-50 min-h-screen">
       <MobilePageHeader title="Makpower Mahotsav" />
-{/* 🎉 Mahotsav Banner */}
+      {/* 🎉 Mahotsav Banner */}
 
-<div className="pt-[60px] sm:pt-0 px-2">
-  <div className="
+      <div className="pt-[60px] sm:pt-0 px-2">
+        <div className="
     relative overflow-hidden
     rounded-xl
     bg-gradient-to-br from-pink-500 via-fuchsia-600 to-rose-600
@@ -66,24 +66,24 @@ const dinnerSet = Number(partyMahotsavData?.dinner_set || 0);
     text-white
     shadow-lg
   ">
-    <div className="absolute inset-0 bg-white/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-white/5 pointer-events-none" />
 
-   {/* Header */}
-<div className="flex items-center justify-between">
-  <div className="flex items-center gap-2">
-    <FaFire className="text-yellow-300 animate-pulse text-sm" />
-    <h1 className="text-sm font-bold tracking-wide">
-      Mahotsav Scheme
-    </h1>
-  </div>
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FaFire className="text-yellow-300 animate-pulse text-sm" />
+              <h1 className="text-sm font-bold tracking-wide">
+                Mahotsav Scheme
+              </h1>
+            </div>
 
-  {/* 🔐 CRM / ADMIN only button */}
-  {(user?.role === "CRM" || user?.role === "ADMIN") && (
-    <button
-      onClick={() => {
-        navigate(`/mahotsav-data`)
-      }}
-      className="
+            {/* 🔐 CRM / ADMIN only button */}
+            {(user?.role === "CRM" || user?.role === "ADMIN") && (
+              <button
+                onClick={() => {
+                  navigate(`/mahotsav-data`)
+                }}
+                className="
         bg-white/20
         hover:bg-white/30
         border border-white/30
@@ -96,114 +96,114 @@ const dinnerSet = Number(partyMahotsavData?.dinner_set || 0);
         active:scale-95
         cursor-pointer
       "
-    >
-      Manage
-    </button>
-  )}
-</div>
+              >
+                Manage
+              </button>
+            )}
+          </div>
 
-    {/* Date */}
-    <div className="flex items-center gap-1 text-[10px] text-white/90 mt-[2px]">
-      <FaCalendarAlt className="text-[10px]" />
-      <span>1 Jan 2026 – 30 Apr 2026</span>
-    </div>
+          {/* Date */}
+          <div className="flex items-center gap-1 text-[10px] text-white/90 mt-[2px]">
+            <FaCalendarAlt className="text-[10px]" />
+            <span>1 Jan 2026 – 30 Apr 2026</span>
+          </div>
 
-    {/* 🧾 Party Summary */}
-    <div className="mt-3 bg-white/15 backdrop-blur rounded-lg p-2.5">
-      <p className="text-[11px] font-semibold text-yellow-200 truncate">
-        {user?.party_name}
-      </p>
+          {/* 🧾 Party Summary */}
+          <div className="mt-3 bg-white/15 backdrop-blur rounded-lg p-2.5">
+            <p className="text-[11px] font-semibold text-yellow-200 truncate">
+              {user?.party_name}
+            </p>
 
-      {/* Stats */}
-      <div className="mt-2 grid grid-cols-2 gap-2">
-        {/* Total Qty */}
-        <div className="bg-white/20 rounded-lg px-3 py-2 text-center">
-          <p className="text-[10px] text-white/80">
-            Total Purchase Qty
-          </p>
-          <p className="text-sm font-bold text-yellow-300 leading-tight">
-            {totalQty}
-          </p>
-          <p className="text-[9px] text-white/70">
-            Purchased from company
+            {/* Stats */}
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {/* Total Qty */}
+              <div className="bg-white/20 rounded-lg px-3 py-2 text-center">
+                <p className="text-[10px] text-white/80">
+                  Total Purchase Qty
+                </p>
+                <p className="text-sm font-bold text-yellow-300 leading-tight">
+                  {totalQty}
+                </p>
+                <p className="text-[9px] text-white/70">
+                  Purchased from company
+                </p>
+              </div>
+
+              {/* Combo */}
+              <div className="bg-white/20 rounded-lg px-3 py-2 text-center">
+                <p className="text-[10px] text-white/80">
+                  Eligible Gift
+                </p>
+                <p className="text-sm font-bold text-green-300 leading-tight">
+                  {combos}
+                </p>
+                <p className="text-[9px] text-white/70">
+                  (300 Qty = 1 Gift)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Info Box */}
+          <div className="mt-3 bg-white/15 backdrop-blur rounded-lg px-2.5 py-2 text-[11px] leading-snug">
+            <div className="flex items-start gap-1">
+              <FaShoppingCart className="mt-[2px] text-yellow-200 text-xs" />
+              <span>
+                Buy <b className="text-yellow-200">300 Qty</b> of any Mahotsav Product
+              </span>
+            </div>
+
+            <div className="flex items-start gap-1 mt-1">
+              <FaGift className="mt-[2px] text-yellow-200 text-xs" />
+              <span className="font-medium text-yellow-200">
+                Get ANY 1 reward per Gift
+              </span>
+            </div>
+          </div>
+
+          {/* 🎁 Rewards */}
+          <div className="mt-3 grid gap-2">
+
+            <div className="flex justify-between items-center bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur">
+              <div className="flex items-center gap-2">
+                <FaUtensils className="text-yellow-300 text-sm" />
+                <span>Kitchen Cookware Set</span>
+              </div>
+              <span className="font-bold text-green-600 bg-white px-2 rounded">
+                {cookware}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur">
+              <div className="flex items-center gap-2">
+                <FaFireAlt className="text-yellow-300 text-sm" />
+                <span>Gas Stove 4 Burner</span>
+              </div>
+              <span className="font-bold text-green-600 bg-white px-2 rounded">
+                {gasStove}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur">
+              <div className="flex items-center gap-2">
+                <FaConciergeBell className="text-yellow-300 text-sm" />
+                <span>Steel Dinner Set (48 Pcs)</span>
+              </div>
+              <span className="font-bold text-green-600 bg-white px-2 rounded">
+                {dinnerSet}
+              </span>
+            </div>
+
+          </div>
+
+
+          {/* Footer note */}
+          <p className="mt-2 text-[10px] text-white/80 italic flex items-center gap-1">
+            <FaInfoCircle className="text-[10px]" />
+            Gift calculated on completed quantity only
           </p>
         </div>
-
-        {/* Combo */}
-        <div className="bg-white/20 rounded-lg px-3 py-2 text-center">
-          <p className="text-[10px] text-white/80">
-            Eligible Gift
-          </p>
-          <p className="text-sm font-bold text-green-300 leading-tight">
-            {combos}
-          </p>
-          <p className="text-[9px] text-white/70">
-            (300 Qty = 1 Gift)
-          </p>
-        </div>
       </div>
-    </div>
-
-    {/* Info Box */}
-    <div className="mt-3 bg-white/15 backdrop-blur rounded-lg px-2.5 py-2 text-[11px] leading-snug">
-      <div className="flex items-start gap-1">
-        <FaShoppingCart className="mt-[2px] text-yellow-200 text-xs" />
-        <span>
-          Buy <b className="text-yellow-200">300 Qty</b> of any Mahotsav Product
-        </span>
-      </div>
-
-      <div className="flex items-start gap-1 mt-1">
-        <FaGift className="mt-[2px] text-yellow-200 text-xs" />
-        <span className="font-medium text-yellow-200">
-          Get ANY 1 reward per Gift
-        </span>
-      </div>
-    </div>
-
-    {/* 🎁 Rewards */}
-    <div className="mt-3 grid gap-2">
-
-  <div className="flex justify-between items-center bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur">
-    <div className="flex items-center gap-2">
-      <FaUtensils className="text-yellow-300 text-sm" />
-      <span>Kitchen Cookware Set</span>
-    </div>
-    <span className="font-bold text-green-600 bg-white px-2 rounded">
-       {cookware}
-    </span>
-  </div>
-
-  <div className="flex justify-between items-center bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur">
-    <div className="flex items-center gap-2">
-      <FaFireAlt className="text-yellow-300 text-sm" />
-      <span>Gas Stove 4 Burner</span>
-    </div>
-    <span className="font-bold text-green-600 bg-white px-2 rounded">
-       {gasStove}
-    </span>
-  </div>
-
-  <div className="flex justify-between items-center bg-white/20 rounded-lg px-3 py-2 text-[11px] font-medium backdrop-blur">
-    <div className="flex items-center gap-2">
-      <FaConciergeBell className="text-yellow-300 text-sm" />
-      <span>Steel Dinner Set (48 Pcs)</span>
-    </div>
-    <span className="font-bold text-green-600 bg-white px-2 rounded">
-       {dinnerSet}
-    </span>
-  </div>
-
-</div>
-
-
-    {/* Footer note */}
-    <p className="mt-2 text-[10px] text-white/80 italic flex items-center gap-1">
-      <FaInfoCircle className="text-[10px]" />
-      Gift calculated on completed quantity only
-    </p>
-  </div>
-</div>
 
 
 
@@ -281,10 +281,9 @@ const dinnerSet = Number(partyMahotsavData?.dinner_set || 0);
                         }}
                         disabled={isInCart}
                         className={`w-full mt-3 text-white text-[11px] py-1.5 rounded-full font-semibold transition
-                          ${
-                            isInCart
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 hover:opacity-90"
+                          ${isInCart
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 hover:opacity-90"
                           }`}
                       >
                         {isInCart ? "Added to Cart" : "Add to Cart"}

@@ -46,6 +46,8 @@ import OrderGoogleSheet from "./pages/CRM/OrderGoogleSheet";
 import NotInStockReportPage from "./pages/CRM/NotInStockReportPage";
 import TrackingOrdersPage from "./pages/CRM/TrackingOrdersPage";
 import MAHOTSAV from "./pages/MAHOTSAV";
+import AdminCRM_DS_ordersPage from "./pages/DS/AdminCRM_DS_ordersPage";
+import DSOrderDetailsPage from "./pages/DS/DSOrderDetailsPage";
 
 export default function App() {
   useEffect(() => {
@@ -102,6 +104,8 @@ export default function App() {
             <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
             <Route path="/orders-tracking" element={<TrackingOrdersPage />} />
             <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
+            <Route path="/ds/orders-details/:order_id" element={<DSOrderDetailsPage />} />
+            <Route path="/ds/orders" element={<AdminCRM_DS_ordersPage />} />
            
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
             <Route path="/mahotsav-schemes" element={<ProtectedRoute ><MAHOTSAV /></ProtectedRoute>} />
