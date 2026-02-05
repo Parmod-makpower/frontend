@@ -65,6 +65,11 @@ export default function MoreOptionsPage() {
             icon: <FaBox className="text-yellow-600" />,
             action: () => navigate("/sale-name"),
           },
+          {
+            label: "DS Orders",
+            icon: <FaBox className="text-blue-600" />,
+            action: () => navigate("/ds/orders"),
+          },
           
         ]
       : []),

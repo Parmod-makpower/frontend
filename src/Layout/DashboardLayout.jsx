@@ -192,7 +192,8 @@ export default function DashboardLayout() {
     navItems.push(
       { label: "Home", path: "/", icon: <FaHome /> },
       { label: "Schemes", path: "/user-schemes", icon: <FaGift /> },
-      { label: "Categories", path: "/all-categories", icon: <FaList /> }
+      { label: "Categories", path: "/all-categories", icon: <FaList /> },
+      { label: "Orders", path: "/ds/my-orders", icon: <FaBox /> },
     );
   }
   if (user.role === "SS") {
