@@ -265,6 +265,11 @@ const categories = [
         label: "UV Glass",
         keyword: "UV TEMPERED",
         image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
+      },
+      {
+        label: "Meibo Glass",
+        keyword: "TEMPERED MEIBO",
+        image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
       }
     ]
   },
