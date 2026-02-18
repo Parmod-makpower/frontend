@@ -88,6 +88,11 @@ export default function OrderTrackPage() {
   // ---------------- PROGRESS BAR LOGIC ----------------
   const status = orderData?.status?.toUpperCase() || "";
   const dispatchCount = orderData?.dispatch_data?.length || 0;
+  const dispatchDate =
+  orderData?.dispatch_data?.length > 0
+    ? orderData.dispatch_data[0]?.order_packed_time
+    : null;
+
 
   const steps =
     status === "REJECTED" && dispatchCount === 0
@@ -212,6 +217,16 @@ export default function OrderTrackPage() {
               />
             </div>
           </div>
+          {/* ✅ Dispatch Date */}
+{dispatchDate && (
+  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+    <p className="text-sm font-medium text-green-700">
+      🚚 Dispatched On:{" "}
+      {new Date(dispatchDate).toLocaleString("en-IN")}
+    </p>
+  </div>
+)}
+
 
           {/* ✅ Comparison Table */}
           <div className="overflow-x-auto mb-20">
