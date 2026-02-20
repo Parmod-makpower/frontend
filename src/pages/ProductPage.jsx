@@ -214,8 +214,8 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">Image</th>
               <th className="px-4 py-2 border">Active</th>
               <th className="px-4 py-2 border">Edit</th>
-              {/* <th className="px-4 py-2 border">Upload2</th>
-              <th className="px-4 py-2 border">Image</th> */}
+              <th className="px-4 py-2 border">Upd2</th>
+              <th className="px-4 py-2 border">Image</th>
             </tr>
           </thead>
           <tbody>
@@ -292,7 +292,7 @@ export default function ProductPage() {
                 </td>
 
                 {/* Upload for Image2 */}
-                {/* <td className="px-4 py-2 border">
+                <td className="px-4 py-2 border">
                   <label className="cursor-pointer">
                     <FiUpload className="text-green-600 hover:text-green-800" />
                     <input
@@ -311,7 +311,7 @@ export default function ProductPage() {
                         ? `https://res.cloudinary.com/djyr368zj/${prod.image2}`
                         : makpower_image
                     } className="w-10 h-10 object-contain bg-gray-50 rounded-lg border self-center" />
-                </td> */}
+                </td>
               </tr>
             ))}
           </tbody>

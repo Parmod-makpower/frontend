@@ -10,63 +10,12 @@ import API from "../../api/axios";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { useSchemes } from "../../hooks/useSchemes";
 
-
 export default function OrderTrackPage() {
   const { orderId } = useParams();
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(false);
-  // ---------------- SCHEME CALCULATION LOGIC ----------------
+
   const { data: schemes = [] } = useSchemes();
-
-  const getSchemeMultiplier = (scheme, items) => {
-    return Math.min(
-      ...scheme.conditions.map((cond) => {
-        const matched = items.find(
-          (p) => p.product === cond.product_name || p.product_name === cond.product_name
-        );
-        if (!matched) return 0;
-        return Math.floor(matched.quantity / cond.min_quantity);
-      })
-    );
-  };
-
-  const mergeRewards = (eligibleSchemes) => {
-    const rewardMap = {};
-
-    eligibleSchemes.forEach((scheme) => {
-      const multiplier = scheme.multiplier;
-
-      scheme.rewards.forEach((r) => {
-        const productName = r.product_name || r.product;
-        const qty = r.quantity * multiplier;
-
-        if (rewardMap[productName]) {
-          rewardMap[productName].quantity += qty;
-        } else {
-          rewardMap[productName] = {
-            product_name: productName,
-            quantity: qty,
-          };
-        }
-      });
-    });
-
-    return Object.values(rewardMap);
-  };
-
-  // SS items (real order items)
-  const ssItems = orderData?.ss_items || [];
-
-  // Find eligible schemes
-  const eligibleSchemes = schemes
-    .map((scheme) => ({
-      ...scheme,
-      multiplier: getSchemeMultiplier(scheme, ssItems),
-    }))
-    .filter((s) => s.multiplier > 0);
-
-  const mergedRewards = mergeRewards(eligibleSchemes); // Final rewards list
-
 
   useEffect(() => {
     if (orderId) fetchOrder();
@@ -85,20 +34,28 @@ export default function OrderTrackPage() {
     }
   };
 
-  // ---------------- PROGRESS BAR LOGIC ----------------
+  // ---------------- STATUS & DATES ----------------
+
   const status = orderData?.status?.toUpperCase() || "";
   const dispatchCount = orderData?.dispatch_data?.length || 0;
-  const dispatchDate =
-  orderData?.dispatch_data?.length > 0
-    ? orderData.dispatch_data[0]?.order_packed_time
-    : null;
 
+  const orderPlacedDate = orderData?.created_at || null;
+  const approvedDate = orderData?.crm_data?.verified_at || null;
+
+  const dispatchDate =
+    orderData?.dispatch_data?.length > 0
+      ? orderData.dispatch_data[0]?.order_packed_time
+      : null;
 
   const steps =
     status === "REJECTED" && dispatchCount === 0
       ? [
         { label: "Order Placed", icon: <FaBoxOpen /> },
-        { label: "Order Rejected", icon: <FaTimesCircle />, color: "bg-red-600" },
+        {
+          label: "Order Rejected",
+          icon: <FaTimesCircle />,
+          color: "bg-red-600",
+        },
       ]
       : [
         { label: "Order Placed", icon: <FaBoxOpen /> },
@@ -146,12 +103,21 @@ export default function OrderTrackPage() {
 
   const currentStep =
     dispatchCount > 0 ? 2 : getStatusStepIndex(orderData?.status);
-  const isRejected = status === "REJECTED" && dispatchCount === 0;
 
-  // ---------------- JSX RETURN ----------------
+  const isRejected = status === "REJECTED" && dispatchCount === 0;
+ 
+  const formatDate = (date) => {
+    return new Date(date).toLocaleString("en-IN",{day: "2-digit", month: "short",  // year: "2-digit",
+                          hour: "2-digit",  minute: "2-digit", hour12: true,
+                        });
+  };
+
+  // ---------------- JSX ----------------
+
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <MobilePageHeader title={orderId} />
+
       {loading && (
         <div className="flex items-center justify-center mt-50 mb-6">
           <div className="flex flex-col items-center">
@@ -166,11 +132,13 @@ export default function OrderTrackPage() {
       {orderData && (
         <div className="pt-[60px] sm:pt-0">
 
-          {/* ✅ Progress Bar */}
+          {/* ---------------- PROGRESS BAR ---------------- */}
+
           <div className="flex flex-wrap items-center justify-between gap-y-6 relative mb-10">
             {steps.map((step, index) => {
               const isCompleted = index <= currentStep;
               const isCurrent = index === currentStep;
+
               const circleColor =
                 isRejected && index === 1
                   ? "bg-red-600"
@@ -190,18 +158,56 @@ export default function OrderTrackPage() {
                   >
                     {step.icon}
                   </div>
+
                   <p
                     className={`mt-2 text-xs sm:text-sm font-medium ${isCurrent
-                      ? step.textColor
                         ? step.textColor
-                        : isRejected
-                          ? "text-red-600"
-                          : "text-blue-600"
-                      : "text-gray-500"
+                          ? step.textColor
+                          : isRejected
+                            ? "text-red-600"
+                            : "text-blue-600"
+                        : "text-gray-500"
                       }`}
                   >
                     {step.label}
                   </p>
+
+                  {/* ORDER PLACED DATE */}
+                  {step.label === "Order Placed" &&
+                    orderPlacedDate &&
+                    currentStep >= 0 && (
+                      <p className="text-[11px] text-green-600 mt-1">
+                        {formatDate(orderPlacedDate)}
+
+                      </p>
+                    )}
+
+                  {/* APPROVED DATE */}
+                  {step.label === "Approved" &&
+                    approvedDate &&
+                    currentStep >= 1 && (
+                      <p className="text-[11px] text-green-600 mt-1">
+                        {formatDate(approvedDate)}
+                      </p>
+                    )}
+
+                  {/* DISPATCH DATE */}
+                  {step.label === "Dispatched" &&
+                    dispatchDate &&
+                    currentStep >= 2 && (
+                      <p className="text-[11px] text-green-600 mt-1">
+
+                        {new Date(dispatchDate).toLocaleString("en-GB", {
+                          timeZone: "UTC",
+                          day: "2-digit",
+                          month: "short",
+                          // year: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </p>
+                    )}
                 </div>
               );
             })}
@@ -217,18 +223,9 @@ export default function OrderTrackPage() {
               />
             </div>
           </div>
-          {/* ✅ Dispatch Date */}
-{dispatchDate && (
-  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-    <p className="text-sm font-medium text-green-700">
-      🚚 Dispatched On:{" "}
-      {new Date(dispatchDate).toLocaleString("en-IN")}
-    </p>
-  </div>
-)}
 
+          {/* ---------------- TABLE ---------------- */}
 
-          {/* ✅ Comparison Table */}
           <div className="overflow-x-auto mb-20">
             <table className="min-w-full text-sm border rounded-lg shadow">
               <thead className="bg-gray-100">
@@ -260,16 +257,8 @@ export default function OrderTrackPage() {
                       (d) => d.product === name
                     );
 
-                    const isExtraCRMItem = !ssItem && crmItem;
-                    const isExtraDispatchItem =
-                      !ssItem && !crmItem && dispatchItem;
-
-                    let rowBg = "";
-                    if (isExtraCRMItem) rowBg = "bg-orange-50";
-                    if (isExtraDispatchItem) rowBg = "bg-green-100";
-
                     return (
-                      <tr key={index} className={`hover:bg-gray-50 ${rowBg}`}>
+                      <tr key={index} className="hover:bg-gray-50">
                         <td className="border px-3 py-2 font-medium">{name}</td>
 
                         <td className="border px-3 py-2 text-center bg-blue-50">
@@ -277,17 +266,7 @@ export default function OrderTrackPage() {
                         </td>
 
                         <td className="border px-3 py-2 text-center bg-yellow-50">
-                          {crmItem ? (
-                            crmItem.is_rejected ? (
-                              <span className="text-red-600 font-semibold">
-                                REJECTED
-                              </span>
-                            ) : (
-                              crmItem.quantity
-                            )
-                          ) : (
-                            "--"
-                          )}
+                          {crmItem ? crmItem.quantity : "--"}
                         </td>
 
                         <td className="border px-3 py-2 text-center bg-green-50">
@@ -302,56 +281,6 @@ export default function OrderTrackPage() {
           </div>
         </div>
       )}
-
-      {/* ---------------- SCHEME  TABLE ---------------- */}
-      {status === "PENDING" && eligibleSchemes.length > 0 && (
-        <div className="overflow-x-auto mt-10 mb-20">
-          <h2 className="text-lg font-bold mb-3 text-pink-500">Applied Schemes & Rewards</h2>
-
-          <table className="min-w-full text-sm border rounded-lg shadow">
-            <thead className="bg-green-100">
-              <tr>
-                <th className="border px-3 py-2 text-left">Scheme Conditions</th>
-                <th className="border px-3 py-2 text-left">Rewards</th>
-
-              </tr>
-            </thead>
-
-            <tbody>
-              {eligibleSchemes.map((scheme) => (
-                <tr key={scheme.id} className="hover:bg-green-50">
-                  <td className="border px-3 py-2">
-                    {scheme.conditions
-                      .map((c) => ` ${c.product_name}`)
-                      .join(", ")}
-                  </td>
-
-                  <td className="border px-3 py-2">
-                    {scheme.rewards
-                      .map((r) => {
-                        const total = r.quantity * scheme.multiplier;
-
-                        return (
-                          <>
-                            {total} {r.product_name || r.product} Free{" "}
-                            {scheme.in_box && (
-                              <span className="text-orange-600 font-bold text-xs">
-                                ( Scheme contains box )
-                              </span>
-                            )}
-                          </>
-                        );
-                      })
-                      .reduce((prev, curr) => [prev, ", ", curr])}
-                  </td>
-
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
     </div>
   );
 }
