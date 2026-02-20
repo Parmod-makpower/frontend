@@ -226,59 +226,88 @@ export default function OrderTrackPage() {
 
           {/* ---------------- TABLE ---------------- */}
 
-          <div className="overflow-x-auto mb-20">
-            <table className="min-w-full text-sm border rounded-lg shadow">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border px-3 py-2 text-left">Product</th>
-                  <th className="border px-3 py-2 text-center">SS Qty</th>
-                  <th className="border px-3 py-2 text-center">CRM Qty</th>
-                  <th className="border px-3 py-2 text-center">Dispatch Qty</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(() => {
-                  const ssItems = orderData.ss_items || [];
-                  const crmItems = orderData.crm_data?.items || [];
-                  const dispatchItems = orderData.dispatch_data || [];
+        <div className="mb-20">
+  <div className="overflow-x-auto rounded border border-gray-400">
+    <table className="min-w-full text-[11px] sm:text-xs md:text-sm text-gray-700">
+      
+      {/* ---------- TABLE HEADER ---------- */}
+      <thead className="bg-gradient-to-r from-gray-50 to-gray-300 text-gray-600 uppercase tracking-wider text-[10px] sm:text-xs sticky top-0 z-10">
+        <tr>
+          <th className="px-3 py-3 text-left font-semibold border">
+            Product
+          </th>
+          <th className="px-2 py-3 text-center font-semibold border">
+            Ord
+          </th>
+          <th className="px-2 py-3 text-center font-semibold border">
+            Apr
+          </th>
+          <th className="px-2 py-3 text-center font-semibold border">
+            Disp
+          </th>
+        </tr>
+      </thead>
 
-                  const allProductNames = [
-                    ...new Set([
-                      ...ssItems.map((i) => i.product_name),
-                      ...crmItems.map((i) => i.product_name),
-                      ...dispatchItems.map((i) => i.product),
-                    ]),
-                  ];
+      {/* ---------- TABLE BODY ---------- */}
+      <tbody className="divide-y divide-gray-300 bg-white">
+        {(() => {
+          const ssItems = orderData.ss_items || [];
+          const crmItems = orderData.crm_data?.items || [];
+          const dispatchItems = orderData.dispatch_data || [];
 
-                  return allProductNames.map((name, index) => {
-                    const ssItem = ssItems.find((s) => s.product_name === name);
-                    const crmItem = crmItems.find((c) => c.product_name === name);
-                    const dispatchItem = dispatchItems.find(
-                      (d) => d.product === name
-                    );
+          const allProductNames = [
+            ...new Set([
+              ...ssItems.map((i) => i.product_name),
+              ...crmItems.map((i) => i.product_name),
+              ...dispatchItems.map((i) => i.product),
+            ]),
+          ];
 
-                    return (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="border px-3 py-2 font-medium">{name}</td>
+          return allProductNames.map((name, index) => {
+            const ssItem = ssItems.find((s) => s.product_name === name);
+            const crmItem = crmItems.find((c) => c.product_name === name);
+            const dispatchItem = dispatchItems.find(
+              (d) => d.product === name
+            );
 
-                        <td className="border px-3 py-2 text-center bg-blue-50">
-                          {ssItem ? ssItem.quantity : "--"}
-                        </td>
+            return (
+              <tr
+                key={index}
+                className="hover:bg-blue-50/40 transition duration-150"
+              >
+                {/* Product Name */}
+                <td className="px-3 py-3 font-medium text-gray-800 whitespace-nowrap border border-gray-400">
+                  {name}
+                </td>
 
-                        <td className="border px-3 py-2 text-center bg-yellow-50">
-                          {crmItem ? crmItem.quantity : "--"}
-                        </td>
+                {/* Ordered Qty */}
+                <td className="px-2 py-3 text-center border border-gray-400">
+                  <span className="px-2 py-1 rounded-md bg-blue-50 text-blue-600 font-semibold text-[10px] sm:text-xs">
+                    {ssItem ? ssItem.quantity : "--"}
+                  </span>
+                </td>
 
-                        <td className="border px-3 py-2 text-center bg-green-50">
-                          {dispatchItem ? dispatchItem.quantity : "--"}
-                        </td>
-                      </tr>
-                    );
-                  });
-                })()}
-              </tbody>
-            </table>
-          </div>
+                {/* Approved Qty */}
+                <td className="px-2 py-3 text-center border border-gray-400">
+                  <span className="px-2 py-1 rounded-md bg-yellow-50 text-yellow-600 font-semibold text-[10px] sm:text-xs">
+                    {crmItem ? crmItem.quantity : "--"}
+                  </span>
+                </td>
+
+                {/* Dispatched Qty */}
+                <td className="px-2 py-3 text-center border border-gray-400">
+                  <span className="px-2 py-1 rounded-md bg-green-50 text-green-600 font-semibold text-[10px] sm:text-xs">
+                    {dispatchItem ? dispatchItem.quantity : "--"}
+                  </span>
+                </td>
+              </tr>
+            );
+          });
+        })()}
+      </tbody>
+    </table>
+  </div>
+</div>
         </div>
       )}
     </div>
