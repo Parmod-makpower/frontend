@@ -280,6 +280,7 @@ export default function CRMOrderDetailPage() {
   // ✅ Category filters (tempered categories only)
   const temperedKeywords = [
     "UV TEMPERED",
+    "TEMPERED MEIBO",
     "TEMPERED BODYGUARD",
     "TEMPERED SUPER X"
   ];
