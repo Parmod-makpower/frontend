@@ -48,9 +48,16 @@ export default function MAHOTSAV() {
     return <div className="p-4 text-center text-gray-500">Loading Mahotsav Products...</div>;
   }
 
-  const products = allProducts.filter((p) =>
-    PRODUCT_IDS.includes(p.product_id)
-  );
+  const products = useMemo(() => {
+  return allProducts
+    .filter((p) => PRODUCT_IDS.includes(p.product_id))
+    .sort((a, b) => {
+      const subCompare = (a.sub_category || "").localeCompare(b.sub_category || "");
+      if (subCompare !== 0) return subCompare;
+
+      return (a.product_name || "").localeCompare(b.product_name || "");
+    });
+}, [allProducts]);
 
   return (
     <div className="pb-24 bg-gray-50 min-h-screen">
