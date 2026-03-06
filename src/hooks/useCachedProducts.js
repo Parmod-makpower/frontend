@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { useVirtualStock } from "./useVirtualStock";
+import { useMumbaiStock } from "./useMumbaiStock";
 
 const getAllProducts = async () => {
   const res = await API.get("/all-products/");
@@ -34,20 +35,27 @@ export const useCachedProducts = () => {
 
   // ✅ Virtual Stock (auto-refresh every 2 min)
   const { data: virtualStockData = [] } = useVirtualStock();
+  const { data: mumbaiStockData = [] } = useMumbaiStock();
 
-  // ✅ Merge logic – memoized for performance
   const mergedProducts = useMemo(() => {
-    if (!allProducts?.length) return [];
-    return allProducts.map((prod) => {
-      const vs = virtualStockData.find(
-        (v) => v.product_id === prod.product_id
-      );
-      return {
-        ...prod,
-        virtual_stock: vs ? vs.virtual_stock : prod.virtual_stock,
-      };
-    });
-  }, [allProducts, virtualStockData]);
+  if (!allProducts?.length) return [];
+
+  return allProducts.map((prod) => {
+    const vs = virtualStockData.find(
+      (v) => v.product_id === prod.product_id
+    );
+
+    const ms = mumbaiStockData.find(
+      (m) => m.product_id === prod.product_id
+    );
+
+    return {
+      ...prod,
+      virtual_stock: vs ? vs.virtual_stock : prod.virtual_stock,
+      mumbai_stock: ms ? ms.mumbai_stock : prod.mumbai_stock,
+    };
+  });
+}, [allProducts, virtualStockData, mumbaiStockData]);
 
   return {
     data: mergedProducts,
