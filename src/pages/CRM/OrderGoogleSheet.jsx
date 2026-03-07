@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { all_active_inactive_product } from "../../hooks/all_active_inactive_product";
+import { useCachedProducts } from "../../hooks/useCachedProducts";
 import { useSelectedProducts } from "../../hooks/useSelectedProducts";
 /* ---------------------------------------------
    Excel / Google Sheet style Product Cell
@@ -86,7 +86,7 @@ function SheetProductCell({ products, value, onSelect, onPaste }) {
 --------------------------------------------- */
 
 export default function OrderGoogleSheet() {
-  const { data: allProducts = [] } = all_active_inactive_product();
+  const { data: allProducts = [] } = useCachedProducts();
 
   const [selectedSS, setSelectedSS] = useState("");
   const [selectedSSName, setSelectedSSName] = useState("");

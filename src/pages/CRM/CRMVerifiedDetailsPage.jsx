@@ -2,7 +2,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { all_active_inactive_product } from "../../hooks/all_active_inactive_product";
+// import { all_active_inactive_product } from "../../hooks/all_active_inactive_product";
+import { useCachedProducts } from "../../hooks/useCachedProducts";
 import { punchOrderToSheet } from "../../api/punchApi";
 import API from "../../api/axios";
 import MobilePageHeader from "../../components/MobilePageHeader";
@@ -38,7 +39,7 @@ export default function CRMVerifiedDetailsPage() {
   const [pdfFilter, setPdfFilter] = useState("ALL");
 
 
-  const { data: allProducts = [] } = all_active_inactive_product();
+  const { data: allProducts = [] } = useCachedProducts();
 
   const crmMapping = {
     "Ankita Dhingra": "AD-AP",

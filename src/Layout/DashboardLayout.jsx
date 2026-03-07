@@ -64,7 +64,7 @@ export default function DashboardLayout() {
     id: product.id ?? product.product_id,
   });
 
-  const allProducts = allProductsRaw.map(normalizeProduct);
+  const allProducts = allProductsRaw.map(normalizeProduct).filter((p) => p.is_active === true);
 
   const fuseResults = useFuseSearch(allProducts, searchTerm, {
     keys: ["sub_category", "sale_names", "product_name"],

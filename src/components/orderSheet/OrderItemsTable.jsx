@@ -228,15 +228,7 @@ export default function OrderItemsTable({
             }}
             onKeyDown={handleKeyDown}
             placeholder="Add product..."
-            className="
-    w-full
-    px-2 py-1
-    text-xs
-    text-center
-    border border-transparent
-    focus:outline-none
-    rounded-none
-  "
+            className="w-full px-2 py-1 text-xs text-center border border-transparent focus:outline-none rounded-none"
           />
 
 

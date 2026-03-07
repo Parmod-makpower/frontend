@@ -22,6 +22,7 @@ export default function CategoryProductListPage() {
   const [search, setSearch] = useState("");
 
   const filteredByCategory = allProducts.filter((product) =>
+     product.is_active === true &&
     product.sub_category?.toLowerCase().includes(categoryKeyword.toLowerCase())
   );
 

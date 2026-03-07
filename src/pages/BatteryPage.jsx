@@ -26,7 +26,7 @@ export default function BatteryPage() {
 
   // Normalize products
   const allProducts = useMemo(
-    () => allProductsRaw.map((p) => ({ ...p, id: p.id ?? p.product_id })),
+    () => allProductsRaw.map((p) => ({ ...p, id: p.id ?? p.product_id })).filter((p) => p.is_active === true),
     [allProductsRaw]
   );
 

@@ -48,7 +48,7 @@ export default function SearchBarPage() {
   }, []);
 
   const allProducts = useMemo(
-    () => allProductsRaw.map(normalizeProduct),
+    () => allProductsRaw.map(normalizeProduct).filter((p) => p.is_active === true),
     [allProductsRaw]
   );
 
