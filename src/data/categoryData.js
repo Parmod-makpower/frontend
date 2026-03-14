@@ -249,27 +249,27 @@ const categories = [
   {
     label: "Tempered",
     keyword: "TEMPERED",
-    image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425",
+        image: "https://millioncases.in/cdn/shop/files/202409210456232788_1_b62ebb07-fdcd-4ffc-a9b5-b1e58788a94c.webp?v=1726894738&width=1946",
     subcategories: [
       {
         label: "Bodyguard",
         keyword: "TEMPERED BODYGUARD",
-        image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
+        image: "https://millioncases.in/cdn/shop/files/202409210456232788_1_b62ebb07-fdcd-4ffc-a9b5-b1e58788a94c.webp?v=1726894738&width=1946"
       },
       {
         label: "Super X",
         keyword: "TEMPERED SUPER X",
-        image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
+        image: "https://millioncases.in/cdn/shop/files/202409210456232788_1_b62ebb07-fdcd-4ffc-a9b5-b1e58788a94c.webp?v=1726894738&width=1946"
       },
       {
         label: "UV Glass",
         keyword: "UV TEMPERED",
-        image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
+        image: "https://millioncases.in/cdn/shop/files/202409210456232788_1_b62ebb07-fdcd-4ffc-a9b5-b1e58788a94c.webp?v=1726894738&width=1946"
       },
       {
         label: "Meibo Glass",
         keyword: "TEMPERED MEIBO",
-        image: "https://www.frato.in/cdn/shop/files/iPhone_Anti-Spy_Privacy_Tempered_Glass_Screen_Protector_1.jpg?v=1748747425"
+        image: "https://millioncases.in/cdn/shop/files/202409210456232788_1_b62ebb07-fdcd-4ffc-a9b5-b1e58788a94c.webp?v=1726894738&width=1946"
       }
     ]
   },
