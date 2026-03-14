@@ -16,6 +16,8 @@ import { FaIndianRupeeSign } from "react-icons/fa6";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import makpower_image from "../assets/images/makpower_image.webp";
+import { PhotoProvider, PhotoView } from "react-photo-view";
+import "react-photo-view/dist/react-photo-view.css";
 
 export default function ProductDetailPage() {
   const { user } = useAuth();
@@ -115,14 +117,16 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           {/* Left: Product Image Slider with Zoom */}
           <div className="relative flex flex-col items-center border py-2 rounded-md ">
-            <Zoom>
-              <img
-                src={images[currentIndex]}
-                alt={product.product_name}
-                className="w-full max-h-[400px] md:max-h-[300px] object-contain rounded-lg cursor-zoom-in"
-                onError={(e) => (e.target.src = makpower_image)}
-              />
-            </Zoom>
+            <PhotoProvider>
+              <PhotoView src={images[currentIndex]}>
+                <img
+                  src={images[currentIndex]}
+                  alt={product.product_name}
+                  className="w-full max-h-[400px] md:max-h-[300px] object-contain rounded-lg cursor-zoom-in"
+                  onError={(e) => (e.target.src = makpower_image)}
+                />
+              </PhotoView>
+            </PhotoProvider>
 
             {images.length > 1 && (
               <>
@@ -271,79 +275,79 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ✅ Sticky Bottom Add to Cart Bar with Quantity / Cartoon Handling */}
-    {/* ✅ Sticky Bottom Add to Cart Bar (FINAL DS / SS LOGIC) */}
-{(user?.role === "SS" || user?.role === "DS") && (
-  <div className="left-0 w-full bg-white p-3 flex gap-3 z-50 border-t">
-    {!isInCart ? (
-      <button
-        onClick={handleAddToCart}
-        className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg"
-      >
-        <FaShoppingCart /> Add to Cart
-      </button>
-    ) : (
-      <div className="flex-1 flex flex-col gap-2">
-        {(() => {
-          const isDS = user?.role === "DS";
-          const moq = selectedItem.moq || 1;
+      {/* ✅ Sticky Bottom Add to Cart Bar (FINAL DS / SS LOGIC) */}
+      {(user?.role === "SS" || user?.role === "DS") && (
+        <div className="left-0 w-full bg-white p-3 flex gap-3 z-50 border-t">
+          {!isInCart ? (
+            <button
+              onClick={handleAddToCart}
+              className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg"
+            >
+              <FaShoppingCart /> Add to Cart
+            </button>
+          ) : (
+            <div className="flex-1 flex flex-col gap-2">
+              {(() => {
+                const isDS = user?.role === "DS";
+                const moq = selectedItem.moq || 1;
 
-          // 🟧 SS ONLY — Cartoon dropdown
-          if (selectedItem.quantity_type === "CARTOON" && !isDS) {
-            return (
-              <select
-                value={cartoonSelection[selectedItem.id] || 1}
-                onChange={(e) =>
-                  updateCartoon(selectedItem.id, parseInt(e.target.value))
-                }
-                className="w-full border rounded py-2 px-3 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-              >
-                {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
-                  <option key={n} value={n}>
-                    {n} Carton = {n * (product.cartoon_size || 1)} Pcs
-                  </option>
-                ))}
-              </select>
-            );
-          }
-
-          // 🟩 DS + SS — Normal Quantity Input
-          return (
-            <input
-              type="number"
-              min={1}
-              value={selectedItem.quantity || ""}
-              onChange={(e) => {
-                const val = e.target.value;
-
-                // empty typing allowed
-                if (val === "") {
-                  updateQuantity(selectedItem.id, "");
-                  return;
+                // 🟧 SS ONLY — Cartoon dropdown
+                if (selectedItem.quantity_type === "CARTOON" && !isDS) {
+                  return (
+                    <select
+                      value={cartoonSelection[selectedItem.id] || 1}
+                      onChange={(e) =>
+                        updateCartoon(selectedItem.id, parseInt(e.target.value))
+                      }
+                      className="w-full border rounded py-2 px-3 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                    >
+                      {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
+                        <option key={n} value={n}>
+                          {n} Carton = {n * (product.cartoon_size || 1)} Pcs
+                        </option>
+                      ))}
+                    </select>
+                  );
                 }
 
-                const parsed = parseInt(val);
-                if (!isNaN(parsed)) {
-                  updateQuantity(selectedItem.id, parsed);
-                }
-              }}
-              onBlur={(e) => {
-                // 🟢 DS → NO MOQ auto fix
-                if (isDS) return;
+                // 🟩 DS + SS — Normal Quantity Input
+                return (
+                  <input
+                    type="number"
+                    min={1}
+                    value={selectedItem.quantity || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
 
-                // 🔵 SS → MOQ strict
-                const parsed = parseInt(e.target.value);
-                if (isNaN(parsed) || parsed < moq) {
-                  updateQuantity(selectedItem.id, moq);
-                }
-              }}
-              className="w-full border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-            />
-          );
-        })()}
-      </div>
-    )}
-  </div>
-)}
+                      // empty typing allowed
+                      if (val === "") {
+                        updateQuantity(selectedItem.id, "");
+                        return;
+                      }
+
+                      const parsed = parseInt(val);
+                      if (!isNaN(parsed)) {
+                        updateQuantity(selectedItem.id, parsed);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      // 🟢 DS → NO MOQ auto fix
+                      if (isDS) return;
+
+                      // 🔵 SS → MOQ strict
+                      const parsed = parseInt(e.target.value);
+                      if (isNaN(parsed) || parsed < moq) {
+                        updateQuantity(selectedItem.id, moq);
+                      }
+                    }}
+                    className="w-full border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                  />
+                );
+              })()}
+            </div>
+          )}
+        </div>
+      )}
 
     </div>
   );

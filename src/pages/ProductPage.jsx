@@ -35,11 +35,14 @@ export default function ProductPage() {
   const { mutate: updateProduct } = useUpdateProduct();
   const { mutate: toggleStatus } = useToggleProductStatus();
 
-  const filteredProducts = useFuseSearch(allProducts, search, {
+  const activeProducts = allProducts.filter((p) => p.is_active === true);
+
+  const filteredProducts = useFuseSearch(activeProducts, search, {
     keys: ["product_name", "sub_category", "product_id"],
     threshold: 0.3,
   });
-  const productsToShow = search ? filteredProducts : allProducts;
+
+  const productsToShow = search ? filteredProducts : activeProducts;
 
   const paginatedProducts = productsToShow.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
