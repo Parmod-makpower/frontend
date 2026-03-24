@@ -23,24 +23,29 @@ export default function CRMVerifiedTable({
   }, 0);
 
   return (
-    <div className=" rounded shadow-sm">
-      <div className="overflow-x-auto select-none">
-        <table className="min-w-full text-sm text-left text-gray-700 border">
-          <thead className="bg-gray-200 text-gray-900 text-sm font-semibold">
-            <tr className="text-center">
-              <th className="p-3 border">S.No</th>
-              <th className="p-3 border">Category</th>
-              <th className="p-3 border">Product</th>
-              <th className="p-3 border">Qty</th>
-              <th className="p-3 border">Carton</th>
-              <th className="p-3 border">Price</th>
-              <th className="p-3 border">Total</th>
-              <th className="p-3 border">SS-Stock</th>
-              <th className="p-3 border">Delhi</th>
-              <th className="p-3 border">Mumbai</th>
-              {(!order.punched || user?.role === "ADMIN") && <th className="p-3 border">Action</th>}
-               {user?.role == "ADMIN" && (<th className="p-3 border">ID</th>)}
-               {user?.role == "ADMIN" && (<th className="p-3 border">Punch</th>)}
+   <div className="">
+
+  {/* ✅ SCROLL CONTAINER */}
+  <div className="max-h-[70vh] overflow-y-auto scroll-smooth">
+
+    <table className="min-w-full border-collapse text-sm">
+
+      {/* ✅ STICKY HEADER */}
+      <thead className="sticky top-0 z-20 bg-gray-100 text-gray-800 text-xs font-semibold uppercase tracking-wide">
+        <tr className="text-center">
+              <th className="p-1 border border-gray-500">S.No</th>
+              <th className="p-1 border border-gray-500">Category</th>
+              <th className="p-1 border border-gray-500">Product</th>
+              <th className="p-1 border border-gray-500">Qty</th>
+              <th className="p-1 border border-gray-500">Carton</th>
+              <th className="p-1 border border-gray-500">Price</th>
+              <th className="p-1 border border-gray-500">Total</th>
+              <th className="p-1 border border-gray-500">SS-Stock</th>
+              <th className="p-1 border border-gray-500">Delhi</th>
+              <th className="p-1 border border-gray-500">Mumbai</th>
+              {(!order.punched || user?.role === "ADMIN") && <th className="p-1 border border-gray-500">Action</th>}
+               {user?.role == "ADMIN" && (<th className="p-1 border border-gray-500">ID</th>)}
+               {user?.role == "ADMIN" && (<th className="p-1 border border-gray-500">Punch</th>)}
             </tr>
           </thead>
 
@@ -61,19 +66,19 @@ export default function CRMVerifiedTable({
 
                   return (
                     <tr key={idx} className="border-t hover:bg-gray-50 text-center">
-                      <td className="p-3 border text-center">{idx + 1}</td>
-                      <td className="p-3 border">{r.sub_category}</td>
-                      <td className="p-3 border">{r.product_name}</td>
-                      <td className="p-3 border bg-yellow-100">{r.quantity}</td>
-                      <td className="p-3 border">{r.cartoon_size ?? "-"}</td>
-                      <td className="p-3 border">₹{price.toFixed(1)}</td>
-                      <td className="p-3 border bg-blue-100">₹{total}</td>
-                      <td className="p-3 border bg-red-100">{ssStock}</td>
-                      <td className="p-3 border bg-red-200">{stock || "0"}</td>
-                      <td className="p-3 border bg-purple-200">{mumbai_stock || "0"}</td>
+                      <td className="p-1 border-b border-x border-gray-400 text-center">{idx + 1}</td>
+                      <td className="p-1 border-b border-r border-gray-400">{r.sub_category}</td>
+                      <td className="p-1 border-b border-r border-gray-400">{r.product_name}</td>
+                      <td className="p-1 border-b border-r border-gray-400 bg-yellow-100">{r.quantity}</td>
+                      <td className="p-1 border-b border-r border-gray-400">{r.cartoon_size ?? "-"}</td>
+                      <td className="p-1 border-b border-r border-gray-400">{price.toFixed(1)}</td>
+                      <td className="p-1 border-b border-r border-gray-400 bg-blue-100">{total}</td>
+                      <td className="p-1 border-b border-r border-gray-400 bg-red-100">{ssStock}</td>
+                      <td className="p-1 border-b border-r border-gray-400 bg-red-200">{stock || "0"}</td>
+                      <td className="p-1 border-b border-r border-gray-400 bg-purple-200">{mumbai_stock || "0"}</td>
 
                       {(!order.punched || user?.role === "ADMIN") && (
-                        <td className="p-3 border text-center bg-gray-200">
+                        <td className="p-1 border-b border-r border-gray-400 text-center bg-gray-200">
                           <div className="flex justify-around ">
                             <button
                               onClick={(e) => {
@@ -99,9 +104,9 @@ export default function CRMVerifiedTable({
                           </div>
                         </td>
                       )}
-                      {user?.role == "ADMIN" && (<td className="p-3 border bg-red-200">{r.id}</td>)}
+                      {user?.role == "ADMIN" && (<td className="p-1  border-b border-r border-gray-400 bg-red-200">{r.id}</td>)}
                       {user?.role == "ADMIN" && ( <td
-                      className="p-3 border text-blue-600 underline hover:bg-blue-400 hover:text-white cursor-pointer"
+                      className="p-1  border-b border-r border-gray-400 text-blue-600 underline hover:bg-blue-400 hover:text-white cursor-pointer"
                       onClick={() => handleSingleRowPunch(r)}>
                       punch
                     </td>)}
@@ -111,18 +116,18 @@ export default function CRMVerifiedTable({
                 })}
 
                 {/* ✅ Total Row */}
-                <tr className="bg-blue-300 font-semibold">
-                  <td colSpan={6} className="p-3 border text-right">
+                <tr className="font-semibold">
+                  <td colSpan={6} className="px-3 p-1 border-b border-x border-gray-400 text-right">
                     Estimate Total
                   </td>
-                  <td  className="p-3 border">
-                    ₹{estimateTotal.toFixed(1)}
+                  <td  className="p-1 border-b border-r border-gray-400">
+                    ₹ {estimateTotal.toFixed(1)}
                   </td>
                 </tr>
               </>
             ) : (
               <tr>
-                <td className="p-3 text-gray-500 text-center" colSpan={9}>
+                <td className="px-3 p-1 text-gray-500 text-center" colSpan={9}>
                   No items
                 </td>
               </tr>
@@ -131,5 +136,6 @@ export default function CRMVerifiedTable({
         </table>
       </div>
     </div>
+
   );
 }

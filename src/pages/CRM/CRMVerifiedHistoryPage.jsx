@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDebounce, useVerifiedOrders } from "../../hooks/useVerifiedOrders";
 import CustomLoader from "../../components/CustomLoader";
-import VerifiedOrdersFilter from "../../components/VerifiedOrdersFilter";
+import VerifiedOrdersFilter from "../../components/AfterVerified/VerifiedOrdersFilter";
 import { FaCheckCircle, FaClock, FaFilter } from "react-icons/fa";
 
 

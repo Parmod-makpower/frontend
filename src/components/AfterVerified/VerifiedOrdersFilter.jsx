@@ -1,5 +1,5 @@
 import { FaFilter } from "react-icons/fa";
-import PartySearchInput from "./PartySearchInput";
+import PartySearchInput from "../PartySearchInput";
 
 export default function VerifiedOrdersFilter({
     open,

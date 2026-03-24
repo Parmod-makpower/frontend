@@ -33,11 +33,13 @@ export default function CRMVerifiedDetailsPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [editQty, setEditQty] = useState("");
- const [addSidebarOpen, setAddSidebarOpen] = useState(false);
+  const [addSidebarOpen, setAddSidebarOpen] = useState(false);
   const [newProduct, setNewProduct] = useState("");
   const [newQty, setNewQty] = useState("");
   const [newPrice, setNewPrice] = useState("");
-  const [dispatchLocation, setDispatchLocation] = useState(order?.dispatch_location || "Delhi");
+  const [dispatchLocation, setDispatchLocation] = useState("");
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const [selectedPdfFilter, setSelectedPdfFilter] = useState("");
 
   const [pdfFilter, setPdfFilter] = useState("ALL");
 
@@ -125,6 +127,8 @@ export default function CRMVerifiedDetailsPage() {
       alert("No items to punch!");
       return;
     }
+
+    setDispatchLocation(""); // ✅ RESET EVERY TIME
     setIsModalOpen(true);
   };
 
@@ -165,8 +169,8 @@ export default function CRMVerifiedDetailsPage() {
       alert(err.response?.data?.error || "Failed to add product.");
     }
     finally {
-    setLoading(false); // ✅ ADD THIS
-  }
+      setLoading(false); // ✅ ADD THIS
+    }
   };
 
   const handleEditQuantity = async (itemId, newQty) => {
@@ -194,181 +198,266 @@ export default function CRMVerifiedDetailsPage() {
     }
   };
 
-  const handleSingleRowPunch = async (item) => {
-  try {
-    setLoading(true);
+  const handleConfirmPDF = () => {
+    setPdfModalOpen(false);
+    setPdfFilter(selectedPdfFilter); // optional (agar state sync chahiye)
 
-    const singleOrder = {
-      id: order.id,
-      order_id: order.order_id,
-      ss_party_name: order.ss_party_name,
-      crm_name: order.crm_name,
-      dispatch_location: dispatchLocation,
-      is_single_row: true,
-      items: [
-        {
-          product_name: item.product_name,
-          quantity: item.quantity,
-          id: item.id,
-        },
-      ],
-    };
+    let filteredItems = enrichedItems;
 
-    const res = await punchOrderToSheet(singleOrder, dispatchLocation);
-
-    if (res.success) {
-      alert("Row punched successfully!");
-    } else {
-      alert("Error punching row: " + res.error);
+    if (selectedPdfFilter === "ACCESSORIES") {
+      filteredItems = enrichedItems.filter(
+        item =>
+          !(item.sub_category?.toLowerCase().includes("battery") ||
+            item.product_name?.toLowerCase().includes("battery"))
+      );
     }
-  } catch (err) {
-    alert("Something went wrong while punching this row.");
-  } finally {
-    setLoading(false); // ✅ ALWAYS STOP LOADER
-  }
-};
 
-if (isLoading) return <CustomLoader fullScreen text="Loading order details..." />;
-if (error) return <div className="p-6 text-red-600">Error loading order</div>;
-if (!order) return <div className="p-6 text-red-600">No order found</div>;
+    if (selectedPdfFilter === "BATTERY") {
+      filteredItems = enrichedItems.filter(
+        item =>
+          item.sub_category?.toLowerCase().includes("battery") ||
+          item.product_name?.toLowerCase().includes("battery")
+      );
+    }
+
+    DispatchPDF(
+      order,
+      filteredItems,
+      remarks,
+      orderCode,
+      order.dispatch_location
+    );
+  };
+
+  const handleSingleRowPunch = async (item) => {
+    try {
+      setLoading(true);
+
+      const singleOrder = {
+        id: order.id,
+        order_id: order.order_id,
+        ss_party_name: order.ss_party_name,
+        crm_name: order.crm_name,
+        dispatch_location: dispatchLocation,
+        is_single_row: true,
+        items: [
+          {
+            product_name: item.product_name,
+            quantity: item.quantity,
+            id: item.id,
+          },
+        ],
+      };
+
+      const res = await punchOrderToSheet(singleOrder, dispatchLocation);
+
+      if (res.success) {
+        alert("Row punched successfully!");
+      } else {
+        alert("Error punching row: " + res.error);
+      }
+    } catch (err) {
+      alert("Something went wrong while punching this row.");
+    } finally {
+      setLoading(false); // ✅ ALWAYS STOP LOADER
+    }
+  };
+
+  if (isLoading) return <CustomLoader fullScreen text="Loading order details..." />;
+  if (error) return <div className="p-6 text-red-600">Error loading order</div>;
+  if (!order) return <div className="p-6 text-red-600">No order found</div>;
 
   if (!order)
     return <div className="p-6 text-red-600">No order data provided.</div>;
 
   return (
     <>
-    {loading && <FullPageLoader text="Processing..." />}
+      {loading && <FullPageLoader text="Processing..." />}
 
-    <div className="p-4 sm:p-0 space-y-4 pb-30">
-      <ConfirmModal
-        isOpen={isModalOpen}
-        title="Confirm Order Punch"
-        message="Are you sure you want to punch this order?"
-        confirmText="Confirm"
-        cancelText="Cancel"
-        confirmColor="bg-blue-600 hover:bg-blue-700"
-        loading={loading}
-        onCancel={() => setIsModalOpen(false)}
-        onConfirm={confirmOrderPunch}
-      />
+      <div className="p-4 sm:p-0 space-y-4 pb-30">
+        <ConfirmModal
+          isOpen={isModalOpen}
+          title="Select Dispatch Location"
+          message="Please select dispatch location before punching"
+          confirmText="Confirm"
+          cancelText="Cancel"
+          confirmColor="bg-blue-600 hover:bg-blue-700"
+          loading={loading}
+          onCancel={() => setIsModalOpen(false)}
+          onConfirm={confirmOrderPunch}
+          disableConfirm={!dispatchLocation} // ✅ DISABLE UNTIL SELECTED
+        >
+          {/* ✅ CUSTOM UI */}
+          <div className="flex gap-3 mb-4">
 
-      <MobilePageHeader title={orderCode} />
-
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-gray-300 p-2 border mt-[60px] sm:mt-0">
-
-        <div className="hidden sm:block font-semibold rounded bg-white px-4 p-1">
-          {orderCode}
-        </div>
-
-        <div className="relative">
-          <select
-            value={order.punched ? order.dispatch_location : dispatchLocation}
-            onChange={(e) => setDispatchLocation(e.target.value)}
-            disabled={order.punched}   // 🔥 यही main point है
-            className={`border rounded me-3 px-3 py-1 bg-white shadow-sm cursor-pointer ${order.punched ? "bg-gray-100 cursor-not-allowed" : "bg-white"
-              }`}
-          >
-            <option value="Delhi">Delhi</option>
-            <option value="Mumbai">Mumbai</option>
-          </select>
-          {order.punched && (
             <button
-              onClick={() => {
-                setMenuOpen(false);
-                handleDownloadPDF();
-              }}
-              className="px-2 p-1 rounded bg-orange-600 text-white hover:bg-blue-700 cursor-pointer" > 🚚 Dispatch PDF
+              onClick={() => setDispatchLocation("Delhi")}
+              className={`flex-1 py-2 rounded border ${dispatchLocation === "Delhi"
+                ? "bg-blue-600 text-white"
+                : "bg-white"
+                }`}
+            >
+              Delhi
             </button>
-          )}
-          <select
-            value={pdfFilter}
-            onChange={(e) => setPdfFilter(e.target.value)}
-            className="border rounded me-3 px-3 ms-2 py-1 bg-white shadow-sm cursor-pointer"
-          >
-            <option value="ALL">All</option>
-            <option value="ACCESSORIES">Accessories</option>
-            <option value="BATTERY">Battery</option>
-          </select>
-          {!order.punched && (
-            <SS_pdf_before_punch
-              id="verified-order-pdf-btn"
+
+            <button
+              onClick={() => setDispatchLocation("Mumbai")}
+              className={`flex-1 py-2 rounded border ${dispatchLocation === "Mumbai"
+                ? "bg-blue-600 text-white"
+                : "bg-white"
+                }`}
+            >
+              Mumbai
+            </button>
+
+          </div>
+        </ConfirmModal>
+
+
+        <ConfirmModal
+          isOpen={pdfModalOpen}
+          title="Select PDF Type"
+          message="Choose what you want to include in PDF"
+          confirmText="Download"
+          cancelText="Cancel"
+          confirmColor="bg-orange-600 hover:bg-orange-700"
+          onCancel={() => setPdfModalOpen(false)}
+          onConfirm={handleConfirmPDF}
+          disableConfirm={!selectedPdfFilter}
+        >
+          <div className="flex gap-2 mb-4">
+
+            <button
+              onClick={() => setSelectedPdfFilter("ALL")}
+              className={`flex-1 py-2 rounded border ${selectedPdfFilter === "ALL"
+                  ? "bg-orange-600 text-white"
+                  : "bg-white"
+                }`}
+            >
+              All
+            </button>
+
+            <button
+              onClick={() => setSelectedPdfFilter("ACCESSORIES")}
+              className={`flex-1 py-2 rounded border ${selectedPdfFilter === "ACCESSORIES"
+                  ? "bg-orange-600 text-white"
+                  : "bg-white"
+                }`}
+            >
+              Accessories
+            </button>
+
+            <button
+              onClick={() => setSelectedPdfFilter("BATTERY")}
+              className={`flex-1 py-2 rounded border ${selectedPdfFilter === "BATTERY"
+                  ? "bg-orange-600 text-white"
+                  : "bg-white"
+                }`}
+            >
+              Battery
+            </button>
+
+          </div>
+        </ConfirmModal>
+
+        <MobilePageHeader title={orderCode} />
+
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-gray-300 p-1 border mt-[60px] sm:mt-0">
+
+          <div className="hidden sm:block font-semibold rounded bg-white px-4 p-1">
+            {orderCode}
+          </div>
+
+          <div className="relative">
+            {order.punched && (
+              <button
+                onClick={() => {
+                  setSelectedPdfFilter(""); // reset
+                  setPdfModalOpen(true);
+                }}
+                className="px-2 p-1 rounded bg-orange-600 text-white hover:bg-blue-700 cursor-pointer" > 🚚 Dispatch PDF
+              </button>
+            )}
+            {!order.punched && (
+              <SS_pdf_before_punch
+                id="verified-order-pdf-btn"
+                order={order}
+                items={enrichedItems.map((item) => ({
+                  ...item,
+                  virtual_stock:
+                    allProducts.find((p) => p.product_id === item.product)
+                      ?.virtual_stock ?? 0,
+                  price:
+                    allProducts.find((p) => p.product_id === item.product)
+                      ?.price ?? item.price ?? 0,
+                }))}
+              />
+            )}
+          </div>
+        </div>
+
+
+        <div className="grid grid-cols-12 gap-4">
+          {/* ✅ TABLE */}
+          <div className="col-span-12 md:col-span-10">
+            <CRMVerifiedTable
+              items={enrichedItems}
               order={order}
-              items={enrichedItems.map((item) => ({
-                ...item,
-                virtual_stock:
-                  allProducts.find((p) => p.product_id === item.product)
-                    ?.virtual_stock ?? 0,
-                price:
-                  allProducts.find((p) => p.product_id === item.product)
-                    ?.price ?? item.price ?? 0,
-              }))}
+              user={user}
+              setEditingItem={setEditingItem}
+              setEditQty={setEditQty}
+              setShowEditModal={setShowEditModal}
+              handleDeleteItem={handleDeleteItem}
+              handleSingleRowPunch={handleSingleRowPunch}
             />
+          </div>
+
+          {/* ✅ RIGHT SIDE ADD PRODUCT PANEL */}
+          {(!order.punched || user?.role === "ADMIN") && (
+            <div className="hidden md:block col-span-2">
+              <AddProductModal
+                allProducts={allProducts}
+                handleAddProduct={handleAddProduct}
+                newProduct={newProduct}
+                setNewProduct={setNewProduct}
+                newQty={newQty}
+                setNewQty={setNewQty}
+                newPrice={newPrice}
+                setNewPrice={setNewPrice}
+              />
+            </div>
           )}
         </div>
+
+        <EditQuantityModal
+          show={showEditModal}
+          setShow={setShowEditModal}
+          editingItem={editingItem}
+          editQty={editQty}
+          setEditQty={setEditQty}
+          handleEditQuantity={handleEditQuantity}
+        />
+
+        {/* ✅ Remarks */}
+        <RemarksSection remarks={remarks} setRemarks={setRemarks} />
+
+        {/* ✅ Punch Button */}
+        <button
+          onClick={handleOrderPunch}
+          disabled={order.punched || loading}
+          className={`px-6 py-2 rounded-lg shadow transition ${order.punched || loading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+            }`}
+        >
+          {loading
+            ? "Processing..."
+            : order.punched
+              ? "Already Punched"
+              : "Order Punch"}
+        </button>
+
       </div>
-
-
-     <div className="grid grid-cols-12 gap-4">
-
-  {/* ✅ TABLE */}
-  <div className="col-span-12 md:col-span-10">
-    <CRMVerifiedTable
-      items={enrichedItems}
-      order={order}
-      user={user}
-      setEditingItem={setEditingItem}
-      setEditQty={setEditQty}
-      setShowEditModal={setShowEditModal}
-      handleDeleteItem={handleDeleteItem}
-      handleSingleRowPunch={handleSingleRowPunch}
-    />
-  </div>
-
-  {/* ✅ RIGHT SIDE ADD PRODUCT PANEL */}
-  {(!order.punched || user?.role === "ADMIN") && (
-    <div className="hidden md:block col-span-2">
-      <AddProductModal
-        allProducts={allProducts}
-        handleAddProduct={handleAddProduct}
-        newProduct={newProduct}
-        setNewProduct={setNewProduct}
-        newQty={newQty}
-        setNewQty={setNewQty}
-        newPrice={newPrice}
-        setNewPrice={setNewPrice}
-      />
-    </div>
-  )}
-</div>
-
-      <EditQuantityModal
-        show={showEditModal}
-        setShow={setShowEditModal}
-        editingItem={editingItem}
-        editQty={editQty}
-        setEditQty={setEditQty}
-        handleEditQuantity={handleEditQuantity}
-      />
-
-      {/* ✅ Remarks */}
-      <RemarksSection remarks={remarks} setRemarks={setRemarks} />
-
-      {/* ✅ Punch Button */}
-      <button
-        onClick={handleOrderPunch}
-        disabled={order.punched || loading}
-        className={`px-6 py-2 rounded-lg shadow transition ${order.punched || loading
-          ? "bg-gray-400 cursor-not-allowed"
-          : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-          }`}
-      >
-        {loading
-          ? "Processing..."
-          : order.punched
-            ? "Already Punched"
-            : "Order Punch"}
-      </button>
-    </div>
     </>
   );
 }

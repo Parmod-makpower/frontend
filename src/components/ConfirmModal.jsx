@@ -11,6 +11,8 @@ export default function ConfirmModal({
   onCancel,
   onConfirm,
   icon: Icon,
+  children, // ✅ ADD THIS
+  disableConfirm = false,
 }) {
   if (!isOpen) return null;
 
@@ -21,6 +23,7 @@ export default function ConfirmModal({
           {Icon && <Icon className="text-red-500" />} {title}
         </h3>
         <p className="text-gray-600 mb-6 text-sm">{message}</p>
+        {children}
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
@@ -30,11 +33,11 @@ export default function ConfirmModal({
           </button>
           <button
             onClick={onConfirm}
-            disabled={loading}
-            className={`px-4 py-2 rounded-lg text-white cursor-pointer ${loading
-              ? "bg-gray-400 cursor-not-allowed "
-              : confirmColor
-            }`}
+            disabled={loading || disableConfirm} // ✅ IMPORTANT
+            className={`px-4 py-2 rounded-lg text-white cursor-pointer ${loading || disableConfirm
+                ? "bg-gray-400 cursor-not-allowed"
+                : confirmColor
+              }`}
           >
             {loading ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : confirmText}
           </button>
