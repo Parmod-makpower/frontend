@@ -1,39 +1,53 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useVerifiedOrders } from "../../hooks/useVerifiedOrders";
-import { useDebounce } from "../../hooks/useVerifiedOrders";
-import MobilePageHeader from "../../components/MobilePageHeader";
+import { useDebounce, useVerifiedOrders } from "../../hooks/useVerifiedOrders";
+import CustomLoader from "../../components/CustomLoader";
+import VerifiedOrdersFilter from "../../components/VerifiedOrdersFilter";
+import { FaCheckCircle, FaClock, FaFilter } from "react-icons/fa";
+
 
 export default function CRMVerifiedHistoryPage() {
   const navigate = useNavigate();
 
-  const [punchedFilter, setPunchedFilter] = useState(() => {
-    const saved = localStorage.getItem("punchedFilter");
-    return saved === "true" ? true : null;
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // ✅ SINGLE SOURCE OF TRUTH
+  const STORAGE_KEY = "verified_orders_filters";
+
+  // ✅ INIT from localStorage
+  const [filters, setFilters] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved
+      ? JSON.parse(saved)
+      : {
+        q: "",
+        party: "",
+        fromDate: "",
+        toDate: "",
+        punched: false,
+      };
   });
 
+  // 🔥 API ke liye separate state
+  const [appliedFilters, setAppliedFilters] = useState(filters);
 
-const [q, setQ] = useState("");
-const debouncedQ = useDebounce(q, 500);
+  const debouncedQ = useDebounce(appliedFilters.q, 500);
+  const finalQ = debouncedQ.length >= 3 ? debouncedQ : "";
 
-// minimum 3 character rule
-const finalQ = debouncedQ.length >= 3 ? debouncedQ : "";
-
-const { data, isLoading, isError } = useVerifiedOrders({
-  q: finalQ,
-  punched: punchedFilter,
-});
-
+  const { data, isLoading, isError, isFetching } =
+    useVerifiedOrders({
+      ...appliedFilters,
+      q: finalQ,
+    });
 
   const results = data || [];
 
-  useEffect(() => {
-    if (punchedFilter === true) {
-      localStorage.setItem("punchedFilter", "true");
-    } else {
-      localStorage.removeItem("punchedFilter");
-    }
-  }, [punchedFilter]);
+  const handleApply = (customFilters) => {
+    const finalFilters = customFilters || filters;
+
+    setAppliedFilters(finalFilters);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(finalFilters));
+  };
 
   const crmMapping = {
     "Ankita Dhingra": "AD-AP",
@@ -47,117 +61,169 @@ const { data, isLoading, isError } = useVerifiedOrders({
     "Kanak Maurya": "KM-AP",
   };
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
+  }, [filters]);
+
+  if (isLoading) {
+    return <CustomLoader fullScreen text="Loading orders..." />;
+  }
+
   return (
-    <div className="p-4 sm:p-0 pb-24">
-      <MobilePageHeader title="Orders — History" />
+    <div>
+      {/* ✅ MOBILE HEADER */}
+      <div className="fixed sm:hidden top-0 left-0 right-0 z-50 bg-white p-3 border-b shadow flex justify-between">
+        <h2 className="text-sm font-semibold">
+          Orders ({results.length})
+        </h2>
 
-      {/* Filters */}
-      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur pt-[60px] sm:pt-0 pb-3 px-2">
-        <div className="flex flex-col sm:flex-row justify-end gap-3">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="🔎 Search Order Code"
-            className="border rounded p-2 w-full sm:w-auto"
-          />
-
-          <label className="flex items-center gap-2 border rounded p-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={punchedFilter === true}
-              onChange={(e) =>
-                setPunchedFilter(e.target.checked ? true : null)
-              }
-            />
-            <span>Punched</span>
-          </label>
-        </div>
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="flex items-center gap-2 text-blue-600"
+        >
+          <FaFilter /> Filter
+        </button>
       </div>
 
-      {isError && (
-        <div className="text-red-600 text-center py-3">
-          Loading failed. Try again.
-        </div>
-      )}
+      <div className="grid grid-cols-12 gap-4 pt-[60px] sm:pt-0">
 
-      {/* Table Responsive */}
-      <div>
-        <table className="min-w-full text-sm text-gray-700">
-          <thead className="bg-gray-200 text-gray-900 text-sm font-semibold">
-            <tr>
-              <th className="p-3 border">Order ID</th>
-              <th className="p-3 border">Order Code</th>
-              <th className="p-3 border">Party</th>
-              <th className="p-3 border">CRM</th>
-              <th className="p-3 border">Order</th>
-              <th className="p-3 border">Verified</th>
-              <th className="p-3 border">Track</th>
-            </tr>
-          </thead>
+        {/* ✅ TABLE */}
+        <div className="col-span-12 md:col-span-10">
+          <div className="h-[75vh] overflow-y-auto">
+            <table className="w-full border text-sm text-center">
+              <thead className="bg-gray-200 sticky top-0">
+                <tr>
+                  <th className="border p-2">Order ID</th>
+                  <th className="border p-2">Code</th>
+                  <th className="border p-2">Party</th>
+                  <th className="border p-2">CRM</th>
+                  <th className="border p-2">Order</th>
+                  <th className="border p-2">Verified</th>
+                  <th className="border p-2">
+                    <label className="flex items-center justify-center gap-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.punched === true}
+                        onChange={(e) => {
+                          const updated = {
+                            ...filters,
+                            punched: e.target.checked ? true : false,
+                          };
 
-          <tbody className="divide-y divide-gray-200 text-center">
-            {isLoading || !results.length ? (
-              Array.from({ length: 10 }).map((_, i) => (
-                <tr key={i} className="animate-pulse border-t">
-                  <td className="p-3" colSpan={7}>
-                    <div className="h-5 bg-gray-200 rounded" />
-                  </td>
+                          setFilters(updated);
+                          setAppliedFilters(updated); // 🔥 instant API call
+                        }}
+                      />
+                    </label>
+                  </th>
+                  <th className="border p-2">Track</th>
                 </tr>
-              ))
-            ) : (
-              results.map((row) => {
-                const orderCode = crmMapping[row.crm_name]
-                  ? `${crmMapping[row.crm_name]}${row.id}`
-                  : `${row.crm_name}-${row.id}`;
+              </thead>
 
-                return (
-                  <tr
-                    key={row.id}
-                    onClick={() =>
-                      navigate(`/crm/verified/${row.id}`, {
-                        state: { order: row },
-                      })
-                    }
-                    className="border-t hover:bg-yellow-100 cursor-pointer"
-                  >
-                    <td className="p-3 border">{row.order_id}</td>
-
-                    <td className="p-3 border font-semibold">{orderCode}</td>
-
-                    <td className="p-3 border">{row.ss_party_name}</td>
-
-                    <td className="p-3 border">{row.crm_name}</td>
-
-                    <td className="p-3 border">
-                      {new Date(row.ss_order_created_at).toLocaleString(
-                        "en-IN",
-                        { timeZone: "Asia/Kolkata" }
-                      )}
-                    </td>
-
-                    <td className="p-3 border">
-                      {new Date(row.verified_at).toLocaleString("en-IN", {
-                        timeZone: "Asia/Kolkata",
-                      })}
-                    </td>
-
-                    {/* FIXED TRACK BUTTON */}
-                    <td
-                      className="p-3 border text-blue-600 underline hover:bg-blue-400 hover:text-white"
-                      onClick={(e) => {
-                        e.stopPropagation(); // important fix
-                        navigate(`/orders-tracking/${row.order_id}`);
-                      }}
-                    >
-                      Track
+              <tbody>
+                {isFetching ? (
+                  <tr>
+                    <td colSpan={7}>
+                      <CustomLoader text="Searching..." />
                     </td>
                   </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                ) : results.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="p-4 text-gray-500">
+                      No orders found
+                    </td>
+                  </tr>
+                ) : (
+                  results.map((row, i) => {
+                    const orderCode = crmMapping[row.crm_name]
+                      ? `${crmMapping[row.crm_name]}${row.id}`
+                      : `${row.crm_name}-${row.id}`;
+
+                    return (
+                      <tr
+                        key={row.id}
+                        onClick={() =>
+                          navigate(`/order/${row.id}/details`)
+                        }
+                        className={`cursor-pointer ${i % 2 === 0 ? "bg-white" : "bg-gray-50"
+                          } hover:bg-yellow-100`}
+                      >
+                        <td className="border p-2">{row.order_id}</td>
+                        <td className="border p-2 font-semibold">
+                          {orderCode}
+                        </td>
+                        <td className="border p-2">
+                          {row.ss_party_name}
+                        </td>
+                        <td className="border p-2">{row.crm_name}</td>
+
+                        <td className="border p-2 text-xs">
+                          {new Date(
+                            row.ss_order_created_at
+                          ).toLocaleString("en-IN")}
+                        </td>
+
+                        <td className="border p-2 text-xs">
+                          {new Date(row.verified_at).toLocaleString(
+                            "en-IN"
+                          )}
+                        </td>
+
+
+                        <td className="border p-2 text-center">
+                          {row.punched ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-[2px] text-xs rounded-full bg-green-50 text-green-600">
+                              <FaCheckCircle className="text-xs" />
+                              Punched
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-[2px] text-xs rounded-full bg-gray-100 text-gray-500">
+                              <FaClock className="text-xs" />
+                              Pending
+                            </span>
+                          )}
+                        </td>
+                        <td
+                          className="border p-2 text-blue-600 underline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(
+                              `/orders-tracking/${row.order_id}`
+                            );
+                          }}
+                        >
+                          Track
+                        </td>
+
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* ✅ DESKTOP FILTER */}
+        <div className="hidden md:block col-span-2">
+          <VerifiedOrdersFilter
+            inline={true}
+            filters={filters}
+            setFilters={setFilters}
+            onApply={handleApply}
+          />
+
+        </div>
       </div>
+
+      {/* ✅ MOBILE DRAWER */}
+      <VerifiedOrdersFilter
+        open={drawerOpen}
+        setOpen={setDrawerOpen}
+        filters={filters}
+        setFilters={setFilters}
+        onApply={handleApply}
+      />
     </div>
   );
 }

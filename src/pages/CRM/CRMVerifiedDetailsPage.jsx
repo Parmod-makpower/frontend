@@ -1,14 +1,13 @@
 // src/pages/CRMVerifiedDetailsPage.jsx
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
-// import { all_active_inactive_product } from "../../hooks/all_active_inactive_product";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
 import { punchOrderToSheet } from "../../api/punchApi";
 import API from "../../api/axios";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import ConfirmModal from "../../components/ConfirmModal";
-import PDFDownloadButton from "../../components/pdf/PDFDownloadButton";
+import SS_pdf_before_punch from "../../components/pdf/SS_pdf_before_punch";
 import DispatchPDF from "../../components/pdf/DispatchPDF";
 // 🧩 Newly modular components
 import CRMVerifiedTable from "../../components/verifiedDetailsPage/CRMVerifiedTable";
@@ -16,21 +15,25 @@ import AddProductModal from "../../components/verifiedDetailsPage/AddProductModa
 import EditQuantityModal from "../../components/verifiedDetailsPage/EditQuantityModal";
 import RemarksSection from "../../components/verifiedDetailsPage/RemarksSection";
 import FullPageLoader from "../../components/FullPageLoader";
+import { useVerifiedOrderDetail } from "../../hooks/useVerifiedOrderDetail";
+import CustomLoader from "../../components/CustomLoader";
 
 export default function CRMVerifiedDetailsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const order = location.state?.order;
+  const { id } = useParams(); // ✅ URL se id
+
+  const { order, isLoading, error } = useVerifiedOrderDetail(id);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [remarks, setRemarks] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [editQty, setEditQty] = useState("");
-  const [showAddModal, setShowAddModal] = useState(false);
+ const [addSidebarOpen, setAddSidebarOpen] = useState(false);
   const [newProduct, setNewProduct] = useState("");
   const [newQty, setNewQty] = useState("");
   const [newPrice, setNewPrice] = useState("");
@@ -66,6 +69,7 @@ export default function CRMVerifiedDetailsPage() {
         ...item,
         virtual_stock: found?.virtual_stock ?? null,
         cartoon_size: found?.cartoon_size ?? "-",
+        price: found?.price ?? "-",
         sub_category: found?.sub_category ?? "-",
         rack_no: found?.rack_no ?? "-",
         product_name: found?.product_name ?? "-", // ✅ ensure available
@@ -150,16 +154,19 @@ export default function CRMVerifiedDetailsPage() {
       return;
     }
     try {
+      setLoading(true);
       const res = await API.post(`/crm/verified/${order.id}/add-item/`, {
         product_id: newProduct,
         quantity: newQty,
-        price: newPrice || 0,
       });
-      alert(res.data.message);
-      navigate("/all/orders-history/");
+      // alert(res.data.message);
+      window.location.reload();
     } catch (err) {
       alert(err.response?.data?.error || "Failed to add product.");
     }
+    finally {
+    setLoading(false); // ✅ ADD THIS
+  }
   };
 
   const handleEditQuantity = async (itemId, newQty) => {
@@ -172,7 +179,6 @@ export default function CRMVerifiedDetailsPage() {
         quantity: newQty,
       });
       alert(res.data.message);
-      navigate("/all/orders-history/");
     } catch (err) {
       alert(err.response?.data?.error || "Failed to update quantity.");
     }
@@ -183,7 +189,6 @@ export default function CRMVerifiedDetailsPage() {
     try {
       const res = await API.delete(`/crm/verified/item/${itemId}/delete/`);
       alert(res.data.message);
-      navigate("/all/orders-history/");
     } catch (err) {
       alert(err.response?.data?.error || "Failed to delete item.");
     }
@@ -223,15 +228,17 @@ export default function CRMVerifiedDetailsPage() {
   }
 };
 
+if (isLoading) return <CustomLoader fullScreen text="Loading order details..." />;
+if (error) return <div className="p-6 text-red-600">Error loading order</div>;
+if (!order) return <div className="p-6 text-red-600">No order found</div>;
 
   if (!order)
     return <div className="p-6 text-red-600">No order data provided.</div>;
 
   return (
     <>
-    {loading && (
-      <FullPageLoader text="Please wait, punching order..." />
-    )}
+    {loading && <FullPageLoader text="Processing..." />}
+
     <div className="p-4 sm:p-0 space-y-4 pb-30">
       <ConfirmModal
         isOpen={isModalOpen}
@@ -283,7 +290,7 @@ export default function CRMVerifiedDetailsPage() {
             <option value="BATTERY">Battery</option>
           </select>
           {!order.punched && (
-            <PDFDownloadButton
+            <SS_pdf_before_punch
               id="verified-order-pdf-btn"
               order={order}
               items={enrichedItems.map((item) => ({
@@ -301,36 +308,27 @@ export default function CRMVerifiedDetailsPage() {
       </div>
 
 
-      {/* ✅ Verified Table */}
-      <CRMVerifiedTable
-        items={enrichedItems}
-        order={order}
-        user={user}
-        setEditingItem={setEditingItem}
-        setEditQty={setEditQty}
-        setShowEditModal={setShowEditModal}
-        handleDeleteItem={handleDeleteItem}
-        handleSingleRowPunch={handleSingleRowPunch}
-      />
+     <div className="grid grid-cols-12 gap-4">
 
-      {/* ✅ Add Product Button */}
-      {(!order.punched || user?.role === "ADMIN") && (
-        <div className="flex justify-end">
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-green-600 text-white px-4 py-1 rounded shadow hover:bg-green-700"
-          >
-            Add Product
-          </button>
-        </div>
-      )}
+  {/* ✅ TABLE */}
+  <div className="col-span-12 md:col-span-10">
+    <CRMVerifiedTable
+      items={enrichedItems}
+      order={order}
+      user={user}
+      setEditingItem={setEditingItem}
+      setEditQty={setEditQty}
+      setShowEditModal={setShowEditModal}
+      handleDeleteItem={handleDeleteItem}
+      handleSingleRowPunch={handleSingleRowPunch}
+    />
+  </div>
 
-      {/* ✅ Modals */}
+  {/* ✅ RIGHT SIDE ADD PRODUCT PANEL */}
+  {(!order.punched || user?.role === "ADMIN") && (
+    <div className="hidden md:block col-span-2">
       <AddProductModal
-        show={showAddModal}
-        setShow={setShowAddModal}
         allProducts={allProducts}
-        order={order}
         handleAddProduct={handleAddProduct}
         newProduct={newProduct}
         setNewProduct={setNewProduct}
@@ -339,6 +337,9 @@ export default function CRMVerifiedDetailsPage() {
         newPrice={newPrice}
         setNewPrice={setNewPrice}
       />
+    </div>
+  )}
+</div>
 
       <EditQuantityModal
         show={showEditModal}

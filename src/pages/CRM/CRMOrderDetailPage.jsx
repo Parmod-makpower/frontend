@@ -228,17 +228,11 @@ export default function CRMOrderDetailPage() {
 
     const payload = {
       status: "APPROVED",
-      notes,
+     
       dispatch_location: selectedCity,
-      total_amount: editedItems.reduce((sum, item) => {
-        const qty = Number(item.quantity) || 0;
-        const price = Number(item.price) || 0;
-        return sum + qty * price;
-      }, 0),
       items: editedItems.map((item) => ({
         product: item.product,
         quantity: Number(item.quantity) || 0,
-        price: Number(item.price) || 0,
       })),
     };
 

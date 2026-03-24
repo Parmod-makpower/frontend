@@ -101,12 +101,12 @@ export default function App() {
             <Route path="/batteries/:categoryKeyword" element={ <BatteryPage/> } />
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
-            <Route path="/crm/verified/:id" element={<CRMVerifiedDetailsPage />} />
             <Route path="/orders-tracking" element={<TrackingOrdersPage />} />
             <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
             <Route path="/ds/orders-details/:order_id" element={<DSOrderDetailsPage />} />
             <Route path="/ds/orders" element={<AdminCRM_DS_ordersPage />} />
-           
+           <Route path="/order/:id/details" element={<ProtectedRoute ><CRMVerifiedDetailsPage /></ProtectedRoute>} />
+
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
             <Route path="/mahotsav-schemes" element={<ProtectedRoute ><MAHOTSAV /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />

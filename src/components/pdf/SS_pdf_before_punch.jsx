@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export default function PDFDownloadButton({ order, items = [] }) {
+export default function SS_pdf_before_punch({ order, items = [] }) {
   const handleDownloadPDF = () => {
     if (!order || !items.length) {
       alert("Order data or items missing!");
@@ -10,7 +10,7 @@ export default function PDFDownloadButton({ order, items = [] }) {
 
     const enrichedItems = items.map((item) => ({
       ...item,
-      price: item.price ?? 0,
+      price: Number(item.price) || 0,
       product_name: item.product_name ?? "Unnamed Product",
       ss_virtual_stock: item.ss_virtual_stock ?? 0,
       virtual_stock: item.virtual_stock ?? 0,

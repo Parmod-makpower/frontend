@@ -2,17 +2,22 @@ import { useQuery } from "@tanstack/react-query";
 import API from "../api/axios";
 import { useEffect, useState } from "react";
 
-export const useVerifiedOrders = ({ q, punched }) => {
+export const useVerifiedOrders = ({ q, punched, party, fromDate, toDate }) => {
   return useQuery({
-    queryKey: ["verifiedOrders", q, punched],
+    queryKey: ["verifiedOrders", q, punched, party, fromDate, toDate],
     queryFn: async () => {
       const params = {};
 
       if (q && q.length >= 3) params.q = q;
-
       if (punched !== null) params.punched = punched;
+      if (party && party.length >= 2) params.party = party;
 
-      const { data } = await API.get("/crm/verified/", { params });
+      if (fromDate && toDate) {
+        params.from_date = fromDate;
+        params.to_date = toDate;
+      }
+
+      const { data } = await API.get("/crm/orders-history/", { params });
       return data;
     },
     staleTime: 0,
