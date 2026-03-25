@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { FaPlus } from "react-icons/fa";
 
 export default function AddProductPanel({
@@ -13,43 +13,88 @@ export default function AddProductPanel({
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [highlightIndex, setHighlightIndex] = useState(0);
 
-  const filteredProducts = allProducts.filter((p) =>
-    p.product_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // 🔍 Optimized filtering
+  const filteredProducts = useMemo(() => {
+    return allProducts.filter((p) =>
+      p.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [allProducts, searchTerm]);
+
+  // ✅ Common select handler (DRY)
+  const handleSelectProduct = (p) => {
+    setNewProduct(p.product_id);
+    setNewPrice(p.price || 0);
+    setNewQty(p.cartoon_size || 1);
+    setSearchTerm(p.product_name);
+    setDropdownOpen(false);
+  };
 
   return (
-    <div className="bg-white border shadow p-3 space-y-3">
+    <div className="p-3 space-y-3">
       
       {/* HEADER */}
-      <h2 className="font-semibold text-sm flex items-center gap-2 border-b pb-2">
-        <FaPlus /> Add Product
-      </h2>
+      <div className="text-xs font-semibold  flex items-center text-gray-600 mb-2">
+          <FaPlus /> Add Product
+        </div>
+     
 
       {/* 🔍 Product Search */}
       <div className="relative">
         <input
           type="text"
           placeholder="Search product..."
-          className="w-full border rounded p-2 text-sm"
+          className="w-full border rounded p-1 text-sm"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setHighlightIndex(0); // reset highlight
+            setDropdownOpen(true);
+          }}
           onFocus={() => setDropdownOpen(true)}
+          onKeyDown={(e) => {
+            if (!dropdownOpen || filteredProducts.length === 0) return;
+
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setHighlightIndex((prev) =>
+                prev < filteredProducts.length - 1 ? prev + 1 : 0
+              );
+            }
+
+            if (e.key === "ArrowUp") {
+              e.preventDefault();
+              setHighlightIndex((prev) =>
+                prev > 0 ? prev - 1 : filteredProducts.length - 1
+              );
+            }
+
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const selected = filteredProducts[highlightIndex];
+              if (selected) handleSelectProduct(selected);
+            }
+
+            if (e.key === "Escape") {
+              setDropdownOpen(false);
+            }
+          }}
         />
 
+        {/* Dropdown */}
         {dropdownOpen && (
           <div className="absolute z-50 bg-white border rounded w-full max-h-60 overflow-y-auto shadow-lg">
             {filteredProducts.length > 0 ? (
-              filteredProducts.map((p) => (
+              filteredProducts.map((p, index) => (
                 <div
                   key={p.product_id}
-                  onClick={() => {
-                    setNewProduct(p.product_id);
-                    setNewPrice(p.price || 0);
-                    setSearchTerm(p.product_name);
-                    setDropdownOpen(false);
-                  }}
-                  className="px-3 py-2 hover:bg-blue-100 cursor-pointer text-sm"
+                  onClick={() => handleSelectProduct(p)}
+                  className={`px-3 py-1 cursor-pointer text-sm ${
+                    highlightIndex === index
+                      ? "bg-blue-200"
+                      : "hover:bg-blue-100"
+                  }`}
                 >
                   {p.product_name}
                 </div>
@@ -67,23 +112,15 @@ export default function AddProductPanel({
       <input
         type="number"
         placeholder="Quantity"
-        className="w-full border rounded p-2 text-sm"
+        className="w-full border rounded p-1 text-sm"
         value={newQty}
         onChange={(e) => setNewQty(e.target.value)}
-      />
-
-      {/* 💰 Price */}
-      <input
-        type="number"
-        className="w-full border rounded p-2 bg-gray-100 text-sm"
-        value={newPrice}
-        readOnly
       />
 
       {/* ➕ Add Button */}
       <button
         onClick={handleAddProduct}
-        className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 text-sm"
+        className="w-full bg-green-600 text-white py-1 rounded hover:bg-green-700 text-sm cursor-pointer"
       >
         Add Product
       </button>

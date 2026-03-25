@@ -160,7 +160,7 @@ export default function SS_pdf_before_punch({ order, items = [] }) {
   return (
     <button
       onClick={handleDownloadPDF}
-      className="ms-2 px-2 p-1 rounded bg-green-600 text-white hover:bg-blue-700 cursor-pointer"
+      className="w-full py-1 rounded bg-orange-600 text-white text-sm font-medium hover:bg-orange-700 transition"
     > SS PDF </button>
   );
 }

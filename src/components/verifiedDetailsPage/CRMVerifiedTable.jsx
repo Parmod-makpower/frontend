@@ -116,11 +116,11 @@ export default function CRMVerifiedTable({
                 })}
 
                 {/* ✅ Total Row */}
-                <tr className="font-semibold">
+                <tr className="font-semibold border border-gray-400">
                   <td colSpan={6} className="px-3 p-1 border-b border-x border-gray-400 text-right">
                     Estimate Total
                   </td>
-                  <td  className="p-1 border-b border-r border-gray-400">
+                  <td  className="p-1 border-b border-r border-gray-400 text-center">
                     ₹ {estimateTotal.toFixed(1)}
                   </td>
                 </tr>

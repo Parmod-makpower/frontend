@@ -48,6 +48,7 @@ import TrackingOrdersPage from "./pages/CRM/TrackingOrdersPage";
 import MAHOTSAV from "./pages/MAHOTSAV";
 import AdminCRM_DS_ordersPage from "./pages/DS/AdminCRM_DS_ordersPage";
 import DSOrderDetailsPage from "./pages/DS/DSOrderDetailsPage";
+import CargoPage from "./pages/CargoPage";
 
 export default function App() {
   useEffect(() => {
@@ -99,6 +100,7 @@ export default function App() {
             <Route path="/CRMDashboard" element={ <CRMDashboard/> } />
             <Route path="/tempered/:categoryKeyword" element={ <TemperedPage/> } />
             <Route path="/batteries/:categoryKeyword" element={ <BatteryPage/> } />
+            <Route path="/cargo" element={ <CargoPage/> } />
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/orders-tracking" element={<TrackingOrdersPage />} />
