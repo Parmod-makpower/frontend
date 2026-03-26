@@ -1,5 +1,5 @@
 // src/pages/CRMVerifiedDetailsPage.jsx
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useCachedProducts } from "../../hooks/useCachedProducts";
@@ -9,7 +9,6 @@ import MobilePageHeader from "../../components/MobilePageHeader";
 import ConfirmModal from "../../components/ConfirmModal";
 import SS_pdf_before_punch from "../../components/pdf/SS_pdf_before_punch";
 import DispatchPDF from "../../components/pdf/DispatchPDF";
-// 🧩 Newly modular components
 import CRMVerifiedTable from "../../components/verifiedDetailsPage/CRMVerifiedTable";
 import AddProductModal from "../../components/verifiedDetailsPage/AddProductModal";
 import EditQuantityModal from "../../components/verifiedDetailsPage/EditQuantityModal";
@@ -21,10 +20,7 @@ import { useCargoDetails } from "../../hooks/CRM/useCargoDetails";
 
 export default function CRMVerifiedDetailsPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
-
   const { id } = useParams(); // ✅ URL se id
-
   const { order, isLoading, error, refetch } = useVerifiedOrderDetail(id);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,7 +28,6 @@ export default function CRMVerifiedDetailsPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [editQty, setEditQty] = useState("");
-
   const [newProduct, setNewProduct] = useState("");
   const [newQty, setNewQty] = useState("");
   const [newPrice, setNewPrice] = useState("");
@@ -40,7 +35,6 @@ export default function CRMVerifiedDetailsPage() {
   const [pdfModalOpen, setPdfModalOpen] = useState(false);
   const [selectedPdfFilter, setSelectedPdfFilter] = useState("");
 
-  const [pdfFilter, setPdfFilter] = useState("ALL");
   const [cargoDetails, setCargoDetails] = useState({
     cargoName: "",
     cargoParcel: "",
@@ -120,32 +114,6 @@ export default function CRMVerifiedDetailsPage() {
 
   }, [order?.items, allProducts]);
 
-
-  const handleDownloadPDF = () => {
-    let filteredItems = enrichedItems;
-
-    if (pdfFilter === "ACCESSORIES") {
-      filteredItems = enrichedItems.filter(
-        item => !(item.sub_category?.toLowerCase().includes("battery") ||
-          item.product_name?.toLowerCase().includes("battery"))
-      );
-    }
-
-    if (pdfFilter === "BATTERY") {
-      filteredItems = enrichedItems.filter(
-        item => item.sub_category?.toLowerCase().includes("battery") ||
-          item.product_name?.toLowerCase().includes("battery")
-      );
-    }
-
-    DispatchPDF(
-      order,
-      filteredItems,
-      orderCode,
-      order.punched ? order.dispatch_location : dispatchLocation   // 🔥 FIX
-    );
-  };
-
   const handleOrderPunch = () => {
     if (!order?.items?.length) {
       alert("No items to punch!");
@@ -164,10 +132,10 @@ export default function CRMVerifiedDetailsPage() {
     try {
       const data = await punchOrderToSheet(order, dispatchLocation);
       if (data.success) {
-        refetch(); 
-       setSelectedPdfFilter(""); 
-       
-      setPdfModalOpen(true);
+        refetch();
+        setSelectedPdfFilter("");
+
+        setPdfModalOpen(true);
       } else {
         alert("Error: " + data.error);
       }
@@ -252,7 +220,7 @@ export default function CRMVerifiedDetailsPage() {
       order.dispatch_location,
       cargoDetails   // ✅ MOST IMPORTANT
     );
-    
+
   };
 
   const handleSingleRowPunch = async (item) => {
@@ -392,9 +360,8 @@ export default function CRMVerifiedDetailsPage() {
               {/* 🔷 ORDER HEADER */}
               <div className="text-center border-b pb-2">
                 <div className="text-xs text-gray-500">Order Code</div>
-                <div className="font-semibold text-sm text-gray-800">
-                  {orderCode}
-                </div>
+                <div className="font-semibold text-sm text-gray-800"> {orderCode} </div>
+                <div className="text-xs text-gray-500">Wharehouse : {order.dispatch_location}</div>
               </div>
 
               {/* ➕ ADD PRODUCT */}
@@ -417,7 +384,7 @@ export default function CRMVerifiedDetailsPage() {
               <div className="space-y-2">
 
                 <div className="text-xs font-semibold text-gray-600">
-                  Documents
+                  Document 
                 </div>
 
                 {/* 🚚 Dispatch PDF */}
@@ -429,7 +396,7 @@ export default function CRMVerifiedDetailsPage() {
                     }}
                     className="w-full py-1 rounded bg-orange-600 text-white text-sm font-medium hover:bg-orange-700 transition"
                   >
-                  Dispatch PDF
+                    Dispatch PDF
                   </button>
                 )}
 
