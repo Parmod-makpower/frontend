@@ -90,16 +90,16 @@ export default function CRMVerifiedHistoryPage() {
         {/* ✅ TABLE */}
         <div className="col-span-12 md:col-span-10">
           <div className="h-[75vh] overflow-y-auto">
-            <table className="w-full border text-sm text-center">
+            <table className="w-full border-t text-sm text-center">
               <thead className="bg-gray-200 sticky top-0">
                 <tr>
-                  <th className="border p-2">Order ID</th>
-                  <th className="border p-2">Code</th>
-                  <th className="border p-2">Party</th>
-                  <th className="border p-2">CRM</th>
-                  <th className="border p-2">Order</th>
-                  <th className="border p-2">Verified</th>
-                  <th className="border p-2">
+                  <th className="border-b border-x border-gray-400 p-2">Order ID</th>
+                  <th className="border-b border-x border-gray-400 p-2">Code</th>
+                  <th className="border-b border-x border-gray-400 p-2">Party</th>
+                  <th className="border-b border-x border-gray-400 p-2">CRM</th>
+                  <th className="border-b border-x border-gray-400 p-2">Order</th>
+                  <th className="border-b border-x border-gray-400 p-2">Verified</th>
+                  <th className="border-b border-x border-gray-400 p-2">
                     <label className="flex items-center justify-center gap-1 cursor-pointer">
                       <input
                         type="checkbox"
@@ -116,7 +116,7 @@ export default function CRMVerifiedHistoryPage() {
                       />
                     </label>
                   </th>
-                  <th className="border p-2">Track</th>
+                  <th className="border-b border-x border-gray-400 p-2">Track</th>
                 </tr>
               </thead>
 
@@ -145,32 +145,31 @@ export default function CRMVerifiedHistoryPage() {
                         onClick={() =>
                           navigate(`/order/${row.id}/details`)
                         }
-                        className={`cursor-pointer ${i % 2 === 0 ? "bg-white" : "bg-gray-50"
-                          } hover:bg-yellow-100`}
+                        className={`cursor-pointer`}
                       >
-                        <td className="border p-2">{row.order_id}</td>
-                        <td className="border p-2 font-semibold">
+                        <td className="border-b border-x border-gray-400 p-2">{row.order_id}</td>
+                        <td className="border-b border-x border-gray-400 p-2 font-semibold">
                           {orderCode}
                         </td>
-                        <td className="border p-2">
+                        <td className="border-b border-x border-gray-400 p-2">
                           {row.ss_party_name}
                         </td>
-                        <td className="border p-2">{row.crm_name}</td>
+                        <td className="border-b border-x border-gray-400 p-2">{row.crm_name}</td>
 
-                        <td className="border p-2 text-xs">
+                        <td className="border-b border-x border-gray-400 p-2 text-xs">
                           {new Date(
                             row.ss_order_created_at
                           ).toLocaleString("en-IN")}
                         </td>
 
-                        <td className="border p-2 text-xs">
+                        <td className="border-b border-x border-gray-400 p-2 text-xs">
                           {new Date(row.verified_at).toLocaleString(
                             "en-IN"
                           )}
                         </td>
 
 
-                        <td className="border p-2 text-center">
+                        <td className="border-b border-x border-gray-400 p-2 text-center">
                           {row.punched ? (
                             <span className="inline-flex items-center gap-1 px-2 py-[2px] text-xs rounded-full bg-green-50 text-green-600">
                               <FaCheckCircle className="text-xs" />
@@ -184,7 +183,7 @@ export default function CRMVerifiedHistoryPage() {
                           )}
                         </td>
                         <td
-                          className="border p-2 text-blue-600 underline"
+                          className="border-b border-x border-gray-400 p-2 text-blue-600 underline"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(

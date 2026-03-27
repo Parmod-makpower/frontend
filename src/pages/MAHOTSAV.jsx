@@ -44,6 +44,14 @@ export default function MAHOTSAV() {
     1644, 1144, 1729, 1726,1727, 1866, 1864,1867,1868,
   ];
 
+  const GIFT_IDS = [1760, 1757, 1761];
+
+const giftProducts = useMemo(() => {
+  return allProducts.filter((p) =>
+    GIFT_IDS.includes(p.product_id)
+  );
+}, [allProducts]);
+
   if (isLoading) {
     return <div className="p-4 text-center text-gray-500">Loading Mahotsav Products...</div>;
   }
@@ -211,8 +219,42 @@ export default function MAHOTSAV() {
           </p>
         </div>
       </div>
+          
+          {/* 🎁 Gift Items Section */}
+<div className="px-3 mt-6 sm:mx-100">
+  
 
+  {giftProducts.length === 0 ? (
+    <p className="text-gray-500 text-xs">No gift items found.</p>
+  ) : (
+    <div className="grid grid-cols-3 gap-1 sm:gap-6">
+      {giftProducts.map((prod) => (
+        <div
+          key={prod.product_id}
+          className="bg-white rounded-xl border shadow-sm overflow-hidden"
+        >
+          <div className="relative">
+            <img
+              src={
+                prod.image
+                  ? `https://res.cloudinary.com/djyr368zj/${prod.image}`
+                  : makpower_image
+              }
+              alt={prod.product_name}
+              className="w-full h-[120px] object-contain p-2"
+            />
+          </div>
 
+          <div className="p-2">
+            <h3 className="text-[11px] font-semibold line-clamp-2">
+              {prod.product_name}
+            </h3>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
       {/* 📦 Product Grid */}
       <div className="px-3 mt-6">

@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 export default function DispatchEntriesPage() {
   const [tempFrom, setTempFrom] = useState("");
   const [tempTo, setTempTo] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState({
     from: undefined,
@@ -89,17 +90,35 @@ export default function DispatchEntriesPage() {
           onChange={async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const res = await uploadDispatchExcel(file);
-            alert(`${res.created} rows uploaded`);
-            queryClient.invalidateQueries(["dispatchOrders"]);
+
+            setUploading(true);
+
+            try {
+              const res = await uploadDispatchExcel(file);
+
+              alert(
+                `✅ Uploaded: ${res.created}\n❌ Failed: ${res.failed}`
+              );
+
+              if (res.errors?.length) {
+                console.log("Errors:", res.errors);
+              }
+
+              queryClient.invalidateQueries(["dispatchOrders"]);
+            } catch (err) {
+              alert("Upload failed ❌");
+            } finally {
+              setUploading(false);
+            }
           }}
         />
 
         <button
+          disabled={uploading}
           onClick={() => document.getElementById("excelUpload").click()}
-          className="bg-blue-600 text-white px-4 py-1.5 rounded text-xs"
+          className="bg-blue-600 text-white px-4 py-1.5 rounded text-xs disabled:opacity-50"
         >
-          Upload
+          {uploading ? "Uploading..." : "Upload"}
         </button>
         <button
           disabled={!selectedIds.length}
