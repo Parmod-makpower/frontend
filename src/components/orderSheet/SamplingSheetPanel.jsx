@@ -70,9 +70,9 @@ export default function SamplingSheetPanel({ partyName }) {
         <table className="w-full border border-blue-200 text-xs">
           <thead className="bg-blue-100 text-blue-800">
             <tr>
-              <th className="px-2 py-2 border text-center">#</th>
-              <th className="px-2 py-2 border text-center">Item Name</th>
-              <th className="px-2 py-2 border text-center bg-red-200">
+              <th className="px-2 py-1 border text-center">#</th>
+              <th className="px-2 py-1 border text-center">Item Name</th>
+              <th className="px-2 py-1 border text-center bg-red-200">
                 Stock
               </th>
             </tr>
@@ -84,14 +84,14 @@ export default function SamplingSheetPanel({ partyName }) {
 
               return (
                 <tr key={index} className="hover:bg-blue-50 text-center">
-                  <td className="px-2 py-1 border">{index + 1}</td>
+                  <td className="border">{index + 1}</td>
 
-                  <td className="px-2 py-1 border font-medium">
+                  <td className="border font-medium">
                     {item}
                   </td>
 
                   <td
-                    className={`px-2 py-1 border text-center font-semibold ${
+                    className={`border text-center font-semibold ${
                       stock > 0
                         ? "text-green-600"
                         : "text-red-600"

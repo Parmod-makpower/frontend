@@ -228,7 +228,7 @@ export default function CRMOrderDetailPage() {
 
     const payload = {
       status: "APPROVED",
-     
+
       dispatch_location: selectedCity,
       items: editedItems.map((item) => ({
         product: item.product,
@@ -412,26 +412,17 @@ export default function CRMOrderDetailPage() {
     );
 
   return (
-    <div className="p-4 sm:border rounded pb-20 sm:pb-7 bg-green-100 sm:sticky sm:top-[50px]">
+    <div className="p-4 rounded pb-20 sm:p-0 sm:pb-11">
       {/* Header */}
       <MobilePageHeader title={order.order_id} />
-      <div className="pb-4 flex flex-col flex-row items-center justify-between pt-[65px] sm:pt-0 ">
+      <div className="pb-4 flex flex-col flex-row items-center justify-between pt-[65px] sm:p-0 mb-2 bg-gray-200 border rounded">
         {/* Left Section — Order Info */}
         <div>
-          <h2 className="text-base font-semibold text-gray-800 hidden sm:flex">{order.order_id}</h2>
-          <p className="text-sm text-blue-600">{order.ss_party_name}</p>
+          {/* <h2 className="text-xs font-semibold text-gray-800 hidden sm:flex">{order.order_id}</h2> */}
+          <p className="text-xs ps-2 font-semibold">{order.ss_party_name}</p>
         </div>
 
         <div className="flex items-center gap-2">
-          <select
-            value={selectedCity}
-            onChange={(e) => setSelectedCity(e.target.value)}
-            className="border p-1 px-2 rounded"
-          >
-            <option value="Delhi">Delhi</option>
-            <option value="Mumbai">Mumbai</option>
-          </select>
-
           <OrderActionMenu
             order={order}
             notes={notes}
@@ -457,7 +448,9 @@ export default function CRMOrderDetailPage() {
             />
           ) : (
             <div className="max-h-[69vh] overflow-y-auto border p-0 m-0 rounded">
+              
               <SamplingSheetPanel partyName={order.ss_party_name} />
+
             </div>
           )}
         </div>
@@ -480,22 +473,24 @@ export default function CRMOrderDetailPage() {
             handleAddProductBySearch={handleAddProductBySearch}
             handleKeyDown={handleKeyDown}
             getSchemeText={getSchemeText}
+            setSelectedCity={setSelectedCity}
           />
+          <div className="flex justify-end mt-2">
+            <button
+              onClick={() => setShowConfirmModal(true)}
+              disabled={loadingApprove}
+              className={`flex items-center justify-center gap-2 px-6 py-2 text-white shadow-md w-full sm:w-auto ${loadingApprove
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-green-600"
+                } cursor-pointer`}
+            >
+              {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
+              Submit
+            </button>
+          </div>
         </div>
       </div>
-      <div className="flex justify-end mt-5">
-        <button
-          onClick={() => setShowConfirmModal(true)}
-          disabled={loadingApprove}
-          className={`flex items-center justify-center gap-2 px-6 py-2 rounded text-white shadow-md w-full sm:w-auto ${loadingApprove
-            ? "bg-blue-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-green-600"
-            } cursor-pointer`}
-        >
-          {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
-          Submit
-        </button>
-      </div>
+
       {/* ✅ Confirm Submit Modal */}
       <ConfirmModal
         isOpen={showConfirmModal}

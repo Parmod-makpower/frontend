@@ -20,7 +20,8 @@ export default function OrderItemsTable({
   setHighlightIndex,
   handleAddProductBySearch,
   handleKeyDown,
-  getSchemeText
+  getSchemeText,
+  setSelectedCity
 }) {
   const approvedInputRefs = useRef({});
   const addProductInputRef = useRef(null);
@@ -70,30 +71,34 @@ export default function OrderItemsTable({
   };
 
   return (
-    <div>
-      <div ref={tableScrollRef} className="max-h-[73vh] overflow-y-auto border p-0 m-0 rounded-t rounded-b-none">
-        <table className="w-full text-sm text-left sm:table-fix">
+    <div className="border-t border-r border-gray-500">
+      <div ref={tableScrollRef} className="max-h-[73vh] overflow-y-auto p-0 m-0 ">
+        <table className=" min-w-full border-collapse text-sm">
 
           {/* ================= HEADER ================= */}
-          <thead className="bg-gray-600 border text-white sticky top-0 z-10 text-center">
-            <tr>
-              <th className="py-2 border border-black">Product</th>
-              <th className="py-2 border border-black">SS Order</th>
-              <th className="py-2 border border-black">Approved</th>
-              <th className="py-2 border border-black">SS-Stock</th>
+          <thead className="sticky top-0 z-20 bg-gray-100 text-gray-800 text-xs font-semibold uppercase tracking-wide">
+            <tr className="border">
+              <th className="p-1 border border-gray-500">Product</th>
+              <th className="p-1 border border-gray-500">SS Order</th>
+              <th className="p-1 border border-gray-500">Approved</th>
+              <th className="p-1 border border-gray-500">SS-Stock</th>
 
-              {selectedCity === "Delhi" && (
-                <th className="py-2 border border-black">Delhi</th>
-              )}
-              {selectedCity === "Mumbai" && (
-                <th className="py-2 border border-black">Mumbai</th>
-              )}
+              <th className="border border-gray-500">
+                <select
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  className="bg-transparent text-xs font-semibold outline-none cursor-pointer"
+                >
+                  <option value="Delhi">DELHI</option>
+                  <option value="Mumbai">MUMBAI</option>
+                </select>
+              </th>
 
-              <th className="py-2 border border-black">Availability</th>
-              <th className="py-2 border border-black">Carton</th>
-              <th className="py-2 border border-black">Price</th>
-              <th className="py-2 border border-black">Total</th>
-              <th className="py-2 border border-black">Actions</th>
+              <th className="p-1 border border-gray-500">Availability</th>
+              <th className="p-1 border border-gray-500">Carton</th>
+              <th className="p-1 border border-gray-500">Price</th>
+              <th className="p-1 border border-gray-500">Total</th>
+              <th className="p-1 border border-gray-500">Actions</th>
             </tr>
           </thead>
 
@@ -107,8 +112,8 @@ export default function OrderItemsTable({
               const finalAvail = getFinalAvailability(item, productData);
 
               return (
-                <tr key={item.product} className="hover:bg-gray-50 bg-white">
-                  <td className="px-4 py-1 border">
+                <tr key={item.product} className="hover:bg-gray-50 bg-white text-center">
+                  <td className="p-1 ps-3 border-b border-x border-gray-400">
                     <span className="flex items-center gap-1">
                       {item.is_scheme_item && (
                         <FaGift className="text-pink-500" />
@@ -117,11 +122,11 @@ export default function OrderItemsTable({
                     </span>
                   </td>
 
-                  <td className="px-4 py-1 border text-center">
+                  <td className="p-1 border-b border-x border-gray-400">
                     {item.original_quantity}
                   </td>
 
-                  <td className="py-1 border text-center">
+                  <td className="p-1 border-b border-x border-gray-400">
                     <input
                       type="number"
                       min="0"
@@ -142,23 +147,23 @@ export default function OrderItemsTable({
 
                   </td>
 
-                  <td className="px-4 py-1 border text-center bg-red-300">
+                  <td className="p-1 border-b border-x border-gray-400 bg-red-100">
                     {item.ss_virtual_stock}
                   </td>
 
                   {selectedCity === "Delhi" && (
-                    <td className="px-4 py-1 border text-center bg-red-300">
+                    <td className="p-1 border-b border-x border-gray-400 bg-red-100">
                       {productData?.virtual_stock ?? "-"}
                     </td>
                   )}
 
                   {selectedCity === "Mumbai" && (
-                    <td className="px-4 py-1 border text-center bg-purple-300">
+                    <td className="p-1 border-b border-x border-gray-400 bg-purple-300">
                       {productData?.mumbai_stock ?? "-"}
                     </td>
                   )}
 
-                  <td className="py-1 border text-center">
+                  <td className="p-1 border-b border-x border-gray-400">
                     <select
                       value={finalAvail}
                       onChange={(e) =>
@@ -174,15 +179,15 @@ export default function OrderItemsTable({
                     </select>
                   </td>
 
-                  <td className="px-4 py-1 border text-center">
+                  <td className="p-1 border-b border-x border-gray-400">
                     {productData?.cartoon_size ?? "-"}
                   </td>
 
-                  <td className="px-4 py-1 border text-center">
+                  <td className="p-1 border-b border-x border-gray-400">
                     {productData?.price ? `₹${productData.price}` : ""}
                   </td>
 
-                  <td className="px-4 py-1 border text-center bg-blue-100">
+                  <td className="p-1 border-b border-x border-gray-400 bg-blue-100">
                     ₹
                     {finalAvail === "Available"
                       ? (
@@ -192,7 +197,7 @@ export default function OrderItemsTable({
                       : "0"}
                   </td>
 
-                  <td className="px-4 py-1 border text-center">
+                  <td className="p-1 border-b border-x border-gray-400">
                     <button
                       onClick={() => {
                         setItemToDelete(item.product);
