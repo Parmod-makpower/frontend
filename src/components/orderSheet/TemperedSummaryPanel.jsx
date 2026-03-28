@@ -8,6 +8,7 @@ export default function TemperedSummaryPanel({
   const getShortName = (cat) => {
     if (cat === "UV TEMPERED") return "UV";
     if (cat === "TEMPERED MEIBO") return "MEIBO";
+    if (cat === "TEMPERED SOLDIER") return "SOLDIER";
     if (cat === "TEMPERED BODYGUARD") return "Bodyguard";
     if (cat === "TEMPERED SUPER X") return "Super X";
     return cat;
@@ -68,7 +69,7 @@ export default function TemperedSummaryPanel({
               ))}
               <tr>
                 <td className="p-2 border font-sm text-center">Total</td>
-                <td className="p-2 border text-center">{totalSSOrderQty} / {totalApprovedQty}</td>
+                <td className="p-2 border text-center"> {totalApprovedQty}</td>
                 <td className="p-2 border text-center"></td>
               </tr>
             </tbody>

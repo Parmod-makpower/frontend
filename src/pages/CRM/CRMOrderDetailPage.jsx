@@ -275,6 +275,7 @@ export default function CRMOrderDetailPage() {
   const temperedKeywords = [
     "UV TEMPERED",
     "TEMPERED MEIBO",
+    "TEMPERED SOLDIER",
     "TEMPERED BODYGUARD",
     "TEMPERED SUPER X"
   ];
