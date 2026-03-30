@@ -41,7 +41,7 @@ export default function PDFModal({
                         }
                         className="w-full border p-1 px-2 rounded text-sm"
                     />
-                     <label className="text-xs">Parcel Size / KG</label>
+                    <label className="text-xs">Parcel Size / KG</label>
                     <input
                         type="text"
                         placeholder="Parcel Size / KG"
@@ -71,7 +71,19 @@ export default function PDFModal({
                         }
                         className="w-full border p-1 px-2 rounded text-sm"
                     />
-
+                    <label className="text-xs">Remarks</label>
+                    <textarea
+                        placeholder="Enter remarks..."
+                        value={cargoDetails.remarks || ""}
+                        onChange={(e) =>
+                            setCargoDetails({
+                                ...cargoDetails,
+                                remarks: e.target.value,
+                            })
+                        }
+                        rows={3}
+                        className="w-full border p-1 px-2 rounded text-sm resize-none"
+                    />
                 </div>
 
                 {/* OPTIONS */}
