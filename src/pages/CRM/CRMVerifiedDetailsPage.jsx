@@ -223,39 +223,43 @@ export default function CRMVerifiedDetailsPage() {
 
   };
 
-  const handleSingleRowPunch = async (item) => {
-    try {
-      setLoading(true);
+ const handleSingleRowPunch = async (item) => {
+  try {
+    setLoading(true);
 
-      const singleOrder = {
-        id: order.id,
-        order_id: order.order_id,
-        ss_party_name: order.ss_party_name,
-        crm_name: order.crm_name,
-        dispatch_location: dispatchLocation,
-        is_single_row: true,
-        items: [
-          {
-            product_name: item.product_name,
-            quantity: item.quantity,
-            id: item.id,
-          },
-        ],
-      };
+    // ✅ use saved order location first
+    const rowLocation =
+      order.dispatch_location || dispatchLocation || "Delhi";
 
-      const res = await punchOrderToSheet(singleOrder, dispatchLocation);
+    const singleOrder = {
+      id: order.id,
+      order_id: order.order_id,
+      ss_party_name: order.ss_party_name,
+      crm_name: order.crm_name,
+      dispatch_location: rowLocation,
+      is_single_row: true,
+      items: [
+        {
+          product_name: item.product_name,
+          quantity: item.quantity,
+          id: item.id,
+        },
+      ],
+    };
 
-      if (res.success) {
-        alert("Row punched successfully!");
-      } else {
-        alert("Error punching row: " + res.error);
-      }
-    } catch (err) {
-      alert("Something went wrong while punching this row.");
-    } finally {
-      setLoading(false); // ✅ ALWAYS STOP LOADER
+    const res = await punchOrderToSheet(singleOrder, rowLocation);
+
+    if (res.success) {
+      alert("Row punched successfully!");
+    } else {
+      alert("Error punching row: " + res.error);
     }
-  };
+  } catch (err) {
+    alert("Something went wrong while punching this row.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (isLoading) return <CustomLoader fullScreen text="Loading order details..." />;
   if (error) return <div className="p-6 text-red-600">Error loading order</div>;
