@@ -3,18 +3,18 @@ import API from "../../api/axios";
 import { useQuery } from "@tanstack/react-query";
 
 // ✅ API call
-const getNotInStock = async () => {
-  const res = await API.get("/not-in-stock-report/");
+const getGSTDetails = async () => {
+  const res = await API.get("/gst/");
   return res.data;
 };
 
 // ✅ Cached hook
-export const useNotInStockReport = () => {
+export const useGSTDetails = () => {
   return useQuery({
-    queryKey: ["not-in-stock-sheet"],
-    queryFn: getNotInStock,
+    queryKey: ["gst"],
+    queryFn: getGSTDetails,
 
-    staleTime: 1000 * 60 * 93, // 5 hour
+    staleTime: 1000 * 60 * 5 * 7, 
     gcTime: 1000 * 60 * 60 * 24,
 
     refetchOnWindowFocus: true,

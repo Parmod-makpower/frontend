@@ -9,19 +9,9 @@ export default function CRMVerifiedTable({
   setShowEditModal,
   handleDeleteItem,
   handleSingleRowPunch,
+  estimatedTotal,
 }) {
-  const estimateTotal = items.reduce((sum, item) => {
-    const qty = Number(item.quantity) || 0;
-    const price = Number(item.price) || 0;
-    const ssStock = Number(item.ss_virtual_stock) || 0;
-    const stock = Number(item.virtual_stock) || 0;
-
-    if (ssStock > 0 || (ssStock <= 0 && stock > 0)) {
-      return sum + qty * price;
-    }
-    return sum;
-  }, 0);
-
+ 
   return (
    <div className="">
 
@@ -117,11 +107,11 @@ export default function CRMVerifiedTable({
 
                 {/* ✅ Total Row */}
                 <tr className="font-semibold border border-gray-400">
-                  <td colSpan={6} className="px-3 p-1 border-b border-x border-gray-400 text-right">
-                    Estimate Total
+                  <td colSpan={6} className="px-3 p-1 text-xs text-red-500 border-b border-x border-gray-400 text-right">
+                   Estimated Total (Stock-Based, Priced Items Only)
                   </td>
                   <td  className="p-1 border-b border-r border-gray-400 text-center">
-                    ₹ {estimateTotal.toFixed(1)}
+                    ₹ {estimatedTotal.toFixed(1)}
                   </td>
                 </tr>
               </>

@@ -6,7 +6,9 @@ export default function DispatchPDF(
   enrichedItems,
   orderCode,
   dispatchLocation,
-  cargoDetails
+  cargoDetails,
+  gstAmount,
+  gstPercentage,
 ) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
 
@@ -105,6 +107,15 @@ export default function DispatchPDF(
     leftY,
     leftWidth
   );
+   if (gstPercentage > 1) {
+  leftY = drawText(
+    `Billing ${gstPercentage} % GST`,
+    gstAmount.toFixed(1),
+    boxX + 10,
+    leftY,
+    leftWidth
+  );
+}
   if (cargoDetails?.remarks) {
   leftY = drawText(
     "Remarks",

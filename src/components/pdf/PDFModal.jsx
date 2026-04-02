@@ -8,6 +8,9 @@ export default function PDFModal({
     setSelectedFilter,
     cargoDetails,
     setCargoDetails,
+    estimatedTotal,
+    gstPercentage,
+    gstAmount,
     loading = false,
 }) {
     if (!isOpen) return null;
@@ -81,11 +84,23 @@ export default function PDFModal({
                                 remarks: e.target.value,
                             })
                         }
-                        rows={3}
+                        rows={2}
                         className="w-full border p-1 px-2 rounded text-sm resize-none"
                     />
                 </div>
+                {gstAmount > 1 && (
+                <div className="border rounded p-2 bg-gray-200 space-y-1">
+                    <div className="flex justify-between text-xs">
+                        <span>Estimate Total</span>
+                        <span>₹ {estimatedTotal.toFixed(1)}</span>
+                    </div>
 
+                    <div className="flex justify-between text-xs font-semibold border-t pt-2">
+                        <span>Billing Amount <span>{gstPercentage}% GST</span></span>
+                        <span>₹ {gstAmount.toFixed(1)}</span>
+                    </div>
+                </div>
+                )}
                 {/* OPTIONS */}
                 <div className="flex gap-2">
                     {options.map((opt) => (

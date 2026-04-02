@@ -17,6 +17,7 @@ import FullPageLoader from "../../components/FullPageLoader";
 import { useVerifiedOrderDetail } from "../../hooks/useVerifiedOrderDetail";
 import CustomLoader from "../../components/CustomLoader";
 import { useCargoDetails } from "../../hooks/CRM/useCargoDetails";
+import { useGSTDetails } from "../../hooks/CRM/useGSTDetails";
 
 export default function CRMVerifiedDetailsPage() {
   const { user } = useAuth();
@@ -45,6 +46,7 @@ export default function CRMVerifiedDetailsPage() {
 
   const { data: allProducts = [] } = useCachedProducts();
   const { data: cargoList = [] } = useCargoDetails();
+  const { data: gstList = [] } = useGSTDetails();
 
   useEffect(() => {
     if (!cargoList.length || !order?.ss_party_name) return;
@@ -64,6 +66,7 @@ export default function CRMVerifiedDetailsPage() {
       });
     }
   }, [cargoList, order]);
+
 
   const crmMapping = {
     "Ankita Dhingra": "AD-AP",
@@ -113,6 +116,52 @@ export default function CRMVerifiedDetailsPage() {
     });
 
   }, [order?.items, allProducts]);
+
+  const estimatedTotal = useMemo(() => {
+    const location =
+      order?.dispatch_location ||
+      dispatchLocation ||
+      "Delhi";
+
+    return enrichedItems.reduce((sum, item) => {
+      const orderedQty = Number(item.quantity || 0);
+
+      // ✅ safe price conversion
+      const price = parseFloat(item.price);
+
+      // ✅ skip item if price missing / invalid
+      if (isNaN(price) || price <= 0) return sum;
+
+      // ✅ location based stock
+      const availableStock =
+        location === "Mumbai"
+          ? Number(item.mumbai_stock || 0)
+          : Number(item.virtual_stock || 0);
+
+      // ✅ skip out of stock
+      if (availableStock <= 0) return sum;
+
+      // ✅ only available stock qty bill
+      const billableQty = Math.min(orderedQty, availableStock);
+
+      return sum + billableQty * price;
+    }, 0);
+  }, [enrichedItems, order?.dispatch_location, dispatchLocation]);
+  const currentGST = useMemo(() => {
+    if (!gstList.length || !order?.ss_party_name) return 0;
+
+    const matchedGST = gstList.find(
+      (g) =>
+        g.party_name?.toLowerCase().trim() ===
+        order.ss_party_name?.toLowerCase().trim()
+    );
+
+    return Number(matchedGST?.percentage || 0);
+  }, [gstList, order]);
+
+  const gstAmount = useMemo(() => {
+    return (estimatedTotal * currentGST) / 100;
+  }, [estimatedTotal, currentGST]);
 
   const handleOrderPunch = () => {
     if (!order?.items?.length) {
@@ -218,48 +267,50 @@ export default function CRMVerifiedDetailsPage() {
       filteredItems,
       orderCode,
       order.dispatch_location,
-      cargoDetails   // ✅ MOST IMPORTANT
+      cargoDetails ,  // ✅ MOST IMPORTANT
+      gstAmount,
+      currentGST
     );
 
   };
 
- const handleSingleRowPunch = async (item) => {
-  try {
-    setLoading(true);
+  const handleSingleRowPunch = async (item) => {
+    try {
+      setLoading(true);
 
-    // ✅ use saved order location first
-    const rowLocation =
-      order.dispatch_location || dispatchLocation || "Delhi";
+      // ✅ use saved order location first
+      const rowLocation =
+        order.dispatch_location || dispatchLocation || "Delhi";
 
-    const singleOrder = {
-      id: order.id,
-      order_id: order.order_id,
-      ss_party_name: order.ss_party_name,
-      crm_name: order.crm_name,
-      dispatch_location: rowLocation,
-      is_single_row: true,
-      items: [
-        {
-          product_name: item.product_name,
-          quantity: item.quantity,
-          id: item.id,
-        },
-      ],
-    };
+      const singleOrder = {
+        id: order.id,
+        order_id: order.order_id,
+        ss_party_name: order.ss_party_name,
+        crm_name: order.crm_name,
+        dispatch_location: rowLocation,
+        is_single_row: true,
+        items: [
+          {
+            product_name: item.product_name,
+            quantity: item.quantity,
+            id: item.id,
+          },
+        ],
+      };
 
-    const res = await punchOrderToSheet(singleOrder, rowLocation);
+      const res = await punchOrderToSheet(singleOrder, rowLocation);
 
-    if (res.success) {
-      alert("Row punched successfully!");
-    } else {
-      alert("Error punching row: " + res.error);
+      if (res.success) {
+        alert("Row punched successfully!");
+      } else {
+        alert("Error punching row: " + res.error);
+      }
+    } catch (err) {
+      alert("Something went wrong while punching this row.");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    alert("Something went wrong while punching this row.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   if (isLoading) return <CustomLoader fullScreen text="Loading order details..." />;
   if (error) return <div className="p-6 text-red-600">Error loading order</div>;
@@ -320,6 +371,9 @@ export default function CRMVerifiedDetailsPage() {
           setSelectedFilter={setSelectedPdfFilter}
           cargoDetails={cargoDetails}              // ✅ NEW
           setCargoDetails={setCargoDetails}        // ✅ NEW
+          estimatedTotal={estimatedTotal}
+          gstPercentage={currentGST}
+          gstAmount={gstAmount}
         />
 
         <MobilePageHeader title={orderCode} />
@@ -336,6 +390,7 @@ export default function CRMVerifiedDetailsPage() {
               setShowEditModal={setShowEditModal}
               handleDeleteItem={handleDeleteItem}
               handleSingleRowPunch={handleSingleRowPunch}
+              estimatedTotal={estimatedTotal}
             />
 
             <div className="text-end">
@@ -388,7 +443,7 @@ export default function CRMVerifiedDetailsPage() {
               <div className="space-y-2">
 
                 <div className="text-xs font-semibold text-gray-600">
-                  Document 
+                  Document
                 </div>
 
                 {/* 🚚 Dispatch PDF */}

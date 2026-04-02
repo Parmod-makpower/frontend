@@ -49,6 +49,7 @@ import MAHOTSAV from "./pages/MAHOTSAV";
 import AdminCRM_DS_ordersPage from "./pages/DS/AdminCRM_DS_ordersPage";
 import DSOrderDetailsPage from "./pages/DS/DSOrderDetailsPage";
 import CargoPage from "./pages/CargoPage";
+import GSTPage from "./pages/GSTPage";
 
 export default function App() {
   useEffect(() => {
@@ -101,6 +102,7 @@ export default function App() {
             <Route path="/tempered/:categoryKeyword" element={ <TemperedPage/> } />
             <Route path="/batteries/:categoryKeyword" element={ <BatteryPage/> } />
             <Route path="/cargo" element={ <CargoPage/> } />
+            <Route path="/gst" element={ <GSTPage/> } />
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/orders-tracking" element={<TrackingOrdersPage />} />

@@ -14,7 +14,7 @@ export const useCargoDetails = () => {
     queryKey: ["cargo"],
     queryFn: getCargoDetails,
 
-    staleTime: 1000 * 60 * 5, // 5 hour
+    staleTime: 1000 * 60 * 60 * 5, // 5 hour
     gcTime: 1000 * 60 * 60 * 24,
 
     refetchOnWindowFocus: true,
