@@ -93,6 +93,7 @@ export default function CRMVerifiedHistoryPage() {
             <table className="w-full border-t text-sm text-center">
               <thead className="bg-gray-200 sticky top-0">
                 <tr>
+                  <th className="border-b border-x border-gray-400 p-2">#</th>
                   <th className="border-b border-x border-gray-400 p-2">Order ID</th>
                   <th className="border-b border-x border-gray-400 p-2">Code</th>
                   <th className="border-b border-x border-gray-400 p-2">Party</th>
@@ -147,6 +148,7 @@ export default function CRMVerifiedHistoryPage() {
                         }
                         className={`cursor-pointer`}
                       >
+                        <td className="border-b border-x border-gray-400 p-2">{i + 1}</td>
                         <td className="border-b border-x border-gray-400 p-2">{row.order_id}</td>
                         <td className="border-b border-x border-gray-400 p-2 font-semibold">
                           {orderCode}
