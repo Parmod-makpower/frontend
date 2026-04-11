@@ -35,6 +35,8 @@ export default function CRMVerifiedDetailsPage() {
   const [dispatchLocation, setDispatchLocation] = useState("");
   const [pdfModalOpen, setPdfModalOpen] = useState(false);
   const [selectedPdfFilter, setSelectedPdfFilter] = useState("");
+  const [pendingAutoPunch, setPendingAutoPunch] = useState(false);
+  const [previousItemIds, setPreviousItemIds] = useState([]);
 
   const [cargoDetails, setCargoDetails] = useState({
     cargoName: "",
@@ -200,19 +202,33 @@ export default function CRMVerifiedDetailsPage() {
       alert("Please select a product and enter quantity.");
       return;
     }
+
     try {
       setLoading(true);
-      const res = await API.post(`/crm/verified/${order.id}/add-item/`, {
+
+      // ✅ store existing ids before adding
+      const existingIds = order?.items?.map((item) => item.id) || [];
+      setPreviousItemIds(existingIds);
+
+      await API.post(`/crm/verified/${order.id}/add-item/`, {
         product_id: newProduct,
         quantity: newQty,
       });
-      // alert(res.data.message);
-      window.location.reload();
+
+      if (order.punched) {
+        setPendingAutoPunch(true);
+      }
+
+      await refetch();
+
+      setNewProduct("");
+      setNewQty("");
+      setNewPrice("");
+
     } catch (err) {
       alert(err.response?.data?.error || "Failed to add product.");
-    }
-    finally {
-      setLoading(false); // ✅ ADD THIS
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -267,12 +283,28 @@ export default function CRMVerifiedDetailsPage() {
       filteredItems,
       orderCode,
       order.dispatch_location,
-      cargoDetails ,  // ✅ MOST IMPORTANT
+      cargoDetails,  // ✅ MOST IMPORTANT
       gstAmount,
       currentGST
     );
 
   };
+
+  useEffect(() => {
+    if (!pendingAutoPunch || !order?.punched) return;
+    if (!enrichedItems?.length) return;
+
+    // ✅ find newly added item by new ID
+    const newlyAddedItem = enrichedItems.find(
+      (item) => !previousItemIds.includes(item.id)
+    );
+
+    if (newlyAddedItem) {
+      handleSingleRowPunch(newlyAddedItem);
+      setPendingAutoPunch(false);
+    }
+  }, [pendingAutoPunch, enrichedItems, previousItemIds]);
+
 
   const handleSingleRowPunch = async (item) => {
     try {
@@ -424,20 +456,20 @@ export default function CRMVerifiedDetailsPage() {
               </div>
 
               {/* ➕ ADD PRODUCT */}
-              {(!order.punched || user?.role === "ADMIN") && (
-                <div className="bg-gray-100  p-1 border">
-                  <AddProductModal
-                    allProducts={allProducts}
-                    handleAddProduct={handleAddProduct}
-                    newProduct={newProduct}
-                    setNewProduct={setNewProduct}
-                    newQty={newQty}
-                    setNewQty={setNewQty}
-                    newPrice={newPrice}
-                    setNewPrice={setNewPrice}
-                  />
-                </div>
-              )}
+
+              <div className="bg-gray-100  p-1 border">
+                <AddProductModal
+                  allProducts={allProducts}
+                  handleAddProduct={handleAddProduct}
+                  newProduct={newProduct}
+                  setNewProduct={setNewProduct}
+                  newQty={newQty}
+                  setNewQty={setNewQty}
+                  newPrice={newPrice}
+                  setNewPrice={setNewPrice}
+                />
+              </div>
+
 
               {/* 📄 PDF SECTION */}
               <div className="space-y-2">
