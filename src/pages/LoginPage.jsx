@@ -26,7 +26,7 @@ export default function LoginPage() {
       navigate("/");
     } catch (err) {
       const backendError =
-        err.response?.data?.detail || "Something went wrong!";
+        err.response?.data?.detail || "Network error !";
       setError(backendError);
     } finally {
       setLoading(false);
