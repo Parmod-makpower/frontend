@@ -58,6 +58,7 @@ const giftProducts = useMemo(() => {
 
   const products = useMemo(() => {
   return allProducts
+    .filter((p) => p.is_active === true)
     .filter((p) => PRODUCT_IDS.includes(p.product_id))
     .sort((a, b) => {
       const subCompare = (a.sub_category || "").localeCompare(b.sub_category || "");
