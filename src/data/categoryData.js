@@ -1,57 +1,46 @@
 
 const categories = [
-    {
-    label: "Audio",
-    keyword: "AUDIO",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757739319/ixopessgrtybupruq1g2.webp",
+
+  {
+    label: "Earbuds",
+    keyword: "TWS",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757746187/fyojsjespgmbzvlnhulp.webp",
+  },
+  {
+    label: "Neckband",
+    keyword: "NECKBAND",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532730/yrbmszliqozzvl9j9cmw.webp"
+  },
+  {
+    label: "Speakers",
+    keyword: "SPEAKER",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757908154/eg8xi3afjpp5jnz01ola.png",
     subcategories: []
   },
-   {
-    label: "Bluetooth",
-    keyword: "BLUETOOTH",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757562710/c7qwuglix191frqspyu9.webp",
-
-    subcategories: [
-      {
-        label: "Neckband",
-        keyword: "NECKBAND",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532730/yrbmszliqozzvl9j9cmw.webp"
-      },
-      {
-        label: "Earbuds",
-        keyword: "TWS",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757746187/fyojsjespgmbzvlnhulp.webp",
-      },
-      {
-        label: "Bluetooth Cell",
-        keyword: "BLUETOOTH Cell",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757563007/gz8rtmubnidf2gptuvj8.webp"
-      },
-      {
-        label: "Car Bluetooth",
-        keyword: "CAR BLUETOOTH",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757562991/fdmfm3djjyhs76kvecvk.webp"
-      },
-     
-    ]
+  {
+    label: "Handfree",
+    keyword: "HANDSFREE",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532741/jbul9qzghqqkbb9jv639.webp",
+    subcategories: []
+  },
+  {
+    label: "Headphones",
+    keyword: "HEADPHONE",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1762325394/qfdswm5um64h5ga9bole.webp",
+    subcategories: []
   },
   {
     label: "Battery",
     keyword: "BATTERY",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp",
     subcategories: [
-      {
-        label: "COPY BATTERY",
-        keyword: "COPY BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
-      },
       {
         label: "ECO BATTERY",
         keyword: "ECO BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
       {
-        label: "POLY BATTERY",
+        label: "POUCH BATTERY",
         keyword: "POLY BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
@@ -80,7 +69,7 @@ const categories = [
         keyword: "POLYMER LAVA BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
-     
+
       {
         label: "POLYMER LENOVO",
         keyword: "POLYMER LENOVO BATTERY",
@@ -112,8 +101,8 @@ const categories = [
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
       {
-        label:  "POLYMER OPPO",
-        keyword:  "POLYMER OPPO BATTERY",
+        label: "POLYMER OPPO",
+        keyword: "POLYMER OPPO BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
       {
@@ -133,123 +122,34 @@ const categories = [
       },
       {
         label: "POLYMER VIVO ",
-        keyword:"POLYMER VIVO BATTERY",
+        keyword: "POLYMER VIVO BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
       },
-     
+
     ]
   },
   {
     label: "Charger",
     keyword: "CHARGER",
-    image:  "https://res.cloudinary.com/djyr368zj/image/upload/v1757567834/emwwycpqxbcexljxpinz.webp",
-  
-    subcategories: []
-  },
-  {
-    label: "Connector",
-    keyword: "CONNECTOR",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1761543453/ugzsgnxyhh8flgubhubz.webp",
-    subcategories: []
-  },
-  {
-    label: "Card Reader",
-    keyword: "CARD READER",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1767088035/kz8nduuyymmsisukhwub.webp",
-    subcategories: []
-  },
-   {
-    label: "CABLE",
-    keyword: "CABLE",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757504919/rkuvopjapnrxyyv5bgik.webp",
-    subcategories: [
-      {
-        label: "AUX Cables",
-        keyword: "AUX CABLE",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503009/djvbec5fw6o4ix3q4scy.webp"
-      },
-      {
-        label: "Data Cables",
-        keyword: "DATA CABLE",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532734/laic3tlpbionyqjjlyjx.webp",
-      },
-      {
-        label: "OTG Cables",
-        keyword: "O.T.G",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757502118/tehcjy28eqv5bq4idklv.webp"
-      }
-    ]
-  },
-   {
-    label: "Gift items",
-    keyword: "GIFT ITEM",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1767694831/mlw9pe3w1x7zleapa98z.webp",
-    subcategories: []
-  },
-   {
-    label: "Handfree",
-    keyword: "HANDSFREE",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1758532741/jbul9qzghqqkbb9jv639.webp",
-    subcategories: []
-  },
-   {
-    label: "Headphones",
-    keyword: "HEADPHONE",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1762325394/qfdswm5um64h5ga9bole.webp",
-    subcategories: []
-  },
-  
-  {
-    label: "Led Light",
-    keyword: "LED",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503038/snnngwxnumclv86jgfrl.webp",
-    subcategories: []
-  },
-   {
-    label: "Mobile Holder",
-    keyword: "MOBILE HOLDER",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532746/wif4hyrgsj4gqrvelo8i.webp",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1760174114/hcmd3xm1hdfthabw3z8c.webp",
 
     subcategories: []
   },
   {
-    label: "Memory card",
-    keyword: "MEMORY CARD",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1757503232/sgwompfbk1t79ranr6ha.webp",
-    subcategories: []
+    label: "Data Cables",
+    keyword: "DATA CABLE",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532734/laic3tlpbionyqjjlyjx.webp",
   },
-    {
+  {
     label: "Power Bank",
     keyword: "POWER BANK",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532750/qstv6nc7rgzwtmddxhjn.webp",
     subcategories: []
   },
-   
-  {
-    label: "Pendrive",
-    keyword: "PENDRIVE",
-    image:   "https://res.cloudinary.com/djyr368zj/image/upload/v1757503207/erjplzgypqfeoveb7tzv.webp",
-    subcategories: []
-  },
-   
-    {
-    label: "Speakers",
-    keyword: "SPEAKER",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532754/qsvcsduv4mszlgrwga6e.webp",
-    subcategories: []
-  },
-  
-  {
-    label: "Smart Watch",
-    keyword: "SMART WATCH",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503000/vhnzdx5lpyscijtwazh2.webp",
-    subcategories: []
-  },
- 
   {
     label: "Tempered",
     keyword: "TEMPERED",
-        image: "https://millioncases.in/cdn/shop/files/202409210456232788_1_b62ebb07-fdcd-4ffc-a9b5-b1e58788a94c.webp?v=1726894738&width=1946",
+    image: "https://millioncases.in/cdn/shop/files/202409210456232788_1_b62ebb07-fdcd-4ffc-a9b5-b1e58788a94c.webp?v=1726894738&width=1946",
     subcategories: [
       {
         label: "Bodyguard",
@@ -278,17 +178,87 @@ const categories = [
       }
     ]
   },
-  
-  
+  {
+    label: "Memory card",
+    keyword: "MEMORY CARD",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503232/sgwompfbk1t79ranr6ha.webp",
+    subcategories: []
+  },
+
+  {
+    label: "Pendrive",
+    keyword: "PENDRIVE",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503207/erjplzgypqfeoveb7tzv.webp",
+    subcategories: []
+  },
+  {
+    label: "Led Light",
+    keyword: "LED",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503038/snnngwxnumclv86jgfrl.webp",
+    subcategories: []
+  },
+  {
+    label: "Mobile Holder",
+    keyword: "MOBILE HOLDER",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532746/wif4hyrgsj4gqrvelo8i.webp",
+
+    subcategories: []
+  },
+  {
+    label: "AUX Cables",
+    keyword: "AUX CABLE",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503009/djvbec5fw6o4ix3q4scy.webp"
+  },
+
+  {
+    label: "OTG Cables",
+    keyword: "O.T.G",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757502118/tehcjy28eqv5bq4idklv.webp"
+  },
+  {
+    label: "Connector",
+    keyword: "CONNECTOR",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1761543453/ugzsgnxyhh8flgubhubz.webp",
+    subcategories: []
+  },
+  {
+    label: "Card Reader",
+    keyword: "CARD READER",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1767088035/kz8nduuyymmsisukhwub.webp",
+    subcategories: []
+  },
+  {
+    label: "Audio",
+    keyword: "AUDIO",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757739319/ixopessgrtybupruq1g2.webp",
+    subcategories: []
+  },
+  {
+    label: "TWS & Speaker Cell",
+    keyword: "BLUETOOTH Cell",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757563007/gz8rtmubnidf2gptuvj8.webp"
+  },
+  {
+    label: "Car Bluetooth",
+    keyword: "CAR BLUETOOTH",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757562991/fdmfm3djjyhs76kvecvk.webp"
+  },
+
+  {
+    label: "Gift items",
+    keyword: "GIFT ITEM",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1767694831/mlw9pe3w1x7zleapa98z.webp",
+    subcategories: []
+  },
   {
     label: "USB HUB",
     keyword: "USB HUB",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758533403/rajkkvwzcps5sjzy5q4w.webp",
     subcategories: []
   },
- 
-  
- 
+
+
+
 ];
 
 export default categories;
