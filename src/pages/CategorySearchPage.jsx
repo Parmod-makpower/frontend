@@ -32,6 +32,9 @@ export default function CategoryProductListPage() {
   });
 
   const productsToShow = search ? filteredProducts : filteredByCategory;
+  const sortedProducts = [...productsToShow].sort((a, b) => {
+  return (a.price || 0) - (b.price || 0);
+});
 
   useEffect(() => {
     setSearch("");
@@ -115,28 +118,7 @@ export default function CategoryProductListPage() {
 
       {/* Products Section */}
       <main className="md:col-span-3 md:ml-70 pt-[60px] sm:pt-0 pb-20">
-        {/* Search Box */}
-        {/* <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
-
-          <h2 className="text-lg font-semibold"></h2>
-
-
-          <div className="relative w-full md:w-72">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder={`Search ${categoryKeyword} only...`}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-full shadow-sm 
-                 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
-                 text-sm md:text-base"
-            />
-          </div>
-        </div> */}
+       
         {/* Product List */}
         {isLoading ? (
           <p>Loading...</p>
@@ -146,7 +128,7 @@ export default function CategoryProductListPage() {
           </p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
-            {productsToShow.map((prod) => {
+           {sortedProducts.map((prod) => {
               const prodId = prod.id ?? prod.product_id;
               const existing = selectedProducts.find((p) => p.id === prodId);
 

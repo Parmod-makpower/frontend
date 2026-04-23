@@ -18,6 +18,7 @@ import "react-medium-image-zoom/dist/styles.css";
 import makpower_image from "../assets/images/makpower_image.webp";
 import { PhotoProvider, PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
+import MobilePageHeader from "../components/MobilePageHeader";
 
 export default function ProductDetailPage() {
   const { user } = useAuth();
@@ -112,8 +113,9 @@ export default function ProductDetailPage() {
 
   return (
     <div className=" pb-28">
+       <MobilePageHeader title= {product.product_name} />
       {/* Product container */}
-      <div className="max-w-6xl mx-auto bg-white md:rounded-lg p-4 md:p-8">
+      <div className="max-w-6xl mx-auto bg-white md:rounded-lg p-4 md:p-8 pt-[60px] sm:pt-0 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           {/* Left: Product Image Slider with Zoom */}
           <div className="relative flex flex-col items-center border py-2 rounded-md ">

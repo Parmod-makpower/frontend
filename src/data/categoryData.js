@@ -211,7 +211,7 @@ const categories = [
   },
 
   {
-    label: "OTG Cables",
+    label: "OTG",
     keyword: "O.T.G",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757502118/tehcjy28eqv5bq4idklv.webp"
   },
