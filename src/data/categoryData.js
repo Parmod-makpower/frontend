@@ -32,98 +32,99 @@ const categories = [
   {
     label: "Battery",
     keyword: "BATTERY",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp",
     subcategories: [
-      {
-        label: "ECO BATTERY",
-        keyword: "ECO BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
-      },
+      
       {
         label: "POUCH BATTERY",
         keyword: "POLY BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777006974/vosnja2nvt6x1skd3jnc.webp"
+      },
+      {
+        label: "ECO BATTERY",
+        keyword: "ECO BATTERY",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777006907/de0lhq3ajekqromufpyt.webp"
       },
       {
         label: "POLYMER ASUS",
         keyword: "POLYMER ASUS BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER HONOR",
         keyword: "POLYMER HONOR BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER INFINIX",
         keyword: "POLYMER INFINIX BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER IPHONE",
         keyword: "POLYMER IPHONE BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER LAVA",
         keyword: "POLYMER LAVA BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
 
       {
         label: "POLYMER LENOVO",
         keyword: "POLYMER LENOVO BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER MI BATTERY",
         keyword: "POLYMER MI BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER MICROMAX",
         keyword: "POLYMER MICROMAX BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER MOTOROLA",
         keyword: "POLYMER MOTOROLA BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER NOKIA",
         keyword: "POLYMER NOKIA BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER ONEPLUS",
         keyword: "POLYMER ONEPLUS BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER OPPO",
         keyword: "POLYMER OPPO BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER REALME",
         keyword: "POLYMER REALME BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER SAMSUNG",
         keyword: "POLYMER SAMSUNG BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER TECNO ",
         keyword: "POLYMER TECNO BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
       {
         label: "POLYMER VIVO ",
         keyword: "POLYMER VIVO BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758801350/thz7pzzrgblykfjmhq0j.webp"
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
 
     ]
