@@ -50,6 +50,7 @@ import AdminCRM_DS_ordersPage from "./pages/DS/AdminCRM_DS_ordersPage";
 import DSOrderDetailsPage from "./pages/DS/DSOrderDetailsPage";
 import CargoPage from "./pages/CargoPage";
 import GSTPage from "./pages/GSTPage";
+import NewLaunchingPage from "./pages/NewLaunchingPage";
 
 export default function App() {
   useEffect(() => {
@@ -103,6 +104,7 @@ export default function App() {
             <Route path="/batteries/:categoryKeyword" element={ <BatteryPage/> } />
             <Route path="/cargo" element={ <CargoPage/> } />
             <Route path="/gst" element={ <GSTPage/> } />
+            <Route path="/new-launching" element={ <NewLaunchingPage/> } />
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/orders-tracking" element={<TrackingOrdersPage />} />

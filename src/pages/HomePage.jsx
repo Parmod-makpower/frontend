@@ -44,7 +44,7 @@ export default function HomePage() {
   };
 
   // यहाँ आप IDs की लिस्ट रखेंगे
-  const trendingIds = [722, 247, 51, 81, 633, 1125, 1753];
+  const trendingIds = [46, 74, 123, 31, 636, 717, 1120, 111];
   const schemeIds = [1142, 18, 119, 60, 69,33, 1730, 1653];
 
   return (
@@ -163,10 +163,43 @@ export default function HomePage() {
   <FaGift /> Mahotsav
 </button>
 
-      {/* ⭐ Trending Products Component */}
-      <SlidingProductsCards trendingIds={trendingIds} title={"Trending Products."} />
+       
+{/* 🚀 New Launching & Upcoming Section */}
+<div className="grid grid-cols-2 gap-4 mb-6">
+  
+  {/* 🆕 New Launching */}
+  <div
+    onClick={() => navigate("/new-launching")}
+    className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl p-4 flex items-center gap-3 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"
+  >
+    <div className="text-2xl bg-white/20 p-3 rounded-full">
+      🚀
+    </div>
+    <div>
+      <p className="text-sm font-semibold">New Launching</p>
+      <p className="text-xs opacity-80">Latest Products</p>
+    </div>
+  </div>
 
-      <SlidingProductsCards trendingIds={schemeIds} title={"Special Scheme Products"} />
+  {/* ⏳ Upcoming Products */}
+  <div
+    // onClick={() => navigate("/upcoming-products")}
+    className="bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-xl p-4 flex items-center gap-3 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"
+  >
+    <div className="text-2xl bg-white/20 p-3 rounded-full">
+      ⏳
+    </div>
+    <div>
+      <p className="text-sm font-semibold">Upcoming</p>
+      <p className="text-xs opacity-80">Coming Soon</p>
+    </div>
+  </div>
+
+</div>
+
+ <SlidingProductsCards trendingIds={trendingIds} title={"Top Selling Products."} />
+{/* <SlidingProductsCards trendingIds={schemeIds} title={"Special Scheme Products"} /> */}
+
     </div>
   );
 }

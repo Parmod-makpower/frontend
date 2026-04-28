@@ -137,6 +137,13 @@ const categories = [
     subcategories: []
   },
   {
+    label: "Car Charger",
+    keyword: "CAR CHARGER",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503623/wavfmoowkmxeigmglq25.webp",
+
+    subcategories: []
+  },
+  {
     label: "Data Cables",
     keyword: "DATA CABLE",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532734/laic3tlpbionyqjjlyjx.webp",
@@ -198,6 +205,12 @@ const categories = [
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503038/snnngwxnumclv86jgfrl.webp",
     subcategories: []
   },
+   {
+    label: "Gift items",
+    keyword: "GIFT ITEM",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1767694831/mlw9pe3w1x7zleapa98z.webp",
+    subcategories: []
+  },
   {
     label: "Mobile Holder",
     keyword: "MOBILE HOLDER",
@@ -243,13 +256,6 @@ const categories = [
     label: "Car Bluetooth",
     keyword: "CAR BLUETOOTH",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757562991/fdmfm3djjyhs76kvecvk.webp"
-  },
-
-  {
-    label: "Gift items",
-    keyword: "GIFT ITEM",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1767694831/mlw9pe3w1x7zleapa98z.webp",
-    subcategories: []
   },
   {
     label: "USB HUB",

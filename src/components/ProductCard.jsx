@@ -86,6 +86,9 @@ const outOfStock = currentStock <= (prod.moq || 1);
             </span>
           )}
         </div>
+         {/* <span className="font-semibold text-xs mt-1 text-gray-500">
+         {prod.guarantee} Guarantee
+        </span> */}
 
         <p className="font-semibold text-sm mt-1">
           {prod.price ? `₹${prod.price}` : (
