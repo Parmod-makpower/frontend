@@ -7,6 +7,7 @@ import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import makpower_image from "../assets/images/makpower_image.webp";
 import MobilePageHeader from "../components/MobilePageHeader";
 import { useStock } from "../context/StockContext";
+import { FaShieldAlt } from "react-icons/fa";
 
 export default function NewLaunchingPage() {
   const { data: allProducts = [], isLoading } = useCachedProducts();
@@ -17,7 +18,7 @@ export default function NewLaunchingPage() {
 
   // ✅ New Launch Product IDs
   const NEW_LAUNCH_IDS = [
-    460, 186, 267, 239, 6, 1873, 1872, 1867, 1868, 1869, 1870, 1335, 1871, 1332, 1336, 1865, 1215, 1300, 1866,99, 12  ];
+    460, 186, 267, 239, 6, 1873, 1872, 1867, 1868, 1869, 1870, 1335, 1871, 1332, 1336, 1865, 1215, 1300, 1866, 99, 12];
 
   // ✅ Filter + Sort Products
   const products = useMemo(() => {
@@ -93,11 +94,16 @@ export default function NewLaunchingPage() {
                         </span>
                       )}
                     </div>
-
+                    <div className="flex items-center gap-1 mt-1 text-[10px] font-medium">
+                      <FaShieldAlt className="text-[11px]" />
+                      <span>{prod.guarantee} guarantee</span>
+                    </div>
                     {/* Price */}
-                    <p className="text-blue-600 font-bold text-sm mt-1">
+                    <p className=" font-bold text-sm mt-1">
                       ₹{prod.price || 0}
                     </p>
+                    {/* 🛡️ Guarantee */}
+
 
                     {/* Cart Button */}
                     {(user?.role === "SS" || user?.role === "DS") && (
@@ -108,10 +114,9 @@ export default function NewLaunchingPage() {
                         }}
                         disabled={isInCart}
                         className={`w-full mt-3 text-white text-[11px] py-1.5 rounded-full font-semibold transition
-                          ${
-                            isInCart
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 hover:opacity-90"
+                          ${isInCart
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 hover:opacity-90"
                           }`}
                       >
                         {isInCart ? "Added to Cart" : "Add to Cart"}

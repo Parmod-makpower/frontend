@@ -10,6 +10,7 @@ import { FaBan } from "react-icons/fa6";
 import makpower_image from "../assets/images/makpower_image.webp";
 import QuantitySelector from "./QuantitySelector";
 import { useStock } from "../context/StockContext";
+import { FaShieldAlt } from "react-icons/fa";
 
 export default function ProductCard({
   prod,
@@ -27,8 +28,8 @@ export default function ProductCard({
   const isInCart = selectedProducts.some((p) => p.id === prodId);
   const selectedItem = selectedProducts.find((p) => p.id === prodId);
   const { getStockValue } = useStock();
-const currentStock = getStockValue(prod);
-const outOfStock = currentStock <= (prod.moq || 1);
+  const currentStock = getStockValue(prod);
+  const outOfStock = currentStock <= (prod.moq || 1);
 
   const [imgSrc, setImgSrc] = useState(
     prod?.image
@@ -86,9 +87,12 @@ const outOfStock = currentStock <= (prod.moq || 1);
             </span>
           )}
         </div>
-         {/* <span className="font-semibold text-xs mt-1 text-gray-500">
-         {prod.guarantee} Guarantee
-        </span> */}
+        <div className="flex items-center gap-1 mt-1 text-[10px]  font-medium">
+          <FaShieldAlt className="text-[11px]" />
+          <span>{prod.guarantee} guarantee</span>
+        </div>
+
+
 
         <p className="font-semibold text-sm mt-1">
           {prod.price ? `₹${prod.price}` : (
