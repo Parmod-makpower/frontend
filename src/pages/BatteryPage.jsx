@@ -149,8 +149,8 @@ const finalProducts = useMemo(() => {
                     onClick={() => navigate(`/product/${prodId}`)}
                     className="flex flex-col flex-grow gap-1 cursor-pointer"
                   >
-                    <div className="flex items-center gap-2 font-medium truncate text-gray-800">
-                      {prod.product_name}
+                    <div className="flex items-center gap-2 font-medium text-xs truncate text-gray-800">
+                      {prod._displayName}
 
                       {!outOfStock ? (
                         <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
@@ -170,7 +170,7 @@ const finalProducts = useMemo(() => {
                       )}
                     </div>
 
-                    <p className="text-[11px] sm:text-xs">Model: {prod._displayName}</p>
+                    <p className="text-[11px] sm:text-xs">{prod.product_name}</p>
 
                     <p className="text-[12px] sm:text-xs flex items-center font-medium ">
                       {prod.guarantee && prod.guarantee !== "nan" && prod.guarantee !== "null" && prod.guarantee !== null ? (
