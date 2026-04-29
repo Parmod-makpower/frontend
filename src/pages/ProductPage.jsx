@@ -205,6 +205,7 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">Name</th>
               <th className="px-4 py-2 border">Carton</th>
               <th className="px-4 py-2 border">Guarantee</th>
+              <th className="px-4 py-2 border">Type</th>
               <th className="px-4 py-2 border">Mah</th>
               <th className="px-4 py-2 border">Mumbai</th>
               <th className="px-4 py-2 border">Delhi</th>
@@ -230,6 +231,7 @@ export default function ProductPage() {
                 <td className="text-center py-1 border">{prod.product_name}</td>
                 <td className="text-center py-1 border bg-yellow-200">{prod.cartoon_size}</td>
                 <td className="text-center py-1 border">{prod.guarantee}</td>
+                <td className="text-center py-1 border">{prod.product_type}</td>
                 <td className="text-center py-1 border">{prod.mah}</td>
                 <td className="text-center py-1 border bg-red-200">{prod.mumbai_stock || 0}</td>
                 <td className="text-center py-1 border bg-red-200">{prod.live_stock || 0}</td>

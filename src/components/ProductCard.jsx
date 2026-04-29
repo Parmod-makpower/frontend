@@ -73,7 +73,7 @@ export default function ProductCard({
       {/* 📦 Product Info */}
       <div className="flex flex-col flex-1 p-2 md:p-4">
         <h3 className="text-xs md:text-sm font-bold text-gray-800 truncate">
-          {prod.product_name}
+          {prod.product_name} {prod.product_type && (<span>/ {prod.product_type}</span>)} 
         </h3>
 
         <div className="flex items-center gap-1 mt-1">
