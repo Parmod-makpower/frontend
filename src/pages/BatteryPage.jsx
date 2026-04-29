@@ -69,7 +69,29 @@ export default function BatteryPage() {
       addProduct({ ...product, quantity: initialQty });
     }
   };
+const finalProducts = useMemo(() => {
+  const lower = search.toLowerCase();
 
+  return productsToShow.map((product) => {
+    let saleNamesArray = [];
+
+    // ✅ handle both array & string
+    if (Array.isArray(product.sale_names)) {
+      saleNamesArray = product.sale_names;
+    } else if (typeof product.sale_names === "string") {
+      saleNamesArray = product.sale_names.split(",");
+    }
+
+    const matchedSale = saleNamesArray.find((n) =>
+      n.toLowerCase().includes(lower)
+    );
+
+    return {
+      ...product,
+      _displayName: matchedSale?.trim() || product.product_name,
+    };
+  });
+}, [productsToShow, search]);
 
   return (
     <div className="flex flex-col h-screen max-h-screen bg-white">
@@ -101,7 +123,7 @@ export default function BatteryPage() {
           <p className="text-center text-gray-500 py-8">No matching products found.</p>
         ) : (
           <div className="flex flex-col gap-2">
-            {productsToShow.map((prod) => {
+            {finalProducts.map((prod) => {
               const prodId = prod.id;
               const saleArray = Array.isArray(prod.sale_names)
                 ? prod.sale_names
@@ -148,7 +170,7 @@ export default function BatteryPage() {
                       )}
                     </div>
 
-                    <p className="text-[11px] sm:text-xs">{prod.sub_category}</p>
+                    <p className="text-[11px] sm:text-xs">Model: {prod._displayName}</p>
 
                     <p className="text-[12px] sm:text-xs flex items-center font-medium ">
                       {prod.guarantee && prod.guarantee !== "nan" && prod.guarantee !== "null" && prod.guarantee !== null ? (
