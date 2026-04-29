@@ -197,7 +197,7 @@ export default function ProductPage() {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full border text-sm">
+        <table className="min-w-full border text-xs">
           <thead>
             <tr className="bg-gray-200">
               <th className="px-4 py-2 border">ID</th>
@@ -205,6 +205,7 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">Name</th>
               <th className="px-4 py-2 border">Carton</th>
               <th className="px-4 py-2 border">Guarantee</th>
+              <th className="px-4 py-2 border">Mah</th>
               <th className="px-4 py-2 border">Mumbai</th>
               <th className="px-4 py-2 border">Delhi</th>
               <th className="px-4 py-2 border">V_Stock</th>
@@ -221,14 +222,15 @@ export default function ProductPage() {
               <th className="px-4 py-2 border">Image</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-xs">
             {paginatedProducts.map((prod) => (
-              <tr key={prod.product_id} className="hover:bg-gray-50">
+              <tr key={prod.product_id} className="hover:bg-gray-50 ">
                 <td className="text-center py-1 border bg-gray-200">{prod.product_id}</td>
                 <td className="text-center py-1 border">{prod.sub_category}</td>
                 <td className="text-center py-1 border">{prod.product_name}</td>
                 <td className="text-center py-1 border bg-yellow-200">{prod.cartoon_size}</td>
                 <td className="text-center py-1 border">{prod.guarantee}</td>
+                <td className="text-center py-1 border">{prod.mah}</td>
                 <td className="text-center py-1 border bg-red-200">{prod.mumbai_stock || 0}</td>
                 <td className="text-center py-1 border bg-red-200">{prod.live_stock || 0}</td>
                 <td className="text-center py-1 border bg-red-200">{prod.virtual_stock || 0}</td>

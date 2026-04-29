@@ -205,7 +205,7 @@ export default function ProductDetailPage() {
                 <p className="font-medium text-gray-500">Category</p>
                 <p className="text-gray-800">{product.sub_category || "N/A"}</p>
               </div>
-              {product.cartoon_size != null && product.cartoon_size !== "" && (
+              {product.cartoon_size != null ||  product.cartoon_size !== "" && (
                 <div>
                   <p className="font-medium text-gray-500">Cartoon Size</p>
                   <p className="text-gray-800">{product.cartoon_size || "-"}</p>
@@ -216,6 +216,14 @@ export default function ProductDetailPage() {
                   <p className="font-medium text-gray-500">Guarantee</p>
                   <p className="text-gray-800">
                     {formatGuaranteeForRole(product.guarantee, user?.role)}
+                  </p>
+                </div>
+              )}
+              {product.mah != null && product.mah !== "nan" && (
+                <div>
+                  <p className="font-medium text-gray-500">MAH</p>
+                  <p className="text-gray-800">
+                    {formatGuaranteeForRole(product.mah, user?.role)} mah
                   </p>
                 </div>
               )}

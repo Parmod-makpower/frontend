@@ -134,9 +134,9 @@ export default function ConfirmOrderPage() {
               <tr>
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">No</th>
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Product</th>
-                <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Quantity</th>
-
+                <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Qty</th>
                 <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Price</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Total</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
@@ -145,11 +145,10 @@ export default function ConfirmOrderPage() {
                   <td className="px-4 py-2 text-sm text-gray-700">{index + 1}</td>
                   <td className="px-4 py-2 text-sm text-gray-800">{item.product_name}</td>
                   <td className="px-4 py-2 text-sm text-gray-700">{item.quantity}</td>
-
+                  <td className="px-4 py-2 text-sm text-gray-700">{item.price}</td>
                   <td className="px-4 py-2 text-sm text-gray-700">
                     {!isNaN(Number(item.price)) ? (
                       <span className="flex items-center gap-1 text-gray-700">
-                        <FaIndianRupeeSign className="text-gray-400" />
                         {((Number(item.price) || 0) * (item.quantity || 1)).toFixed(1)}
                       </span>
                     ) : (
@@ -204,7 +203,7 @@ export default function ConfirmOrderPage() {
       {/* Total */}
       <div className="flex justify-end mb-6">
         <div className="text-right">
-          <p className="text-lg font-semibold">
+          <p className=" font-semibold">
             Total: ₹
             {selectedProducts
               .reduce(

@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import { FaPlus, FaGift, FaCheck } from "react-icons/fa";
 import { Search as SearchIcon } from "lucide-react";
 import { useStock } from "../context/StockContext";
+import { IoChevronBack } from "react-icons/io5";
 
 
 export default function TemperedPage() {
@@ -83,18 +84,23 @@ export default function TemperedPage() {
 
   return (
     <div className="flex flex-col h-screen max-h-screen bg-white">
-      {/* 🔍 Fixed Top Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow flex items-center gap-2">
-        <input
-          ref={searchRef}
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={`Search ${categoryKeyword} only...`}
-          className="flex-1 pl-10 pr-4 py-2 border rounded-full shadow-sm focus:outline-none  text-sm md:text-base"
-        />
-        <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-      </div>
+       <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow sm:static sm:mx-4 sm:rounded-md sm:shadow-md sm:border sm:border-gray-200 transition-all duration-200 ease-in-out flex items-center gap-2">
+              <button
+                onClick={() => window.history.back()}
+                className="text-gray-700 hover:text-blue-600 text-2xl sm:text-xl font-bold px-1 transition-transform hover:scale-105"
+                aria-label="Back"
+              >
+                <IoChevronBack />
+              </button>
+              <input
+                ref={searchRef}
+                type="text"
+                onChange={(e) => setSearch(e.target.value)}
+                maxLength={20}
+                placeholder={`Search ${categoryKeyword} only...`}
+                className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
+              />
+            </div>
 
       {/* Products Section */}
       <main className="flex-1 pt-[70px] sm:pt-24 overflow-y-auto px-2 sm:px-4 pb-30">
