@@ -147,6 +147,34 @@ const categories = [
     label: "Data Cables",
     keyword: "DATA CABLE",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1758532734/laic3tlpbionyqjjlyjx.webp",
+
+     subcategories: [
+      {
+        label: "Type-C",
+        keyword: "TYPE-C",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757505113/e5tgb0qvesx66scbuipo.webp"
+      },
+      {
+        label: "V8",
+        keyword: "V8",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757505010/squucuwrcdszkkr7cbk5.webp"
+      },
+      {
+        label: "I PHONE",
+        keyword: "DATA CABLE I PHONE",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757504824/rrkunduzxcqorbqw56yn.webp"
+      },
+      {
+        label: "Power Bank",
+        keyword: "DATA CABLE PB",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777290549/hrlfm2jnloih6eoxteor.webp"
+      },
+      {
+        label: "3 IN 1",
+        keyword: "3 IN 1",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757744197/tsm7pqydt8ilgqgkbjwp.webp"
+      },
+     ]
   },
   {
     label: "Power Bank",
