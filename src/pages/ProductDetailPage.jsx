@@ -113,9 +113,9 @@ export default function ProductDetailPage() {
 
   return (
     <div className=" pb-28">
-       <MobilePageHeader title= {product.product_name} />
+      <MobilePageHeader title={product.product_name} />
       {/* Product container */}
-      <div className="max-w-6xl mx-auto bg-white md:rounded-lg p-4 md:p-8 pt-[60px] sm:pt-0 pb-20">
+      <div className="max-w-6xl mx-auto bg-white md:rounded-lg p-4 md:p-8 pt-[60px] sm:pt-0 pb-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           {/* Left: Product Image Slider with Zoom */}
           <div className="relative flex flex-col items-center border py-2 rounded-md ">
@@ -168,67 +168,62 @@ export default function ProductDetailPage() {
 
           {/* Right: Product Details */}
           <div className="flex flex-col gap-4 px-1">
-            <h2 className="text-xl md:text-3xl font-bold text-gray-800">
-              {product.product_name}
-            </h2>
+            <div className="flex flex-col gap-1">
+              <h1 className="text-lg md:text-2xl font-semibold text-gray-900 leading-snug">
+                {product.product_name}
+              </h1>
+
+              <p className="text-xs text-gray-500">
+                Category: {product.sub_category || "N/A"}
+              </p>
+            </div>
 
             {/* Stock */}
             <div className="flex items-center gap-2">
               {!outOfStock ? (
-                <span className="text-green-600 flex gap-2">
+                <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
                   <FaCheckCircle /> In Stock
                 </span>
               ) : (
-                <span className="text-red-600 flex gap-2">
+                <span className="bg-red-100 text-red-600 text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
                   <FaTimesCircle /> Out of Stock
                 </span>
               )}
-
             </div>
 
             {/* Price */}
-            <p className="font-semibold text-lg">
+            <div className="flex items-center gap-3">
               {!isNaN(product.price) ? (
-                <span className="flex items-center gap-1 text-black">
-                  <FaIndianRupeeSign /> {product.price}
-                </span>
+                <>
+                  <span className="text-2xl font-bold text-gray-900 flex items-center">
+                    <FaIndianRupeeSign className="text-lg" />
+                    {product.price}
+                  </span>
+
+                  <span className="text-green-600 text-sm font-medium">
+                    Best Price
+                  </span>
+                </>
               ) : (
                 <span className="flex items-center gap-1 text-red-500">
                   <FaBan /> Price not Available
                 </span>
               )}
-            </p>
+            </div>
 
-            {/* Meta Info */}
-            <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 p-4 rounded-lg shadow-sm">
-              <div>
-                <p className="font-medium text-gray-500">Category</p>
-                <p className="text-gray-800">{product.sub_category || "N/A"}</p>
-              </div>
-              {product.cartoon_size != null ||  product.cartoon_size !== "" && (
-                <div>
-                  <p className="font-medium text-gray-500">Cartoon Size</p>
-                  <p className="text-gray-800">{product.cartoon_size || "-"}</p>
-                </div>
-              )}
-              {product.guarantee != null && product.guarantee !== "nan" && (
-                <div>
-                  <p className="font-medium text-gray-500">Guarantee</p>
-                  <p className="text-gray-800">
-                    {formatGuaranteeForRole(product.guarantee, user?.role)}
-                  </p>
-                </div>
-              )}
-              {product.mah != null && product.mah !== "nan" && (
-                <div>
-                  <p className="font-medium text-gray-500">MAH</p>
-                  <p className="text-gray-800">
-                    {formatGuaranteeForRole(product.mah, user?.role)} mah
-                  </p>
-                </div>
-              )}
-
-
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: "Carton Size", value: product.cartoon_size },
+                { label: "Guarantee", value: formatGuaranteeForRole(product.guarantee, user?.role) },
+                { label: "MAH", value: product.mah ? `${product.mah} mah` : null },
+              ]
+                .filter(item => item.value)
+                .map((item, i) => (
+                  <div key={i} className="bg-gray-50 rounded-xl p-3 border hover:shadow-sm transition">
+                    <p className="text-[10px] text-gray-500">{item.label}</p>
+                    <p className="text-sm font-semibold text-gray-800">{item.value}</p>
+                  </div>
+                ))}
             </div>
 
             {/* Schemes */}
@@ -284,10 +279,8 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* ✅ Sticky Bottom Add to Cart Bar with Quantity / Cartoon Handling */}
-      {/* ✅ Sticky Bottom Add to Cart Bar (FINAL DS / SS LOGIC) */}
       {(user?.role === "SS" || user?.role === "DS") && (
-        <div className="left-0 w-full bg-white p-3 flex gap-3 z-50 border-t">
+        <div className="left-0 w-full bg-white p-3 flex gap-3 z-50 border-t ">
           {!isInCart ? (
             <button
               onClick={handleAddToCart}
