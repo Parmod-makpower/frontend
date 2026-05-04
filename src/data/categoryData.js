@@ -45,6 +45,26 @@ const categories = [
         keyword: "ECO BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777006907/de0lhq3ajekqromufpyt.webp"
       },
+       {
+        label: "POLYMER MI",
+        keyword: "POLYMER MI BATTERY",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
+      },
+      {
+        label: "POLYMER OPPO",
+        keyword: "POLYMER OPPO BATTERY",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
+      },
+      {
+        label: "POLYMER VIVO ",
+        keyword: "POLYMER VIVO BATTERY",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
+      },
+      {
+        label: "POLYMER SAMSUNG",
+        keyword: "POLYMER SAMSUNG BATTERY",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
+      },
       {
         label: "POLYMER ASUS",
         keyword: "POLYMER ASUS BATTERY",
@@ -76,11 +96,7 @@ const categories = [
         keyword: "POLYMER LENOVO BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
-      {
-        label: "POLYMER MI BATTERY",
-        keyword: "POLYMER MI BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
-      },
+     
       {
         label: "POLYMER MICROMAX",
         keyword: "POLYMER MICROMAX BATTERY",
@@ -101,31 +117,19 @@ const categories = [
         keyword: "POLYMER ONEPLUS BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
-      {
-        label: "POLYMER OPPO",
-        keyword: "POLYMER OPPO BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
-      },
+      
       {
         label: "POLYMER REALME",
         keyword: "POLYMER REALME BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
-      {
-        label: "POLYMER SAMSUNG",
-        keyword: "POLYMER SAMSUNG BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
-      },
+      
       {
         label: "POLYMER TECNO ",
         keyword: "POLYMER TECNO BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
       },
-      {
-        label: "POLYMER VIVO ",
-        keyword: "POLYMER VIVO BATTERY",
-        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
-      },
+      
 
     ]
   },
@@ -155,6 +159,11 @@ const categories = [
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757505113/e5tgb0qvesx66scbuipo.webp"
       },
       {
+        label: "C TO C",
+        keyword: "C TO C",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1763098669/maon3lkohuheklpfxrjt.webp"
+      },
+      {
         label: "V8",
         keyword: "V8",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757505010/squucuwrcdszkkr7cbk5.webp"
@@ -163,6 +172,11 @@ const categories = [
         label: "I PHONE",
         keyword: "DATA CABLE I PHONE",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757504824/rrkunduzxcqorbqw56yn.webp"
+      },
+       {
+        label: "C TO I",
+        keyword: "TO I",
+        image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757744192/nwgoklgmntcmielwfnde.webp"
       },
       {
         label: "Power Bank",
