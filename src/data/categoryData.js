@@ -175,7 +175,7 @@ const categories = [
       },
        {
         label: "C TO I",
-        keyword: "TO I",
+        keyword: "C TO I",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757744192/nwgoklgmntcmielwfnde.webp"
       },
       {

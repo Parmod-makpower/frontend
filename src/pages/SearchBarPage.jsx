@@ -149,6 +149,7 @@ const hasCartoon =
             <div className="flex items-center gap-2 font-medium truncate text-gray-800">
               {p._displayName}
 
+               {user?.role !== "DS" && (<div>
               {!outOfStock ? (
                 <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                   In Stock
@@ -158,7 +159,7 @@ const hasCartoon =
                   Out of Stock
                 </span>
               )}
-
+              </div>)}
               {hasScheme(p.id) && (
                 <FaGift className="text-pink-500 text-xs animate-pulse" />
               )}

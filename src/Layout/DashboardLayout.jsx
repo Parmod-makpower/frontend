@@ -254,6 +254,7 @@ export default function DashboardLayout() {
                       >
                         <span className="font-medium flex items-center gap-2">
                           {p._displayName}
+                           {user?.role !== "DS" && (<div>
                           {!outOfStock ? (
                             <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                               In Stock
@@ -263,6 +264,7 @@ export default function DashboardLayout() {
                               Out of Stock
                             </span>
                           )}
+                          </div>)}
                           {hasScheme(p.id) && (
                             <FaGift
                               title="Scheme Available"

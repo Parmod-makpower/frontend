@@ -73,20 +73,22 @@ export default function ProductCard({
       {/* 📦 Product Info */}
       <div className="flex flex-col flex-1 p-2 md:p-4">
         <h3 className="text-xs md:text-sm font-bold text-gray-800 truncate">
-          {prod.product_name} {prod.product_type && (<span>/ {prod.product_type}</span>)} 
+          {prod.product_name} {prod.product_type && (<span>/ {prod.product_type}</span>)}
         </h3>
+        {user?.role !== "DS" && (
+          <div className="flex items-center gap-1 mt-1">
+            {!outOfStock ? (
+              <span className="flex items-center gap-1 text-[#16a34a] text-[10px] md:text-xs font-semibold">
+                <FaCheckCircle /> In Stock
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-[#dc2626] text-[10px] md:text-xs font-semibold">
+                <FaTimesCircle /> Out
+              </span>
+            )}
+          </div>
+        )}
 
-        <div className="flex items-center gap-1 mt-1">
-          {!outOfStock ? (
-            <span className="flex items-center gap-1 text-[#16a34a] text-[10px] md:text-xs font-semibold">
-              <FaCheckCircle /> In Stock
-            </span>
-          ) : (
-            <span className="flex items-center gap-1 text-[#dc2626] text-[10px] md:text-xs font-semibold">
-              <FaTimesCircle /> Out
-            </span>
-          )}
-        </div>
         <div className="flex items-center gap-1 mt-1 text-[10px]  font-medium">
           <FaShieldAlt className="text-[11px]" />
           <span>{prod.guarantee} guarantee</span>

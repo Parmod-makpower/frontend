@@ -93,6 +93,12 @@ const finalProducts = useMemo(() => {
   });
 }, [productsToShow, search]);
 
+const sortedProducts = useMemo(() => {
+  return [...finalProducts].sort((a, b) => {
+    return (Number(a.price) || 0) - (Number(b.price) || 0);
+  });
+}, [finalProducts]);
+
   return (
     <div className="flex flex-col h-screen max-h-screen bg-white">
       {/* 🔍 Fixed Top Bar */}
@@ -123,7 +129,7 @@ const finalProducts = useMemo(() => {
           <p className="text-center text-gray-500 py-8">No matching products found.</p>
         ) : (
           <div className="flex flex-col gap-2">
-            {finalProducts.map((prod) => {
+            {sortedProducts.map((prod) => {
               const prodId = prod.id;
               const saleArray = Array.isArray(prod.sale_names)
                 ? prod.sale_names
@@ -151,7 +157,7 @@ const finalProducts = useMemo(() => {
                   >
                     <div className="flex items-center gap-2 font-medium text-xs truncate text-gray-800">
                       {prod._displayName}
-
+                      {user?.role !== "DS" && (<div>
                       {!outOfStock ? (
                         <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                           In Stock
@@ -161,7 +167,7 @@ const finalProducts = useMemo(() => {
                           Out of Stock
                         </span>
                       )}
-
+                      </div>)}
                       {hasScheme(prodId) && (
                         <FaGift
                           title="Scheme Available"
