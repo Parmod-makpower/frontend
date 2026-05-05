@@ -134,7 +134,7 @@ export default function ConfirmOrderPDFButton({ selectedProducts = [], eligibleS
   className="flex items-center gap-1 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-md text-sm shadow-sm transition-all mx-auto mb-3"
 >
   <FaDownload className="text-blue-600 text-sm" />
-  <span>Download PDF</span>
+  <span> Share Pdf</span>
 </button>
 
   );

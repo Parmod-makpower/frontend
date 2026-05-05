@@ -131,13 +131,7 @@ export default function ConfirmOrderPageDS() {
       {/* Products Table */}
       <div className="my-6 pt-[60px] sm:pt-0">
         <div className="overflow-auto rounded-lg shadow">
-          <div className="flex justify-center">
-            <ConfirmOrderPDFButton
-              selectedProducts={selectedProducts}
-              eligibleSchemes={eligibleSchemes}
-            />
-          </div>
-
+  
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
@@ -174,7 +168,7 @@ export default function ConfirmOrderPageDS() {
 
       {/* Total */}
       <div className="flex justify-end mb-6">
-        <p className="text-lg font-semibold">
+        <p className="text-sm font-semibold">
           Total: ₹
           {selectedProducts
             .reduce(
@@ -185,8 +179,16 @@ export default function ConfirmOrderPageDS() {
         </p>
       </div>
 
+
+      <div className="flex justify-center">
+            <ConfirmOrderPDFButton
+              selectedProducts={selectedProducts}
+              eligibleSchemes={eligibleSchemes}
+            />
+          </div>
+
       {/* Place Order Button */}
-      <div className="text-center">
+      {/* <div className="text-center">
         <button
           onClick={handlePlaceOrder}
           disabled={isPlacingOrder}
@@ -194,7 +196,7 @@ export default function ConfirmOrderPageDS() {
         >
           {isPlacingOrder ? "Placing Order..." : "Place Order"}
         </button>
-      </div>
+      </div> */}
 
       {/* Loading Overlay */}
       {isPlacingOrder && (
