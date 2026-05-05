@@ -83,20 +83,20 @@ export default function MoreOptionsPage() {
          
         ]
       : []),
-    ...(user?.role === "DS"
-      ? [
-          {
-            label: "My Order",
-            icon: <FaBox className="text-orange-600" />,
-            action: () => navigate("/ds/my-orders"),
-          },
+    // ...(user?.role === "DS"
+    //   ? [
+    //       {
+    //         label: "My Order",
+    //         icon: <FaBox className="text-orange-600" />,
+    //         action: () => navigate("/ds/my-orders"),
+    //       },
          
-        ]
-      : []),
+    //     ]
+    //   : []),
     {
       label: "Help / Info",
       icon: <FaInfoCircle className="text-yellow-500" />,
-      action: () => alert("Help section coming soon"),
+      action: () => alert("Phone: 7428828836"),
     },
     {
       label: "Logout",
