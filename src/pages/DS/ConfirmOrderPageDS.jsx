@@ -120,9 +120,7 @@ export default function ConfirmOrderPageDS() {
     });
   };
 
-  /* ----------------------------------
-     UI
-  ---------------------------------- */
+ 
 
   return (
     <div className="max-w-4xl mx-auto px-3 pb-20">
