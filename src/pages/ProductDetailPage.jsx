@@ -170,7 +170,7 @@ export default function ProductDetailPage() {
           <div className="flex flex-col gap-4 px-1">
             <div className="flex flex-col gap-1">
               <h1 className="text-lg md:text-2xl font-semibold text-gray-900 leading-snug">
-                {product.product_name}
+                {product.product_name}{product.product_type && (<span> / {product.product_type}</span>)}
               </h1>
 
               <p className="text-xs text-gray-500">

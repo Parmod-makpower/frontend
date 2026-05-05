@@ -3,6 +3,7 @@ import {
   FaGift,
   FaCheckCircle,
   FaTimesCircle,
+  FaBatteryFull,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -44,6 +45,28 @@ export default function ProductCard({
         prod.cartoon_size && prod.cartoon_size > 1 ? prod.cartoon_size : moq;
       addProduct({ ...prod, id: prodId, quantity: initialQty });
     }
+  };
+
+  const getDisplayGuarantee = () => {
+    if (!prod?.guarantee) return "";
+
+    const g = String(prod.guarantee).toLowerCase();
+
+    // ✅ Lifetime case
+    if (g.includes("life")) return prod.guarantee;
+
+    // ✅ Extract number (e.g. "12 months" → 12)
+    const num = parseInt(g);
+
+    if (isNaN(num)) return prod.guarantee;
+
+    // ✅ DS role → minus 3
+    if (user?.role === "DS") {
+      const updated = Math.max(0, num - 3);
+      return `${updated} months`;
+    }
+
+    return `${num} months`;
   };
 
   return (
@@ -91,9 +114,15 @@ export default function ProductCard({
 
         <div className="flex items-center gap-1 mt-1 text-[10px]  font-medium">
           <FaShieldAlt className="text-[11px]" />
-          <span>{prod.guarantee} guarantee</span>
+          <span>{getDisplayGuarantee()} guarantee</span>
         </div>
 
+        {prod?.mah && (
+          <div className="flex items-center gap-1 mt-1 text-[10px]  font-medium">
+            <FaBatteryFull className="text-[11px]" />
+            <span>{prod.mah} mah</span>
+          </div>
+        )}
 
 
         <p className="font-semibold text-sm mt-1">
