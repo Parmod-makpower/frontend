@@ -111,12 +111,12 @@ export default function ProductCard({
             )}
           </div>
         )}
-
+         {prod?.guarantee && (
         <div className="flex items-center gap-1 mt-1 text-[10px]  font-medium">
           <FaShieldAlt className="text-[11px]" />
           <span>{getDisplayGuarantee()} guarantee</span>
         </div>
-
+         )}
         {prod?.mah && (
           <div className="flex items-center gap-1 mt-1 text-[10px]  font-medium">
             <FaBatteryFull className="text-[11px]" />
