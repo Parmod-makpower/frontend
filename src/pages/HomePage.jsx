@@ -44,7 +44,7 @@ export default function HomePage() {
   };
 
   // यहाँ आप IDs की लिस्ट रखेंगे
-  const trendingIds = [46, 74, 123, 31, 636, 717, 1120, 111];
+  const trendingIds = [45, 74, 123, 31, 636, 717, 1120, 111];
   const schemeIds = [1142, 18, 119, 60, 69,33, 1730, 1653];
 
   return (

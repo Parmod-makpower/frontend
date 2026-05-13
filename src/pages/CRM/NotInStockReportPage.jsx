@@ -189,8 +189,8 @@ export default function NotInStockReportPage() {
                                     <th className="border">Party</th>
                                     <th className="border">Item</th>
                                     <th className="border">Qty</th>
-                                    <th className="border bg-red-200">Stock</th>
                                     <th className="border">Balance</th>
+                                    <th className="border bg-red-200">Stock</th>
                                     <th className="border">
                                         <input
                                             type="checkbox"
@@ -225,10 +225,10 @@ export default function NotInStockReportPage() {
                                         <td className="border">{r.party_name}</td>
                                         <td className="border max-w-[120px]">{r.product}</td>
                                         <td className="border">{r.original_quantity}</td>
+                                        <td className="border">{r.balance_qty}</td>
                                         <td className="border bg-red-200">
                                             {productStockMap[r.product?.trim().toLowerCase()] ?? 0}
                                         </td>
-                                        <td className="border">{r.balance_qty}</td>
                                         <td className="border">
                                             <input
                                                 className="cursor-pointer"

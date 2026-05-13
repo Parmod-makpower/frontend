@@ -80,7 +80,7 @@ export default function OrderTrackPage() {
                 ? "text-gray-600"
                 : "text-blue-600",
         },
-        { label: "Dispatched", icon: <FaShippingFast /> },
+        // { label: "Dispatched", icon: <FaShippingFast /> },
       ];
 
   const getStatusStepIndex = (status) => {
@@ -242,9 +242,9 @@ export default function OrderTrackPage() {
           <th className="px-2 py-3 text-center font-semibold border">
             Apr
           </th>
-          <th className="px-2 py-3 text-center font-semibold border">
+          {/* <th className="px-2 py-3 text-center font-semibold border">
             Disp
-          </th>
+          </th> */}
         </tr>
       </thead>
 
@@ -295,11 +295,11 @@ export default function OrderTrackPage() {
                 </td>
 
                 {/* Dispatched Qty */}
-                <td className="px-2 py-3 text-center border border-gray-400">
+                {/* <td className="px-2 py-3 text-center border border-gray-400">
                   <span className="px-2 py-1 rounded-md bg-green-50 text-green-600 font-semibold text-[10px] sm:text-xs">
                     {dispatchItem ? dispatchItem.quantity : "--"}
                   </span>
-                </td>
+                </td> */}
               </tr>
             );
           });
