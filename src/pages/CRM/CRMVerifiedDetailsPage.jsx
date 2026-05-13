@@ -242,6 +242,7 @@ export default function CRMVerifiedDetailsPage() {
         quantity: newQty,
       });
       alert(res.data.message);
+      await refetch();
     } catch (err) {
       alert(err.response?.data?.error || "Failed to update quantity.");
     }
@@ -252,6 +253,8 @@ export default function CRMVerifiedDetailsPage() {
     try {
       const res = await API.delete(`/crm/verified/item/${itemId}/delete/`);
       alert(res.data.message);
+      await refetch();
+
     } catch (err) {
       alert(err.response?.data?.error || "Failed to delete item.");
     }
