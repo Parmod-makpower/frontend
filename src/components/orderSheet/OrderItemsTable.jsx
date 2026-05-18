@@ -1,6 +1,7 @@
 import { FaGift } from "react-icons/fa";
 import { Trash2 } from "lucide-react";
 import { useEffect, useRef } from "react";
+import useFuseSearch from "../../hooks/useFuseSearch";
 
 
 export default function OrderItemsTable({
@@ -12,14 +13,11 @@ export default function OrderItemsTable({
   selectedCity,
   manualAvailabilityMap,
   updateManualAvailability,
-
   searchTerm,
   setSearchTerm,
-  filteredProducts,
   highlightIndex,
   setHighlightIndex,
   handleAddProductBySearch,
-  handleKeyDown,
   getSchemeText,
   setSelectedCity
 }) {
@@ -68,6 +66,46 @@ export default function OrderItemsTable({
     return getAvailability(productData, item, selectedCity)
       ? "Available"
       : "Not Available";
+  };
+
+  const fuseResults = useFuseSearch(
+    allProducts,
+    searchTerm,
+    {
+      keys: ["product_name", "sale_names"],
+      threshold: 0.3,
+    }
+  );
+
+  const filteredProducts = fuseResults.filter((prod) => {
+    return prod.is_active === true;
+  });
+
+  const handleKeyDown = (e) => {
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightIndex((prev) =>
+        prev < filteredProducts.length - 1 ? prev + 1 : 0
+      );
+    }
+
+    else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightIndex((prev) =>
+        prev > 0 ? prev - 1 : filteredProducts.length - 1
+      );
+    }
+
+    else if (e.key === "Enter") {
+      e.preventDefault();
+
+      const selectedProduct = filteredProducts[highlightIndex];
+
+      if (selectedProduct) {
+        handleAddProductBySearch(selectedProduct);
+      }
+    }
   };
 
   return (
@@ -241,6 +279,9 @@ export default function OrderItemsTable({
             <div className="absolute left-0 right-0 top-full bg-white border shadow-lg max-h-24 overflow-y-auto z-[999]">
               {filteredProducts.length > 0 ? (
                 filteredProducts.map((prod, index) => {
+                  const matchedSaleName = prod.sale_names?.find((name) =>
+                    name.toLowerCase().includes(searchTerm.toLowerCase())
+                  );
                   const schemeText = getSchemeText(prod.product_id);
 
                   return (
@@ -252,9 +293,16 @@ export default function OrderItemsTable({
                           : "hover:bg-gray-100"
                           }`}
                       >
-                        <span className="truncate">
-                          {prod.product_name}
-                        </span>
+                        <div className="flex flex-col leading-tight">
+                          {matchedSaleName && (
+                            <span className="truncate text-[10px] text-blue-500 italic">
+                              {matchedSaleName}
+                            </span>
+                          )}
+                          <span className="truncate font-semibold text-gray-800">
+                            {prod.product_name}
+                          </span>
+                        </div>
                         {schemeText && (
                           <FaGift className="text-pink-500 text-xs" />
                         )}

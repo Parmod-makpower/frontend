@@ -12,36 +12,36 @@ export default function UserTable({
   return (
     <div className="overflow-x-auto mb-25">
       {/* Desktop Table */}
-      <table className="hidden md:table w-full text-left border min-w-full text-sm text-left text-gray-700">
-        <thead className="bg-gray-200 text-gray-900 text-sm font-semibold text-sm text-center">
+      <table className="hidden md:table w-full text-left border min-w-full text-xs text-left text-gray-700">
+        <thead className="bg-gray-200 text-gray-900 text-sm font-semibold text-xs text-center">
           <tr className="bg-gray-200">
-            <th className="p-3 border">S.NO</th>
-            <th className="p-3 border">Role</th>
-            <th className="p-3 border">ID</th>
-            <th className="p-3 border">CRM</th>
-            <th className="p-3 border">Name</th>
-            <th className="p-3 border">Party Name</th>
-            <th className="p-3 border">Created_By</th>
-            <th className="p-3 border">Mobile</th>
-            <th className="p-3 border">Status</th>
-            <th className="p-3 border">Wharehouse</th>
-            <th className="p-3 border">Action</th>
-            <th className="p-3 border">Action</th>
-            {(user?.role === "ADMIN" && <th className="p-3 border">Update</th>)}
+            <th className="p-2 border">S.NO</th>
+            <th className="p-2 border">Role</th>
+            <th className="p-2 border">ID</th>
+            <th className="p-2 border">CRM</th>
+            <th className="p-2 border">Name</th>
+            <th className="p-2 border">Party Name</th>
+            <th className="p-2 border">Created_By</th>
+            <th className="p-2 border">Mobile</th>
+            <th className="p-2 border">Status</th>
+            <th className="p-2 border">Wharehouse</th>
+            <th className="p-2 border">Action</th>
+            <th className="p-2 border">Action</th>
+            {(user?.role === "ADMIN" && <th className="p-2 border">Update</th>)}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 text-xs text-center">
           {list.map((item, index) => (
             <tr key={item.id} className="border-t">
-              <td className="p-3 border text-center">{index + 1}</td>
-              <td className="p-3 border">{item.role}</td>
-              <td className="p-3 border bg-gray-200">{item.user_id}</td>
-              <td className="p-3 border">{item.crm_name}</td>
-              <td className="p-3 border">{item.name}</td>
-              <td className="p-3 border bg-yellow-100">{item.party_name}</td>
-              <td className="p-3 border">{item.created_by}</td>
-              <td className="p-3 border">{item.mobile}</td>
-              <td className="p-3 border text-center">
+              <td className="p-2 border text-center">{index + 1}</td>
+              <td className="p-2 border">{item.role}</td>
+              <td className="p-2 border bg-gray-200">{item.user_id}</td>
+              <td className="p-2 border">{item.crm_name}</td>
+              <td className="p-2 border">{item.name}</td>
+              <td className="p-2 border bg-yellow-100">{item.party_name}</td>
+              <td className="p-2 border">{item.created_by}</td>
+              <td className="p-2 border">{item.mobile}</td>
+              <td className="p-2 border text-center">
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-semibold ${item.is_active
                     ? "bg-green-100 text-green-700 border border-green-400"
@@ -52,7 +52,7 @@ export default function UserTable({
                 </span>
               </td>
 
-              <td className="p-3 border text-center">
+              <td className="p-2 border text-center">
   {user?.role === "ADMIN" || user?.role === "CRM" ? (
     <select
       value={item.stock_location}
@@ -76,13 +76,13 @@ export default function UserTable({
 </td>
 
 
-              <td className="p-3 border">
+              <td className="p-2 border">
                 <button onClick={() => onChangePassword(item)} className="cursor-pointer  bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded ms-3">
                   <FaKey />
                 </button>
               </td>
 
-              <td className="p-3 border">
+              <td className="p-2 border">
                 <button
                   onClick={() => onToggleStatus(item.id, item.is_active)}
                   className={`cursor-pointer ms-3 ${item.is_active ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"} text-white px-2 py-1 rounded`}
@@ -92,7 +92,7 @@ export default function UserTable({
 
               </td>
                 {!(user?.role === "CRM" && item.role === "SS") && (
-              <td className="p-3 border">
+              <td className="p-2 border">
                   <button onClick={() => onEdit(item)} className="cursor-pointer ms-3 bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded">
                     <FaEdit />
                   </button>

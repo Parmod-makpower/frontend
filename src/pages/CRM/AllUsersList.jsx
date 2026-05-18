@@ -13,7 +13,7 @@ import { useAuth } from "../../context/AuthContext";
 import { updateStockLocation } from "../../auth/useSS";
 
 
-const ROLE_OPTIONS = ["ALL", "SS", "DS", "ASM", "CRM"];
+const ROLE_OPTIONS = ["ALL", "SS", "DS",  "CRM"];
 const ROLE_STORAGE_KEY = "users_selected_role";
 
 export default function AllUsersList() {
@@ -50,12 +50,14 @@ export default function AllUsersList() {
 
       const partyName = u.party_name?.toLowerCase() || "";
       const mobile = u.mobile?.toString() || "";
+      const name = u.name?.toString() || "";
       const user_id = u.user_id?.toString() || "";
 
       const searchMatch =
         !term ||
         partyName.includes(term) ||
         mobile.includes(searchTerm) ||
+        name.includes(searchTerm) ||
         user_id.includes(searchTerm);
 
       return roleMatch && searchMatch;

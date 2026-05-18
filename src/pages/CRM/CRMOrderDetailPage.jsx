@@ -157,10 +157,6 @@ export default function CRMOrderDetailPage() {
     if (!passedOrder) navigate("/crm/orders");
   }, [passedOrder, navigate]);
 
-  const filteredProducts = allProducts.filter((p) =>
-    p.product_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   // ✅ Edit quantity
   const handleEditQuantity = (productId, value) => {
     setEditedItems((prev) =>
@@ -201,25 +197,7 @@ export default function CRMOrderDetailPage() {
     setHighlightIndex(-1);
   };
 
-  // ✅ Keyboard navigation
-  const handleKeyDown = (e) => {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightIndex((prev) => (prev + 1) % filteredProducts.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightIndex((prev) =>
-        prev === -1
-          ? filteredProducts.length - 1
-          : (prev - 1 + filteredProducts.length) % filteredProducts.length
-      );
-    } else if (e.key === "Enter") {
-      if (highlightIndex >= 0 && filteredProducts[highlightIndex]) {
-        e.preventDefault();
-        handleAddProductBySearch(filteredProducts[highlightIndex]);
-      }
-    }
-  };
+
 
   // ✅ Approve order
   const handleVerify = async () => {
@@ -465,14 +443,11 @@ export default function CRMOrderDetailPage() {
             selectedCity={selectedCity}
             manualAvailabilityMap={manualAvailabilityMap}
             updateManualAvailability={updateManualAvailability}
-
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
-            filteredProducts={filteredProducts}
             highlightIndex={highlightIndex}
             setHighlightIndex={setHighlightIndex}
             handleAddProductBySearch={handleAddProductBySearch}
-            handleKeyDown={handleKeyDown}
             getSchemeText={getSchemeText}
             setSelectedCity={setSelectedCity}
           />
