@@ -69,6 +69,28 @@ export default function BatteryPage() {
       addProduct({ ...product, quantity: initialQty });
     }
   };
+  const getDisplayGuarantee = (guarantee) => {
+  if (!guarantee) return "";
+
+  const g = String(guarantee).toLowerCase();
+
+  // ✅ lifetime case
+  if (g.includes("life")) return guarantee;
+
+  // ✅ extract number
+  const num = parseInt(g);
+
+  if (isNaN(num)) return guarantee;
+
+  // ✅ DS role → minus 3 months
+  if (user?.role === "DS") {
+    const updated = Math.max(0, num - 3);
+    return `${updated} months`;
+  }
+
+  return `${num} months`;
+};
+
 const finalProducts = useMemo(() => {
   const lower = search.toLowerCase();
 
@@ -181,7 +203,7 @@ const sortedProducts = useMemo(() => {
                     <p className="text-[12px] sm:text-xs flex items-center font-medium ">
                       {prod.guarantee && prod.guarantee !== "nan" && prod.guarantee !== "null" && prod.guarantee !== null ? (
                         <span className="text-orange-600 text-[10px] ">
-                          {prod.guarantee} guarantee
+                          {getDisplayGuarantee(prod.guarantee)} guarantee
                         </span>
                       ) : null}
 
