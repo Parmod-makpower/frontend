@@ -41,7 +41,7 @@ export default function SearchBarPage() {
   const { getStockValue } = useStock();
   const { data: allProductsRaw = [], isLoading } = useCachedProducts();
   const { data: schemes = [] } = useSchemes();
-  
+
   // ✅ Auto focus searchbox
   useEffect(() => {
     searchRef.current?.focus();
@@ -92,47 +92,47 @@ export default function SearchBarPage() {
     );
 
   const isAdded = (id) => selectedProducts.some((p) => p.id === id);
-const handleAddProduct = (product) => {
-  if (!isAdded(product.id)) {
-    const isDS = user?.role === "DS";
-    const moq = product.moq || 1;
+  const handleAddProduct = (product) => {
+    if (!isAdded(product.id)) {
+      const isDS = user?.role === "DS";
+      const moq = product.moq || 1;
 
-    const initialQty = isDS
-      ? 1
-      : product.cartoon_size && product.cartoon_size > 1
-        ? product.cartoon_size
-        : moq;
+      const initialQty = isDS
+        ? 1
+        : product.cartoon_size && product.cartoon_size > 1
+          ? product.cartoon_size
+          : moq;
 
-    addProduct({ ...product, quantity: initialQty });
-  }
-};
+      addProduct({ ...product, quantity: initialQty });
+    }
+  };
 
 
 
   // ✅ FINAL FOCUS-FIXED ROW COMPONENT
- const Row = useCallback(
-  ({ index, style }) => {
-    const p = normalizeProduct(searchResults[index]);
-    const selectedItem = selectedProducts.find((x) => x.id === p.id);
+  const Row = useCallback(
+    ({ index, style }) => {
+      const p = normalizeProduct(searchResults[index]);
+      const selectedItem = selectedProducts.find((x) => x.id === p.id);
 
-    const currentStock = getStockValue(p);
-    const outOfStock = currentStock <= (p.moq || 1);
+      const currentStock = getStockValue(p);
+      const outOfStock = currentStock <= (p.moq || 1);
 
-    // ✅ FIX: Local quantity state
-    const [localQty, setLocalQty] = useState(
-      selectedItem?.quantity ?? ""
-    );
+      // ✅ FIX: Local quantity state
+      const [localQty, setLocalQty] = useState(
+        selectedItem?.quantity ?? ""
+      );
 
-    // ✅ FIX: Cartoon check
-    const isDS = user?.role === "DS";
-const hasCartoon =
-  selectedItem?.quantity_type === "CARTOON" && !isDS;
+      // ✅ FIX: Cartoon check
+      const isDS = user?.role === "DS";
+      const hasCartoon =
+        selectedItem?.quantity_type === "CARTOON" && !isDS;
 
 
-    // ✅ Sync global → local
-    useEffect(() => {
-      setLocalQty(selectedItem?.quantity ?? "");
-    }, [selectedItem?.quantity]);
+      // ✅ Sync global → local
+      useEffect(() => {
+        setLocalQty(selectedItem?.quantity ?? "");
+      }, [selectedItem?.quantity]);
 
 
       return (
@@ -149,16 +149,16 @@ const hasCartoon =
             <div className="flex items-center gap-2 font-medium truncate text-gray-800">
               {p._displayName}
 
-               {user?.role !== "DS" && (<div>
-              {!outOfStock ? (
-                <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
-                  In Stock
-                </span>
-              ) : (
-                <span className="bg-red-100 text-red-600 text-[10px] px-1 py-[1px] rounded">
-                  Out of Stock
-                </span>
-              )}
+              {user?.role !== "DS" && (<div>
+                {!outOfStock ? (
+                  <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
+                    In Stock
+                  </span>
+                ) : (
+                  <span className="bg-red-100 text-red-600 text-[10px] px-1 py-[1px] rounded">
+                    Out of Stock
+                  </span>
+                )}
               </div>)}
               {hasScheme(p.id) && (
                 <FaGift className="text-pink-500 text-xs animate-pulse" />
@@ -174,7 +174,7 @@ const hasCartoon =
           </div>
 
           {/* RIGHT */}
-          {(user?.role === "SS" || user?.role === "DS") && (
+          {(user?.role === "SS" || user?.role === "DS" || user?.role === "ASM") && (
             <div className="ml-3 flex items-center">
               {selectedItem ? (
                 hasCartoon ? (
@@ -198,38 +198,38 @@ const hasCartoon =
                     value={localQty}
                     onChange={(e) => setLocalQty(e.target.value)}
                     onBlur={() => {
-  const parsed = parseInt(localQty);
+                      const parsed = parseInt(localQty);
 
-  // 🟢 DS → no MOQ auto-fix
-  if (isDS) {
-    if (!isNaN(parsed)) {
-      updateQuantity(p.id, parsed);
-    }
-    return;
-  }
+                      // 🟢 DS → no MOQ auto-fix
+                      if (isDS) {
+                        if (!isNaN(parsed)) {
+                          updateQuantity(p.id, parsed);
+                        }
+                        return;
+                      }
 
-  // 🔵 SS → MOQ strict
-  const moq = selectedItem.moq || 1;
-  if (isNaN(parsed) || parsed < moq) {
-    updateQuantity(p.id, moq);
-    setLocalQty(moq);
-  } else {
-    updateQuantity(p.id, parsed);
-  }
-}}
+                      // 🔵 SS → MOQ strict
+                      const moq = selectedItem.moq || 1;
+                      if (isNaN(parsed) || parsed < moq) {
+                        updateQuantity(p.id, moq);
+                        setLocalQty(moq);
+                      } else {
+                        updateQuantity(p.id, parsed);
+                      }
+                    }}
 
                     className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                   />
                 )
               ) : (
-                
-                  <button
-                    onClick={() => handleAddProduct(p)}
-                    className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
-                  >
-                    <FaPlus className="text-sm" />
-                  </button>
-                
+
+                <button
+                  onClick={() => handleAddProduct(p)}
+                  className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
+                >
+                  <FaPlus className="text-sm" />
+                </button>
+
               )}
             </div>
           )}

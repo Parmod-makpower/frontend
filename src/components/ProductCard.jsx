@@ -132,7 +132,7 @@ export default function ProductCard({
             </span>
           )}
         </p>
-        {(user?.role === "SS" || user?.role === "DS") && (
+        {(user?.role === "SS" || user?.role === "DS" || user?.role === "ASM") && (
           <div className="mt-auto">
             {!isInCart ? (
               <button

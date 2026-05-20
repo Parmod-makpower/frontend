@@ -279,7 +279,7 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {(user?.role === "SS" || user?.role === "DS") && (
+      {(user?.role === "SS" || user?.role === "DS" || user?.role === "ASM") && (
         <div className="left-0 w-full bg-white p-3 flex gap-3 z-50 border-t ">
           {!isInCart ? (
             <button

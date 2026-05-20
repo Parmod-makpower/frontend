@@ -174,7 +174,7 @@ export default function AddNewUser() {
             <option value="">Select Role</option>
             {user.role === "ADMIN" && <option value="CRM">CRM</option>}
             {user.role === "ADMIN" && <option value="SS">Super Stockist</option>}
-            {/* <option value="ASM">ASM</option> */}
+            <option value="ASM">ASM</option>
             <option value="DS">Distributor</option>
           </select>
 

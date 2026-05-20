@@ -109,7 +109,7 @@ export default function UserSchemesPage() {
                             </p>
 
                             {/* Cart Button - ✅ ProductCard style */}
-                            {(user?.role === "SS" || user?.role === "DS") && (
+                            {(user?.role === "SS" || user?.role === "DS" || user?.role === "ASM") && (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();

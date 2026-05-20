@@ -215,7 +215,7 @@ const sortedProducts = useMemo(() => {
                   </div>
 
                   {/* 👉 Right Side: Add/Quantity Control */}
-                  {(user?.role === "SS" || user?.role === "DS") && (
+                  {(user?.role === "SS" || user?.role === "DS" || user?.role === "ASM") && (
                     <div className="ml-3 flex items-center">
                       {isAdded(prodId) ? (
                         <>
