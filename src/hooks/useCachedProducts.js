@@ -23,7 +23,7 @@ export const useCachedProducts = () => {
     queryKey: ["all-products"],
     queryFn: getAllProducts,
 
-    staleTime: 1000 * 60 * 60 * 1, // 5 hour
+    staleTime: 1000 * 60 * 60 * 5, // 5 hour
     gcTime: 1000 * 60 * 60 * 24, // 24 hour cache
 
     refetchInterval: false,
@@ -34,28 +34,32 @@ export const useCachedProducts = () => {
   });
 
   // ✅ Virtual Stock (auto-refresh every 2 min)
-  const { data: virtualStockData = [] } = useVirtualStock();
-  const { data: mumbaiStockData = [] } = useMumbaiStock();
+  const isDS = user?.role === "DS";
 
+  const { data: virtualStockData = [] } =
+    useVirtualStock(!isDS);
+
+  const { data: mumbaiStockData = [] } =
+    useMumbaiStock(!isDS);
   const mergedProducts = useMemo(() => {
-  if (!allProducts?.length) return [];
+    if (!allProducts?.length) return [];
 
-  return allProducts.map((prod) => {
-    const vs = virtualStockData.find(
-      (v) => v.product_id === prod.product_id
-    );
+    return allProducts.map((prod) => {
+      const vs = virtualStockData.find(
+        (v) => v.product_id === prod.product_id
+      );
 
-    const ms = mumbaiStockData.find(
-      (m) => m.product_id === prod.product_id
-    );
+      const ms = mumbaiStockData.find(
+        (m) => m.product_id === prod.product_id
+      );
 
-    return {
-      ...prod,
-      virtual_stock: vs ? vs.virtual_stock : prod.virtual_stock,
-      mumbai_stock: ms ? ms.mumbai_stock : prod.mumbai_stock,
-    };
-  });
-}, [allProducts, virtualStockData, mumbaiStockData]);
+      return {
+        ...prod,
+        virtual_stock: vs ? vs.virtual_stock : prod.virtual_stock,
+        mumbai_stock: ms ? ms.mumbai_stock : prod.mumbai_stock,
+      };
+    });
+  }, [allProducts, virtualStockData, mumbaiStockData]);
 
   return {
     data: mergedProducts,

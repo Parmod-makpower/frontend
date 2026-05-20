@@ -6,10 +6,12 @@ const fetchMumbaiStock = async () => {
   return res.data;
 };
 
-export const useMumbaiStock = () => {
+export const useMumbaiStock = (enabled = true) => {
   return useQuery({
     queryKey: ["mumbai-stock"],
     queryFn: fetchMumbaiStock,
+
+      enabled,
 
     staleTime: 1000 * 60 * 10, // 10 minute
 

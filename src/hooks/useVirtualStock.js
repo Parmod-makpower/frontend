@@ -6,16 +6,18 @@ const fetchVirtualStock = async () => {
   return res.data;
 };
 
-export const useVirtualStock = () => {
+export const useVirtualStock = (enabled = true) => {
   return useQuery({
-    queryKey: ["virtual-stock"],
-    queryFn: fetchVirtualStock,
+  queryKey: ["virtual-stock"],
+  queryFn: fetchVirtualStock,
 
-    staleTime: 1000 * 50, // 50 seconds
+  enabled, // ✅ important
 
-    refetchInterval: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    keepPreviousData: true,
-  });
+  staleTime: 1000 * 50,
+
+  refetchInterval: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+  keepPreviousData: true,
+});
 };
