@@ -155,6 +155,7 @@ const TrackingOrdersPage = () => {
                                             <option value="PENDING">Pending</option>
                                             <option value="APPROVED">Approved</option>
                                             <option value="REJECTED">Rejected</option>
+                                            <option value="HOLD">Hold</option>
                                         </select>
                                     </th>
 
@@ -205,6 +206,8 @@ const TrackingOrdersPage = () => {
                                                         ? "bg-yellow-100 text-yellow-800"
                                                         : o.status === "APPROVED"
                                                             ? "bg-green-100 text-green-800"
+                                                        : o.status === "HOLD"
+                                                            ? "bg-gray-100 text-gray-800"
                                                             : o.status === "REJECTED"
                                                                 ? "bg-red-100 text-red-800"
                                                                 : ""
