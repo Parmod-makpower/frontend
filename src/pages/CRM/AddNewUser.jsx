@@ -51,7 +51,7 @@ export default function AddNewUser() {
 
   const ssOptions = ssUsers.map((ss) => ({
     value: ss.id,
-    label: `${ss.party_name || ss.name} (${ss.mobile})`,
+    label: `${ss.party_name || ss.name}`,
   }));
 
   // =========================
@@ -233,24 +233,59 @@ export default function AddNewUser() {
   // =========================
   // REACT SELECT STYLE
   // =========================
-  const customSelectStyles = {
-    control: (provided, state) => ({
-      ...provided,
-      minHeight: "34px",
-      borderRadius: "5px",
-      borderColor: state.isFocused ? "#22c55e" : "#d1d5db",
-      boxShadow: state.isFocused
-        ? "0 0 0 2px rgba(34,197,94,0.15)"
-        : "none",
-      "&:hover": {
-        borderColor: "#22c55e",
-      },
-    }),
-    menu: (provided) => ({
-      ...provided,
-      zIndex: 9999,
-    }),
-  };
+ const customSelectStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    minHeight: "34px",
+    borderRadius: "5px",
+    borderColor: state.isFocused ? "#22c55e" : "#d1d5db",
+    boxShadow: state.isFocused
+      ? "0 0 0 2px rgba(34,197,94,0.15)"
+      : "none",
+    fontSize: "13px", // 👈 small text
+    "&:hover": {
+      borderColor: "#22c55e",
+    },
+  }),
+
+  valueContainer: (provided) => ({
+    ...provided,
+    padding: "0 8px",
+    fontSize: "13px",
+  }),
+
+  input: (provided) => ({
+    ...provided,
+    fontSize: "13px",
+    margin: "0px",
+    padding: "0px",
+  }),
+
+  singleValue: (provided) => ({
+    ...provided,
+    fontSize: "13px",
+  }),
+
+  placeholder: (provided) => ({
+    ...provided,
+    fontSize: "13px",
+    color: "#9ca3af",
+  }),
+
+  option: (provided, state) => ({
+    ...provided,
+    fontSize: "13px",
+    backgroundColor: state.isFocused ? "#f0fdf4" : "#fff",
+    color: "#111827",
+    cursor: "pointer",
+  }),
+
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+    fontSize: "13px",
+  }),
+};
 
   return (
     <div className="min-h-screen bg-gray-50 sm:p-4">
