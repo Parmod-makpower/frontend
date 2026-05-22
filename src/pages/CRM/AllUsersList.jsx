@@ -13,7 +13,7 @@ import { useAuth } from "../../context/AuthContext";
 import { updateStockLocation } from "../../auth/useSS";
 
 
-const ROLE_OPTIONS = ["ALL", "SS", "DS",  "CRM"];
+const ROLE_OPTIONS = ["SS", "DS", "ASM", "CRM" ];
 const ROLE_STORAGE_KEY = "users_selected_role";
 
 export default function AllUsersList() {
@@ -22,7 +22,7 @@ export default function AllUsersList() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [selectedRole, setSelectedRole] = useState(() => {
-    return localStorage.getItem(ROLE_STORAGE_KEY) || "ALL";
+    return localStorage.getItem(ROLE_STORAGE_KEY) || "SS";
   });
 
   const navigate = useNavigate();
@@ -45,8 +45,7 @@ export default function AllUsersList() {
 
   return ssList
     .filter((u) => {
-      const roleMatch =
-        selectedRole === "ALL" || u.role === selectedRole;
+      const roleMatch = u.role === selectedRole;
 
       const partyName = u.party_name?.toLowerCase() || "";
       const mobile = u.mobile?.toString() || "";

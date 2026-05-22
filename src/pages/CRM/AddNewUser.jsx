@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { createSSUser, updateSSUser } from "../../auth/useSS";
-import { useCachedSSUsers } from "../../auth/useSS";
+import { useState, useMemo } from "react";
+import { createSSUser, updateSSUser, useCachedSSUsers } from "../../auth/useSS";
 import toast from "react-hot-toast";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaSave } from "react-icons/fa";
+import { FaSave, FaUserPlus } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import MobilePageHeader from "../../components/MobilePageHeader";
 import { useQueryClient } from "@tanstack/react-query";
+import Select from "react-select";
 
 export default function AddNewUser() {
   const navigate = useNavigate();
@@ -17,63 +17,143 @@ export default function AddNewUser() {
 
   const { data: allUsers = [] } = useCachedSSUsers();
 
-  const crmUsers = allUsers.filter((u) => u.role === "CRM");
-  const ssUsers = allUsers.filter((u) => u.role === "SS");
+  // =========================
+  // FILTER USERS
+  // =========================
+  const crmUsers = useMemo(
+    () => allUsers.filter((u) => u.role === "CRM"),
+    [allUsers]
+  );
 
+  const ssUsers = useMemo(
+    () => allUsers.filter((u) => u.role === "SS"),
+    [allUsers]
+  );
+
+  // =========================
+  // REACT SELECT OPTIONS
+  // =========================
+  const roleOptions = [
+    ...(user?.role === "ADMIN"
+      ? [
+          { value: "CRM", label: "CRM" },
+          { value: "SS", label: "Super Stockist" },
+        ]
+      : []),
+    { value: "ASM", label: "ASM" },
+    { value: "DS", label: "Distributor" },
+  ];
+
+  const crmOptions = crmUsers.map((crm) => ({
+    value: crm.id,
+    label: `${crm.name} (${crm.mobile})`,
+  }));
+
+  const ssOptions = ssUsers.map((ss) => ({
+    value: ss.id,
+    label: `${ss.party_name || ss.name} (${ss.mobile})`,
+  }));
+
+  // =========================
+  // FORM STATE
+  // =========================
   const [form, setForm] = useState(
     editData || {
       id: null,
+      role: "",
+      crm: "",
+      ss: "",
       name: "",
       mobile: "",
       password: "",
       party_name: "",
-      role: "",
-      crm: "",
-      ss: "",
     }
   );
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // =========================
+  // CONDITIONS
+  // =========================
+  const showCRMField =
+    user?.role === "ADMIN" &&
+    ["SS", "ASM", "DS"].includes(form.role);
+
+  const showSSField = form.role === "DS";
+
+  const showPartyField =
+    form.role === "SS" || form.role === "DS";
+
+  const showPasswordField = !form.id;
+
+  // =========================
+  // COMMON INPUT STYLE
+  // =========================
+  const inputClass =
+    "w-full rounded border border-gray-300 bg-white px-4 py-2 text-sm outline-none transition-all focus:border-green-500 focus:ring-2 focus:ring-green-100";
+
+  // =========================
+  // HANDLE CHANGE
+  // =========================
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+
+    setErrors({
+      ...errors,
+      [e.target.name]: "",
+    });
   };
 
+  // =========================
+  // EMPTY CHECK
+  // =========================
   const isEmpty = (value) => {
-  if (value === null || value === undefined) return true;
-  if (typeof value === "string") return value.trim() === "";
-  return value === ""; // numbers / select fields
-};
+    if (value === null || value === undefined) return true;
+    if (typeof value === "string") return value.trim() === "";
+    return value === "";
+  };
 
-
+  // =========================
+  // API ERROR FORMAT
+  // =========================
   const extractErrors = (err) => {
     const response = err.response?.data;
-    if (!response) return { non_field_errors: ["Something went wrong."] };
+
+    if (!response) {
+      return {
+        non_field_errors: ["Something went wrong"],
+      };
+    }
 
     const formatted = {};
+
     for (let key in response) {
       formatted[key] = Array.isArray(response[key])
         ? response[key]
         : [String(response[key])];
     }
+
     return formatted;
   };
 
+  // =========================
+  // SUBMIT
+  // =========================
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setErrors({});
 
-    // FRONTEND REQUIRED VALIDATION
     const requiredFields = ["role", "name", "mobile"];
 
-    // CRM required only when CRM visible
     if (showCRMField) {
       requiredFields.push("crm");
     }
 
-    // SS required only when SS visible
     if (showSSField) {
       requiredFields.push("ss");
     }
@@ -85,18 +165,16 @@ export default function AddNewUser() {
     let newErrors = {};
 
     requiredFields.forEach((field) => {
-  if (isEmpty(form[field])) {
-    newErrors[field] = ["This field is required"];
-  }
-});
+      if (isEmpty(form[field])) {
+        newErrors[field] = ["This field is required"];
+      }
+    });
 
+    if (!form.id && isEmpty(form.password)) {
+      newErrors.password = ["Password is required"];
+    }
 
-    // Password required only for new user
-   if (!form.id && isEmpty(form.password)) {
-  newErrors.password = ["Password is required"];
-}
-
-    if (Object.keys(newErrors).length) {
+    if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
@@ -106,30 +184,44 @@ export default function AddNewUser() {
     try {
       let payload = { ...form };
 
-      if (!payload.password?.trim()) delete payload.password;
+      // REMOVE EMPTY PASSWORD
+      if (!payload.password?.trim()) {
+        delete payload.password;
+      }
 
+      // CRM ROLE
       if (form.role === "CRM") {
         payload.party_name = "";
         payload.crm = null;
         payload.ss = null;
       }
 
+      // SS ROLE
       if (form.role === "SS") {
         payload.ss = null;
       }
 
-      if ((form.role === "ASM" || form.role === "DS") && user.role !== "ADMIN") {
-        payload.crm = null;
+      // NON ADMIN
+      if (
+        (form.role === "ASM" || form.role === "DS") &&
+        user.role !== "ADMIN"
+      ) {
+        delete payload.crm;
       }
 
+      // UPDATE
       if (form.id) {
         await updateSSUser(form.id, payload);
         toast.success("User updated successfully");
       } else {
         await createSSUser(payload);
-        toast.success("User added successfully");
+        toast.success("User created successfully");
       }
-      queryClient.invalidateQueries({ queryKey: ["ss-users"] });
+
+      queryClient.invalidateQueries({
+        queryKey: ["ss-users"],
+      });
+
       navigate("/all-users/list");
     } catch (err) {
       setErrors(extractErrors(err));
@@ -138,187 +230,281 @@ export default function AddNewUser() {
     }
   };
 
-  const showCRMField =
-    user.role === "ADMIN" &&
-    (form.role === "SS" || form.role === "ASM" || form.role === "DS");
-
-  // SS field only for DS (NOT for ASM)
-  const showSSField = form.role === "DS";
-
-  // Party Name only for SS & DS (NOT for ASM)
-  const showPartyField = form.role === "SS" || form.role === "DS";
-
-  const showPassword = !form.id;
+  // =========================
+  // REACT SELECT STYLE
+  // =========================
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      minHeight: "34px",
+      borderRadius: "5px",
+      borderColor: state.isFocused ? "#22c55e" : "#d1d5db",
+      boxShadow: state.isFocused
+        ? "0 0 0 2px rgba(34,197,94,0.15)"
+        : "none",
+      "&:hover": {
+        borderColor: "#22c55e",
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999,
+    }),
+  };
 
   return (
-    <div className="mx-auto sm:p-4">
-      <MobilePageHeader title={form.id ? "Edit User" : "Add New User"} />
+    <div className="min-h-screen bg-gray-50 sm:p-4">
+      <MobilePageHeader
+        title={form.id ? "Edit User" : "Add New User"}
+      />
 
-      <h2 className="text-xl font-semibold mb-4 bg-gray-200 p-2 px-4">
-        {form.id ? "Edit User" : "Add New User"}
-      </h2>
+      <div className="mx-auto max-w-7xl pt-[70px] sm:pt-0">
+        {/* HEADER */}
+        <div className="mb-5 flex items-center justify-between rounded bg-white p-5 shadow-sm border border-gray-100">
+          <div>
+            <h2 className="text-xl font-bold text-gray-800">
+              {form.id ? "Edit User" : "Create New User"}
+            </h2>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-whi shadow-m rounded-xl p-6 space-y-4"
-      >
-        {/* ROLE FIELD - ALWAYS VISIBLE */}
-        <div>
-          <label className="text-gray-700 mb-1 block text-sm">Role</label>
-          <select
-            name="role"
-            value={form.role}
-            onChange={handleChange}
-            disabled={!!form.id}  // 👈 EDIT MODE ME ROLE DISABLE
-            className={`border p-2 rounded w-full text-sm focus:ring focus:ring-blue-200 ${form.id ? "bg-gray-200 cursor-not-allowed" : "" }`} >
-            <option value="">Select Role</option>
-            {user.role === "ADMIN" && <option value="CRM">CRM</option>}
-            {user.role === "ADMIN" && <option value="SS">Super Stockist</option>}
-            <option value="ASM">ASM</option>
-            <option value="DS">Distributor</option>
-          </select>
+            <p className="mt-1 text-xs text-gray-500">
+              Manage CRM, SS, ASM and Distributor users
+            </p>
+          </div>
 
-          {errors.role && (
-            <p className="text-red-600 text-xs mt-1">{errors.role[0]}</p>
-          )}
+          <div className="hidden sm:flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-700">
+            <FaUserPlus size={22} />
+          </div>
         </div>
 
-        {/* OTHER FIELDS ONLY AFTER ROLE SELECTED */}
-        {form.role && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* CRM FIELD -- ONLY ADMIN CAN SEE */}
-            {showCRMField && (
-              <div className="">
-                <label className="text-gray-700 mb-1 block text-sm">CRM</label>
-                <select
-                  name="crm"
-                  value={form.crm}
-                  onChange={handleChange}
-                  className="border p-2 rounded w-full text-sm"
-                >
-                  <option value="">Select CRM</option>
-                  {crmUsers.map((crm) => (
-                    <option key={crm.id} value={crm.id}>
-                      {crm.name || crm.mobile}
-                    </option>
-                  ))}
-                </select>
-                {errors.crm && (
-                  <p className="text-red-600 text-xs mt-1">{errors.crm[0]}</p>
-                )}
+        {/* FORM */}
+        <form
+          onSubmit={handleSubmit}
+          className="rounded border border-gray-100 bg-white p-5 shadow-sm"
+        >
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {/* ROLE */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Select Role
+              </label>
 
+              <Select
+                options={roleOptions}
+                value={
+                  roleOptions.find(
+                    (option) => option.value === form.role
+                  ) || null
+                }
+                onChange={(selected) => {
+                  setForm({
+                    ...form,
+                    role: selected ? selected.value : "",
+                  });
+
+                  setErrors({
+                    ...errors,
+                    role: "",
+                  });
+                }}
+                placeholder="Search Role..."
+                isDisabled={!!form.id}
+                styles={customSelectStyles}
+              />
+
+              {errors.role && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.role[0]}
+                </p>
+              )}
+            </div>
+
+            {/* CRM */}
+            {showCRMField && (
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Select CRM
+                </label>
+
+                <Select
+                  options={crmOptions}
+                  value={
+                    crmOptions.find(
+                      (option) => option.value === form.crm
+                    ) || null
+                  }
+                  onChange={(selected) => {
+                    setForm({
+                      ...form,
+                      crm: selected ? selected.value : "",
+                    });
+
+                    setErrors({
+                      ...errors,
+                      crm: "",
+                    });
+                  }}
+                  placeholder="Search CRM..."
+                  isClearable
+                  styles={customSelectStyles}
+                />
+
+                {errors.crm && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.crm[0]}
+                  </p>
+                )}
               </div>
             )}
 
-            {/* SS FIELD */}
+            {/* SS */}
             {showSSField && (
               <div>
-                <label className="text-gray-700 mb-1 block text-sm">
-                  Select SS
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Select Super Stockist
                 </label>
-                <select
-                  name="ss"
-                  value={form.ss}
-                  onChange={handleChange}
-                  className="border p-2 rounded w-full text-sm"
-                >
-                  <option value="">Select Super Stockist</option>
-                  {ssUsers.map((ss) => (
-                    <option key={ss.id} value={ss.id}>
-                      {ss.party_name || ss.mobile}
-                    </option>
-                  ))}
-                </select>
-                {errors.ss && (
-                  <p className="text-red-600 text-xs mt-1">{errors.ss[0]}</p>
-                )}
 
+                <Select
+                  options={ssOptions}
+                  value={
+                    ssOptions.find(
+                      (option) => option.value === form.ss
+                    ) || null
+                  }
+                  onChange={(selected) => {
+                    setForm({
+                      ...form,
+                      ss: selected ? selected.value : "",
+                    });
+
+                    setErrors({
+                      ...errors,
+                      ss: "",
+                    });
+                  }}
+                  placeholder="Search Super Stockist..."
+                  isClearable
+                  styles={customSelectStyles}
+                />
+
+                {errors.ss && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.ss[0]}
+                  </p>
+                )}
               </div>
             )}
 
             {/* NAME */}
             <div>
-              <label className="flex items-center gap-2 text-gray-700 mb-1 text-sm">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 Owner Name
               </label>
+
               <input
+                type="text"
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                className="border p-2 rounded w-full text-sm"
+                placeholder="Enter owner name"
+                className={inputClass}
               />
-              {errors.name && (<p className="text-red-600 text-xs mt-1">{errors.name[0]}</p>)}
+
+              {errors.name && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.name[0]}
+                </p>
+              )}
             </div>
 
             {/* MOBILE */}
             <div>
-              <label className="flex items-center gap-2 text-gray-700 mb-1 text-sm">
-                Mobile
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Mobile Number
               </label>
+
               <input
+                type="text"
                 name="mobile"
                 value={form.mobile}
                 onChange={handleChange}
-                className="border p-2 rounded w-full text-sm"
+                placeholder="Enter mobile number"
+                className={inputClass}
               />
+
               {errors.mobile && (
-                <p className="text-red-600 text-xs mt-1">{errors.mobile[0]}</p>
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.mobile[0]}
+                </p>
               )}
             </div>
 
             {/* PARTY NAME */}
             {showPartyField && (
               <div>
-                <label className="flex items-center gap-2 text-gray-700 mb-1 text-sm">
-                  Party/Shop Name
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Party / Shop Name
                 </label>
+
                 <input
+                  type="text"
                   name="party_name"
                   value={form.party_name}
                   onChange={handleChange}
-                  className="border p-2 rounded w-full text-sm"
+                  placeholder="Enter party name"
+                  className={inputClass}
                 />
+
                 {errors.party_name && (
-                  <p className="text-red-600 text-xs mt-1">{errors.party_name[0]}</p>
-                )}
-
-              </div>
-            )}
-
-            {/* PASSWORD */}
-            {showPassword && (
-              <div>
-                <label className="flex items-center gap-2 text-gray-700 mb-1 text-sm">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className="border p-2 rounded w-full text-sm"
-                />
-
-                {errors.password && (
-                  <p className="text-red-600 text-xs mt-1">
-                    {errors.password[0]}
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.party_name[0]}
                   </p>
                 )}
               </div>
             )}
 
-            {/* SUBMIT BUTTON */}
+            {/* PASSWORD */}
+            {showPasswordField && (
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+
+                <input
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="Enter password"
+                  className={inputClass}
+                />
+
+                {errors.password && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.password[0]}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* BUTTON */}
+          <div className="mt-8 flex justify-end">
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded text-white bg-green-600 hover:bg-green-700 text-sm mt-3 transition col-1"
               disabled={loading}
+              className="flex min-w-[180px] items-center justify-center gap-2 rounded bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
               <FaSave />
-              {loading ? "Saving..." : form.id ? "Update" : "Create"}
+
+              {loading
+                ? "Saving..."
+                : form.id
+                ? "Update User"
+                : "Create User"}
             </button>
           </div>
-        )}
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
