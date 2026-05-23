@@ -216,18 +216,34 @@ export default function ConfirmOrderPage() {
       </div>
 
       {/* Place Order Button */}
-        {user?.role === "SS" && (
-          <div className="text-center">
-        <button
-          onClick={handlePlaceOrder}
-          disabled={isPlacingOrder}
-          className={`bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold px-6 py-3 rounded-md shadow-md hover:from-green-500 hover:to-green-600 hover:shadow-lg transition-all duration-300 ease-in-out`}
-        >
-          {isPlacingOrder ? "Placing Order..." : "Place Order"}
-        </button>
-      </div>
+      {/* Place Order Button */}
+<div className="text-center">
+  <button
+    onClick={() => {
+      if (user?.role !== "SS") return;
+      handlePlaceOrder();
+    }}
+    disabled={isPlacingOrder || user?.role !== "SS"}
+    className={`
+      px-6 py-3 rounded-md shadow-md font-semibold
+      transition-all duration-300 ease-in-out
+      ${
+        user?.role === "SS"
+          ? "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white hover:from-green-500 hover:to-green-600 hover:shadow-lg"
+          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+      }
+    `}
+  >
+    {isPlacingOrder ? "Placing Order..." : "Place Order"}
+  </button>
 
-        )}
+  {/* Message for non SS users */}
+  {user?.role !== "SS" && (
+    <p className="text-xs text-red-500 mt-2">
+      Only SS can place orders
+    </p>
+  )}
+</div>
       
       {/* Loading Animation */}
       {isPlacingOrder && (
