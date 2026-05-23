@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import BottomNav from "./BottomNav";
-import { FaUserCircle, FaSearch, FaHome, FaGift, FaUsers, FaBox, FaHistory, FaShoppingCart, FaList, FaPlus, FaSignOutAlt, FaChartLine, FaBan, FaRoute } from "react-icons/fa";
+import { FaUserCircle, FaSearch, FaHome, FaGift, FaUsers, FaBox, FaHistory, FaShoppingCart, FaList, FaPlus, FaSignOutAlt, FaChartLine, FaBan, FaRoute, FaCog } from "react-icons/fa";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSchemes } from "../hooks/useSchemes";
@@ -22,12 +22,12 @@ export default function DashboardLayout() {
   const navRef = useRef(null);
   const [isNavFixed, setIsNavFixed] = useState(false);
   const [navOffsetTop, setNavOffsetTop] = useState(0);
-  
+
   const handleLogout = () => {
-  logout(() => {
-    navigate("/login");
-  });
-};
+    logout(() => {
+      navigate("/login");
+    });
+  };
 
   useEffect(() => {
     if (navRef.current) {
@@ -108,19 +108,19 @@ export default function DashboardLayout() {
   const isAdded = (id) => selectedProducts.some((p) => p.id === id);
 
   const handleAddProduct = (product) => {
-  if (!isAdded(product.id)) {
-    const isDS = user?.role === "DS";
-    const moq = product.moq || 1;
+    if (!isAdded(product.id)) {
+      const isDS = user?.role === "DS";
+      const moq = product.moq || 1;
 
-    const initialQty = isDS
-      ? 1
-      : product.cartoon_size && product.cartoon_size > 1
-        ? product.cartoon_size
-        : moq;
+      const initialQty = isDS
+        ? 1
+        : product.cartoon_size && product.cartoon_size > 1
+          ? product.cartoon_size
+          : moq;
 
-    addProduct({ ...product, quantity: initialQty });
-  }
-};
+      addProduct({ ...product, quantity: initialQty });
+    }
+  };
 
 
   // Cart count for SS role
@@ -163,7 +163,7 @@ export default function DashboardLayout() {
       { label: "All Orders", path: "/all/orders-history", icon: <FaBox /> },
       { label: "DS Orders", path: "/ds/orders", icon: <FaBox /> },
       { label: "Dispatch", path: "/dispatch-entries", icon: <FaBox /> },
-       { label: "Not-In-Stock", path: "/not-in-stock-reports", icon: <FaChartLine /> },
+      { label: "Not-In-Stock", path: "/not-in-stock-reports", icon: <FaChartLine /> },
       { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> },
       { label: "MAHOTSAV", path: "/mahotsav-schemes", icon: <FaGift /> }
     );
@@ -177,7 +177,7 @@ export default function DashboardLayout() {
       { label: "History", path: "/all/orders-history", icon: <FaHistory /> },
       { label: "Not-In-Stock", path: "/not-in-stock-reports", icon: <FaChartLine /> },
       { label: "MAHOTSAV", path: "/mahotsav-schemes", icon: <FaGift /> }
-      
+
     );
   }
   if (user.role === "ASM") {
@@ -236,124 +236,125 @@ export default function DashboardLayout() {
               ) : (
                 <>
                   {searchResultsLimited.map((p) => {
-  const currentStock = getStockValue(p);
-  const outOfStock = currentStock <= (p.moq || 1);
+                    const currentStock = getStockValue(p);
+                    const outOfStock = currentStock <= (p.moq || 1);
 
-  return (
+                    return (
 
-                    <div
-                      key={p.id + p._displayName}
+                      <div
+                        key={p.id + p._displayName}
 
-                      className="flex items-center justify-between px-3 py-4 hover:bg-gray-100 cursor-pointer"
-                    >
-                      <div className="flex flex-col text-sm"
-                        onClick={() => {
-                          navigate(`/product/${p.id}`);
-                          setSearchDropdownOpen(false);
-                        }}
+                        className="flex items-center justify-between px-3 py-4 hover:bg-gray-100 cursor-pointer"
                       >
-                        <span className="font-medium flex items-center gap-2">
-                          {p._displayName}
-                           {user?.role !== "DS" && (<div>
-                          {!outOfStock ? (
-                            <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
-                              In Stock
-                            </span>
-                          ) : (
-                            <span className="bg-red-100 text-red-600 text-[10px] px-1 py-[1px] rounded">
-                              Out of Stock
-                            </span>
-                          )}
-                          </div>)}
-                          {hasScheme(p.id) && (
-                            <FaGift
-                              title="Scheme Available"
-                              className="text-pink-500 text-xs animate-pulse"
-                            />
-                          )}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {p.product_name} — {p.sub_category}
-                        </span>
-                      </div>
-
-                      {(user?.role === "SS" || user?.role === "DS") && (
-                        <div className="ml-3 flex items-center">
-                          {isAdded(p.id) ? (
-                            <>
-                              {(() => {
-  const isDS = user?.role === "DS";
-  const selectedItem = selectedProducts.find((x) => x.id === p.id);
-  const moq = p.moq || 1;
-
-  // 🟧 SS ONLY — Cartoon dropdown
-  if (p.quantity_type === "CARTOON" && !isDS) {
-    return (
-      <select
-        value={cartoonSelection[p.id] || 1}
-        onChange={(e) =>
-          updateCartoon(p.id, parseInt(e.target.value))
-        }
-        className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-      >
-        {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
-          <option key={n} value={n}>
-            {n} CTN = {n * (p.cartoon_size || 1)} Pcs
-          </option>
-        ))}
-      </select>
-    );
-  }
-
-  // 🟩 DS + SS — Normal quantity input
-  return (
-    <input
-      type="number"
-      min={1}
-      value={selectedItem?.quantity || ""}
-      onChange={(e) => {
-        const val = e.target.value;
-        if (val === "") {
-          updateQuantity(p.id, "");
-          return;
-        }
-        const parsed = parseInt(val);
-        if (!isNaN(parsed)) updateQuantity(p.id, parsed);
-      }}
-      onBlur={() => {
-        // 🟢 DS → no MOQ auto-fix
-        if (isDS) return;
-
-        // 🔵 SS → MOQ strict
-        const val = parseInt(selectedItem?.quantity);
-        if (isNaN(val) || val < moq) {
-          updateQuantity(p.id, moq);
-        }
-      }}
-      className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-    />
-  );
-})()}
-
-                            </>
-                          ) : (
-                            !isAdded(p.id) && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAddProduct(p);
-                                }}
-                                className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
-                              >
-                                <FaPlus className="text-sm" />
-                              </button>
-                            )
-                          )}
-
+                        <div className="flex flex-col text-sm"
+                          onClick={() => {
+                            navigate(`/product/${p.id}`);
+                            setSearchDropdownOpen(false);
+                          }}
+                        >
+                          <span className="font-medium flex items-center gap-2">
+                            {p._displayName}
+                            {user?.role !== "DS" && (<div>
+                              {!outOfStock ? (
+                                <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
+                                  In Stock
+                                </span>
+                              ) : (
+                                <span className="bg-red-100 text-red-600 text-[10px] px-1 py-[1px] rounded">
+                                  Out of Stock
+                                </span>
+                              )}
+                            </div>)}
+                            {hasScheme(p.id) && (
+                              <FaGift
+                                title="Scheme Available"
+                                className="text-pink-500 text-xs animate-pulse"
+                              />
+                            )}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {p.product_name} — {p.sub_category}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                  );})}
+
+                        {(user?.role === "SS" || user?.role === "DS") && (
+                          <div className="ml-3 flex items-center">
+                            {isAdded(p.id) ? (
+                              <>
+                                {(() => {
+                                  const isDS = user?.role === "DS";
+                                  const selectedItem = selectedProducts.find((x) => x.id === p.id);
+                                  const moq = p.moq || 1;
+
+                                  // 🟧 SS ONLY — Cartoon dropdown
+                                  if (p.quantity_type === "CARTOON" && !isDS) {
+                                    return (
+                                      <select
+                                        value={cartoonSelection[p.id] || 1}
+                                        onChange={(e) =>
+                                          updateCartoon(p.id, parseInt(e.target.value))
+                                        }
+                                        className="border rounded py-1 px-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                      >
+                                        {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
+                                          <option key={n} value={n}>
+                                            {n} CTN = {n * (p.cartoon_size || 1)} Pcs
+                                          </option>
+                                        ))}
+                                      </select>
+                                    );
+                                  }
+
+                                  // 🟩 DS + SS — Normal quantity input
+                                  return (
+                                    <input
+                                      type="number"
+                                      min={1}
+                                      value={selectedItem?.quantity || ""}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (val === "") {
+                                          updateQuantity(p.id, "");
+                                          return;
+                                        }
+                                        const parsed = parseInt(val);
+                                        if (!isNaN(parsed)) updateQuantity(p.id, parsed);
+                                      }}
+                                      onBlur={() => {
+                                        // 🟢 DS → no MOQ auto-fix
+                                        if (isDS) return;
+
+                                        // 🔵 SS → MOQ strict
+                                        const val = parseInt(selectedItem?.quantity);
+                                        if (isNaN(val) || val < moq) {
+                                          updateQuantity(p.id, moq);
+                                        }
+                                      }}
+                                      className="w-20 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                    />
+                                  );
+                                })()}
+
+                              </>
+                            ) : (
+                              !isAdded(p.id) && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddProduct(p);
+                                  }}
+                                  className="bg-blue-100 p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-all"
+                                >
+                                  <FaPlus className="text-sm" />
+                                </button>
+                              )
+                            )}
+
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </>
               )}
             </div>
@@ -387,6 +388,18 @@ export default function DashboardLayout() {
                 <div className="px-4 py-2 text-sm text-gray-800 border-b">
                   ID: {user?.user_id}
                 </div>
+                 {(user.role === "ADMIN") && (
+                    <div className="px-4 py-2 text-sm text-gray-800 border-b">
+                  <button className="flex items-center gap-1 cursor-pointer"
+                    onClick={() => {
+                      navigate("/setting");
+                      setProfileDropdownOpen(false);
+                    }}>
+                      <FaCog className="text-sm" />
+                     <p className="font-medium">Settings</p>
+                  </button>
+                </div>
+                 )}
                 <div className="px-4 py-2 text-sm text-gray-800 border-b">
                   <button
                     onClick={handleLogout}
@@ -396,6 +409,7 @@ export default function DashboardLayout() {
                     <FaSignOutAlt /> Logout
                   </button>
                 </div>
+                                
               </div>
             )}
           </div>

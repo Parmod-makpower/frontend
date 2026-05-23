@@ -51,6 +51,7 @@ import DSOrderDetailsPage from "./pages/DS/DSOrderDetailsPage";
 import CargoPage from "./pages/CargoPage";
 import GSTPage from "./pages/GSTPage";
 import NewLaunchingPage from "./pages/NewLaunchingPage";
+import SettingsPage from "./pages/ADMIN/SettingsPage";
 
 export default function App() {
   useEffect(() => {
@@ -121,6 +122,7 @@ export default function App() {
              <Route path="/mahotsav-data" element={<ProtectedRoute><MahotsavSheetPage /></ProtectedRoute>} />
 
             <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
+            <Route path="/setting" element={<ProtectedRoute allowedRoles={['ADMIN']}><SettingsPage /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductPage /></ProtectedRoute>} />
             <Route path="/sale-name" element={<ProtectedRoute allowedRoles={['ADMIN']}><SaleNamePage /></ProtectedRoute>} />
             <Route path="/schemes" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemePage /></ProtectedRoute>} />
