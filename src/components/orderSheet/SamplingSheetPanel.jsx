@@ -27,11 +27,11 @@ export default function SamplingSheetPanel({ partyName }) {
     return map;
   }, [products]);
 
-  // 🔹 Split & filter items
-  const filteredItems = useMemo(() => {
-    if (!partyData?.items) return [];
+  // 🔹 Split & filter sampling_Items
+  const filteredsampling_Items = useMemo(() => {
+    if (!partyData?.sampling_Items) return [];
 
-    return partyData.items
+    return partyData.sampling_Items
       .split(",")
       .map((i) => i.trim())
       .filter(Boolean)
@@ -66,7 +66,7 @@ export default function SamplingSheetPanel({ partyName }) {
       )}
 
       {/* TABLE */}
-      {partyData && filteredItems.length > 0 && (
+      {partyData && filteredsampling_Items.length > 0 && (
         <table className="w-full border border-blue-200 text-xs">
           <thead className="bg-blue-100 text-blue-800">
             <tr>
@@ -78,7 +78,7 @@ export default function SamplingSheetPanel({ partyName }) {
             </tr>
           </thead>
           <tbody>
-            {filteredItems.map((item, index) => {
+            {filteredsampling_Items.map((item, index) => {
               const stock =
                 productStockMap[item.trim().toLowerCase()] ?? 0;
 
@@ -106,9 +106,9 @@ export default function SamplingSheetPanel({ partyName }) {
         </table>
       )}
 
-      {partyData && filteredItems.length === 0 && (
+      {partyData && filteredsampling_Items.length === 0 && (
         <p className="text-sm text-gray-500 italic">
-          No matching items
+          No matching sampling_Items
         </p>
       )}
     </div>
