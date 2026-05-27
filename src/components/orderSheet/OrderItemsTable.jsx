@@ -77,9 +77,7 @@ export default function OrderItemsTable({
     }
   );
 
-  const filteredProducts = fuseResults.filter((prod) => {
-    return prod.is_active === true;
-  });
+  const filteredProducts = fuseResults;
 
   const handleKeyDown = (e) => {
 
