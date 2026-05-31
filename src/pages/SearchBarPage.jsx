@@ -251,14 +251,14 @@ export default function SearchBarPage() {
         </button>
 
         <input
-  ref={searchRef}
-  type="text"
-  value={searchTerm}
-  onChange={(e) => setSearchTerm(e.target.value)}
-  maxLength={25}
-  placeholder="..Search by product, sale name, or category..."
-  className="flex-1 min-w-0 w-full bg-transparent text-base focus:outline-none placeholder-gray-400"
-/>
+          ref={searchRef}
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          maxLength={25}
+          placeholder="Search by product, sale name, or category..."
+          className="flex-1 min-w-0 w-full bg-transparent text-base focus:outline-none placeholder-gray-400"
+        />
       </div>
 
       {/* LIST */}
