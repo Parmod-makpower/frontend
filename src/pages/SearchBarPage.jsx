@@ -242,7 +242,7 @@ export default function SearchBarPage() {
   return (
     <div className="flex flex-col h-screen max-h-screen bg-white">
       {/* TOP BAR */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow flex items-center gap-2">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white p-3 border-b border-gray-300 shadow flex items-center gap-2 overflow-hidden">
         <button
           onClick={() => window.history.back()}
           className="text-gray-700 hover:text-blue-600 text-2xl font-bold px-1 transition-transform hover:scale-105"
@@ -251,14 +251,14 @@ export default function SearchBarPage() {
         </button>
 
         <input
-          ref={searchRef}
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          maxLength={25}
-          placeholder="Search by product, sale name, or category..."
-          className="flex-1 bg-transparent text-sm sm:text-base focus:outline-none placeholder-gray-400"
-        />
+  ref={searchRef}
+  type="text"
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  maxLength={25}
+  placeholder="..Search by product, sale name, or category..."
+  className="flex-1 min-w-0 w-full bg-transparent text-base focus:outline-none placeholder-gray-400"
+/>
       </div>
 
       {/* LIST */}
