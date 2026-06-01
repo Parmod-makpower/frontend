@@ -148,7 +148,7 @@ export default function HomePage() {
       </div>
 
 {/* 🎉 Mahotsav Scheme Floating Button */}
-<button
+{/* <button
   onClick={() => navigate("/mahotsav-schemes")}
   className="
     fixed right-4 top-1/2 -translate-y-1/2 z-50
@@ -161,7 +161,7 @@ export default function HomePage() {
   "
 >
   <FaGift /> Mahotsav
-</button>
+</button> */}
 
        
 {/* 🚀 New Launching & Upcoming Section */}

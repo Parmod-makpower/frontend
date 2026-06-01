@@ -171,7 +171,7 @@ export default function UserSchemesPage() {
       </div>
 
       {/* 🎉 Mahotsav Scheme Floating Button */}
-<button
+{/* <button
   onClick={() => navigate("/mahotsav-schemes")}
   className="
     fixed right-4 top-1/2 -translate-y-1/2 z-50
@@ -184,7 +184,7 @@ export default function UserSchemesPage() {
   "
 >
   <FaGift /> Mahotsav
-</button>
+</button> */}
     </div>
   );
 }
