@@ -40,12 +40,12 @@ import ProductUsageReportPage from "./pages/ProductUsageReportPage";
 import DealerFormPage from "./components/form/DealerFormPage";
 import ConfirmOrderPageDS from "./pages/DS/ConfirmOrderPageDS";
 import DSOrdersPage from "./pages/DS/DSOrdersPage";
-import MahotsavSheetPage from "./pages/CRM/MahotsavSheetPage";
+import GoaTripSheetPage from "./pages/CRM/GoaTripSheetPage";
 import DispatchEntriesPage from "./pages/ADMIN/DispatchEntriesPage";
 import OrderGoogleSheet from "./pages/CRM/OrderGoogleSheet";
 import NotInStockReportPage from "./pages/CRM/NotInStockReportPage";
 import TrackingOrdersPage from "./pages/CRM/TrackingOrdersPage";
-import MAHOTSAV from "./pages/MAHOTSAV";
+import GoaTrip from "./pages/GoaTrip";
 import AdminCRM_DS_ordersPage from "./pages/DS/AdminCRM_DS_ordersPage";
 import DSOrderDetailsPage from "./pages/DS/DSOrderDetailsPage";
 import CargoPage from "./pages/CargoPage";
@@ -115,11 +115,11 @@ export default function App() {
            <Route path="/order/:id/details" element={<ProtectedRoute ><CRMVerifiedDetailsPage /></ProtectedRoute>} />
 
             <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
-            <Route path="/mahotsav-schemes" element={<ProtectedRoute ><MAHOTSAV /></ProtectedRoute>} />
+            <Route path="/goa-couple-trip-schemes" element={<ProtectedRoute ><GoaTrip /></ProtectedRoute>} />
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
             <Route path="/google-sheet" element={<ProtectedRoute ><OrderGoogleSheet /></ProtectedRoute>} />
             <Route path="/not-in-stock-reports" element={<ProtectedRoute><NotInStockReportPage /></ProtectedRoute>} />
-             <Route path="/mahotsav-data" element={<ProtectedRoute><MahotsavSheetPage /></ProtectedRoute>} />
+             <Route path="/goa-trip-data" element={<ProtectedRoute><GoaTripSheetPage /></ProtectedRoute>} />
 
             <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
             <Route path="/setting" element={<ProtectedRoute allowedRoles={['ADMIN']}><SettingsPage /></ProtectedRoute>} />

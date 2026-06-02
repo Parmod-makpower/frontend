@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaSearch, FaBell, FaGift } from "react-icons/fa";
+import { FaSearch, FaBell, FaGift, FaPlaneDeparture } from "react-icons/fa";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -8,6 +8,7 @@ import logo from "../assets/images/logo.png";
 import categories from "../data/categoryData";
 import SlidingProductsCards from "../components/SlidingProductsCards";
 import { useStock } from "../context/StockContext";
+import { useCachedProducts } from "../hooks/useCachedProducts";
 
 
 export default function HomePage() {
@@ -19,6 +20,12 @@ export default function HomePage() {
   const stockLetter = stockType === "mumbai" ? "M" : "D";
   const stockColor =
   stockType === "mumbai" ? "bg-green-600" : "bg-red-600";
+  const { data: allProducts = [] } = useCachedProducts();
+  const mahotsavProduct = allProducts.find(
+    (p) => p.product_id === 10006
+  );
+
+  const showMahotsavButton = mahotsavProduct?.moq === 1;
 
 
   // Responsive listener
@@ -147,21 +154,29 @@ export default function HomePage() {
         </Slider>
       </div>
 
-{/* 🎉 Mahotsav Scheme Floating Button */}
-{/* <button
-  onClick={() => navigate("/mahotsav-schemes")}
-  className="
-    fixed right-4 top-1/2 -translate-y-1/2 z-50
-    bg-pink-600 text-white font-semibold
-    px-4 py-3 rounded-full shadow-lg
-    flex items-center gap-2
-    animate-bounce
-    hover:bg-red-700
-    transition-all duration-300
-  "
->
-  <FaGift /> Mahotsav
-</button> */}
+{showMahotsavButton && (
+  <button
+    onClick={() => navigate("/goa-couple-trip-schemes")}
+    className="
+      fixed right-3 top-1/2 -translate-y-1/2 z-50
+      bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700
+      text-white
+      px-3 py-3
+      rounded-xl
+      shadow-xl
+      flex flex-col items-center
+      gap-1
+      animate-pulse
+      hover:scale-105
+      transition-all duration-300
+    "
+  >
+    <FaPlaneDeparture className="text-lg" />
+    <span className="text-[10px] font-bold leading-none">
+      Goa Trip
+    </span>
+  </button>
+)}
 
        
 {/* 🚀 New Launching & Upcoming Section */}

@@ -12,6 +12,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaGift,
+  FaPlaneDeparture,
 } from "react-icons/fa";
 import makpower_image from "../assets/images/makpower_image.webp";
 import MobilePageHeader from "../components/MobilePageHeader";
@@ -27,6 +28,11 @@ export default function UserSchemesPage() {
   if (isLoading) return <div className="p-4">Loading schemes...</div>;
 
   const getProduct = (id) => allProducts.find((p) => p.product_id === id);
+  const mahotsavProduct = allProducts.find(
+  (p) => p.product_id === 10006
+);
+
+const showMahotsavButton = mahotsavProduct?.moq === 1;
 
   return (
     <div className="p-2 pb-20">
@@ -170,21 +176,30 @@ export default function UserSchemesPage() {
         )}
       </div>
 
-      {/* 🎉 Mahotsav Scheme Floating Button */}
-{/* <button
-  onClick={() => navigate("/mahotsav-schemes")}
-  className="
-    fixed right-4 top-1/2 -translate-y-1/2 z-50
-    bg-pink-600 text-white font-semibold
-    px-4 py-3 rounded-full shadow-lg
-    flex items-center gap-2
-    animate-bounce
-    hover:bg-red-700
-    transition-all duration-300
-  "
->
-  <FaGift /> Mahotsav
-</button> */}
+          {showMahotsavButton && (
+        <button
+          onClick={() => navigate("/goa-couple-trip-schemes")}
+          className="
+            fixed right-3 top-1/2 -translate-y-1/2 z-50
+            bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700
+            text-white
+            px-3 py-3
+            rounded-xl
+            shadow-xl
+            flex flex-col items-center
+            gap-1
+            animate-pulse
+            hover:scale-105
+            transition-all duration-300
+          "
+        >
+          <FaPlaneDeparture className="text-lg" />
+          <span className="text-[10px] font-bold leading-none">
+            Goa Trip
+          </span>
+        </button>
+      )}
+    
     </div>
   );
 }
