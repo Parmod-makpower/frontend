@@ -60,7 +60,7 @@ export default function GoaTrip() {
   );
   // ✅ Product IDs
   const PRODUCT_IDS = [
-    1335, 1871, 1321, 1328, 1327,];
+    685,1335, 1871, 1321, 1328, 1327,];
 
 
 
