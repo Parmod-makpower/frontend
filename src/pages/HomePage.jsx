@@ -50,8 +50,9 @@ export default function HomePage() {
     arrows: false,
   };
 
-  // यहाँ आप IDs की लिस्ट रखेंगे
-  const trendingIds = [45, 74, 123, 31, 636, 717, 1120, 111];
+  // यहाँ आप top selling की लिस्ट रखेंगे
+  const trendingIds = [1, 45, 74, 123, 1870, 717, 1120, 111, 1708];
+
   const schemeIds = [1142, 18, 119, 60, 69,33, 1730, 1653];
 
   return (
