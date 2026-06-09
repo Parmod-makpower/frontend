@@ -64,18 +64,17 @@ export default function GoaTrip() {
 
 
 
-  // ✅ Mahotsav Products
-  const products = useMemo(() => {
-    return allProducts
-      .filter((p) => p.is_active)
-      .filter((p) => PRODUCT_IDS.includes(p.product_id))
-      .sort((a, b) => {
-        const subCompare = (a.sub_category || "").localeCompare(b.sub_category || "");
-        if (subCompare !== 0) return subCompare;
+const products = useMemo(() => {
+  return allProducts
+    .filter((p) => p.is_active)
+    .filter((p) => PRODUCT_IDS.includes(p.product_id))
+    .sort((a, b) => {
+      const priceA = Number(a.price || 0);
+      const priceB = Number(b.price || 0);
 
-        return (a.product_name || "").localeCompare(b.product_name || "");
-      });
-  }, [allProducts]);
+      return priceA - priceB;
+    });
+}, [allProducts]);
 
   if (isLoading) {
     return <div className="p-4 text-center text-gray-500">Loading Mahotsav Products...</div>;
