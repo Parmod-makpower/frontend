@@ -142,7 +142,7 @@ const categories = [
   },
   {
     label: "Car Charger",
-    keyword: "CAR",
+    keyword: "CAR ADAPTER",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503623/wavfmoowkmxeigmglq25.webp",
 
     subcategories: []
