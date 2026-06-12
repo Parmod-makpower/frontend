@@ -52,6 +52,7 @@ import CargoPage from "./pages/CargoPage";
 import GSTPage from "./pages/GSTPage";
 import NewLaunchingPage from "./pages/NewLaunchingPage";
 import SettingsPage from "./pages/ADMIN/SettingsPage";
+import OrdersReportPage from "./pages/ADMIN/OrdersReportPage";
 
 export default function App() {
   useEffect(() => {
@@ -128,6 +129,7 @@ export default function App() {
             <Route path="/schemes" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemePage /></ProtectedRoute>} />
             <Route path="/schemes/new" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
             <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm/></ProtectedRoute>} />
+            <Route  path="/orders-report"  element={<OrdersReportPage />}/>
            
              <Route path="/dispatch-entries" element={<ProtectedRoute allowedRoles={['ADMIN']}><DispatchEntriesPage /></ProtectedRoute>} />
 
