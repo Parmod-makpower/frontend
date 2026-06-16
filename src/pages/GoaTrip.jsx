@@ -102,7 +102,7 @@ const products = useMemo(() => {
 
             {(user?.role === "CRM" || user?.role === "ADMIN") && (
               <button
-                // onClick={() => navigate(`/goa-trip-data`)}
+                onClick={() => navigate(`/goa-trip-data`)}
                 className="bg-white/20 px-3 py-1 rounded-full text-[10px]"
               >
                 Manage

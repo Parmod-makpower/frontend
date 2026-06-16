@@ -1,260 +1,306 @@
 import { useState, useMemo } from "react";
-import { FaSearch, FaUsers } from "react-icons/fa";
+import {
+  FaSearch,
+  FaUsers,
+  FaExternalLinkAlt,
+} from "react-icons/fa";
+
 import { useMahotsavSheet } from "../../hooks/CRM/useMahotsav";
 import { useAuth } from "../../context/AuthContext";
 
 export default function PartyItemSheetPage() {
   const { data = [], isLoading, error } = useMahotsavSheet();
-  const [search, setSearch] = useState("");
   const { user } = useAuth();
+
+  const [search, setSearch] = useState("");
+
+  const crmSheetLinks = {
+    ankita:
+      "https://docs.google.com/spreadsheets/d/1HJDQoezYWSJRIxjI9Xya4A7CTTpOM8RD9w_wNBnQPX8/edit?gid=352048079#gid=352048079",
+
+    ajit:
+      "https://docs.google.com/spreadsheets/d/1FzaxPWQoSnl6L_w8hP-0ACjstGHxM1K1YVI1RhP-WTc/edit?gid=352048079#gid=352048079",
+
+    simran:
+      "https://docs.google.com/spreadsheets/d/1pACzKV_LbG9zHWagHDhvNo8WRwBZUevSpk-Ngaj23Cs/edit?gid=352048079#gid=352048079",
+
+    prince:
+      "https://docs.google.com/spreadsheets/d/1oiHLhjfC6jYcvlbAipIUh2cNOls6fPN9ZSCSCWbRYfs/edit?gid=352048079#gid=352048079",
+
+    harish:
+      "https://docs.google.com/spreadsheets/d/1gAeduXq4Idygzp02jG2k9b2Gkht4qdxUyzPmyR2jrpA/edit?gid=352048079#gid=352048079",
+  };
+
+  const getCrmSheetLink = (crmName = "") => {
+    const crm = crmName.toLowerCase();
+
+    return (
+      Object.entries(crmSheetLinks).find(([key]) =>
+        crm.includes(key)
+      )?.[1] || null
+    );
+  };
 
   const filteredData = useMemo(() => {
     const term = search.toLowerCase();
 
     return data.filter((row) => {
-      // 🔍 party name search
-      const matchParty = row.party_name?.toLowerCase().includes(term);
+      const matchParty = row.party_name
+        ?.toLowerCase()
+        .includes(term);
 
-      // 🔐 role based access
       const isAdmin = user?.role === "ADMIN";
+
       const isOwnCRM =
         user?.role === "CRM" &&
-        row.crm_name?.toLowerCase() === user?.name?.toLowerCase();
+        row.crm_name
+          ?.toLowerCase()
+          .trim() === user?.name?.toLowerCase().trim();
 
       return matchParty && (isAdmin || isOwnCRM);
     });
-  }, [search, data, user]);
+  }, [data, search, user]);
 
-  const totals = useMemo(() => {
+  const totalQty = useMemo(() => {
     return filteredData.reduce(
-      (acc, row) => {
-        const qty = Number(row.mahotsav_dispatch_quantity || 0);
-        const combo = Math.floor(qty / 300);
-
-        const gas = Number(row.gas_stove || 0);
-        const cookware = Number(row.kitchen_cookware || 0);
-        const dinner = Number(row.dinner_set || 0);
-
-        acc.qty += qty;
-        acc.combo += combo;
-        acc.gas += gas;
-        acc.cookware += cookware;
-        acc.dinner += dinner;
-        acc.balance += combo - (gas + cookware + dinner);
-
-        return acc;
-      },
-      {
-        qty: 0,
-        combo: 0,
-        gas: 0,
-        cookware: 0,
-        dinner: 0,
-        balance: 0,
-      }
+      (sum, row) =>
+        sum + Number(row.mahotsav_dispatch_quantity || 0),
+      0
     );
   }, [filteredData]);
 
-
-  const crmSheetLinks = [
-    {
-      key: "ankita",
-      url: "https://docs.google.com/spreadsheets/d/1ffxuFoXiDj5SewSNOj804PMNSkFwS9G8kF-Sf_CuwfQ/edit?gid=2115773395#gid=2115773395",
-    },
-    {
-      key: "ajit",
-      url: "https://docs.google.com/spreadsheets/d/1FD7Uhslzfw9fNCkc9RaXGetUYFDwbJN3bPjC0ht6suA/edit?gid=191365798#gid=191365798",
-    },
-    {
-      key: "simran",
-      url: "https://docs.google.com/spreadsheets/d/1p8ViqswWQ6Cc5WRiwgYC0xJ3shd7jHFpQyMLZO9dpoM/edit?gid=352048079#gid=352048079",
-    },
-    {
-      key: "prince",
-      url: "https://docs.google.com/spreadsheets/d/1SZgx4sb_Vf1bBLnsbc8Ta8JaTThtPkx8MSeEn4T2qoQ/edit?gid=352048079#gid=352048079",
-    },
-    {
-      key: "harish",
-      url: "https://docs.google.com/spreadsheets/d/1beGiqxt0oxkVDdfbY0z9LJn7FPr9xa0jvbVSgmskU8k/edit?gid=352048079#gid=352048079",
-    },
-  ];
-
-  const getCrmSheetLink = (crmName = "") => {
-    const name = crmName.toLowerCase();
-
-    const match = crmSheetLinks.find((crm) =>
-      name.includes(crm.key)
-    );
-
-    return match?.url || null;
-  };
-
-
   if (isLoading) {
-    return <p className="p-3 text-xs">Loading sheet data...</p>;
+    return (
+      <div className="flex justify-center items-center h-40">
+        <p className="text-[11px] text-gray-500">
+          Loading sheet data...
+        </p>
+      </div>
+    );
   }
 
   if (error) {
-    return <p className="p-3 text-xs text-red-500">Failed to load data</p>;
+    return (
+      <div className="flex justify-center items-center h-40">
+        <p className="text-[11px] text-red-500">
+          Failed to load data
+        </p>
+      </div>
+    );
   }
 
   return (
-    <div className="p-1 max-w-5xl mx-auto">
+    <div className="max-w-6xl mx-auto p-2">
+
       {/* Header */}
-      <div className="flex items-center gap-2 mb-3">
-        <FaUsers className="text-green-600 text-sm" />
-        <h2 className="text-sm font-semibold text-gray-800">
-          Party Mahotsav Sheet
-        </h2>
+      <div className="bg-white border rounded shadow-sm p-3 mb-3">
+
+        <div className="flex items-center justify-between">
+
+          <div className="flex items-center gap-2">
+            <FaUsers className="text-green-600 text-xs" />
+
+            <div>
+              <h1 className="text-xs font-semibold text-gray-800">
+                Goa Couple Trip Sheet
+              </h1>
+
+              <p className="text-[10px] text-gray-500">
+                Party Dispatch Tracking
+              </p>
+            </div>
+          </div>
+
+          <div className="text-right">
+            <p className="text-[9px] text-gray-500">
+              Total Qty
+            </p>
+
+            <p className="text-sm font-bold text-green-700">
+              {totalQty}
+            </p>
+          </div>
+
+        </div>
+
       </div>
 
       {/* Search */}
-      <div className="relative mb-3">
-        <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
-        <input
-          type="text"
-          placeholder="Search Party Name"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="
-            w-full
-            border
-            rounded-md
-            pl-8 pr-3 py-2
-            text-xs
-            focus:outline-none
-            focus:ring-1
-            focus:ring-green-500
-          "
-        />
+      <div className=" py-2 mb-3">
+
+        <div className="relative">
+
+          <FaSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]" />
+
+          <input
+            type="text"
+            placeholder="Search party..."
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            className="
+              w-full
+              h-8
+              pl-7
+              pr-3
+              text-[11px]
+              border
+              rounded-md
+              outline-none
+              focus:ring-1
+              focus:ring-green-500
+            "
+          />
+        </div>
+
       </div>
 
-      {/* 🔒 FIXED HEIGHT TABLE */}
-      <div className="border rounded bg-white overflow-hidden">
-        <div className="max-h-[460px] overflow-y-auto">
-          <table className="w-full text-[11px] border-collapse">
-            {/* Sticky Header */}
-            <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
-              <tr>
-                <th className="border px-3 py-2 text-left font-semibold">
-                  CRM Name
+      {/* Table */}
+      <div className="bg-white border rounded shadow-sm overflow-hidden">
+
+        <div className="max-h-[70vh] overflow-auto">
+
+          <table className="w-full border-collapse text-[10px]">
+
+            <thead className="sticky top-0 z-10 bg-gray-50">
+
+              <tr className="text-gray-700">
+
+                <th className="border-b px-2 py-2 text-left font-semibold">
+                  CRM
                 </th>
-                <th className="border px-3 py-2 text-left font-semibold">
+
+                <th className="border-b px-2 py-2 text-left font-semibold">
                   Party Name
                 </th>
-                <th className="border px-3 py-2 text-center font-semibold">
-                  Mahotsav Qty
+
+                <th className="border-b px-2 py-2 text-center font-semibold">
+                  Qty
                 </th>
-                <th className="border px-3 py-2 text-center font-semibold">Gift</th>
-                <th className="border px-3 py-2 text-center font-semibold">Gas Stove 4 Burner</th>
-                <th className="border px-3 py-2 text-center font-semibold">Cookware Set</th>
-                <th className="border px-3 py-2 text-center font-semibold">Dinner Set</th>
-                <th className="border px-3 py-2 text-center font-semibold">Balance</th>
-                <th className="border px-3 py-2 text-center font-semibold">Details</th>
+
+                <th className="border-b px-2 py-2 text-center font-semibold">
+                  Details
+                </th>
+
               </tr>
+
             </thead>
 
             <tbody>
+
               {filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan="3" className="px-3 py-4 text-center text-gray-500">
-                    No matching party found
+                  <td
+                    colSpan={4}
+                    className="py-8 text-center text-gray-500 text-[10px]"
+                  >
+                    No records found
                   </td>
                 </tr>
               ) : (
-                filteredData.map((row, index) => {
-                  const combo = Math.floor(
-                    Number(row.mahotsav_dispatch_quantity || 0) / 300
-                  );
+                filteredData.map((row, index) => (
+                  <tr
+                    key={`${row.party_name}-${index}`}
+                    className="
+                      border-b
+                      hover:bg-green-50
+                      transition-colors
+                    "
+                  >
+                    <td className="px-2 py-2 font-medium text-gray-700 whitespace-nowrap">
+                      {row.crm_name}
+                    </td>
 
-                  const gas = Number(row.gas_stove) || 0;
-                  const cookware = Number(row.kitchen_cookware) || 0;
-                  const dinner = Number(row.dinner_set) || 0;
+                    <td className="px-2 py-2 text-gray-800">
+                      {row.party_name}
+                    </td>
 
-                  const balance = combo - (gas + cookware + dinner);
+                    <td className="px-2 py-2 text-center font-semibold text-green-700">
+                      {Number(
+                        row.mahotsav_dispatch_quantity || 0
+                      ).toLocaleString()}
+                    </td>
 
-                  return (
-                    <tr
-                      key={row.id}
-                      className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-green-50 transition`}>
-                      <td className="border px-3 py-2 font-medium text-gray-800">
-                        {row.crm_name}
-                      </td>
-                      <td className="border px-3 py-2 font-medium text-gray-800">
-                        {row.party_name}
-                      </td>
+                    <td className="px-2 py-2 text-center">
 
-                      <td className="border px-3 py-2 text-center font-semibold text-green-700">
-                        {row.mahotsav_dispatch_quantity}
-                      </td>
+                      {getCrmSheetLink(row.crm_name) ? (
+                        <a
+                          href={getCrmSheetLink(
+                            row.crm_name
+                          )}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="
+                            inline-flex
+                            items-center
+                            gap-1
+                            px-2
+                            py-1
+                            rounded
+                            bg-blue-600
+                            text-white
+                            text-[9px]
+                            font-medium
+                            hover:bg-blue-700
+                          "
+                        >
+                          <FaExternalLinkAlt size={8} />
+                          Open
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">
+                          —
+                        </span>
+                      )}
 
-                      <td className="border px-3 py-2 text-center font-semibold text-blue-700">{combo}</td>
-                      <td className="border px-3 py-2 text-center font-semibold bg-orange-200">{row.gas_stove}</td>
-                      <td className="border px-3 py-2 text-center font-semibold bg-orange-200">{row.kitchen_cookware}</td>
-                      <td className="border px-3 py-2 text-center font-semibold bg-orange-200">{row.dinner_set}</td>
-                      <td className={`border px-3 py-2 text-center font-semibold  ${balance < 0 ? "text-red-600" : "text-green-700"} `}> {balance} </td>
-                      <td className="border px-3 py-2 text-center">
-                        {getCrmSheetLink(row.crm_name) ? (
-                          <a
-                            href={getCrmSheetLink(row.crm_name)}
-                            target="_blank" rel="noopener noreferrer"
-                            className="inline-block px-2 py-1 text-[10px] font-semibold text-white bg-blue-600 rounded hover:bg-blue-700">
-                            More Details
-                          </a>
-                        ) : (
-                          <span className="text-[10px] text-gray-400">N/A</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
+                    </td>
+
+                  </tr>
+                ))
               )}
-              <tr className="font-semibold text-gray-800 bg-green-100">
-                <td className="border px-3 py-2" colSpan={2}>
+
+            </tbody>
+
+            <tfoot>
+
+              <tr className="bg-green-50 font-semibold">
+
+                <td
+                  colSpan={2}
+                  className="px-2 py-2 text-gray-800"
+                >
                   TOTAL
                 </td>
 
-                <td className="border px-3 py-2 text-center text-green-800">
-                  {totals.qty}
+                <td className="px-2 py-2 text-center text-green-800">
+                  {totalQty.toLocaleString()}
                 </td>
 
-                <td className="border px-3 py-2 text-center text-blue-800">
-                  {totals.combo}
-                </td>
-
-                <td className="border px-3 py-2 text-center ">
-                  {totals.gas}
-                </td>
-
-                <td className="border px-3 py-2 text-center">
-                  {totals.cookware}
-                </td>
-
-                <td className="border px-3 py-2 text-center ">
-                  {totals.dinner}
-                </td>
-
-                <td
-                  className={`border px-3 py-2 text-center ${totals.balance < 0 ? "text-red-700" : "text-green-700"
-                    }`}
-                >
-                  {totals.balance}
-                </td>
-
-                <td className="border px-3 py-2 text-center text-gray-400">
-                  —
-                </td>
+                <td />
               </tr>
-            </tbody>
+
+            </tfoot>
 
           </table>
+
         </div>
+
       </div>
 
-      {/* Footer Note */}
-      <p className="mt-2 text-[10px] text-gray-400 text-right">
-        Showing {filteredData.length} records
-      </p>
+      {/* Footer */}
+      <div className="mt-2 flex justify-between text-[9px] text-gray-500">
+
+        <span>
+          Records: {filteredData.length}
+        </span>
+
+        <span>
+          Goa Trip Scheme Dashboard
+        </span>
+
+      </div>
+
     </div>
   );
 }
