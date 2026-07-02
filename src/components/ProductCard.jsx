@@ -23,6 +23,7 @@ export default function ProductCard({
   updateCartoon,
   cartoonSelection,
   cardWidth = "w-40",
+  fallbackImage = makpower_image,
 }) {
   const navigate = useNavigate();
   const prodId = prod.id ?? prod.product_id;
@@ -35,7 +36,7 @@ export default function ProductCard({
   const [imgSrc, setImgSrc] = useState(
     prod?.image
       ? `https://res.cloudinary.com/djyr368zj/${prod.image}?f_auto,q_auto,w_300`
-      : makpower_image
+      : fallbackImage
   );
 
   const handleAddProduct = () => {
@@ -111,12 +112,12 @@ export default function ProductCard({
             )}
           </div>
         )}
-         {prod?.guarantee && (
-        <div className="flex items-center gap-1 mt-1 text-[10px]  font-medium">
-          <FaShieldAlt className="text-[11px]" />
-          <span>{getDisplayGuarantee()} guarantee</span>
-        </div>
-         )}
+        {prod?.guarantee && (
+          <div className="flex items-center gap-1 mt-1 text-[10px]  font-medium">
+            <FaShieldAlt className="text-[11px]" />
+            <span>{getDisplayGuarantee()} guarantee</span>
+          </div>
+        )}
         {prod?.mah && (
           <div className="flex items-center gap-1 mt-1 text-[10px]  font-medium">
             <FaBatteryFull className="text-[11px]" />

@@ -19,9 +19,9 @@ export default function NewLaunchingPage() {
   const { user } = useAuth();
 
   // ✅ New Launch Product IDs
-  const NEW_LAUNCH_IDS = [1872,1873,6,239,267,186,460,1328,1327,685,683,668,666,
-    1978,1979,1980,1981,1982,1983,1984,1985,1986,1987,1988,1989,1990,1991,1992,1993,1994,1995,1996,1997,1998,2000,2002,2003,2004,2005,2006,2007,2008,2009
-   ];
+  const NEW_LAUNCH_IDS = [1872, 1873, 6, 239, 267, 186, 460, 1328, 1327, 685, 683, 668, 666,
+    1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 2000, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+  ];
 
   // ✅ Filter + Sort
   const products = useMemo(() => {
@@ -58,7 +58,7 @@ export default function NewLaunchingPage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6">
             {products.map((prod) => (
-              
+
               // ✅ Wrapper for NEW badge
               <div key={prod.product_id} className="relative">
 
@@ -78,6 +78,7 @@ export default function NewLaunchingPage() {
                   cartoonSelection={cartoonSelection}
                   hasScheme={() => false} // yaha schemes nahi use ho rahi
                   cardWidth="w-full"
+                  fallbackImage="https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
                 />
               </div>
             ))}
