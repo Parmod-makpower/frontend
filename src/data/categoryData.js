@@ -233,14 +233,14 @@ const categories = [
     subcategories: []
   },
   {
-    label: "Led Light",
+    label: "Led Bulb",
     keyword: "BULB",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757503038/snnngwxnumclv86jgfrl.webp",
     subcategories: []
   },
   {
-    label: "Led Tourch",
-    keyword: "TOURCH",
+    label: "Led Torch",
+    keyword: "TORCH",
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1780477536/ndkqtaokr6xgajis4nro.webp",
     subcategories: []
   },
