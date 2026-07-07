@@ -37,7 +37,7 @@ const categories = [
       
       {
         label: "POUCH BATTERY",
-        keyword: "POLY BATTERY",
+        keyword: "POUCH BATTERY",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1777006974/vosnja2nvt6x1skd3jnc.webp"
       },
       {
