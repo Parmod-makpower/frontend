@@ -53,6 +53,7 @@ import GSTPage from "./pages/GSTPage";
 import NewLaunchingPage from "./pages/NewLaunchingPage";
 import SettingsPage from "./pages/ADMIN/SettingsPage";
 import OrdersReportPage from "./pages/ADMIN/OrdersReportPage";
+import HROrderListPage from "./pages/hr/HROrderListPage";
 
 export default function App() {
   useEffect(() => {
@@ -107,6 +108,7 @@ export default function App() {
             <Route path="/cargo" element={ <CargoPage/> } />
             <Route path="/gst" element={ <GSTPage/> } />
             <Route path="/new-launching" element={ <NewLaunchingPage/> } />
+            <Route path="/hr" element={ <HROrderListPage/> } />
            
             <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
             <Route path="/orders-tracking" element={<TrackingOrdersPage />} />
