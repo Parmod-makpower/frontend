@@ -1,62 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import API from "../../api/axios";
 
-const getHROrders = async ({
-  search = "",
-  status = "",
-  fromDate = "",
-  toDate = "",
-}) => {
-  const params = {};
-
-  // Search
-  if (search) {
-    params.search = search;
-  }
-
-  // Status
-  if (status && status !== "ALL") {
-    params.status = status;
-  }
-
-  // Date Filters
-  if (fromDate) {
-    params.from_date = fromDate;
-  }
-
-  if (toDate) {
-    params.to_date = toDate;
-  }
-
-  const { data } = await API.get("/hr/orders/", {
-    params,
-  });
-
+const getHROrders = async () => {
+  const { data } = await API.get("/hr/orders/");
   return data;
 };
 
-export const useHROrders = ({
-  search,
-  status,
-  fromDate,
-  toDate,
-}) => {
+export const useHROrders = () => {
   return useQuery({
-    queryKey: [
-      "hr-orders",
-      search,
-      status,
-      fromDate,
-      toDate,
-    ],
+    queryKey: ["hr-orders"],
 
-    queryFn: () =>
-      getHROrders({
-        search,
-        status,
-        fromDate,
-        toDate,
-      }),
+    queryFn: getHROrders,
 
     staleTime: 0,
 
@@ -69,6 +23,3 @@ export const useHROrders = ({
     keepPreviousData: true,
   });
 };
-
-
-

@@ -1,9 +1,7 @@
 import {
   FaSearch,
   FaSyncAlt,
-  FaCalendarAlt,
   FaFileExcel,
-  FaPrint,
 } from "react-icons/fa";
 
 export default function HROrderFilter({
@@ -11,10 +9,9 @@ export default function HROrderFilter({
   setSearch,
   status,
   setStatus,
-  fromDate,
-  setFromDate,
-  toDate,
-  setToDate,
+  crm,
+  setCrm,
+  crmList = [],
   onRefresh,
   isFetching,
 }) {
@@ -41,10 +38,46 @@ export default function HROrderFilter({
         Filter Orders
       </h3>
 
+      {/* Search */}
+
+      <div className="relative mb-3">
+        <FaSearch
+          className="
+            absolute
+            left-3
+            top-1/2
+            -translate-y-1/2
+            text-gray-400
+            text-xs
+          "
+        />
+
+        <input
+          type="text"
+          placeholder="Search Order / Party / CRM"
+          value={search}
+          onChange={(e) =>
+            setSearch(e.target.value)
+          }
+          className="
+            w-full
+            h-9
+            border
+            rounded-md
+            pl-8
+            pr-2
+            text-xs
+          "
+        />
+      </div>
+
       {/* Status */}
+
       <select
         value={status}
-        onChange={(e) => setStatus(e.target.value)}
+        onChange={(e) =>
+          setStatus(e.target.value)
+        }
         className="
           w-full
           h-9
@@ -53,76 +86,47 @@ export default function HROrderFilter({
           border
           rounded-md
           px-2
-          outline-none
         "
       >
         <option value="ALL">All Status</option>
         <option value="PENDING">Pending</option>
-        <option value="VERIFIED">Verified</option>
-        <option value="REJECTED">Rejected</option>
-        <option value="DISPATCH">Dispatch</option>
         <option value="HOLD">Hold</option>
       </select>
 
-      {/* From Date */}
-      <div className="relative mb-3">
-        <FaCalendarAlt
-          className="
-            absolute
-            left-3
-            top-1/2
-            -translate-y-1/2
-            text-gray-400
-            text-xs
-          "
-        />
+      {/* CRM */}
 
-        <input
-          type="date"
-          value={fromDate}
-          onChange={(e) => setFromDate(e.target.value)}
-          className="
-            w-full
-            h-9
-            text-xs
-            border
-            rounded-md
-            pl-8
-            pr-2
-          "
-        />
-      </div>
+      <select
+        value={crm}
+        onChange={(e) =>
+          setCrm(e.target.value)
+        }
+        className="
+          w-full
+          h-9
+          mb-4
+          text-xs
+          border
+          rounded-md
+          px-2
+        "
+      >
+        <option value="ALL">
+          All CRM
+        </option>
 
-      {/* To Date */}
-      <div className="relative mb-4">
-        <FaCalendarAlt
-          className="
-            absolute
-            left-3
-            top-1/2
-            -translate-y-1/2
-            text-gray-400
-            text-xs
-          "
-        />
-
-        <input
-          type="date"
-          value={toDate}
-          onChange={(e) => setToDate(e.target.value)}
-          className="
-            w-full
-            h-9
-            text-xs
-            border
-            rounded-md
-            pl-8
-            pr-2
-          "
-        />
-      </div>
+        {crmList.length > 0 &&
+          crmList.map((crmName) => (
+            <option
+              key={crmName}
+              value={crmName}
+            >
+              {crmName}
+            </option>
+          ))}
+      </select>
 
       {/* Buttons */}
+
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={onRefresh}

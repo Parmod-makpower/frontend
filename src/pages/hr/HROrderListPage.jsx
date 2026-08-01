@@ -8,40 +8,51 @@ import HROrderTableRow from "../../components/hr/HROrderTableRow";
 
 export default function HROrderListPage() {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("ALL");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [crm, setCrm] = useState("ALL");
 
   const {
     data: orders = [],
     isLoading,
     isFetching,
     refetch,
-  } = useHROrders({
-    search,
-    status,
-    fromDate,
-    toDate,
-  });
+  } = useHROrders();
+
+  const crmList = useMemo(() => {
+    return [
+      ...new Set(
+        orders
+          .map((o) => o.crm_name)
+          .filter(Boolean)
+      ),
+    ];
+  }, [orders]);
 
   // -----------------------------
   // Local Search
   // -----------------------------
   const filteredOrders = useMemo(() => {
-    if (!search) return orders;
-
-    const term = search.toLowerCase();
-
     return orders.filter((order) => {
-      return (
+      const term = search.toLowerCase();
+
+      const matchSearch =
+        !search ||
         order.order_id?.toLowerCase().includes(term) ||
         order.ss_party_name?.toLowerCase().includes(term) ||
-        order.crm_name?.toLowerCase().includes(term)
-      );
+        order.crm_name?.toLowerCase().includes(term);
+
+      const matchStatus =
+        status === "ALL" || order.status === status;
+
+      const matchCRM =
+        crm === "ALL" || order.crm_name === crm;
+
+      return matchSearch && matchStatus && matchCRM;
     });
-  }, [orders, search]);
+  }, [orders, search, status, crm]);
 
   // -----------------------------
   // Group Orders
@@ -77,23 +88,28 @@ export default function HROrderListPage() {
   });
 
   const Section = ({ title }) => (
-    <h2 className="text-sm font-semibold text-gray-700 mt-5 mb-2">
+    <h2 className="mt-5 mb-2 text-sm font-semibold text-gray-700">
       {title}
     </h2>
   );
 
   const renderTable = (list) => (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
-        <table className="min-w-[950px] w-full">
-          <thead className="bg-gray-50">
-            <tr className="text-xs text-gray-600">
-              <th className="px-3 py-2 text-left">Order ID</th>
-              <th className="px-3 py-2 text-left">Party</th>
-              <th className="px-3 py-2 text-left">CRM</th>
-              <th className="px-3 py-2 text-left">Date</th>
-              <th className="px-3 py-2 text-left">Status</th>
-              <th className="px-3 py-2 text-left">Remarks</th>
+        <table className="min-w-[1200px] w-full table-auto">
+          <thead className="border-b bg-gray-50">
+            <tr className="whitespace-nowrap text-xs font-semibold text-gray-700">
+              <th className="px-4 py-3 text-left">Order ID</th>
+
+              <th className="px-4 py-3 text-left">Party Name</th>
+
+              <th className="px-4 py-3 text-left">CRM</th>
+
+              <th className="px-4 py-3 text-left">Date</th>
+
+              <th className="px-4 py-3 text-center">Status</th>
+
+              <th className="px-4 py-3 text-left">Remarks</th>
             </tr>
           </thead>
 
@@ -119,8 +135,8 @@ export default function HROrderListPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500 text-sm animate-pulse">
+      <div className="flex h-64 items-center justify-center">
+        <p className="animate-pulse text-sm text-gray-500">
           Loading Orders...
         </p>
       </div>
@@ -128,29 +144,41 @@ export default function HROrderListPage() {
   }
 
   return (
-    <div className="max-w-[1700px] mx-auto p-3 pb-20">
+    <div
+      className={
+        user?.role === "CRM"
+          ? "w-full p-3 pb-20"
+          : "mx-auto max-w-[1900px] p-3 pb-20"
+      }
+    >
       {isFetching && (
-        <div className="text-center text-xs text-blue-600 animate-pulse mb-2">
+        <div className="mb-2 animate-pulse text-center text-xs text-blue-600">
           Updating Orders...
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-4 items-start">
+      <div
+        className={
+          user?.role === "CRM"
+            ? "grid grid-cols-1"
+            : "grid grid-cols-1 gap-4 items-start xl:grid-cols-[minmax(0,1fr)_300px]"
+        }
+      >
         {/* LEFT SIDE ORDERS */}
         <div>
           {filteredOrders.length === 0 && (
-            <div className="text-center py-20">
+            <div className="py-20 text-center">
               <img
                 src="https://cdn-icons-png.flaticon.com/512/7486/7486740.png"
                 alt="No Orders"
-                className="w-24 mx-auto opacity-50"
+                className="mx-auto w-24 opacity-50"
               />
 
-              <h3 className="text-sm font-semibold mt-4">
+              <h3 className="mt-4 text-sm font-semibold">
                 No Orders Found
               </h3>
 
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="mt-1 text-xs text-gray-500">
                 Try changing filters.
               </p>
             </div>
@@ -179,20 +207,21 @@ export default function HROrderListPage() {
         </div>
 
         {/* RIGHT FILTER */}
-        <div className="xl:sticky xl:top-4">
-          <HROrderFilter
-            search={search}
-            setSearch={setSearch}
-            status={status}
-            setStatus={setStatus}
-            fromDate={fromDate}
-            setFromDate={setFromDate}
-            toDate={toDate}
-            setToDate={setToDate}
-            onRefresh={refetch}
-            isFetching={isFetching}
-          />
-        </div>
+        {user?.role !== "CRM" && (
+          <div className="xl:sticky xl:top-4">
+            <HROrderFilter
+              search={search}
+              setSearch={setSearch}
+              status={status}
+              setStatus={setStatus}
+              crm={crm}
+              setCrm={setCrm}
+              crmList={crmList}
+              onRefresh={refetch}
+              isFetching={isFetching}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
