@@ -1,4 +1,6 @@
 import { FaCircle } from "react-icons/fa";
+import { useState } from "react";
+import { updateOrderRemarks } from "../../api/hrOrders";
 
 const statusConfig = {
   PENDING: {
@@ -34,25 +36,42 @@ export default function HROrderTableRow({
     statusConfig[order.status] ||
     statusConfig.HOLD;
 
+  const [remarks, setRemarks] = useState(order.notes || "");
+  const [saved, setSaved] = useState(!!order.notes);
+  const [loading, setLoading] = useState(false);
+
+  const saveRemarks = async (e) => {
+    e.stopPropagation();
+
+    if (!remarks.trim()) {
+      alert("Please enter remarks.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      await updateOrderRemarks(order.id, remarks);
+
+      setSaved(true);
+    } catch (err) {
+      alert("Failed to save remarks.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <tr
       onClick={onClick}
       className="
-        cursor-pointer
         border-b
         border-gray-100
         hover:bg-blue-50
         text-xs
       "
     >
-      <td
-        className="
-          px-3
-          py-2
-          font-semibold
-          text-gray-700
-        "
-      >
+      <td className="px-3 py-2 font-semibold text-gray-700">
         {order.order_id}
       </td>
 
@@ -68,23 +87,11 @@ export default function HROrderTableRow({
         {order.ss_party_name}
       </td>
 
-      <td
-        className="
-          px-3
-          py-2
-          text-gray-600
-        "
-      >
+      <td className="px-3 py-2 text-gray-600">
         {order.crm_name || "-"}
       </td>
 
-      <td
-        className="
-          px-3
-          py-2
-          text-gray-600
-        "
-      >
+      <td className="px-3 py-2 text-gray-600">
         <div>
           {new Date(order.created_at).toLocaleDateString(
             "en-IN"
@@ -122,6 +129,57 @@ export default function HROrderTableRow({
           <FaCircle className="text-[6px]" />
           {order.status}
         </span>
+      </td>
+
+      <td className="px-3 py-2">
+        {saved ? (
+          <div
+            className="max-w-[220px] break-words text-gray-700"
+            title={remarks}
+          >
+            {remarks}
+          </div>
+        ) : (
+          <div
+            className="flex gap-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <input
+              type="text"
+              value={remarks}
+              onChange={(e) =>
+                setRemarks(e.target.value)
+              }
+              placeholder="Enter Remarks"
+              className="
+                border
+                border-gray-300
+                rounded
+                px-2
+                py-1
+                w-44
+                focus:outline-none
+                focus:ring-2
+                focus:ring-blue-500
+              "
+            />
+
+            <button
+              onClick={saveRemarks}
+              disabled={loading}
+              className="
+                bg-blue-600
+                hover:bg-blue-700
+                text-white
+                px-3
+                rounded
+                disabled:opacity-50
+              "
+            >
+              {loading ? "Saving..." : "Save"}
+            </button>
+          </div>
+        )}
       </td>
     </tr>
   );
