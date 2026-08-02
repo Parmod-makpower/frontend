@@ -1,15 +1,13 @@
 import { FaCircle } from "react-icons/fa";
 import { useState } from "react";
-
 import { updateOrderRemarks } from "../../api/hrOrders";
 
 const statusConfig = {
   PENDING: {
-    color: "text-yellow-700",
-    bg: "bg-yellow-50",
-    border: "border-yellow-200",
+    color: "text-amber-700",
+    bg: "bg-amber-100",
+    border: "border-amber-200",
   },
-
   HOLD: {
     color: "text-gray-700",
     bg: "bg-gray-100",
@@ -22,16 +20,12 @@ export default function HROrderTableRow({
   onClick,
 }) {
   const status =
-    statusConfig[order.status] ||
-    statusConfig.HOLD;
-    const user = JSON.parse(localStorage.getItem("user"));
+    statusConfig[order.status] || statusConfig.HOLD;
 
-  const [remarks, setRemarks] = useState(
-    order.notes || ""
-  );
-  const [saved, setSaved] = useState(
-    !!order.notes
-  );
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const [remarks, setRemarks] = useState(order.notes || "");
+  const [saved, setSaved] = useState(!!order.notes);
   const [loading, setLoading] = useState(false);
 
   const saveRemarks = async (e) => {
@@ -48,7 +42,7 @@ export default function HROrderTableRow({
       await updateOrderRemarks(order.id, remarks);
 
       setSaved(true);
-    } catch (err) {
+    } catch {
       alert("Failed to save remarks.");
     } finally {
       setLoading(false);
@@ -59,150 +53,153 @@ export default function HROrderTableRow({
     <tr
       onClick={onClick}
       className="
-        border-b
-        border-gray-100
-        text-xs
-        hover:bg-blue-50
+        group border
+        border
+        border-slate-200
+        bg-white
+        hover:bg-sky-50/70
+        transition-all
+        duration-200
+        cursor-pointer text-xs border
       "
     >
-      <td className="px-4 py-4 font-semibold whitespace-nowrap align-top">
+      {/* Order ID */}
+      <td className="text-center font-semibold text-slate-800 whitespace-nowrap">
         {order.order_id}
       </td>
 
-      <td className="px-4 py-4 text-gray-700 align-top">
-        <div
-          className="
-            max-w-[320px]
-            break-words
-            whitespace-normal
-            leading-5
-          "
-        >
-          {order.ss_party_name}
+      {/* Party */}
+      <td className="ps-5 py-1">
+        <div className="max-w-[250px]">
+          <p className="font-medium text-slate-800 break-words leading-6">
+            {order.ss_party_name}
+          </p>
         </div>
       </td>
 
-      <td className="px-4 py-4 whitespace-nowrap align-top">
-        {order.crm_name || "-"}
+      {/* CRM */}
+      <td className="text-center py-1 whitespace-nowrap">
+        <span className="text-slate-700">
+          {order.crm_name || "-"}
+        </span>
       </td>
 
-      <td className="px-4 py-4 whitespace-nowrap align-top">
-        <div>
-          {new Date(order.created_at).toLocaleDateString(
-            "en-IN"
-          )}
+      {/* Date */}
+      <td className="text-center py-1 whitespace-nowrap">
+        <div className="font-medium text-slate-800">
+          {new Date(order.created_at).toLocaleDateString("en-IN")}
         </div>
 
-        <div className="text-[10px] text-gray-400">
-          {new Date(order.created_at).toLocaleTimeString(
-            "en-IN",
-            {
-              hour: "2-digit",
-              minute: "2-digit",
-            }
-          )}
+        <div className="text-xs text-slate-500 mt-1">
+          {new Date(order.created_at).toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </div>
       </td>
 
-      <td className="px-4 py-4 text-center align-top">
+      {/* Status */}
+      <td className="text-center py-1 text-center">
         <span
           className={`
             inline-flex
             items-center
-            gap-1
+            gap-2
             rounded-full
             border
-            px-2
+            px-3
             py-1
-            text-[10px]
+            text-xs
             font-semibold
+            shadow-sm
             ${status.bg}
             ${status.border}
             ${status.color}
           `}
         >
-          <FaCircle className="text-[6px]" />
+          <FaCircle className="text-[7px]" />
           {order.status}
         </span>
       </td>
 
-     <td className="px-4 py-4 align-top">
+      {/* Remarks */}
+      <td className="px-5 py-1">
+        {user?.role !== "CRM" ? (
+          <div className="max-w-[340px] rounded-lg bg-slate-50 p-3 text-slate-700 leading-6 border border-slate-200">
+            {order.notes || (
+              <span className="italic text-slate-400">
+                No Remarks
+              </span>
+            )}
+          </div>
+        ) : (
+          <>
+            {saved ? (
+              <div
+                className="max-w-[340px] rounded-lg border border-green-200 bg-green-50 p-3"
+                title={remarks}
+              >
+                <p className="text-slate-700 leading-6 break-words">
+                  {remarks}
+                </p>
+              </div>
+            ) : (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="flex gap-3 items-start"
+              >
+                <textarea
+                  rows={2}
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                  placeholder="Enter remarks..."
+                  className="
+                    w-72
+                    rounded
+                    border
+                    border-slate-300
+                    bg-white
+                    px-4
+                    py-1
+                    text-xs
+                    resize-none
+                    outline-none
+                    transition
+                    focus:border-blue-500
+                    focus:ring-4
+                    focus:ring-blue-100
+                  "
+                />
 
-  {/* ADMIN / HR */}
-  {user?.role !== "CRM" ? (
-    <div
-      className="
-        max-w-[300px]
-        break-words
-        whitespace-normal
-        leading-5
-        text-gray-700
-      "
-    >
-      {order.notes || "-"}
-    </div>
-  ) : (
-    <>
-      {/* CRM */}
-      {saved ? (
-        <div
-          className="
-            max-w-[300px]
-            break-words
-            whitespace-normal
-            leading-5
-            text-gray-700
-          "
-          title={remarks}
-        >
-          {remarks}
-        </div>
-      ) : (
-        <div
-          className="flex items-start gap-2"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <input
-            type="text"
-            value={remarks}
-            onChange={(e) =>
-              setRemarks(e.target.value)
-            }
-            placeholder="Enter Remarks"
-            className="
-              w-56
-              rounded
-              border
-              border-gray-300
-              px-2
-              py-1
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-            "
-          />
-
-          <button
-            onClick={saveRemarks}
-            disabled={loading}
-            className="
-              rounded
-              bg-blue-600
-              px-3
-              py-1
-              text-white
-              hover:bg-blue-700
-              disabled:opacity-50
-            "
-          >
-            {loading ? "Saving..." : "Save"}
-          </button>
-        </div>
-      )}
-    </>
-  )}
-
-</td>
+                <button
+                  onClick={saveRemarks}
+                  disabled={loading}
+                  className="
+                    h-9 mt-1
+                    rounded
+                    bg-gradient-to-r
+                    from-blue-600
+                    to-sky-600
+                    px-3
+                    text-xs
+                    font-semibold
+                    text-white
+                    shadow-md
+                    transition
+                    hover:shadow-lg
+                    hover:scale-105
+                    active:scale-95
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
+                  "
+                >
+                  {loading ? "Saving..." : "Save"}
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </td>
     </tr>
   );
 }

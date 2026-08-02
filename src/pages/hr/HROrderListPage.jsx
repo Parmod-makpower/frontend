@@ -34,8 +34,9 @@ export default function HROrderListPage() {
   // -----------------------------
   // Local Search
   // -----------------------------
-  const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
+ const filteredOrders = useMemo(() => {
+  return orders
+    .filter((order) => {
       const term = search.toLowerCase();
 
       const matchSearch =
@@ -51,41 +52,15 @@ export default function HROrderListPage() {
         crm === "ALL" || order.crm_name === crm;
 
       return matchSearch && matchStatus && matchCRM;
-    });
-  }, [orders, search, status, crm]);
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.created_at) -
+        new Date(a.created_at)
+    );
+}, [orders, search, status, crm]);
 
-  // -----------------------------
-  // Group Orders
-  // -----------------------------
-  const today = [];
-  const yesterday = [];
-  const older = [];
-
-  filteredOrders.forEach((order) => {
-    const orderDate = new Date(order.created_at);
-    const now = new Date();
-
-    const isToday =
-      orderDate.getDate() === now.getDate() &&
-      orderDate.getMonth() === now.getMonth() &&
-      orderDate.getFullYear() === now.getFullYear();
-
-    const y = new Date();
-    y.setDate(now.getDate() - 1);
-
-    const isYesterday =
-      orderDate.getDate() === y.getDate() &&
-      orderDate.getMonth() === y.getMonth() &&
-      orderDate.getFullYear() === y.getFullYear();
-
-    if (isToday) {
-      today.push(order);
-    } else if (isYesterday) {
-      yesterday.push(order);
-    } else {
-      older.push(order);
-    }
-  });
+  
 
   const Section = ({ title }) => (
     <h2 className="mt-5 mb-2 text-sm font-semibold text-gray-700">
@@ -94,26 +69,26 @@ export default function HROrderListPage() {
   );
 
   const renderTable = (list) => (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="min-w-[1200px] w-full table-auto">
-          <thead className="border-b bg-gray-50">
-            <tr className="whitespace-nowrap text-xs font-semibold text-gray-700">
-              <th className="px-4 py-3 text-left">Order ID</th>
+    <div className="overflow-hidden rounded border border-gray-200 ">
+    <div className=" overflow-x-auto max-h-[65vh]">
+        <table className="w-full min-w-[1200px] border-separate border-spacing-0 ">
+          <thead className="sticky top-0 z-10 bg-slate-200 border">
+           <tr className="text-xs uppercase tracking-wide text-gray-600">
+              <th className="px-4 py-3">Order ID</th>
 
               <th className="px-4 py-3 text-left">Party Name</th>
 
-              <th className="px-4 py-3 text-left">CRM</th>
+              <th className="px-4 py-3">CRM</th>
 
-              <th className="px-4 py-3 text-left">Date</th>
+              <th className="px-4 py-3">Date</th>
 
-              <th className="px-4 py-3 text-center">Status</th>
+              <th className="px-4 py-3">Status</th>
 
               <th className="px-4 py-3 text-left">Remarks</th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody >
             {list.map((order) => (
               <HROrderTableRow
                 key={order.id}
@@ -184,26 +159,8 @@ export default function HROrderListPage() {
             </div>
           )}
 
-          {today.length > 0 && (
-            <>
-              <Section title="Today" />
-              {renderTable(today)}
-            </>
-          )}
 
-          {yesterday.length > 0 && (
-            <>
-              <Section title="Yesterday" />
-              {renderTable(yesterday)}
-            </>
-          )}
-
-          {older.length > 0 && (
-            <>
-              <Section title="Older Orders" />
-              {renderTable(older)}
-            </>
-          )}
+         {filteredOrders.length > 0 && renderTable(filteredOrders)}
         </div>
 
         {/* RIGHT FILTER */}
