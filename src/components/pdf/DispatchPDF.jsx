@@ -175,17 +175,41 @@ export default function DispatchPDF(
   }
 
   // === TABLE DATA ===
-  const tableData = enrichedItems.map((item, idx) => [
+  // const tableData = enrichedItems.map((item, idx) => [
+  //   idx + 1,
+  //   item.sub_category ?? "-",
+  //   item.product_name,
+  //   item.quantity,
+  //   item.rack_no ?? "-",
+  //   item.cartoon_size ?? "-",
+  //   dispatchLocation?.toLowerCase() === "mumbai"
+  //     ? item.mumbai_stock ?? "-"
+  //     : item.ss_virtual_stock ?? "-"
+  // ]);
+
+const tableData = enrichedItems.map((item, idx) => {
+  const subCategory = String(item.sub_category || "").trim();
+
+  // Sirf tab "New" add hoga jab sub_category NEW se start ho
+  const isNewProduct = /^NEW\b/i.test(subCategory);
+
+  const displayProductName = isNewProduct
+    ? `New ${item.product_name}`
+    : item.product_name;
+
+  return [
     idx + 1,
     item.sub_category ?? "-",
-    item.product_name,
+    displayProductName,
     item.quantity,
     item.rack_no ?? "-",
     item.cartoon_size ?? "-",
     dispatchLocation?.toLowerCase() === "mumbai"
       ? item.mumbai_stock ?? "-"
       : item.ss_virtual_stock ?? "-"
-  ]);
+  ];
+});
+
 
   autoTable(doc, {
     startY: boxY + infoBoxHeight + 20,
