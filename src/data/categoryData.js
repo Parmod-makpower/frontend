@@ -212,6 +212,11 @@ const categories = [
         image: "https://millioncases.in/cdn/shop/files/202409210456232788_1_b62ebb07-fdcd-4ffc-a9b5-b1e58788a94c.webp?v=1726894738&width=1946"
       },
       {
+        label: "New Soldier",
+        keyword: "NEW SOLDIER TEMPERED",
+        image: "https://millioncases.in/cdn/shop/files/202409210456232788_1_b62ebb07-fdcd-4ffc-a9b5-b1e58788a94c.webp?v=1726894738&width=1946"
+      },
+      {
         label: "UV Glass",
         keyword: "UV TEMPERED",
         image: "https://millioncases.in/cdn/shop/files/202409210456232788_1_b62ebb07-fdcd-4ffc-a9b5-b1e58788a94c.webp?v=1726894738&width=1946"

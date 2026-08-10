@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaSearch, FaBell, FaGift, FaPlaneDeparture } from "react-icons/fa";
+import { FaSearch, FaBell, FaGift, FaPlaneDeparture, FaRocket, FaFireAlt } from "react-icons/fa";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -180,34 +180,145 @@ export default function HomePage() {
 )}
 
        
-{/* 🚀 New Launching & Upcoming Section */}
-<div className="grid grid-cols-2 gap-4 mb-6">
-  
-  {/* 🆕 New Launching */}
+{/* 🚀 New Launching & 🔥 New Tempered */}
+<div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6 mb-7">
+
+  {/* 🚀 New Launching */}
   <div
     onClick={() => navigate("/new-launching")}
-    className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl p-4 flex items-center gap-3 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"
+    className="
+      cursor-pointer
+      rounded-2xl
+      bg-orange-50
+      border border-orange-100
+      p-3 sm:p-5
+      shadow-sm
+      hover:shadow-md
+      active:scale-[0.98]
+      transition-all duration-200
+      group
+    "
   >
-    <div className="text-2xl bg-white/20 p-3 rounded-full">
-      🚀
-    </div>
-    <div>
-      <p className="text-sm font-semibold">New Launching</p>
-      <p className="text-xs opacity-80">Latest Products</p>
+    <div className="flex flex-col">
+
+      {/* Icon */}
+      <div className="
+        w-10 h-10 sm:w-12 sm:h-12
+        rounded-full
+        bg-orange-100
+        text-orange-500
+        flex items-center justify-center
+        mb-3
+        group-hover:scale-110
+        transition-transform
+      ">
+        <FaRocket className="text-lg sm:text-xl" />
+      </div>
+
+      {/* Title */}
+      <h2 className="
+        text-sm sm:text-lg
+        font-bold
+        text-gray-800
+        leading-tight
+      ">
+        New Launching
+      </h2>
+
+      {/* Description */}
+      <p className="
+        text-[10px] sm:text-sm
+        text-gray-500
+        mt-1
+        leading-relaxed
+      ">
+        Latest products
+      </p>
+
+      {/* Button */}
+      <div className="
+        mt-3
+        text-[10px] sm:text-xs
+        font-semibold
+        text-orange-600
+        flex items-center gap-1
+      ">
+        Explore
+        <span className="group-hover:translate-x-1 transition-transform">
+          →
+        </span>
+      </div>
+
     </div>
   </div>
 
-  {/* ⏳ Upcoming Products */}
+
+  {/* 🔥 New Tempered */}
   <div
-    // onClick={() => navigate("/upcoming-products")}
-    className="bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-xl p-4 flex items-center gap-3 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"
+    onClick={() => navigate("/tempered/NEW%20SOLDIER%20TEMPERED")}
+    className="
+      cursor-pointer
+      rounded-2xl
+      bg-blue-50
+      border border-blue-100
+      p-3 sm:p-5
+      shadow-sm
+      hover:shadow-md
+      active:scale-[0.98]
+      transition-all duration-200
+      group
+    "
   >
-    <div className="text-2xl bg-white/20 p-3 rounded-full">
-      ⏳
-    </div>
-    <div>
-      <p className="text-sm font-semibold">Upcoming</p>
-      <p className="text-xs opacity-80">Coming Soon</p>
+    <div className="flex flex-col">
+
+      {/* Icon */}
+      <div className="
+        w-10 h-10 sm:w-12 sm:h-12
+        rounded-full
+        bg-blue-100
+        text-blue-500
+        flex items-center justify-center
+        mb-3
+        group-hover:scale-110
+        transition-transform
+      ">
+        <FaFireAlt className="text-lg sm:text-xl" />
+      </div>
+
+      {/* Title */}
+      <h2 className="
+        text-sm sm:text-lg
+        font-bold
+        text-gray-800
+        leading-tight
+      ">
+        New Tempered
+      </h2>
+
+      {/* Description */}
+      <p className="
+        text-[10px] sm:text-sm
+        text-gray-500
+        mt-1
+        leading-relaxed
+      ">
+        Latest tempered
+      </p>
+
+      {/* Button */}
+      <div className="
+        mt-3
+        text-[10px] sm:text-xs
+        font-semibold
+        text-blue-600
+        flex items-center gap-1
+      ">
+        View Products
+        <span className="group-hover:translate-x-1 transition-transform">
+          →
+        </span>
+      </div>
+
     </div>
   </div>
 

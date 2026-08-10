@@ -25,6 +25,7 @@ export default function SubCategoryPage() {
     "UV Glass": 10003,
     "Meibo Glass": 10004,
     "Soldier": 10005,
+    "New Soldier": 10007,
   };
 
   // ✅ Get product by subcategory
