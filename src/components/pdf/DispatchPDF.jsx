@@ -194,7 +194,7 @@ const tableData = enrichedItems.map((item, idx) => {
   const isNewProduct = /^NEW\b/i.test(subCategory);
 
   const displayProductName = isNewProduct
-    ? `New ${item.product_name}`
+    ? `${item.product_name} New`
     : item.product_name;
 
   return [
