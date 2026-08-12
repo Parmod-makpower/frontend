@@ -9,6 +9,7 @@ export default function TemperedSummaryPanel({
     if (cat === "UV TEMPERED") return "UV";
     if (cat === "TEMPERED MEIBO") return "MEIBO";
     if (cat === "TEMPERED SOLDIER") return "SOLDIER";
+    if (cat === "NEW SOLDIER TEMPERED") return "NEW SOLDIER";
     if (cat === "TEMPERED BODYGUARD") return "Bodyguard";
     if (cat === "TEMPERED SUPER X") return "Super X";
     return cat;

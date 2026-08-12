@@ -254,6 +254,7 @@ export default function CRMOrderDetailPage() {
     "UV TEMPERED",
     "TEMPERED MEIBO",
     "TEMPERED SOLDIER",
+    "NEW SOLDIER TEMPERED",
     "TEMPERED BODYGUARD",
     "TEMPERED SUPER X"
   ];
