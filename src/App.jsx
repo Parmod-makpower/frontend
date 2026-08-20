@@ -133,7 +133,7 @@ export default function App() {
             <Route path="/schemes/new" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
             <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm/></ProtectedRoute>} />
             <Route  path="/orders-report"  element={<OrdersReportPage />}/>
-           
+            <Route path="/product-images-pdf" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductImagesPDF /></ProtectedRoute>} />
              <Route path="/dispatch-entries" element={<ProtectedRoute allowedRoles={['ADMIN']}><DispatchEntriesPage /></ProtectedRoute>} />
 
             <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />
