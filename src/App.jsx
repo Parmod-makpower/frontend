@@ -54,6 +54,7 @@ import NewLaunchingPage from "./pages/NewLaunchingPage";
 import SettingsPage from "./pages/ADMIN/SettingsPage";
 import OrdersReportPage from "./pages/ADMIN/OrdersReportPage";
 import HROrderListPage from "./pages/hr/HROrderListPage";
+import ProductImagesPDF from "./pages/CRM/ProductImagesPDF";
 
 export default function App() {
   useEffect(() => {
@@ -138,7 +139,7 @@ export default function App() {
             <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />
             <Route path="/all-users/list" element={<ProtectedRoute ><AllUsersList /></ProtectedRoute>} />
             <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
-           
+            <Route path="/product-images-pdf" element={<ProtectedRoute allowedRoles={['CRM']}><ProductImagesPDF /></ProtectedRoute>} />
             <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
              
            

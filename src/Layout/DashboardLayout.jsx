@@ -165,7 +165,8 @@ export default function DashboardLayout() {
       { label: "Dispatch", path: "/dispatch-entries", icon: <FaBox /> },
       { label: "Not-In-Stock", path: "/not-in-stock-reports", icon: <FaChartLine /> },
       { label: "Track-Orders", path: "/orders-tracking", icon: <FaRoute /> },
-      { label: "Goa Trip", path: "/goa-couple-trip-schemes", icon: <FaGift /> }
+      { label: "Goa Trip", path: "/goa-couple-trip-schemes", icon: <FaGift /> },
+      { label: "Catalogue", path: "/product-images-pdf", icon: <FaBox /> }
     );
   }
   if (user.role === "CRM") {
@@ -176,7 +177,8 @@ export default function DashboardLayout() {
       { label: "New Orders", path: "/crm/orders", icon: <FaBox /> },
       { label: "History", path: "/all/orders-history", icon: <FaHistory /> },
       { label: "Not-In-Stock", path: "/not-in-stock-reports", icon: <FaChartLine /> },
-      { label: "Goa Trip", path: "/goa-couple-trip-schemes", icon: <FaGift /> }
+      { label: "Goa Trip", path: "/goa-couple-trip-schemes", icon: <FaGift /> },
+      { label: "Catalogue", path: "/product-images-pdf", icon: <FaBox /> }
 
     );
   }
