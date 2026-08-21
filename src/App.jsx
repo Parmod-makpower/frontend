@@ -124,6 +124,7 @@ export default function App() {
             <Route path="/google-sheet" element={<ProtectedRoute ><OrderGoogleSheet /></ProtectedRoute>} />
             <Route path="/not-in-stock-reports" element={<ProtectedRoute><NotInStockReportPage /></ProtectedRoute>} />
              <Route path="/goa-trip-data" element={<ProtectedRoute><GoaTripSheetPage /></ProtectedRoute>} />
+              <Route path="/product-images-pdf" element={<ProtectedRoute><ProductImagesPDF /></ProtectedRoute>} />
 
             <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
             <Route path="/setting" element={<ProtectedRoute allowedRoles={['ADMIN']}><SettingsPage /></ProtectedRoute>} />
@@ -133,13 +134,12 @@ export default function App() {
             <Route path="/schemes/new" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
             <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm/></ProtectedRoute>} />
             <Route  path="/orders-report"  element={<OrdersReportPage />}/>
-            <Route path="/product-images-pdf" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductImagesPDF /></ProtectedRoute>} />
+            
              <Route path="/dispatch-entries" element={<ProtectedRoute allowedRoles={['ADMIN']}><DispatchEntriesPage /></ProtectedRoute>} />
 
             <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />
             <Route path="/all-users/list" element={<ProtectedRoute ><AllUsersList /></ProtectedRoute>} />
             <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
-            <Route path="/product-images-pdf" element={<ProtectedRoute allowedRoles={['CRM']}><ProductImagesPDF /></ProtectedRoute>} />
             <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
              
            
