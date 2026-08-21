@@ -19,7 +19,7 @@ export default function HomePage() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const stockLetter = stockType === "mumbai" ? "M" : "D";
   const stockColor =
-  stockType === "mumbai" ? "bg-green-600" : "bg-red-600";
+    stockType === "mumbai" ? "bg-green-600" : "bg-red-600";
   const { data: allProducts = [] } = useCachedProducts();
   const mahotsavProduct = allProducts.find(
     (p) => p.product_id === 10006
@@ -53,7 +53,7 @@ export default function HomePage() {
   // यहाँ आप top selling की लिस्ट रखेंगे
   const trendingIds = [1, 45, 74, 123, 1870, 717, 1120, 111, 1708];
 
-  const schemeIds = [1142, 18, 119, 60, 69,33, 1730, 1653];
+  const schemeIds = [1142, 18, 119, 60, 69, 33, 1730, 1653];
 
   return (
     <div className="mx-auto p-4 pb-25">
@@ -67,7 +67,7 @@ export default function HomePage() {
         <div className="block sm:hidden text-xl text-[var(--primary-color)]">
           {/* <FaBell /> */}
           <span className={`w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-white ${stockColor}`}
-          title={stockType === "mumbai" ? "Mumbai Stock" : "Delhi Stock"} >{stockLetter} </span>
+            title={stockType === "mumbai" ? "Mumbai Stock" : "Delhi Stock"} >{stockLetter} </span>
         </div>
       </div>
 
@@ -155,14 +155,14 @@ export default function HomePage() {
         </Slider>
       </div>
 
-{/* =========================================================
+      {/* =========================================================
     FIXED GOA TRIP BUTTON
 ========================================================= */}
 
-{showMahotsavButton && (
-  <button
-    onClick={() => navigate("/goa-couple-trip-schemes")}
-    className="
+      {showMahotsavButton && (
+        <button
+          onClick={() => navigate("/goa-couple-trip-schemes")}
+          className="
       fixed
       right-2
       sm:right-4
@@ -202,28 +202,28 @@ export default function HomePage() {
       transition-all
       duration-200
     "
-  >
-    <FaPlaneDeparture className="text-base sm:text-lg" />
+        >
+          <FaPlaneDeparture className="text-base sm:text-lg" />
 
-    <span className="text-[8px] sm:text-[9px] font-extrabold leading-none">
-      GOA
-    </span>
+          <span className="text-[8px] sm:text-[9px] font-extrabold leading-none">
+            GOA
+          </span>
 
-    <span className="text-[7px] sm:text-[8px] font-medium opacity-90 leading-none">
-      TRIP
-    </span>
-  </button>
-)}
+          <span className="text-[7px] sm:text-[8px] font-medium opacity-90 leading-none">
+            TRIP
+          </span>
+        </button>
+      )}
 
 
-{/* =========================================================
+      {/* =========================================================
     QUICK ACTION CARDS
     PDF + NEW LAUNCHING + NEW TEMPERED,,,,,
 ========================================================= */}
 
-<div className="mt-6 mb-7">
+      <div className="mt-6 mb-7">
 
-  <div className="
+        <div className="
     grid
     grid-cols-3
     gap-2
@@ -232,15 +232,15 @@ export default function HomePage() {
   ">
 
 
-    {/* =====================================================
+          {/* =====================================================
         PRODUCT PDF......
     ===================================================== */}
 
-    <div
-      onClick={() =>
-        navigate("/product-images-pdf")
-      }
-      className="
+          <div
+            onClick={() =>
+              navigate("/product-images-pdf")
+            }
+            className="
         group
         relative
         overflow-hidden
@@ -266,11 +266,11 @@ export default function HomePage() {
         transition-all
         duration-200
       "
-    >
+          >
 
-      {/* Decorative circle */}
+            {/* Decorative circle */}
 
-      <div className="
+            <div className="
         absolute
         -right-5
         -top-5
@@ -282,7 +282,7 @@ export default function HomePage() {
         bg-indigo-100/60
       " />
 
-      <div className="
+            <div className="
         relative
         flex
         flex-col
@@ -290,9 +290,9 @@ export default function HomePage() {
         text-center
       ">
 
-        {/* Icon */}
+              {/* Icon */}
 
-        <div className="
+              <div className="
           w-9
           h-9
           sm:w-11
@@ -319,17 +319,17 @@ export default function HomePage() {
 
           transition-transform
         ">
-          <FaFilePdf className="
+                <FaFilePdf className="
             text-base
             sm:text-lg
             lg:text-xl
           " />
-        </div>
+              </div>
 
 
-        {/* Title */}
+              {/* Title */}
 
-        <h2 className="
+              <h2 className="
           mt-2
           text-[10px]
           sm:text-xs
@@ -341,13 +341,13 @@ export default function HomePage() {
 
           leading-tight
         ">
-          Product PDF
-        </h2>
+                Product PDF
+              </h2>
 
 
-        {/* Description */}
+              {/* Description */}
 
-        <p className="
+              <p className="
           hidden
           sm:block
 
@@ -360,13 +360,13 @@ export default function HomePage() {
 
           leading-tight
         ">
-          Download products
-        </p>
+                Download products
+              </p>
 
 
-        {/* Action */}
+              {/* Action */}
 
-        <div className="
+              <div className="
           mt-2
 
           flex
@@ -381,35 +381,35 @@ export default function HomePage() {
 
           text-indigo-600
         ">
-          <FaDownload />
+                <FaDownload />
 
-          <span>
-            Download
-          </span>
+                <span>
+                  Download
+                </span>
 
-          <span className="
+                <span className="
             group-hover:translate-x-0.5
             transition-transform
           ">
-            →
-          </span>
-        </div>
+                  →
+                </span>
+              </div>
 
-      </div>
+            </div>
 
-    </div>
+          </div>
 
 
 
-    {/* =====================================================
+          {/* =====================================================
         NEW LAUNCHING
     ===================================================== */}
 
-    <div
-      onClick={() =>
-        navigate("/new-launching")
-      }
-      className="
+          <div
+            onClick={() =>
+              navigate("/new-launching")
+            }
+            className="
         group
         relative
         overflow-hidden
@@ -438,11 +438,11 @@ export default function HomePage() {
         transition-all
         duration-200
       "
-    >
+          >
 
-      {/* Decorative circle */}
+            {/* Decorative circle */}
 
-      <div className="
+            <div className="
         absolute
         -right-5
         -top-5
@@ -455,7 +455,7 @@ export default function HomePage() {
       " />
 
 
-      <div className="
+            <div className="
         relative
         flex
         flex-col
@@ -463,9 +463,9 @@ export default function HomePage() {
         text-center
       ">
 
-        {/* Icon */}
+              {/* Icon */}
 
-        <div className="
+              <div className="
           w-9
           h-9
           sm:w-11
@@ -487,17 +487,17 @@ export default function HomePage() {
 
           transition-transform
         ">
-          <FaRocket className="
+                <FaRocket className="
             text-base
             sm:text-lg
             lg:text-xl
           " />
-        </div>
+              </div>
 
 
-        {/* Title */}
+              {/* Title */}
 
-        <h2 className="
+              <h2 className="
           mt-2
 
           text-[10px]
@@ -510,13 +510,13 @@ export default function HomePage() {
 
           leading-tight
         ">
-          New Launching
-        </h2>
+                New Launching
+              </h2>
 
 
-        {/* Description */}
+              {/* Description */}
 
-        <p className="
+              <p className="
           hidden
           sm:block
 
@@ -529,13 +529,13 @@ export default function HomePage() {
 
           leading-tight
         ">
-          Latest products
-        </p>
+                Latest products
+              </p>
 
 
-        {/* Action */}
+              {/* Action */}
 
-        <div className="
+              <div className="
           mt-2
 
           flex
@@ -550,33 +550,33 @@ export default function HomePage() {
 
           text-orange-600
         ">
-          <span>
-            Explore
-          </span>
+                <span>
+                  Explore
+                </span>
 
-          <span className="
+                <span className="
             group-hover:translate-x-0.5
             transition-transform
           ">
-            →
-          </span>
-        </div>
+                  →
+                </span>
+              </div>
 
-      </div>
+            </div>
 
-    </div>
+          </div>
 
 
 
-    {/* =====================================================
+          {/* =====================================================
         NEW TEMPERED
     ===================================================== */}
 
-    <div
-      onClick={() =>
-        navigate("/tempered/NEW%20SOLDIER%20TEMPERED")
-      }
-      className="
+          <div
+            onClick={() =>
+              navigate("/tempered/NEW%20SOLDIER%20TEMPERED")
+            }
+            className="
         group
         relative
         overflow-hidden
@@ -605,11 +605,11 @@ export default function HomePage() {
         transition-all
         duration-200
       "
-    >
+          >
 
-      {/* Decorative circle */}
+            {/* Decorative circle */}
 
-      <div className="
+            <div className="
         absolute
         -right-5
         -top-5
@@ -622,7 +622,7 @@ export default function HomePage() {
       " />
 
 
-      <div className="
+            <div className="
         relative
         flex
         flex-col
@@ -630,9 +630,9 @@ export default function HomePage() {
         text-center
       ">
 
-        {/* Icon */}
+              {/* Icon */}
 
-        <div className="
+              <div className="
           w-9
           h-9
           sm:w-11
@@ -654,17 +654,17 @@ export default function HomePage() {
 
           transition-transform
         ">
-          <FaFireAlt className="
+                <FaFireAlt className="
             text-base
             sm:text-lg
             lg:text-xl
           " />
-        </div>
+              </div>
 
 
-        {/* Title */}
+              {/* Title */}
 
-        <h2 className="
+              <h2 className="
           mt-2
 
           text-[10px]
@@ -677,13 +677,12 @@ export default function HomePage() {
 
           leading-tight
         ">
-          New Tempered
-        </h2>
+                New Tempered
+              </h2>
 
+              {/* Description */}
 
-        {/* Description */}
-
-        <p className="
+              <p className="
           hidden
           sm:block
 
@@ -696,13 +695,13 @@ export default function HomePage() {
 
           leading-tight
         ">
-          Latest tempered
-        </p>
+                Latest tempered
+              </p>
 
 
-        {/* Action */}
+              {/* Action */}
 
-        <div className="
+              <div className="
           mt-2
 
           flex
@@ -717,28 +716,28 @@ export default function HomePage() {
 
           text-blue-600
         ">
-          <span>
-            View Products
-          </span>
+                <span>
+                  View Products
+                </span>
 
-          <span className="
+                <span className="
             group-hover:translate-x-0.5
             transition-transform
           ">
-            →
-          </span>
+                  →
+                </span>
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
 
       </div>
 
-    </div>
-
-  </div>
-
-</div>
-
- <SlidingProductsCards trendingIds={trendingIds} title={"Top Selling Products."} />
-{/* <SlidingProductsCards trendingIds={schemeIds} title={"Special Scheme Products"} /> */}
+      <SlidingProductsCards trendingIds={trendingIds} title={"Top Selling Products."} />
+      {/* <SlidingProductsCards trendingIds={schemeIds} title={"Special Scheme Products"} /> */}
 
     </div>
   );
