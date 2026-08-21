@@ -166,7 +166,7 @@ export default function HomePage() {
       fixed
       right-2
       sm:right-4
-      top-1/2
+      top-1/3
       -translate-y-1/2
       z-50
 
