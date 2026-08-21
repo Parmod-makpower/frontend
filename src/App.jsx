@@ -55,6 +55,7 @@ import SettingsPage from "./pages/ADMIN/SettingsPage";
 import OrdersReportPage from "./pages/ADMIN/OrdersReportPage";
 import HROrderListPage from "./pages/hr/HROrderListPage";
 import ProductImagesPDF from "./pages/CRM/ProductImagesPDF";
+import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
 
 export default function App() {
   useEffect(() => {
@@ -88,6 +89,8 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
        <Toaster position="top-center" reverseOrder={false} />
+     
+<PWAUpdatePrompt />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/form" element={<DistributorMeetForm />} />
@@ -123,8 +126,8 @@ export default function App() {
             <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
             <Route path="/google-sheet" element={<ProtectedRoute ><OrderGoogleSheet /></ProtectedRoute>} />
             <Route path="/not-in-stock-reports" element={<ProtectedRoute><NotInStockReportPage /></ProtectedRoute>} />
-             <Route path="/goa-trip-data" element={<ProtectedRoute><GoaTripSheetPage /></ProtectedRoute>} />
-              <Route path="/product-images-pdf" element={<ProtectedRoute><ProductImagesPDF /></ProtectedRoute>} />
+            <Route path="/goa-trip-data" element={<ProtectedRoute><GoaTripSheetPage /></ProtectedRoute>} />
+            <Route path="/product-images-pdf" element={<ProtectedRoute><ProductImagesPDF /></ProtectedRoute>} />
 
             <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
             <Route path="/setting" element={<ProtectedRoute allowedRoles={['ADMIN']}><SettingsPage /></ProtectedRoute>} />

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaSearch, FaBell, FaGift, FaPlaneDeparture, FaRocket, FaFireAlt } from "react-icons/fa";
+import { FaSearch, FaBell, FaGift, FaPlaneDeparture, FaRocket, FaFireAlt, FaFilePdf, FaDownload, FaChevronRight, FaImages } from "react-icons/fa";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -155,171 +155,587 @@ export default function HomePage() {
         </Slider>
       </div>
 
+{/* =========================================================
+    FIXED GOA TRIP BUTTON
+========================================================= */}
+
 {showMahotsavButton && (
   <button
     onClick={() => navigate("/goa-couple-trip-schemes")}
     className="
-      fixed right-3 top-1/2 -translate-y-1/2 z-50
-      bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700
+      fixed
+      right-2
+      sm:right-4
+      top-1/2
+      -translate-y-1/2
+      z-50
+
+      w-16
+      sm:w-14
+
+      py-2.5
+      sm:py-3
+
+      rounded-2xl
+
+      bg-gradient-to-b
+      from-cyan-500
+      via-blue-600
+      to-indigo-700
+
       text-white
-      px-3 py-3
-      rounded-xl
-      shadow-xl
-      flex flex-col items-center
+
+      flex
+      flex-col
+      items-center
+      justify-center
       gap-1
-      animate-pulse
+
+      shadow-[0_8px_25px_rgba(37,99,235,0.35)]
+
+      border
+      border-white/30
+
       hover:scale-105
-      transition-all duration-300
+      active:scale-95
+
+      transition-all
+      duration-200
     "
   >
-    <FaPlaneDeparture className="text-lg" />
-    <span className="text-[10px] font-bold leading-none">
-      Goa Trip
+    <FaPlaneDeparture className="text-base sm:text-lg" />
+
+    <span className="text-[8px] sm:text-[9px] font-extrabold leading-none">
+      GOA
+    </span>
+
+    <span className="text-[7px] sm:text-[8px] font-medium opacity-90 leading-none">
+      TRIP
     </span>
   </button>
 )}
 
-       
-{/* 🚀 New Launching & 🔥 New Tempered */}
-<div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6 mb-7">
 
-  {/* 🚀 New Launching */}
-  <div
-    onClick={() => navigate("/new-launching")}
-    className="
-      cursor-pointer
-      rounded-2xl
-      bg-orange-50
-      border border-orange-100
-      p-3 sm:p-5
-      shadow-sm
-      hover:shadow-md
-      active:scale-[0.98]
-      transition-all duration-200
-      group
-    "
-  >
-    <div className="flex flex-col">
+{/* =========================================================
+    QUICK ACTION CARDS
+    PDF + NEW LAUNCHING + NEW TEMPERED
+========================================================= */}
 
-      {/* Icon */}
+<div className="mt-6 mb-7">
+
+  <div className="
+    grid
+    grid-cols-3
+    gap-2
+    sm:gap-3
+    lg:gap-4
+  ">
+
+
+    {/* =====================================================
+        PRODUCT PDF
+    ===================================================== */}
+
+    <div
+      onClick={() =>
+        navigate("/product-images-pdf")
+      }
+      className="
+        group
+        relative
+        overflow-hidden
+        cursor-pointer
+
+        rounded-2xl
+        sm:rounded-3xl
+
+        border
+        border-indigo-100
+
+        bg-gradient-to-br
+        from-indigo-50
+        via-white
+        to-purple-50
+
+        p-2.5
+        sm:p-4
+        lg:p-5
+
+        shadow-sm
+        hover:shadow-md
+
+        active:scale-[0.97]
+
+        transition-all
+        duration-200
+      "
+    >
+
+      {/* Decorative circle */}
+
       <div className="
-        w-10 h-10 sm:w-12 sm:h-12
+        absolute
+        -right-5
+        -top-5
+        w-16
+        h-16
+        sm:w-24
+        sm:h-24
         rounded-full
-        bg-orange-100
-        text-orange-500
-        flex items-center justify-center
-        mb-3
-        group-hover:scale-110
-        transition-transform
-      ">
-        <FaRocket className="text-lg sm:text-xl" />
-      </div>
+        bg-indigo-100/60
+      " />
 
-      {/* Title */}
-      <h2 className="
-        text-sm sm:text-lg
-        font-bold
-        text-gray-800
-        leading-tight
-      ">
-        New Launching
-      </h2>
-
-      {/* Description */}
-      <p className="
-        text-[10px] sm:text-sm
-        text-gray-500
-        mt-1
-        leading-relaxed
-      ">
-        Latest products
-      </p>
-
-      {/* Button */}
       <div className="
-        mt-3
-        text-[10px] sm:text-xs
-        font-semibold
-        text-orange-600
-        flex items-center gap-1
+        relative
+        flex
+        flex-col
+        items-center
+        text-center
       ">
-        Explore
-        <span className="group-hover:translate-x-1 transition-transform">
-          →
-        </span>
+
+        {/* Icon */}
+
+        <div className="
+          w-9
+          h-9
+          sm:w-11
+          sm:h-11
+          lg:w-12
+          lg:h-12
+
+          rounded-xl
+          sm:rounded-2xl
+
+          bg-gradient-to-br
+          from-indigo-600
+          to-purple-600
+
+          text-white
+
+          flex
+          items-center
+          justify-center
+
+          shadow-sm
+
+          group-hover:scale-105
+
+          transition-transform
+        ">
+          <FaFilePdf className="
+            text-base
+            sm:text-lg
+            lg:text-xl
+          " />
+        </div>
+
+
+        {/* Title */}
+
+        <h2 className="
+          mt-2
+          text-[10px]
+          sm:text-xs
+          lg:text-sm
+
+          font-extrabold
+
+          text-slate-800
+
+          leading-tight
+        ">
+          Product PDF
+        </h2>
+
+
+        {/* Description */}
+
+        <p className="
+          hidden
+          sm:block
+
+          mt-1
+
+          text-[9px]
+          lg:text-[10px]
+
+          text-slate-500
+
+          leading-tight
+        ">
+          Download products
+        </p>
+
+
+        {/* Action */}
+
+        <div className="
+          mt-2
+
+          flex
+          items-center
+          gap-1
+
+          text-[8px]
+          sm:text-[9px]
+          lg:text-[10px]
+
+          font-bold
+
+          text-indigo-600
+        ">
+          <FaDownload />
+
+          <span>
+            Download
+          </span>
+
+          <span className="
+            group-hover:translate-x-0.5
+            transition-transform
+          ">
+            →
+          </span>
+        </div>
+
       </div>
 
     </div>
-  </div>
 
 
-  {/* 🔥 New Tempered */}
-  <div
-    onClick={() => navigate("/tempered/NEW%20SOLDIER%20TEMPERED")}
-    className="
-      cursor-pointer
-      rounded-2xl
-      bg-blue-50
-      border border-blue-100
-      p-3 sm:p-5
-      shadow-sm
-      hover:shadow-md
-      active:scale-[0.98]
-      transition-all duration-200
-      group
-    "
-  >
-    <div className="flex flex-col">
 
-      {/* Icon */}
+    {/* =====================================================
+        NEW LAUNCHING
+    ===================================================== */}
+
+    <div
+      onClick={() =>
+        navigate("/new-launching")
+      }
+      className="
+        group
+        relative
+        overflow-hidden
+        cursor-pointer
+
+        rounded-2xl
+        sm:rounded-3xl
+
+        border
+        border-orange-100
+
+        bg-gradient-to-br
+        from-orange-50
+        via-white
+        to-amber-50
+
+        p-2.5
+        sm:p-4
+        lg:p-5
+
+        shadow-sm
+        hover:shadow-md
+
+        active:scale-[0.97]
+
+        transition-all
+        duration-200
+      "
+    >
+
+      {/* Decorative circle */}
+
       <div className="
-        w-10 h-10 sm:w-12 sm:h-12
+        absolute
+        -right-5
+        -top-5
+        w-16
+        h-16
+        sm:w-24
+        sm:h-24
         rounded-full
-        bg-blue-100
-        text-blue-500
-        flex items-center justify-center
-        mb-3
-        group-hover:scale-110
-        transition-transform
-      ">
-        <FaFireAlt className="text-lg sm:text-xl" />
-      </div>
+        bg-orange-100/60
+      " />
 
-      {/* Title */}
-      <h2 className="
-        text-sm sm:text-lg
-        font-bold
-        text-gray-800
-        leading-tight
-      ">
-        New Tempered
-      </h2>
 
-      {/* Description */}
-      <p className="
-        text-[10px] sm:text-sm
-        text-gray-500
-        mt-1
-        leading-relaxed
-      ">
-        Latest tempered
-      </p>
-
-      {/* Button */}
       <div className="
-        mt-3
-        text-[10px] sm:text-xs
-        font-semibold
-        text-blue-600
-        flex items-center gap-1
+        relative
+        flex
+        flex-col
+        items-center
+        text-center
       ">
-        View Products
-        <span className="group-hover:translate-x-1 transition-transform">
-          →
-        </span>
+
+        {/* Icon */}
+
+        <div className="
+          w-9
+          h-9
+          sm:w-11
+          sm:h-11
+          lg:w-12
+          lg:h-12
+
+          rounded-xl
+          sm:rounded-2xl
+
+          bg-orange-100
+          text-orange-500
+
+          flex
+          items-center
+          justify-center
+
+          group-hover:scale-105
+
+          transition-transform
+        ">
+          <FaRocket className="
+            text-base
+            sm:text-lg
+            lg:text-xl
+          " />
+        </div>
+
+
+        {/* Title */}
+
+        <h2 className="
+          mt-2
+
+          text-[10px]
+          sm:text-xs
+          lg:text-sm
+
+          font-extrabold
+
+          text-slate-800
+
+          leading-tight
+        ">
+          New Launching
+        </h2>
+
+
+        {/* Description */}
+
+        <p className="
+          hidden
+          sm:block
+
+          mt-1
+
+          text-[9px]
+          lg:text-[10px]
+
+          text-slate-500
+
+          leading-tight
+        ">
+          Latest products
+        </p>
+
+
+        {/* Action */}
+
+        <div className="
+          mt-2
+
+          flex
+          items-center
+          gap-1
+
+          text-[8px]
+          sm:text-[9px]
+          lg:text-[10px]
+
+          font-bold
+
+          text-orange-600
+        ">
+          <span>
+            Explore
+          </span>
+
+          <span className="
+            group-hover:translate-x-0.5
+            transition-transform
+          ">
+            →
+          </span>
+        </div>
+
       </div>
 
     </div>
+
+
+
+    {/* =====================================================
+        NEW TEMPERED
+    ===================================================== */}
+
+    <div
+      onClick={() =>
+        navigate("/tempered/NEW%20SOLDIER%20TEMPERED")
+      }
+      className="
+        group
+        relative
+        overflow-hidden
+        cursor-pointer
+
+        rounded-2xl
+        sm:rounded-3xl
+
+        border
+        border-blue-100
+
+        bg-gradient-to-br
+        from-blue-50
+        via-white
+        to-cyan-50
+
+        p-2.5
+        sm:p-4
+        lg:p-5
+
+        shadow-sm
+        hover:shadow-md
+
+        active:scale-[0.97]
+
+        transition-all
+        duration-200
+      "
+    >
+
+      {/* Decorative circle */}
+
+      <div className="
+        absolute
+        -right-5
+        -top-5
+        w-16
+        h-16
+        sm:w-24
+        sm:h-24
+        rounded-full
+        bg-blue-100/60
+      " />
+
+
+      <div className="
+        relative
+        flex
+        flex-col
+        items-center
+        text-center
+      ">
+
+        {/* Icon */}
+
+        <div className="
+          w-9
+          h-9
+          sm:w-11
+          sm:h-11
+          lg:w-12
+          lg:h-12
+
+          rounded-xl
+          sm:rounded-2xl
+
+          bg-blue-100
+          text-blue-500
+
+          flex
+          items-center
+          justify-center
+
+          group-hover:scale-105
+
+          transition-transform
+        ">
+          <FaFireAlt className="
+            text-base
+            sm:text-lg
+            lg:text-xl
+          " />
+        </div>
+
+
+        {/* Title */}
+
+        <h2 className="
+          mt-2
+
+          text-[10px]
+          sm:text-xs
+          lg:text-sm
+
+          font-extrabold
+
+          text-slate-800
+
+          leading-tight
+        ">
+          New Tempered
+        </h2>
+
+
+        {/* Description */}
+
+        <p className="
+          hidden
+          sm:block
+
+          mt-1
+
+          text-[9px]
+          lg:text-[10px]
+
+          text-slate-500
+
+          leading-tight
+        ">
+          Latest tempered
+        </p>
+
+
+        {/* Action */}
+
+        <div className="
+          mt-2
+
+          flex
+          items-center
+          gap-1
+
+          text-[8px]
+          sm:text-[9px]
+          lg:text-[10px]
+
+          font-bold
+
+          text-blue-600
+        ">
+          <span>
+            View Products
+          </span>
+
+          <span className="
+            group-hover:translate-x-0.5
+            transition-transform
+          ">
+            →
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
   </div>
 
 </div>

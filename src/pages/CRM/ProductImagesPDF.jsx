@@ -8,14 +8,16 @@ import {
   FaImages,
   FaCheckCircle,
   FaBoxOpen,
-  FaImage,
   FaSpinner,
   FaFileImage,
+  FaCheckSquare,
+  FaSquare,
+  FaTimes,
 } from "react-icons/fa";
 
 /* =========================================================
    HIDDEN SUB CATEGORIES
-   ========================================================= */
+========================================================= */
 
 const HIDDEN_SUB_CATEGORIES = [
   "POUCH BATTERY",
@@ -35,18 +37,7 @@ const HIDDEN_SUB_CATEGORIES = [
 
 /* =========================================================
    CATEGORY GROUPS
-   =========================================================
-
-   Example:
-
-   DATA CABLE
-   DATA CABLE V8
-   DATA CABLE TYPE-C
-   DATA CABLE PD
-   DATA CABLE C TO C
-
-   => DATA CABLE
-*/
+========================================================= */
 
 const CATEGORY_GROUPS = {
   "DATA CABLE": [
@@ -77,7 +68,7 @@ const CATEGORY_GROUPS = {
 
 /* =========================================================
    NORMALIZE CATEGORY
-   ========================================================= */
+========================================================= */
 
 const normalizeCategory = (value) => {
   return String(value || "")
@@ -88,26 +79,7 @@ const normalizeCategory = (value) => {
 
 /* =========================================================
    GET DISPLAY CATEGORY
-   =========================================================
-
-   Agar category kisi group mein hai,
-   to group ka naam return hoga.
-
-   DATA CABLE V8
-        ↓
-   DATA CABLE
-
-   DATA CABLE TYPE-C
-        ↓
-   DATA CABLE
-
-   DATA CABLE PD
-        ↓
-   DATA CABLE
-
-   Agar group mein nahi hai,
-   to original normalized category return hogi.
-   ========================================================= */
+========================================================= */
 
 const getDisplayCategory = (category) => {
   const normalized = normalizeCategory(category);
@@ -129,24 +101,7 @@ const getDisplayCategory = (category) => {
 
 /* =========================================================
    CHECK HIDDEN CATEGORY
-   =========================================================
-
-   Prefix based hiding.
-
-   Example:
-
-   HIDDEN:
-   POLYMER
-
-   Then:
-
-   POLYMER
-   POLYMER MI BATTERY
-   POLYMER OPPO BATTERY
-   POLYMER VIVO BATTERY
-
-   sab hide honge.
-   ========================================================= */
+========================================================= */
 
 const isCategoryHidden = (category) => {
   const normalized = normalizeCategory(category);
@@ -165,14 +120,22 @@ const isCategoryHidden = (category) => {
   });
 };
 
+/* =========================================================
+   COMPONENT
+========================================================= */
+
 export default function ProductImagesPDF() {
   const {
     data: allProducts = [],
     isLoading,
   } = useCachedProducts();
 
-  const [selectedCategory, setSelectedCategory] =
-    useState("");
+  /* =======================================================
+     STATE
+  ======================================================= */
+
+  const [selectedCategories, setSelectedCategories] =
+    useState([]);
 
   const [isDownloading, setIsDownloading] =
     useState(false);
@@ -180,16 +143,16 @@ export default function ProductImagesPDF() {
   const [isPosterDownloading, setIsPosterDownloading] =
     useState(false);
 
-  /* =========================================================
+  /* =======================================================
      CLOUDINARY CONFIG
-     ========================================================= */
+  ======================================================= */
 
   const CLOUDINARY_BASE =
     "https://res.cloudinary.com/djyr368zj/";
 
-  /* =========================================================
+  /* =======================================================
      ACTIVE PRODUCTS
-     ========================================================= */
+  ======================================================= */
 
   const products = useMemo(() => {
     return allProducts.filter(
@@ -197,12 +160,9 @@ export default function ProductImagesPDF() {
     );
   }, [allProducts]);
 
-  /* =========================================================
+  /* =======================================================
      VISIBLE PRODUCTS
-     =========================================================
-
-     Hidden categories ke products yaha se remove honge.
-     ========================================================= */
+  ======================================================= */
 
   const visibleProducts = useMemo(() => {
     return products.filter(
@@ -211,9 +171,9 @@ export default function ProductImagesPDF() {
     );
   }, [products]);
 
-  /* =========================================================
+  /* =======================================================
      ALL DISPLAY CATEGORIES
-     ========================================================= */
+  ======================================================= */
 
   const categories = useMemo(() => {
     const categorySet = new Set();
@@ -237,44 +197,145 @@ export default function ProductImagesPDF() {
     );
   }, [visibleProducts]);
 
-  /* =========================================================
+  /* =======================================================
+     CATEGORY PRODUCT COUNT
+  ======================================================= */
+
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+
+    categories.forEach((category) => {
+      counts[category] = visibleProducts.filter(
+        (product) => {
+          const productCategory =
+            getDisplayCategory(
+              product.sub_category
+            );
+
+          return (
+            normalizeCategory(productCategory) ===
+            normalizeCategory(category)
+          );
+        }
+      ).length;
+    });
+
+    return counts;
+  }, [categories, visibleProducts]);
+
+  /* =======================================================
      SELECTED PRODUCTS
-     =========================================================
-
-     Agar DATA CABLE select hai:
-
-     DATA CABLE
-     DATA CABLE V8
-     DATA CABLE TYPE-C
-     DATA CABLE PD
-     DATA CABLE C TO C
-
-     sab products aayenge.
-     ========================================================= */
+     
+     Multiple categories ke products combine honge.
+  ======================================================= */
 
   const selectedProducts = useMemo(() => {
-    if (!selectedCategory) return [];
+    if (selectedCategories.length === 0) {
+      return [];
+    }
 
-    const selected =
-      normalizeCategory(selectedCategory);
+    const selectedSet = new Set(
+      selectedCategories.map(normalizeCategory)
+    );
 
     return visibleProducts.filter((product) => {
       const productCategory =
-        getDisplayCategory(product.sub_category);
+        getDisplayCategory(
+          product.sub_category
+        );
 
-      return (
-        normalizeCategory(productCategory) ===
-        selected
+      return selectedSet.has(
+        normalizeCategory(productCategory)
       );
     });
   }, [
     visibleProducts,
-    selectedCategory,
+    selectedCategories,
   ]);
 
-  /* =========================================================
+  /* =======================================================
+     TOTAL SELECTED PRODUCTS
+  ======================================================= */
+
+  const totalSelectedProducts =
+    selectedProducts.length;
+
+  /* =======================================================
+     CHECK CATEGORY SELECTED
+  ======================================================= */
+
+  const isCategorySelected = (category) => {
+    return selectedCategories.some(
+      (selected) =>
+        normalizeCategory(selected) ===
+        normalizeCategory(category)
+    );
+  };
+
+  /* =======================================================
+     TOGGLE CATEGORY
+  ======================================================= */
+
+  const toggleCategory = (category) => {
+    if (
+      isDownloading ||
+      isPosterDownloading
+    ) {
+      return;
+    }
+
+    setSelectedCategories((previous) => {
+      const exists = previous.some(
+        (item) =>
+          normalizeCategory(item) ===
+          normalizeCategory(category)
+      );
+
+      if (exists) {
+        return previous.filter(
+          (item) =>
+            normalizeCategory(item) !==
+            normalizeCategory(category)
+        );
+      }
+
+      return [...previous, category];
+    });
+  };
+
+  /* =======================================================
+     SELECT ALL
+  ======================================================= */
+
+  const selectAllCategories = () => {
+    if (
+      isDownloading ||
+      isPosterDownloading
+    ) {
+      return;
+    }
+
+    setSelectedCategories([...categories]);
+  };
+
+  /* =======================================================
+     CLEAR ALL
+  ======================================================= */
+
+  const clearAllCategories = () => {
+    if (
+      isDownloading ||
+      isPosterDownloading
+    ) {
+      return;
+    }
+
+    setSelectedCategories([]);
+  };
+
+  /* =======================================================
      CLOUDINARY URL
-     ========================================================= */
+  ======================================================= */
 
   const getCloudinaryUrl = (image) => {
     if (!image) return null;
@@ -285,7 +346,9 @@ export default function ProductImagesPDF() {
 
     const cleanImage = image.trim();
 
-    if (!cleanImage) return null;
+    if (!cleanImage) {
+      return null;
+    }
 
     /* Already complete URL */
 
@@ -299,7 +362,9 @@ export default function ProductImagesPDF() {
     /* image/upload/... */
 
     if (
-      cleanImage.startsWith("image/upload/")
+      cleanImage.startsWith(
+        "image/upload/"
+      )
     ) {
       return `${CLOUDINARY_BASE}${cleanImage}`;
     }
@@ -317,9 +382,9 @@ export default function ProductImagesPDF() {
     return `${CLOUDINARY_BASE}image/upload/${cleanImage}`;
   };
 
-  /* =========================================================
+  /* =======================================================
      GET PRODUCT IMAGE
-     ========================================================= */
+  ======================================================= */
 
   const getProductImage = (product) => {
     const image =
@@ -332,22 +397,26 @@ export default function ProductImagesPDF() {
     return getCloudinaryUrl(image);
   };
 
-  /* =========================================================
+  /* =======================================================
      GET POSTER IMAGE
-     =========================================================
-
-     Poster ke liye IMAGE 2 use hoga.
-     ========================================================= */
+     
+     IMAGE 2
+  ======================================================= */
 
   const getPosterImage = (product) => {
-    return getCloudinaryUrl(product?.image2);
+    return getCloudinaryUrl(
+      product?.image2
+    );
   };
 
-  /* =========================================================
+  /* =======================================================
      IMAGE -> JPEG BASE64
-     ========================================================= */
+  ======================================================= */
 
-  const imageToJPEG = async (url, maxSize = 1200) => {
+  const imageToJPEG = async (
+    url,
+    maxSize = 1200
+  ) => {
     if (!url) return null;
 
     return new Promise((resolve) => {
@@ -358,10 +427,15 @@ export default function ProductImagesPDF() {
       img.onload = () => {
         try {
           const canvas =
-            document.createElement("canvas");
+            document.createElement(
+              "canvas"
+            );
 
-          let width = img.naturalWidth;
-          let height = img.naturalHeight;
+          let width =
+            img.naturalWidth;
+
+          let height =
+            img.naturalHeight;
 
           if (!width || !height) {
             resolve(null);
@@ -448,26 +522,52 @@ export default function ProductImagesPDF() {
     });
   };
 
-  /* =========================================================
+  /* =======================================================
      SAFE FILE NAME
-     ========================================================= */
+  ======================================================= */
 
   const getSafeFileName = (name) => {
     return (
       String(name || "Products")
-        .replace(/[^a-zA-Z0-9-_ ]/g, "")
-        .replace(/\s+/g, "_")
+        .replace(
+          /[^a-zA-Z0-9-_ ]/g,
+          ""
+        )
+        .replace(
+          /\s+/g,
+          "_"
+        )
         .trim() || "Products"
     );
   };
 
-  /* =========================================================
+  /* =======================================================
+     CATEGORY FILE NAME
+  ======================================================= */
+
+  const getSelectedCategoryFileName = () => {
+    if (selectedCategories.length === 0) {
+      return "Products";
+    }
+
+    if (selectedCategories.length === 1) {
+      return getSafeFileName(
+        selectedCategories[0]
+      );
+    }
+
+    return `${selectedCategories.length}_Categories`;
+  };
+
+  /* =======================================================
      DOWNLOAD PRODUCT IMAGE PDF
-     ========================================================= */
+     
+     MULTIPLE CATEGORY SUPPORT
+  ======================================================= */
 
   const downloadPDF = async () => {
     if (
-      !selectedCategory ||
+      selectedCategories.length === 0 ||
       selectedProducts.length === 0
     ) {
       return;
@@ -480,6 +580,7 @@ export default function ProductImagesPDF() {
         orientation: "portrait",
         unit: "mm",
         format: "a4",
+        compress: true,
       });
 
       const pageWidth =
@@ -490,9 +591,9 @@ export default function ProductImagesPDF() {
 
       const margin = 12;
 
-      /* =====================================================
-         HEADER
-         ===================================================== */
+      /* ===================================================
+         PDF HEADER
+      =================================================== */
 
       doc.setFont(
         "helvetica",
@@ -513,7 +614,7 @@ export default function ProductImagesPDF() {
         18
       );
 
-      doc.setFontSize(12);
+      doc.setFontSize(11);
 
       doc.setTextColor(
         71,
@@ -521,8 +622,19 @@ export default function ProductImagesPDF() {
         105
       );
 
+      const categoryTitle =
+        selectedCategories.join(
+          " + "
+        );
+
+      const titleLines =
+        doc.splitTextToSize(
+          `${categoryTitle} - Product Catalogue`,
+          pageWidth - margin * 2
+        );
+
       doc.text(
-        `${selectedCategory} - Product Catalogue`,
+        titleLines,
         margin,
         27
       );
@@ -535,9 +647,18 @@ export default function ProductImagesPDF() {
       doc.setFontSize(9);
 
       doc.text(
-        `Total Products: ${selectedProducts.length}`,
+        `Categories: ${selectedCategories.length}`,
         pageWidth - margin,
         18,
+        {
+          align: "right",
+        }
+      );
+
+      doc.text(
+        `Total Products: ${selectedProducts.length}`,
+        pageWidth - margin,
+        24,
         {
           align: "right",
         }
@@ -551,16 +672,16 @@ export default function ProductImagesPDF() {
 
       doc.line(
         margin,
-        32,
+        36,
         pageWidth - margin,
-        32
+        36
       );
 
-      let y = 42;
+      let y = 46;
 
-      /* =====================================================
+      /* ===================================================
          PRODUCTS
-         ===================================================== */
+      =================================================== */
 
       for (
         let i = 0;
@@ -573,9 +694,9 @@ export default function ProductImagesPDF() {
         const image =
           getProductImage(product);
 
-        /* ===================================================
+        /* =================================================
            NEW PAGE
-           =================================================== */
+        ================================================= */
 
         if (
           y >
@@ -590,7 +711,7 @@ export default function ProductImagesPDF() {
             "bold"
           );
 
-          doc.setFontSize(11);
+          doc.setFontSize(10);
 
           doc.setTextColor(
             71,
@@ -599,17 +720,17 @@ export default function ProductImagesPDF() {
           );
 
           doc.text(
-            `${selectedCategory} - Product Catalogue`,
+            "MAKPOWER - Product Catalogue",
             margin,
             y
           );
 
-          y += 15;
+          y += 14;
         }
 
-        /* ===================================================
+        /* =================================================
            CARD
-           =================================================== */
+        ================================================= */
 
         const cardX = margin;
 
@@ -641,9 +762,9 @@ export default function ProductImagesPDF() {
           "FD"
         );
 
-        /* ===================================================
+        /* =================================================
            SERIAL
-           =================================================== */
+        ================================================= */
 
         doc.setFont(
           "helvetica",
@@ -664,9 +785,9 @@ export default function ProductImagesPDF() {
           y + 8
         );
 
-        /* ===================================================
+        /* =================================================
            IMAGE
-           =================================================== */
+        ================================================= */
 
         if (image) {
           try {
@@ -697,9 +818,9 @@ export default function ProductImagesPDF() {
           }
         }
 
-        /* ===================================================
+        /* =================================================
            PRODUCT DETAILS
-           =================================================== */
+        ================================================= */
 
         const textX =
           cardX + 70;
@@ -733,7 +854,7 @@ export default function ProductImagesPDF() {
           y + 15
         );
 
-        /* Product ID */
+        /* Price */
 
         doc.setFont(
           "helvetica",
@@ -749,28 +870,34 @@ export default function ProductImagesPDF() {
         );
 
         doc.text(
-          `Price: ${
-            product.price ?? "-"
+          `Price: ${product.price ?? "-"
           }`,
           textX,
           y + 22
         );
 
+        /* Guarantee */
+
         doc.text(
-          `Guarantee: ${
-            product.guarantee ?? "-"
+          `Guarantee: ${product.guarantee ?? "-"
           }`,
           textX,
           y + 32
         );
 
-        /* Original Sub Category */
+        /* Category */
 
         if (
           product.sub_category
         ) {
+          const categoryLines =
+            doc.splitTextToSize(
+              `Category: ${product.sub_category}`,
+              cardWidth - 85
+            );
+
           doc.text(
-            `Category: ${product.sub_category}`,
+            categoryLines,
             textX,
             y + 42
           );
@@ -780,9 +907,9 @@ export default function ProductImagesPDF() {
           cardHeight + 7;
       }
 
-      /* =====================================================
+      /* ===================================================
          FOOTER
-         ===================================================== */
+      =================================================== */
 
       const pageCount =
         doc.internal.getNumberOfPages();
@@ -808,7 +935,7 @@ export default function ProductImagesPDF() {
         );
 
         doc.text(
-          `MAKPOWER | ${selectedCategory}`,
+          "MAKPOWER | Product Catalogue",
           margin,
           pageHeight - 8
         );
@@ -823,19 +950,16 @@ export default function ProductImagesPDF() {
         );
       }
 
-      /* =====================================================
+      /* ===================================================
          SAVE
-         ===================================================== */
+      =================================================== */
 
-      const safeCategory =
-        getSafeFileName(
-          selectedCategory
-        );
+      const safeName =
+        getSelectedCategoryFileName();
 
-      const fileName =
-        `${safeCategory}_Products.pdf`;
-
-      doc.save(fileName);
+      doc.save(
+        `${safeName}_Products.pdf`
+      );
     } catch (error) {
       console.error(
         "PDF generation error:",
@@ -850,23 +974,19 @@ export default function ProductImagesPDF() {
     }
   };
 
-  /* =========================================================
+  /* =======================================================
      DOWNLOAD ALL POSTERS
-     =========================================================
-
-     IMPORTANT:
-
-     Ab koi second page/component nahi hai.
-
-     First page ke "Poster Download" button par click karte hi
-     Image 2 se PDF generate hoga aur download hoga.
-
+     
+     MULTIPLE CATEGORY SUPPORT
+     
+     IMAGE 2
+     
      ONE PRODUCT = ONE A4 PAGE
-     ========================================================= */
+  ======================================================= */
 
   const downloadAllPosters = async () => {
     if (
-      !selectedCategory ||
+      selectedCategories.length === 0 ||
       selectedProducts.length === 0
     ) {
       return;
@@ -890,9 +1010,9 @@ export default function ProductImagesPDF() {
 
       let addedPages = 0;
 
-      /* =====================================================
-         LOOP ALL PRODUCTS
-         ===================================================== */
+      /* ===================================================
+         LOOP PRODUCTS
+      =================================================== */
 
       for (
         let i = 0;
@@ -907,16 +1027,6 @@ export default function ProductImagesPDF() {
         const image =
           getPosterImage(product);
 
-        console.log(
-          `Poster ${i + 1}/${selectedProducts.length}:`,
-          product?.product_name,
-          image
-        );
-
-        /* ===================================================
-           NO IMAGE 2
-           =================================================== */
-
         if (!image) {
           console.warn(
             "Poster image2 not available:",
@@ -926,9 +1036,9 @@ export default function ProductImagesPDF() {
           continue;
         }
 
-        /* ===================================================
+        /* =================================================
            CONVERT IMAGE
-           =================================================== */
+        ================================================= */
 
         const base64 =
           await imageToJPEG(
@@ -945,9 +1055,9 @@ export default function ProductImagesPDF() {
           continue;
         }
 
-        /* ===================================================
+        /* =================================================
            IMAGE DIMENSIONS
-           =================================================== */
+        ================================================= */
 
         const imgProps =
           doc.getImageProperties(
@@ -964,20 +1074,12 @@ export default function ProductImagesPDF() {
           !imgWidth ||
           !imgHeight
         ) {
-          console.warn(
-            "Invalid poster dimensions:",
-            product?.product_name
-          );
-
           continue;
         }
 
-        /* ===================================================
+        /* =================================================
            NEW PAGE
-
-           First valid poster uses first PDF page.
-           Every next poster gets a new page.
-           =================================================== */
+        ================================================= */
 
         if (addedPages > 0) {
           doc.addPage();
@@ -994,21 +1096,19 @@ export default function ProductImagesPDF() {
         let x;
         let y;
 
-        /* ===================================================
+        /* =================================================
            FULL A4 COVER
+        ================================================= */
 
-           Aspect ratio maintain rahega.
-           Agar image A4 ratio se different hai,
-           thoda crop hoga.
-           =================================================== */
-
-        if (imgRatio > pageRatio) {
-          /* Image wider hai */
-
-          renderHeight = pageHeight;
+        if (
+          imgRatio > pageRatio
+        ) {
+          renderHeight =
+            pageHeight;
 
           renderWidth =
-            renderHeight * imgRatio;
+            renderHeight *
+            imgRatio;
 
           x =
             (pageWidth -
@@ -1017,12 +1117,12 @@ export default function ProductImagesPDF() {
 
           y = 0;
         } else {
-          /* Image taller hai */
-
-          renderWidth = pageWidth;
+          renderWidth =
+            pageWidth;
 
           renderHeight =
-            renderWidth / imgRatio;
+            renderWidth /
+            imgRatio;
 
           x = 0;
 
@@ -1032,9 +1132,9 @@ export default function ProductImagesPDF() {
             2;
         }
 
-        /* ===================================================
-           ADD POSTER FULL PAGE
-           =================================================== */
+        /* =================================================
+           ADD POSTER
+        ================================================= */
 
         doc.addImage(
           base64,
@@ -1048,45 +1148,29 @@ export default function ProductImagesPDF() {
         );
 
         addedPages++;
-
-        console.log(
-          `Poster page added: ${addedPages}`,
-          product?.product_name
-        );
       }
 
-      /* =====================================================
+      /* ===================================================
          NO VALID POSTERS
-         ===================================================== */
+      =================================================== */
 
       if (addedPages === 0) {
         alert(
-          "Is category mein kisi bhi product ka valid Image 2 / Poster nahi mila."
+          "Selected categories mein kisi bhi product ka valid Image 2 / Poster nahi mila."
         );
 
         return;
       }
 
-      /* =====================================================
-         FILE NAME
-         ===================================================== */
+      /* ===================================================
+         SAVE
+      =================================================== */
 
-      const safeCategory =
-        getSafeFileName(
-          selectedCategory
-        );
+      const safeName =
+        getSelectedCategoryFileName();
 
-      const fileName =
-        `${safeCategory}_Posters.pdf`;
-
-      /* =====================================================
-         SAVE PDF
-         ===================================================== */
-
-      doc.save(fileName);
-
-      console.log(
-        `Poster PDF generated successfully: ${addedPages} pages`
+      doc.save(
+        `${safeName}_Posters.pdf`
       );
     } catch (error) {
       console.error(
@@ -1102,9 +1186,9 @@ export default function ProductImagesPDF() {
     }
   };
 
-  /* =========================================================
+  /* =======================================================
      LOADING
-     ========================================================= */
+  ======================================================= */
 
   if (isLoading) {
     return (
@@ -1116,7 +1200,7 @@ export default function ProductImagesPDF() {
 
         <div className="pt-24 flex justify-center">
 
-          <div className="flex items-center gap-2 text-gray-500">
+          <div className="flex items-center gap-2 text-gray-500 text-sm">
 
             <FaSpinner className="animate-spin" />
 
@@ -1130,446 +1214,494 @@ export default function ProductImagesPDF() {
     );
   }
 
-  /* =========================================================
+  /* =======================================================
      MAIN UI
-     ========================================================= */
+  ======================================================= */
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className=" bg-slate-50 pb-28 sm:pb-0 bg-red-200">
 
-      <MobilePageHeader
-        title="Product Image PDF"
-      />
+      <div className="mx-auto w-full sm:px-5 lg:px-6 pt-[68px] sm:pt-6">
 
-      <div className="mx-auto px-3 sm:px-6 pt-[70px] sm:pt-6">
+        <div className="
+          
+          sm:mt-5
+          sm:bg-white
+          sm:border
+          border-slate-200
+          rounded
+          sm:shadow-sm
+          overflow-hidden
+        ">
 
-        {/* =================================================
-            HEADER CARD
-        ================================================= */}
+          {/* Section header */}
 
-        <div className="bg-white rounded border border-gray-200 shadow-sm overflow-hidden">
+          <div className="
+            px-4 py-3
+            sm:px-5 sm:py-4
+            border-b border-slate-100
+          ">
 
-          <div className="bg-gradient-to-r from-blue-50 via-white to-indigo-50 px-5 py-5 border-b border-gray-200">
+            <div className="flex items-center justify-between">
 
-            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 min-w-0">
 
-              <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                <FaBoxOpen className="text-blue-500 shrink-0" />
 
-                <FaImages className="text-xl" />
+                <div className="min-w-0">
+
+                  <p className="
+                  text-xs
+                  sm:text-sm
+                  font-semibold
+                  text-slate-700
+                ">
+                    Categories
+                  </p>
+
+                  <p className="
+                  text-[10px]
+                  sm:text-xs
+                  text-slate-400
+                ">
+                    {selectedCategories.length} selected
+                    {" • "}
+                    {totalSelectedProducts} products
+                  </p>
+
+                </div>
 
               </div>
 
-              <div>
+              <div className="flex items-center gap-2 shrink-0">
 
-                <h1 className="text-lg sm:text-xl font-bold text-gray-800">
+                <button
+                  type="button"
+                  onClick={selectAllCategories}
+                  disabled={
+                    categories.length === 0 ||
+                    isDownloading ||
+                    isPosterDownloading
+                  }
+                  className="
+                  flex items-center gap-1.5
+                  px-2.5 py-1.5
+                  sm:px-3 sm:py-2
+                  rounded-lg
+                  bg-blue-50
+                  text-blue-600
+                  text-[10px]
+                  sm:text-xs
+                  font-semibold
+                  hover:bg-blue-100
+                  disabled:opacity-50
+                  transition
+                "
+                >
+                  <FaCheckSquare />
+                  All
+                </button>
 
-                  Product Image Catalogue
+                {selectedCategories.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearAllCategories}
+                    disabled={
+                      isDownloading ||
+                      isPosterDownloading
+                    }
+                    className="
+                    flex items-center gap-1.5
+                    px-2.5 py-1.5
+                    sm:px-3 sm:py-2
+                    rounded-lg
+                    bg-slate-100
+                    text-slate-600
+                    text-[10px]
+                    sm:text-xs
+                    font-semibold
+                    hover:bg-slate-200
+                    disabled:opacity-50
+                    transition
+                  "
+                  >
+                    <FaTimes />
+                    Clear
+                  </button>
+                )}
 
-                </h1>
+              </div>
 
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">
+            </div>
 
-                  Select a category and download
-                  all product images in PDF.
+          </div>
 
+          {/* Category cards */}
+
+          <div className="
+            p-3
+            sm:p-5
+            grid
+            grid-cols-2
+            sm:grid-cols-3
+            md:grid-cols-4
+            lg:grid-cols-5
+            xl:grid-cols-8
+            gap-2
+            sm:gap-3
+          ">
+
+            {categories.map(
+              (category) => {
+
+                const selected =
+                  isCategorySelected(
+                    category
+                  );
+
+                const count =
+                  categoryCounts[
+                  category
+                  ] || 0;
+
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() =>
+                      toggleCategory(
+                        category
+                      )
+                    }
+                    disabled={
+                      isDownloading ||
+                      isPosterDownloading
+                    }
+                    className={`
+                      relative
+                      w-full
+                      min-h-[68px]
+                      sm:min-h-[82px]
+                      text-left
+                      rounded-xl
+                      border
+                      px-3
+                      py-2.5
+                      sm:px-3.5
+                      sm:py-3
+                      transition-all
+                      duration-150
+                      active:scale-[0.98]
+                      disabled:opacity-60
+                      disabled:cursor-not-allowed
+
+                      ${selected
+                        ? "border-blue-500 bg-blue-50 shadow-sm"
+                        : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40"
+                      }
+                    `}
+                  >
+
+                    {/* Checkbox */}
+
+                    <div className="
+                      absolute
+                      top-2
+                      right-2
+                    ">
+
+                      {selected ? (
+                        <FaCheckCircle className="
+                          text-blue-600
+                          text-sm
+                          sm:text-base
+                        " />
+                      ) : (
+                        <FaSquare className="
+                          text-slate-200
+                          text-sm
+                          sm:text-base
+                        " />
+                      )}
+
+                    </div>
+
+                    {/* Category name */}
+
+                    <div className="
+                      pr-5
+                      text-[11px]
+                      sm:text-xs
+                      font-bold
+                      leading-tight
+                      text-slate-700
+                      line-clamp-2
+                    ">
+                      {category}
+                    </div>
+
+                    {/* Product count */}
+
+                    <div className="
+                      mt-2
+                      text-[9px]
+                      sm:text-[10px]
+                      text-slate-400
+                    ">
+                      {count} products
+                    </div>
+
+                  </button>
+                );
+              }
+            )}
+
+          </div>
+
+          {/* No category */}
+
+          {categories.length === 0 && (
+            <div className="
+              px-4
+              py-12
+              text-center
+              text-sm
+              text-slate-400
+            ">
+              No categories found.
+            </div>
+          )}
+
+        </div>
+
+      </div>
+
+
+      <div className="
+  fixed
+  left-0
+  right-0
+  top-0
+  md:top-auto
+  md:bottom-0
+  z-50
+  bg-white/95
+  backdrop-blur-md
+  border-t
+  border-slate-200
+  shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
+">
+
+        <div className="
+          mx-auto
+          w-full
+          max-w-7xl
+          px-3
+          py-2.5
+          sm:px-5
+          sm:py-3
+          lg:px-6
+        ">
+
+          <div className="
+            flex
+            items-center
+            gap-2
+            sm:gap-3
+          ">
+
+            {/* Selected summary */}
+
+            <div className="
+              hidden
+              sm:flex
+              flex-1
+              min-w-0
+              items-center
+              gap-2
+            ">
+
+              <div className="
+                w-9
+                h-9
+                rounded-lg
+                bg-slate-100
+                flex
+                items-center
+                justify-center
+                text-slate-500
+              ">
+                <FaImages />
+              </div>
+
+              <div className="min-w-0">
+
+                <p className="
+                  text-xs
+                  font-bold
+                  text-slate-700
+                ">
+                  {selectedCategories.length} categories
+                </p>
+
+                <p className="
+                  text-[10px]
+                  text-slate-400
+                ">
+                  {totalSelectedProducts} products selected
                 </p>
 
               </div>
 
             </div>
 
-          </div>
+            {/* Mobile selected count */}
 
-          {/* =================================================
-              CATEGORY SECTION
-          ================================================= */}
+            <div className="
+              flex
+              sm:hidden
+              flex-col
+              items-center
+              justify-center
+              min-w-[48px]
+            ">
 
-          <div className="p-4 sm:p-6">
+              <span className="
+                text-sm
+                font-bold
+                text-slate-700
+              ">
+                {totalSelectedProducts}
+              </span>
 
-            <div className="flex items-center gap-2 mb-4">
-
-              <FaBoxOpen className="text-blue-600" />
-
-              <h2 className="font-semibold text-gray-800">
-
-                Select Category
-
-              </h2>
+              <span className="
+                text-[8px]
+                text-slate-400
+              ">
+                products
+              </span>
 
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
+            {/* Product PDF */}
 
-              {categories.map(
-                (category) => {
+            {/* <button
+              type="button"
+              onClick={downloadPDF}
+              disabled={
+                isDownloading ||
+                isPosterDownloading ||
+                selectedProducts.length === 0
+              }
+              className="
+                flex-1
+                sm:flex-none
+                sm:min-w-[165px]
+                flex
+                items-center
+                justify-center
+                gap-1.5
+                sm:gap-2
+                bg-gradient-to-r
+                from-blue-600
+                to-indigo-600
+                hover:from-blue-700
+                hover:to-indigo-700
+                disabled:opacity-50
+                disabled:cursor-not-allowed
+                text-white
+                px-3
+                sm:px-5
+                py-2.5
+                sm:py-3
+                rounded-xl
+                text-[10px]
+                sm:text-sm
+                font-bold
+                shadow-sm
+                transition
+                active:scale-[0.98]
+                whitespace-nowrap
+              "
+            >
 
-                  const isSelected =
-                    normalizeCategory(
-                      selectedCategory
-                    ) ===
-                    normalizeCategory(
-                      category
-                    );
-
-                  const count =
-                    visibleProducts.filter(
-                      (product) => {
-
-                        const productCategory =
-                          getDisplayCategory(
-                            product.sub_category
-                          );
-
-                        return (
-                          normalizeCategory(
-                            productCategory
-                          ) ===
-                          normalizeCategory(
-                            category
-                          )
-                        );
-                      }
-                    ).length;
-
-                  return (
-                    <button
-                      key={category}
-                      type="button"
-                      onClick={() =>
-                        setSelectedCategory(
-                          category
-                        )
-                      }
-                      className={`
-                        relative text-left p-4 rounded-xl cursor-pointer border
-                        transition-all duration-200
-                        ${
-                          isSelected
-                            ? "border-blue-500 bg-blue-50 shadow-md"
-                            : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/50"
-                        }
-                      `}
-                    >
-
-                      {isSelected && (
-                        <FaCheckCircle
-                          className="
-                            absolute top-2 right-2
-                            text-blue-600 text-sm
-                          "
-                        />
-                      )}
-
-                      <div className="font-semibold text-sm text-gray-800 pr-4">
-
-                        {category}
-
-                      </div>
-
-                      <div className="text-xs text-gray-500 mt-1">
-
-                        {count} Products
-
-                      </div>
-
-                    </button>
-                  );
-                }
+              {isDownloading ? (
+                <>
+                  <FaSpinner className="animate-spin" />
+                  <span>Creating...</span>
+                </>
+              ) : (
+                <>
+                  <FaDownload />
+                  <span>Product PDF</span>
+                </>
               )}
 
-            </div>
+            </button> */}
+
+            {/* Poster PDF */}
+
+            <button
+              type="button"
+              onClick={
+                downloadAllPosters
+              }
+              disabled={
+                isDownloading ||
+                isPosterDownloading ||
+                selectedProducts.length === 0
+              }
+              className="
+  flex-none
+  w-[100px]
+  sm:w-auto
+  sm:min-w-[165px]
+  flex
+  items-center
+  justify-center
+  gap-1.5
+  sm:gap-2
+  bg-gradient-to-r
+  from-purple-600
+  to-pink-600
+  hover:from-purple-700
+  hover:to-pink-700
+  disabled:opacity-50
+  disabled:cursor-not-allowed
+  text-white
+  px-3
+  sm:px-5
+  py-2.5
+  sm:py-3
+  rounded
+  text-[10px]
+  sm:text-sm
+  font-bold
+  shadow-sm
+  transition
+  active:scale-[0.98]
+  whitespace-nowrap
+  ms-50
+"
+            >
+
+              {isPosterDownloading ? (
+                <>
+                  <FaSpinner className="animate-spin" />
+                  <span>Creating...</span>
+                </>
+              ) : (
+                <>
+                  <FaFileImage />
+                  <span>Poster PDF</span>
+                </>
+              )}
+
+            </button>
 
           </div>
 
         </div>
-
-        {/* =================================================
-            SELECTED CATEGORY
-        ================================================= */}
-
-        {selectedCategory && (
-          <div className="mt-5 bg-white rounded-2xl border border-gray-200 shadow-sm">
-
-            {/* =================================================
-                CATEGORY HEADER + BUTTONS
-            ================================================= */}
-
-            <div className="p-4 sm:p-5 border-b border-gray-200">
-
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-
-                <div>
-
-                  <h2 className="font-bold text-gray-800">
-
-                    {selectedCategory}
-
-                  </h2>
-
-                  <p className="text-xs text-gray-500 mt-1">
-
-                    {selectedProducts.length}{" "}
-
-                    active products found
-
-                  </p>
-
-                </div>
-
-                {/* BUTTONS */}
-
-                <div className="flex flex-col sm:flex-row gap-2">
-
-                  {/* =================================================
-                      PRODUCT PDF
-                  ================================================= */}
-
-                  <button
-                    type="button"
-                    onClick={downloadPDF}
-                    disabled={
-                      isDownloading ||
-                      isPosterDownloading ||
-                      selectedProducts.length ===
-                        0
-                    }
-                    className="
-                      flex items-center justify-center gap-2
-                      bg-gradient-to-r from-blue-600 to-indigo-600
-                      hover:from-blue-700 hover:to-indigo-700
-                      disabled:opacity-50
-                      disabled:cursor-not-allowed
-                      text-white
-                      px-5 py-2.5
-                      rounded-xl
-                      text-sm font-semibold
-                      shadow-md
-                      transition-all
-                    "
-                  >
-
-                    {isDownloading ? (
-                      <>
-                        <FaSpinner className="animate-spin" />
-
-                        Generating PDF...
-                      </>
-                    ) : (
-                      <>
-                        <FaDownload />
-
-                        Download PDF
-                      </>
-                    )}
-
-                  </button>
-
-                  {/* =================================================
-                      POSTER PDF
-
-                      IMPORTANT:
-                      Directly yahi se download hoga.
-                      Koi next page nahi.
-                  ================================================= */}
-
-                  <button
-                    type="button"
-                    onClick={downloadAllPosters}
-                    disabled={
-                      isDownloading ||
-                      isPosterDownloading ||
-                      selectedProducts.length ===
-                        0
-                    }
-                    className="
-                      flex items-center justify-center gap-2
-                      bg-gradient-to-r from-purple-600 to-pink-600
-                      hover:from-purple-700 hover:to-pink-700
-                      disabled:opacity-50
-                      disabled:cursor-not-allowed
-                      text-white
-                      px-5 py-2.5
-                      rounded-xl
-                      text-sm font-semibold
-                      shadow-md
-                      transition-all
-                    "
-                  >
-
-                    {isPosterDownloading ? (
-                      <>
-                        <FaSpinner className="animate-spin" />
-
-                        Generating Posters...
-                      </>
-                    ) : (
-                      <>
-                        <FaFileImage />
-
-                        Poster Download
-                      </>
-                    )}
-
-                  </button>
-
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* =================================================
-                PRODUCT PREVIEW
-            ================================================= */}
-
-            <div className="p-4 sm:p-5">
-
-              {selectedProducts.length === 0 ? (
-
-                <div className="py-10 text-center text-gray-500">
-
-                  No active products found.
-
-                </div>
-
-              ) : (
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-
-                  {selectedProducts.map(
-                    (product) => {
-
-                      const image =
-                        getProductImage(
-                          product
-                        );
-
-                      return (
-                        <div
-                          key={
-                            product.product_id
-                          }
-                          className="
-                            border border-gray-200
-                            rounded-xl
-                            overflow-hidden
-                            bg-white
-                            hover:shadow-md
-                            transition
-                          "
-                        >
-
-                          {/* =================================================
-                              IMAGE
-                          ================================================= */}
-
-                          <div className="aspect-square bg-gray-50 flex items-center justify-center">
-
-                            {image ? (
-
-                              <img
-                                src={image}
-                                alt={
-                                  product.product_name
-                                }
-                                className="
-                                  w-full h-full
-                                  object-contain
-                                  p-3
-                                "
-                                loading="lazy"
-                                crossOrigin="anonymous"
-                                onError={(e) => {
-                                  console.error(
-                                    "Preview image failed:",
-                                    image
-                                  );
-
-                                  e.currentTarget.style.display =
-                                    "none";
-                                }}
-                              />
-
-                            ) : (
-
-                              <div className="flex flex-col items-center justify-center text-gray-400">
-
-                                <FaImage className="text-3xl mb-2" />
-
-                                <span className="text-xs">
-
-                                  No Image
-
-                                </span>
-
-                              </div>
-
-                            )}
-
-                          </div>
-
-                          {/* =================================================
-                              DETAILS
-                          ================================================= */}
-
-                          <div className="p-2">
-
-                            <p className="text-xs font-semibold text-gray-700 line-clamp-2">
-
-                              {
-                                product.product_name
-                              }
-
-                            </p>
-
-                            <p className="text-[10px] text-gray-400 mt-1">
-
-                              ID:{" "}
-
-                              {
-                                product.product_id
-                              }
-
-                            </p>
-
-                            {/* ORIGINAL CATEGORY */}
-
-                            {product.sub_category && (
-                              <p className="text-[10px] text-gray-400 mt-1 line-clamp-2">
-
-                                Category:{" "}
-
-                                {
-                                  product.sub_category
-                                }
-
-                              </p>
-                            )}
-
-                            {/* DEBUG IMAGE URL */}
-
-                            <p className="text-[9px] text-gray-300 mt-1 truncate">
-
-                              {image ||
-                                "No image"}
-
-                            </p>
-
-                          </div>
-
-                        </div>
-                      );
-                    }
-                  )}
-
-                </div>
-
-              )}
-
-            </div>
-
-          </div>
-        )}
 
       </div>
 
