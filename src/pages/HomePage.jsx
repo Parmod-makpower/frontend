@@ -677,7 +677,7 @@ export default function HomePage() {
 
           leading-tight
         ">
-          New Tempered
+          New Tempered12
         </h2>
 
 
