@@ -218,7 +218,7 @@ export default function HomePage() {
 
 {/* =========================================================
     QUICK ACTION CARDS
-    PDF + NEW LAUNCHING + NEW TEMPERED
+    PDF + NEW LAUNCHING + NEW TEMPERED,,,,,
 ========================================================= */}
 
 <div className="mt-6 mb-7">
@@ -233,7 +233,7 @@ export default function HomePage() {
 
 
     {/* =====================================================
-        PRODUCT PDF
+        PRODUCT PDF......
     ===================================================== */}
 
     <div
