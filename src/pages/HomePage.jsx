@@ -736,7 +736,7 @@ export default function HomePage() {
 
       </div>
 
-      <SlidingProductsCards trendingIds={trendingIds} title={"Top Selling Products."} />
+      <SlidingProductsCards trendingIds={trendingIds} title={"Top Selling Products"} />
       {/* <SlidingProductsCards trendingIds={schemeIds} title={"Special Scheme Products"} /> */}
 
     </div>
