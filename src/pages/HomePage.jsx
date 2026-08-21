@@ -260,12 +260,9 @@ export default function HomePage() {
         p-2.5
         sm:p-4
         lg:p-5
-
         shadow-sm
         hover:shadow-md
-
         active:scale-[0.97]
-
         transition-all
         duration-200
       "
@@ -680,7 +677,7 @@ export default function HomePage() {
 
           leading-tight
         ">
-          New Tempered
+          New Tempered1
         </h2>
 
 
