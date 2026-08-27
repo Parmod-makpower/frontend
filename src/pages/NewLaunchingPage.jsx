@@ -19,27 +19,26 @@ export default function NewLaunchingPage() {
   const { user } = useAuth();
 
   // ✅ New Launch Product IDs
-  const NEW_LAUNCH_IDS = [560
-,687
-,1321
-,1358
-,1359
-,1328
-,1327
-,685
-,683
-,668
-,666
-,1507
-,1509
-,1508
-,1981
-,1978
-,1980
-,1979
-,1983
-,1982
-,1984 ];
+  const NEW_LAUNCH_IDS = [
+    560,
+687,
+1321,
+1358,
+1359,
+1762,
+1763,
+1328,
+1327,
+685,
+683,
+668,
+666,
+1507,
+1509,
+978,
+14,
+996,
+   ];
 
   // ✅ Filter + Sort
   const products = useMemo(() => {
