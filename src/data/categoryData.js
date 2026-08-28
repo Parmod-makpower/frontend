@@ -17,6 +17,67 @@ const categories = [
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757908154/eg8xi3afjpp5jnz01ola.png",
     subcategories: []
   },
+    // =========================================================
+  // 🔧 SPARE PARTS
+  // =========================================================
+
+  {
+    label: "Spare Parts",
+    keyword: "Spare parts",
+    type: "spare-parts",
+
+    // Parent category image remains STATIC
+    image:
+      "https://dipelectronicslabshop.in/wp-content/uploads/2026/05/COSMIC-105-_-AT105-Bluetooth-Audio-Amplifier-Board.png",
+
+    subcategories: [
+      {
+        label: "DHURANDHAR",
+        keyword: "DHURANDHAR",
+      },
+
+      {
+        label: "HUNTER",
+        keyword: "HUNTER",
+      },
+
+      {
+        label: "THUNDER",
+        keyword: "THUNDER",
+      },
+
+      {
+        label: "TWISTER",
+        keyword: "TWISTER",
+      },
+
+      {
+        label: "PARTY BOY",
+        keyword: "PARTY BOY",
+      },
+
+      {
+        label: "SP370",
+        keyword: "SP370",
+      },
+
+      {
+        label: "SP375",
+        keyword: "SP375",
+      },
+
+      {
+        label: "JAMES BOND",
+        keyword: "JAMES BOND",
+      },
+
+      {
+        label: "SP303",
+        keyword: "SP303",
+      },
+    ],
+  },
+
   {
     label: "Handfree",
     keyword: "HANDSFREE",

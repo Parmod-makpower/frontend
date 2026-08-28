@@ -56,6 +56,7 @@ import OrdersReportPage from "./pages/ADMIN/OrdersReportPage";
 import HROrderListPage from "./pages/hr/HROrderListPage";
 import ProductImagesPDF from "./pages/CRM/ProductImagesPDF";
 import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
+import SparePartsProductPage from "./pages/SparePartsProductPage";
 
 export default function App() {
   useEffect(() => {
@@ -104,6 +105,10 @@ export default function App() {
             <Route path="/category/:categoryKeyword" element={<CategorySearchPage />} />
              <Route path="/all-categories" element={<AllCategoriesPage />} /> 
              <Route path="/category/:category/subcategories" element={<SubCategoryPage />} />
+             <Route
+  path="/spare-parts/:partGroup"
+  element={<SparePartsProductPage />}
+/>
             <Route path="/product/:productId" element={<ProductDetailPage />} />
             <Route path="/more" element={<MoreOptionsPage />} />
             <Route path="/CRMDashboard" element={ <CRMDashboard/> } />
