@@ -21,62 +21,62 @@ const categories = [
   // 🔧 SPARE PARTS
   // =========================================================
 
-  {
-    label: "Spare Parts",
-    keyword: "Spare parts",
-    type: "spare-parts",
+  // {
+  //   label: "Spare Parts",
+  //   keyword: "Spare parts",
+  //   type: "spare-parts",
 
-    // Parent category image remains STATIC
-    image:
-      "https://dipelectronicslabshop.in/wp-content/uploads/2026/05/COSMIC-105-_-AT105-Bluetooth-Audio-Amplifier-Board.png",
+  //   // Parent category image remains STATIC
+  //   image:
+  //     "https://dipelectronicslabshop.in/wp-content/uploads/2026/05/COSMIC-105-_-AT105-Bluetooth-Audio-Amplifier-Board.png",
 
-    subcategories: [
-      {
-        label: "DHURANDHAR",
-        keyword: "DHURANDHAR",
-      },
+  //   subcategories: [
+  //     {
+  //       label: "DHURANDHAR",
+  //       keyword: "DHURANDHAR",
+  //     },
 
-      {
-        label: "HUNTER",
-        keyword: "HUNTER",
-      },
+  //     {
+  //       label: "HUNTER",
+  //       keyword: "HUNTER",
+  //     },
 
-      {
-        label: "THUNDER",
-        keyword: "THUNDER",
-      },
+  //     {
+  //       label: "THUNDER",
+  //       keyword: "THUNDER",
+  //     },
 
-      {
-        label: "TWISTER",
-        keyword: "TWISTER",
-      },
+  //     {
+  //       label: "TWISTER",
+  //       keyword: "TWISTER",
+  //     },
 
-      {
-        label: "PARTY BOY",
-        keyword: "PARTY BOY",
-      },
+  //     {
+  //       label: "PARTY BOY",
+  //       keyword: "PARTY BOY",
+  //     },
 
-      {
-        label: "SP370",
-        keyword: "SP370",
-      },
+  //     {
+  //       label: "SP370",
+  //       keyword: "SP370",
+  //     },
 
-      {
-        label: "SP375",
-        keyword: "SP375",
-      },
+  //     {
+  //       label: "SP375",
+  //       keyword: "SP375",
+  //     },
 
-      {
-        label: "JAMES BOND",
-        keyword: "JAMES BOND",
-      },
+  //     {
+  //       label: "JAMES BOND",
+  //       keyword: "JAMES BOND",
+  //     },
 
-      {
-        label: "SP303",
-        keyword: "SP303",
-      },
-    ],
-  },
+  //     {
+  //       label: "SP303",
+  //       keyword: "SP303",
+  //     },
+  //   ],
+  // },
 
   {
     label: "Handfree",
