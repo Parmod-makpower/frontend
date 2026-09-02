@@ -21,23 +21,15 @@ export default function NewLaunchingPage() {
   // ✅ New Launch Product IDs
   const NEW_LAUNCH_IDS = [
     560,
-687,
 1321,
 1358,
 1359,
 1762,
 1763,
-1328,
-1327,
-685,
-683,
-668,
-666,
 1507,
 1509,
 978,
-14,
-996,
+996
    ];
 
   // ✅ Filter + Sort
