@@ -14,7 +14,7 @@ export const useSamplingSheet = () => {
     queryKey: ["sampning-sheet"],
     queryFn: getPartyItemSheet,
 
-    staleTime: 1000 * 60 * 60 * 1, // 1 hour
+    staleTime: 1000 * 60 * 33, // 33 minutes
     gcTime: 1000 * 60 * 60 * 24,
 
     refetchOnWindowFocus: true,
