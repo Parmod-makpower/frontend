@@ -8,7 +8,7 @@ import categories from "../data/categoryData";
 import MobilePageHeader from "../components/MobilePageHeader";
 import { useAuth } from "../context/AuthContext";
 import ProductCard from "../components/ProductCard";
-import { ChevronDown, Search, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 export default function CategoryProductListPage() {
   const { user } = useAuth();
@@ -127,7 +127,7 @@ export default function CategoryProductListPage() {
             No matching products found.
           </p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
            {sortedProducts.map((prod) => {
               const prodId = prod.id ?? prod.product_id;
               const existing = selectedProducts.find((p) => p.id === prodId);
