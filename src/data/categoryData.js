@@ -21,6 +21,223 @@ const categories = [
   // 🔧 SPARE PARTS
   // =========================================================
 
+
+  {
+  label: "Spare Parts",
+  keyword: "Spare parts",
+  type: "spare-parts",
+
+  // Parent category image remains STATIC
+  image:
+    "https://dipelectronicslabshop.in/wp-content/uploads/2026/05/COSMIC-105-_-AT105-Bluetooth-Audio-Amplifier-Board.png",
+
+  subcategories: [
+    {
+      label: "DHURANDHAR",
+      keyword: "DHURANDHAR",
+    },
+    {
+      label: "SHARK SPEAKER",
+      keyword: "SHARK SPEAKER",
+    },
+    {
+      label: "HUNTER SPEAKER",
+      keyword: "HUNTER SPEAKER",
+    },
+    {
+      label: "AVATAR",
+      keyword: "AVATAR",
+    },
+    {
+      label: "GODFATHER",
+      keyword: "GODFATHER",
+    },
+    {
+      label: "SP370",
+      keyword: "SP370",
+    },
+    {
+      label: "HT02",
+      keyword: "HT02",
+    },
+    {
+      label: "SP101",
+      keyword: "SP101",
+    },
+    {
+      label: "SP151",
+      keyword: "SP151",
+    },
+    {
+      label: "SP152",
+      keyword: "SP152",
+    },
+    {
+      label: "SP303",
+      keyword: "SP303",
+    },
+    {
+      label: "SP351",
+      keyword: "SP351",
+    },
+    {
+      label: "SP40",
+      keyword: "SP40",
+    },
+    {
+      label: "BADSHAH",
+      keyword: "BADSHAH",
+    },
+    {
+      label: "ROMEO",
+      keyword: "ROMEO",
+    },
+    {
+      label: "ROCKSTAR",
+      keyword: "ROCKSTAR",
+    },
+    {
+      label: "TARZAN",
+      keyword: "TARZAN",
+    },
+    {
+      label: "SP SOUND BREAKER",
+      keyword: "SP SOUND BREAKER",
+    },
+    {
+      label: "SP FLASH LIGHT",
+      keyword: "SP FLASH LIGHT",
+    },
+    {
+      label: "SP15",
+      keyword: "SP15",
+      image:
+    "https://dipelectronicslabshop.in/wp-content/uploads/2026/05/COSMIC-105-_-AT105-Bluetooth-Audio-Amplifier-Board.png",
+
+    },
+    {
+      label: "AVENGERS",
+      keyword: "AVENGERS",
+    },
+    {
+      label: "SP375",
+      keyword: "SP375",
+    },
+    {
+      label: "HT05",
+      keyword: "HT05",
+    },
+    {
+      label: "TOOFAN",
+      keyword: "TOOFAN",
+    },
+    {
+      label: "GODZILLA",
+      keyword: "GODZILLA",
+    },
+    {
+      label: "SP304",
+      keyword: "SP304",
+    },
+    {
+      label: "ROCKER SERIES",
+      keyword: "ROCKER SERIES",
+    },
+    {
+      label: "BEAT BOX",
+      keyword: "BEAT BOX",
+    },
+    {
+      label: "SP306",
+      keyword: "SP306",
+    },
+    {
+      label: "SP307",
+      keyword: "SP307",
+    },
+    {
+      label: "SP305",
+      keyword: "SP305",
+    },
+    {
+      label: "LEGEND",
+      keyword: "LEGEND",
+    },
+    {
+      label: "DRAGON",
+      keyword: "DRAGON",
+    },
+    {
+      label: "PARTY BOY SPEAKER",
+      keyword: "PARTY BOY SPEAKER",
+    },
+    {
+      label: "RAFTAAR SPEAKER",
+      keyword: "RAFTAAR SPEAKER",
+    },
+    {
+      label: "THUNDER",
+      keyword: "THUNDER",
+    },
+    {
+      label: "TWISTER",
+      keyword: "TWISTER",
+    },
+    {
+      label: "PARTY BEAST",
+      keyword: "PARTY BEAST",
+    },
+    {
+      label: "MONSTER",
+      keyword: "MONSTER",
+    },
+    {
+      label: "BEAT BOUNCER",
+      keyword: "BEAT BOUNCER",
+    },
+    {
+      label: "SP385",
+      keyword: "SP385",
+    },
+    {
+      label: "BATMAN SPEAKER",
+      keyword: "BATMAN SPEAKER",
+    },
+    {
+      label: "PANTHER",
+      keyword: "PANTHER",
+    },
+    {
+      label: "SP SB180 SOUND BAR",
+      keyword: "SP SB180 SOUND BAR",
+    },
+    {
+      label: "JAMES BOND",
+      keyword: "JAMES BOND",
+    },
+    {
+      label: "SP395",
+      keyword: "SP395",
+    },
+    {
+      label: "HULK",
+      keyword: "HULK",
+    },
+    {
+      label: "TITANIC",
+      keyword: "TITANIC",
+    },
+    {
+      label: "RHYTHM",
+      keyword: "RHYTHM",
+    },
+    {
+      label: "AUDIO PULSE",
+      keyword: "AUDIO PULSE",
+    },
+  ],
+},
+
   // {
   //   label: "Spare Parts",
   //   keyword: "Spare parts",

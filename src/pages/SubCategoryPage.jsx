@@ -183,48 +183,93 @@ export default function SubCategoryPage() {
   // We directly search product_name.
   // =========================================================
 
+  // const getSparePartProducts = (keyword) => {
+  //   const normalizedKeyword = normalizeText(keyword);
+
+  //   if (!normalizedKeyword) {
+  //     return [];
+  //   }
+
+  //   return products
+  //     .filter((product) => {
+  //       // Only active products
+  //       if (product.is_active !== true) {
+  //         return false;
+  //       }
+
+  //       const productName = normalizeText(
+  //         product.product_name
+  //       );
+
+  //       if (!productName) {
+  //         return false;
+  //       }
+
+  //       return productName.includes(normalizedKeyword);
+  //     })
+  //     .sort((a, b) => {
+  //       const aName = normalizeText(a.product_name);
+  //       const bName = normalizeText(b.product_name);
+
+  //       // =====================================================
+  //       // Prefer product whose name starts with keyword
+  //       // =====================================================
+
+  //       const aStarts = aName.startsWith(normalizedKeyword);
+  //       const bStarts = bName.startsWith(normalizedKeyword);
+
+  //       if (aStarts && !bStarts) return -1;
+  //       if (!aStarts && bStarts) return 1;
+
+  //       return 0;
+  //     });
+  // };
+
   const getSparePartProducts = (keyword) => {
-    const normalizedKeyword = normalizeText(keyword);
+  const normalizedKeyword = normalizeText(keyword);
 
-    if (!normalizedKeyword) {
-      return [];
-    }
+  if (!normalizedKeyword) return [];
 
-    return products
-      .filter((product) => {
-        // Only active products
-        if (product.is_active !== true) {
+  return products
+    .filter((product) => {
+      if (product.is_active !== true) return false;
+
+      const productName = normalizeText(product.product_name);
+
+      if (!productName) return false;
+
+      if (!productName.includes(normalizedKeyword)) {
+        return false;
+      }
+
+      // SP15 ko SP151 / SP152 se alag rakho
+      if (normalizedKeyword.startsWith("sp")) {
+        const index = productName.indexOf(normalizedKeyword);
+        const nextCharacter =
+          productName[index + normalizedKeyword.length];
+
+        // agar next character number hai,
+        // matlab longer model hai: SP151, SP152 etc.
+        if (/\d/.test(nextCharacter || "")) {
           return false;
         }
+      }
 
-        const productName = normalizeText(
-          product.product_name
-        );
+      return true;
+    })
+    .sort((a, b) => {
+      const aName = normalizeText(a.product_name);
+      const bName = normalizeText(b.product_name);
 
-        if (!productName) {
-          return false;
-        }
+      const aStarts = aName.startsWith(normalizedKeyword);
+      const bStarts = bName.startsWith(normalizedKeyword);
 
-        return productName.includes(normalizedKeyword);
-      })
-      .sort((a, b) => {
-        const aName = normalizeText(a.product_name);
-        const bName = normalizeText(b.product_name);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
 
-        // =====================================================
-        // Prefer product whose name starts with keyword
-        // =====================================================
-
-        const aStarts = aName.startsWith(normalizedKeyword);
-        const bStarts = bName.startsWith(normalizedKeyword);
-
-        if (aStarts && !bStarts) return -1;
-        if (!aStarts && bStarts) return 1;
-
-        return 0;
-      });
-  };
-
+      return 0;
+    });
+};
   // =========================================================
   // GET BEST SPARE PART PRODUCT
   //
@@ -440,12 +485,18 @@ export default function SubCategoryPage() {
                     : null;
 
                 // Count
-                const productCount =
+                 const productCount =
                   isSpareParts
-                    ? getSparePartsCount(
-                        sub.keyword
-                      )
+                    ? getSparePartsCount(sub.keyword)
                     : 0;
+
+                // =================================================
+                // HIDE SPARE PARTS WITH NO PRODUCTS
+                // =================================================
+
+                if (isSpareParts && productCount === 1) {
+                  return null;
+                }
 
                 // =================================================
                 // NON-SPARE EXISTING IMAGE
@@ -619,10 +670,7 @@ export default function SubCategoryPage() {
                                 truncate
                               "
                             >
-                              {productCount}{" "}
-                              {productCount === 1
-                                ? "part"
-                                : "parts"}
+                             Spare Parts
                             </span>
 
                           </div>
