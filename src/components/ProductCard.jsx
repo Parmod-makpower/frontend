@@ -277,6 +277,7 @@ export default function ProductCard({
         flex-col
         group
         mb-2
+        p-1
       `}
     >
       {/* ================= IMAGE ================= */}
@@ -288,6 +289,7 @@ export default function ProductCard({
           overflow-hidden
           bg-gray-200
           cursor-pointer
+          rounded
         "
         onClick={() => navigate(`/product/${prodId}`)}
       >
