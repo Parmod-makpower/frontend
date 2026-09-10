@@ -23,6 +23,7 @@ export default function NewLaunchingPage() {
     560,
     1321,
     1358,
+    1508,
     1359,
     1762,
     1763,
