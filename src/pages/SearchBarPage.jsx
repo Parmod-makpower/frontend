@@ -353,7 +353,7 @@ export default function SearchBarPage() {
 
   
   const excludedCategories = useMemo(
-    () => new Set(["spare parts", "pcb", "packing"]),
+    () => new Set(["speaker packing", "speaker pcb", "speaker housing"]),
     []
   );
 

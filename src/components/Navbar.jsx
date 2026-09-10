@@ -26,9 +26,7 @@ import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useStock } from "../context/StockContext";
 
 const EXCLUDED_CATEGORIES = new Set([
-  "spare parts",
-  "pcb",
-  "packing",
+ "SPEAKER PCB", "SPEAKER PACKING", "SPEAKER HOUSING"
 ]);
 
 export default function Navbar() {
