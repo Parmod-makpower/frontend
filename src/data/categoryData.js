@@ -433,17 +433,17 @@ const categories = [
      subcategories: [
       {
         label: "Type-C",
-        keyword: "TYPE-C",
+        keyword: "DATA CABLE TYPE-C",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757505113/e5tgb0qvesx66scbuipo.webp"
       },
       {
         label: "C TO C",
-        keyword: "C TO C",
+        keyword: "DATA CABLE C TO C",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1763098669/maon3lkohuheklpfxrjt.webp"
       },
       {
         label: "V8",
-        keyword: "V8",
+        keyword: "DATA CABLE V8",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757505010/squucuwrcdszkkr7cbk5.webp"
       },
       {
@@ -453,7 +453,7 @@ const categories = [
       },
        {
         label: "C TO I",
-        keyword: "C TO I",
+        keyword: "DATA CABLE C TO I",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757744192/nwgoklgmntcmielwfnde.webp"
       },
       {
@@ -463,7 +463,7 @@ const categories = [
       },
       {
         label: "3 IN 1",
-        keyword: "3 IN 1",
+        keyword: "DATA CABLE 3 IN 1",
         image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757744197/tsm7pqydt8ilgqgkbjwp.webp"
       },
      ]
