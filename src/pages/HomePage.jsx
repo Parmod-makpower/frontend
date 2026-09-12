@@ -51,7 +51,7 @@ export default function HomePage() {
   };
 
   // यहाँ आप top selling की लिस्ट रखेंगे
-  const trendingIds = [1, 45, 74, 123, 1870, 717, 1120, 111, 1708];
+  const trendingIds = [2, 45, 74, 123, 1870, 717, 1120, 111,700, 205];
 
   const schemeIds = [1142, 18, 119, 60, 69, 33, 1730, 1653];
 
