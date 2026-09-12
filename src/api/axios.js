@@ -36,8 +36,8 @@ import {
 } from "./authEvents";
 
 const API = axios.create({
-  // baseURL: "https://makpower-sw.onrender.com/api/",
-  baseURL: "http://127.0.0.1:8000/api/",
+  baseURL: "https://makpower-sw.onrender.com/api/",
+  // baseURL: "http://127.0.0.1:8000/api/",
 });
 
 
