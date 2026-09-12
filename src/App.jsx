@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { AuthProvider } from "./context/AuthContext";
+// import { AuthProvider } from "./context/AuthContext";
 import NotFound from "./pages/NotFound";
 import NoPermission from "./pages/NoPermission";
 import DashboardLayout from "./Layout/DashboardLayout";
@@ -87,7 +87,7 @@ export default function App() {
   }, []);
 
   return (
-    <AuthProvider>
+    // <AuthProvider>
       <BrowserRouter>
        <Toaster position="top-center" reverseOrder={false} />
      
@@ -163,6 +163,6 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-    </AuthProvider>
+    // </AuthProvider>
   );
 }
