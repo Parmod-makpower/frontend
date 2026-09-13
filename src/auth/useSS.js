@@ -47,25 +47,3 @@ export const toggleSSStatus = async (id, is_active) => {
   return res.data;
 };
 
-// ✅  dealer only form k liyaform k liya
-const getSSUsersDealers = async () => {
-  const res = await API.get("/accounts/users/ss/");
-  return res.data;
-};
-
-// ✅  dealer only form k liyaform k liya
-export const useCachedSSUsersDealers = () => {
-  return useQuery({
-    queryKey: ["ss-users-dealer"],      // unique key for cache
-    queryFn: getSSUsersDealers,
-
-    staleTime: 1000 * 60 * 60 * 4,   
-    gcTime: 1000 * 60 * 60 * 24, 
-
-    refetchInterval: false,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
-
-    keepPreviousData: true,
-  });
-};

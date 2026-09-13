@@ -39,14 +39,3 @@ export const punchOrderToSheet = async (order, dispatchLocation) => {
 };
 
 
-
-export const submitMeetForm = async (formData) => {
-  const response = await API.post("/submit-meet-form/", formData);
-  return response.data;
-};
-
-
-export const submitDealerList = async (dealers) => {
-  const response = await API.post("/submit-dealers/", { dealers });
-  return response.data;
-};

@@ -35,9 +35,9 @@ import TemperedPage from "./pages/TemperedPage";
 import BatteryPage from "./pages/BatteryPage";
 import OrderTrackPage from "./pages/CRM/OrderTrackPage";
 import OrderListPage from "./pages/SS/OrderListPage";
-import DistributorMeetForm from "./components/form/DistributorMeetForm";
+
 import ProductUsageReportPage from "./pages/ProductUsageReportPage";
-import DealerFormPage from "./components/form/DealerFormPage";
+
 import ConfirmOrderPageDS from "./pages/DS/ConfirmOrderPageDS";
 import DSOrdersPage from "./pages/DS/DSOrdersPage";
 import GoaTripSheetPage from "./pages/CRM/GoaTripSheetPage";
@@ -94,8 +94,6 @@ export default function App() {
 <PWAUpdatePrompt />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/form" element={<DistributorMeetForm />} />
-          <Route path="/dealer" element={<DealerFormPage />} />
           <Route path="/product-usage" element={<ProductUsageReportPage />} />
             <Route path="" element={<HomeRedirector />} />
             <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
