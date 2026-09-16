@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route  } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import LoginPage from "./pages/LoginPage";
@@ -58,6 +58,12 @@ import ProductImagesPDF from "./pages/CRM/ProductImagesPDF";
 import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
 import SparePartsProductPage from "./pages/SparePartsProductPage";
 
+
+import ASMDashboard from "./pages/ASM/ASMDashboard";
+import ASMSSDetailPage from "./pages/ASM/ASMSSDetailPage";
+import ASMAssignmentPage from "./pages/CRM/ASMAssignmentPage";
+
+
 export default function App() {
   useEffect(() => {
     // Pinch zoom रोकने के लिए
@@ -88,79 +94,90 @@ export default function App() {
 
   return (
     // <AuthProvider>
-      <BrowserRouter>
-       <Toaster position="top-center" reverseOrder={false} />
-     
-<PWAUpdatePrompt />
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/product-usage" element={<ProductUsageReportPage />} />
-            <Route path="" element={<HomeRedirector />} />
-            <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+    <BrowserRouter>
+      <Toaster position="top-center" reverseOrder={false} />
 
-            <Route path="/home" element={<ProtectedRoute ><HomePage /></ProtectedRoute>} />
-            <Route path="/search" element={<ProtectedRoute ><SearchBarPage /></ProtectedRoute>} />
-            <Route path="/category/:categoryKeyword" element={<CategorySearchPage />} />
-             <Route path="/all-categories" element={<AllCategoriesPage />} /> 
-             <Route path="/category/:category/subcategories" element={<SubCategoryPage />} />
-             <Route
-  path="/spare-parts/:partGroup"
-  element={<SparePartsProductPage />}
-/>
-            <Route path="/product/:productId" element={<ProductDetailPage />} />
-            <Route path="/more" element={<MoreOptionsPage />} />
-            <Route path="/CRMDashboard" element={ <CRMDashboard/> } />
-            <Route path="/tempered/:categoryKeyword" element={ <TemperedPage/> } />
-            <Route path="/batteries/:categoryKeyword" element={ <BatteryPage/> } />
-            <Route path="/cargo" element={ <CargoPage/> } />
-            <Route path="/gst" element={ <GSTPage/> } />
-            <Route path="/new-launching" element={ <NewLaunchingPage/> } />
-            <Route path="/hr" element={ <HROrderListPage/> } />
-           
-            <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
-            <Route path="/orders-tracking" element={<TrackingOrdersPage />} />
-            <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
-            <Route path="/ds/orders-details/:order_id" element={<DSOrderDetailsPage />} />
-            <Route path="/ds/orders" element={<AdminCRM_DS_ordersPage />} />
-           <Route path="/order/:id/details" element={<ProtectedRoute ><CRMVerifiedDetailsPage /></ProtectedRoute>} />
+      <PWAUpdatePrompt />
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/product-usage" element={<ProductUsageReportPage />} />
+        <Route path="" element={<HomeRedirector />} />
+        <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
 
-            <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
-            <Route path="/goa-couple-trip-schemes" element={<ProtectedRoute ><GoaTrip /></ProtectedRoute>} />
-            <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
-            <Route path="/google-sheet" element={<ProtectedRoute ><OrderGoogleSheet /></ProtectedRoute>} />
-            <Route path="/not-in-stock-reports" element={<ProtectedRoute><NotInStockReportPage /></ProtectedRoute>} />
-            <Route path="/goa-trip-data" element={<ProtectedRoute><GoaTripSheetPage /></ProtectedRoute>} />
-            <Route path="/product-images-pdf" element={<ProtectedRoute><ProductImagesPDF /></ProtectedRoute>} />
+          <Route path="/home" element={<ProtectedRoute ><HomePage /></ProtectedRoute>} />
+          <Route path="/search" element={<ProtectedRoute ><SearchBarPage /></ProtectedRoute>} />
+          <Route path="/category/:categoryKeyword" element={<CategorySearchPage />} />
+          <Route path="/all-categories" element={<AllCategoriesPage />} />
+          <Route path="/category/:category/subcategories" element={<SubCategoryPage />} />
+          <Route
+            path="/spare-parts/:partGroup"
+            element={<SparePartsProductPage />}
+          />
+          <Route path="/product/:productId" element={<ProductDetailPage />} />
+          <Route path="/more" element={<MoreOptionsPage />} />
+          <Route path="/CRMDashboard" element={<CRMDashboard />} />
+          <Route path="/tempered/:categoryKeyword" element={<TemperedPage />} />
+          <Route path="/batteries/:categoryKeyword" element={<BatteryPage />} />
+          <Route path="/cargo" element={<CargoPage />} />
+          <Route path="/gst" element={<GSTPage />} />
+          <Route path="/new-launching" element={<NewLaunchingPage />} />
+          <Route path="/remarks" element={<HROrderListPage />} />
 
-            <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
-            <Route path="/setting" element={<ProtectedRoute allowedRoles={['ADMIN']}><SettingsPage /></ProtectedRoute>} />
-            <Route path="/products" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductPage /></ProtectedRoute>} />
-            <Route path="/sale-name" element={<ProtectedRoute allowedRoles={['ADMIN']}><SaleNamePage /></ProtectedRoute>} />
-            <Route path="/schemes" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemePage /></ProtectedRoute>} />
-            <Route path="/schemes/new" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
-            <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm/></ProtectedRoute>} />
-            <Route  path="/orders-report"  element={<OrdersReportPage />}/>
-            
-             <Route path="/dispatch-entries" element={<ProtectedRoute allowedRoles={['ADMIN']}><DispatchEntriesPage /></ProtectedRoute>} />
+          <Route path="/all/orders-history" element={<CRMVerifiedHistoryPage />} />
+          <Route path="/orders-tracking" element={<TrackingOrdersPage />} />
+          <Route path="/orders-tracking/:orderId" element={<OrderTrackPage />} />
+          <Route path="/ds/orders-details/:order_id" element={<DSOrderDetailsPage />} />
+          <Route path="/ds/orders" element={<AdminCRM_DS_ordersPage />} />
+          <Route path="/order/:id/details" element={<ProtectedRoute ><CRMVerifiedDetailsPage /></ProtectedRoute>} />
 
-            <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />
-            <Route path="/all-users/list" element={<ProtectedRoute ><AllUsersList /></ProtectedRoute>} />
-            <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
-            <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
-             
-           
-            <Route path="/ss-page" element={<ProtectedRoute allowedRoles={['SS']}><HomePage /></ProtectedRoute>} />
-            <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
-            <Route path="/confirm-order" element={<ProtectedRoute ><ConfirmOrderPage /></ProtectedRoute>} />
-            <Route path="/ss/history" element={<ProtectedRoute allowedRoles={['SS']}><OrderListPage /></ProtectedRoute>} />
-             <Route path="/confirm-order-ds" element={<ProtectedRoute allowedRoles={['DS']}><ConfirmOrderPageDS /></ProtectedRoute>} />
-             <Route path="/ds/my-orders" element={<ProtectedRoute allowedRoles={['DS']}><DSOrdersPage /></ProtectedRoute>} />
-          </Route>
+          <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
+          <Route path="/goa-couple-trip-schemes" element={<ProtectedRoute ><GoaTrip /></ProtectedRoute>} />
+          <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
+          <Route path="/google-sheet" element={<ProtectedRoute ><OrderGoogleSheet /></ProtectedRoute>} />
+          <Route path="/not-in-stock-reports" element={<ProtectedRoute><NotInStockReportPage /></ProtectedRoute>} />
+          <Route path="/goa-trip-data" element={<ProtectedRoute><GoaTripSheetPage /></ProtectedRoute>} />
+          <Route path="/product-images-pdf" element={<ProtectedRoute><ProductImagesPDF /></ProtectedRoute>} />
 
-          <Route path="/no-permission" element={<NoPermission />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+          <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
+          <Route path="/setting" element={<ProtectedRoute allowedRoles={['ADMIN']}><SettingsPage /></ProtectedRoute>} />
+          <Route path="/products" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductPage /></ProtectedRoute>} />
+          <Route path="/sale-name" element={<ProtectedRoute allowedRoles={['ADMIN']}><SaleNamePage /></ProtectedRoute>} />
+          <Route path="/schemes" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemePage /></ProtectedRoute>} />
+          <Route path="/schemes/new" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
+          <Route path="/schemes/edit/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><SchemeForm /></ProtectedRoute>} />
+          <Route path="/orders-report" element={<OrdersReportPage />} />
+
+          <Route path="/dispatch-entries" element={<ProtectedRoute allowedRoles={['ADMIN']}><DispatchEntriesPage /></ProtectedRoute>} />
+
+          <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />
+          <Route path="/all-users/list" element={<ProtectedRoute ><AllUsersList /></ProtectedRoute>} />
+          <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
+          <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
+
+
+          <Route path="/ss-page" element={<ProtectedRoute allowedRoles={['SS']}><HomePage /></ProtectedRoute>} />
+          <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+          <Route path="/confirm-order" element={<ProtectedRoute ><ConfirmOrderPage /></ProtectedRoute>} />
+          <Route path="/ss/history" element={<ProtectedRoute allowedRoles={['SS']}><OrderListPage /></ProtectedRoute>} />
+          <Route path="/confirm-order-ds" element={<ProtectedRoute allowedRoles={['DS']}><ConfirmOrderPageDS /></ProtectedRoute>} />
+          <Route path="/ds/my-orders" element={<ProtectedRoute allowedRoles={['DS']}><DSOrdersPage /></ProtectedRoute>} />
+
+
+          <Route path="/asm" element={<ProtectedRoute allowedRoles={["ASM"]}> <ASMDashboard /> </ProtectedRoute>} />
+          <Route path="/asm/ss/:ss_id" element={<ProtectedRoute allowedRoles={["ASM"]}> <ASMSSDetailPage /></ProtectedRoute>} />
+          <Route path="/asm-assignment" element={<ProtectedRoute allowedRoles={["CRM", "ADMIN"]}> <ASMAssignmentPage /> </ProtectedRoute>} />
+
+
+
+        </Route>
+
+
+
+
+        <Route path="/no-permission" element={<NoPermission />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
     // </AuthProvider>
   );
 }

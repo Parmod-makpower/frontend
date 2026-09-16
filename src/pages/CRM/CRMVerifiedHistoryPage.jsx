@@ -90,7 +90,7 @@ export default function CRMVerifiedHistoryPage() {
         {/* ✅ TABLE */}
         <div className="col-span-12 md:col-span-10">
           <div className="h-[75vh] overflow-y-auto">
-            <table className="w-full border-t text-sm text-center">
+            <table className="w-full border-t text-xs text-center">
               <thead className="bg-gray-200 sticky top-0">
                 <tr>
                   <th className="border-b border-x border-gray-400 p-2">#</th>
