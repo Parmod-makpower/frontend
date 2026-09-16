@@ -110,3 +110,205 @@ export default function BottomNav() {
     </div>
   );
 }
+
+
+
+// import { NavLink } from "react-router-dom";
+// import {
+//   FaHome,
+//   FaGift,
+//   FaShoppingCart,
+//   FaListUl,
+//   FaBox,
+//   FaUsers,
+//   FaHistory,
+//   FaBars,
+// } from "react-icons/fa";
+
+// import { useAuth } from "../context/AuthContext";
+// import { useEffect, useState } from "react";
+
+// export default function BottomNav() {
+//   const { user } = useAuth();
+//   const [cartCount, setCartCount] =
+//     useState(0);
+
+//   useEffect(() => {
+//     const updateCart = () => {
+//       try {
+//         const saved =
+//           localStorage.getItem(
+//             "selectedProducts"
+//           );
+
+//         const parsed = saved
+//           ? JSON.parse(saved)
+//           : [];
+
+//         setCartCount(
+//           Array.isArray(parsed)
+//             ? parsed.length
+//             : 0
+//         );
+//       } catch {
+//         setCartCount(0);
+//       }
+//     };
+
+//     updateCart();
+
+//     const interval = setInterval(
+//       updateCart,
+//       500
+//     );
+
+//     return () =>
+//       clearInterval(interval);
+//   }, []);
+
+//   const cartItem =
+//     (user?.role === "SS" ||
+//       user?.role === "DS" ||
+//       user?.role === "ASM") && {
+//       path: "/cart",
+//       icon: (
+//         <div className="relative">
+//           <FaShoppingCart />
+
+//           {cartCount > 0 && (
+//             <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[8px] font-bold text-white">
+//               {cartCount}
+//             </span>
+//           )}
+//         </div>
+//       ),
+//       label: "Cart",
+//     };
+
+//   const roleItems = {
+//     SS: [
+//       {
+//         path: "/user-schemes",
+//         icon: <FaGift />,
+//         label: "Schemes",
+//       },
+//       {
+//         path: "/all-categories",
+//         icon: <FaBox />,
+//         label: "Category",
+//       },
+//       cartItem,
+//     ],
+
+//     DS: [
+//       {
+//         path: "/user-schemes",
+//         icon: <FaGift />,
+//         label: "Schemes",
+//       },
+//       {
+//         path: "/all-categories",
+//         icon: <FaBox />,
+//         label: "Category",
+//       },
+//       cartItem,
+//     ],
+
+//     ASM: [
+//       {
+//         path: "/user-schemes",
+//         icon: <FaGift />,
+//         label: "Schemes",
+//       },
+//       {
+//         path: "/all-categories",
+//         icon: <FaBox />,
+//         label: "Category",
+//       },
+//       cartItem,
+//     ],
+
+//     CRM: [
+//       {
+//         path: "/user-schemes",
+//         icon: <FaGift />,
+//         label: "Schemes",
+//       },
+//       {
+//         path: "/crm/orders",
+//         icon: <FaBox />,
+//         label: "Orders",
+//       },
+//       {
+//         path: "/all/orders-history",
+//         icon: <FaHistory />,
+//         label: "History",
+//       },
+//     ],
+
+//     ADMIN: [
+//       {
+//         path: "/schemes",
+//         icon: <FaGift />,
+//         label: "Schemes",
+//       },
+//       {
+//         path: "/all/orders-history",
+//         icon: <FaBox />,
+//         label: "Orders",
+//       },
+//       {
+//         path: "/all-users/list",
+//         icon: <FaUsers />,
+//         label: "Users",
+//       },
+//     ],
+//   };
+
+//   const finalMenu = [
+//     {
+//       path: "/",
+//       icon: <FaHome />,
+//       label: "Home",
+//     },
+
+//     ...(roleItems[user?.role] || []),
+
+//     {
+//       path: "/more",
+//       icon: <FaBars />,
+//       label: "More",
+//     },
+//   ].filter(Boolean);
+
+//   return (
+//     <div className="border-t border-gray-200 bg-white px-2 py-2 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+
+//       <div className="flex items-center justify-around">
+
+//         {finalMenu.map((item, index) => (
+//           <NavLink
+//             key={`${item.path}-${index}`}
+//             to={item.path}
+//             className={({ isActive }) =>
+//               `relative flex min-w-[52px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 transition ${
+//                 isActive
+//                   ? "bg-blue-50 text-blue-600"
+//                   : "text-gray-400 hover:text-gray-600"
+//               }`
+//             }
+//           >
+//             <span className="text-[17px]">
+//               {item.icon}
+//             </span>
+
+//             <span className="text-[8px] font-semibold">
+//               {item.label}
+//             </span>
+//           </NavLink>
+//         ))}
+
+//       </div>
+//     </div>
+//   );
+// }

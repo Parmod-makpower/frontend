@@ -161,12 +161,21 @@ export default function SSPDF({ order, items = [], manualAvailabilityMap, allPro
   };
 
   return (
-    <button
+ <button
       onClick={handleDownloadPDF}
       className="flex gap-2 justify-center items-center cursor-pointer"
     >
-      <Download size={18} className="text-blue-500"/>
-      SS PDF
+     
+     <div className="min-w-0 flex-1">
+                <p className="text-[12px] font-semibold text-gray-700">
+                  Download PDF
+                </p>
+                
+
+                <p className="text-[10px] text-gray-400">
+                  Generate order document
+                </p>
+              </div>
     </button>
   );
 }

@@ -500,3 +500,54 @@ export default function DashboardLayout() {
     </div>
   );
 }
+
+// import { Outlet } from "react-router-dom";
+// import BottomNav from "./BottomNav";
+// import Navbar from "./../components/Navbar";
+// import { useState } from "react";
+
+// export default function DashboardLayout() {
+//   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+//   return (
+//     <div className="min-h-screen bg-[#f5f7fb]">
+
+//       {/* ================= DESKTOP APP SHELL ================= */}
+//       <div className="hidden md:block">
+
+//         <Navbar
+//           sidebarCollapsed={sidebarCollapsed}
+//           setSidebarCollapsed={setSidebarCollapsed}
+//         />
+
+//         {/* MAIN CONTENT */}
+//         <main
+//           className={`min-h-screen pt-[64px] transition-all duration-200 ${
+//             sidebarCollapsed
+//               ? "ml-[72px]"
+//               : "ml-[220px]"
+//           }`}
+//         >
+//           <div className="min-h-[calc(100vh-64px)] p-4 lg:p-5">
+//             <Outlet />
+//           </div>
+//         </main>
+
+//       </div>
+
+//       {/* ================= MOBILE ================= */}
+//       <div className="md:hidden min-h-screen">
+
+//         <main className="min-h-screen pb-20">
+//           <Outlet />
+//         </main>
+
+//         <div className="fixed bottom-0 left-0 right-0 z-[100]">
+//           <BottomNav />
+//         </div>
+
+//       </div>
+
+//     </div>
+//   );
+// }
