@@ -89,20 +89,665 @@
 // }
 // 📁 src/pages/SubCategoryPage.jsx
 
+// import { useParams, useNavigate } from "react-router-dom";
+// import categories from "../data/categoryData";
+// import MobilePageHeader from "../components/MobilePageHeader";
+// import { useCachedProducts } from "../hooks/useCachedProducts";
+// import { FaChevronRight, FaBoxOpen } from "react-icons/fa";
+// import makpower_image from "../assets/images/makpower_image.webp";
+
+// export default function SubCategoryPage() {
+//   const { category } = useParams();
+//   const navigate = useNavigate();
+
+//   const { data: products = [], isLoading } = useCachedProducts();
+
+//   const decodedCategory = decodeURIComponent(category || "");
+
+//   // =========================================================
+//   // FIND MAIN CATEGORY
+//   // =========================================================
+
+//   const mainCategory = categories.find(
+//     (c) =>
+//       String(c.keyword || "").toLowerCase() ===
+//       decodedCategory.toLowerCase()
+//   );
+
+//   // =========================================================
+//   // NO CATEGORY
+//   // =========================================================
+
+//   if (!mainCategory || !mainCategory.subcategories?.length) {
+//     return (
+//       <div className="p-4 text-center text-sm text-gray-500">
+//         No Subcategories Found
+//       </div>
+//     );
+//   }
+
+//   // =========================================================
+//   // EXISTING PRODUCT MAPPING
+//   // DO NOT CHANGE
+//   // =========================================================
+
+//   const subCategoryProductMap = {
+//     Bodyguard: 10001,
+//     "Super X": 10002,
+//     "UV Glass": 10003,
+//     "Meibo Glass": 10004,
+//     Soldier: 10005,
+//     "New Soldier": 10007,
+//   };
+
+//   // =========================================================
+//   // EXISTING FUNCTION
+//   // =========================================================
+
+//   const getProductForSub = (subLabel) => {
+//     const productId = subCategoryProductMap[subLabel];
+
+//     if (!productId) return null;
+
+//     return products.find(
+//       (p) => Number(p.product_id) === Number(productId)
+//     );
+//   };
+
+//   // =========================================================
+//   // NORMALIZE TEXT
+//   //
+//   // Example:
+//   //
+//   // "PARTY BOY"       → "partyboy"
+//   // "Party Boy PCB"   → "partyboypcb"
+//   // "SP 370"          → "sp370"
+//   // "SP370 PCB"       → "sp370pcb"
+//   //
+//   // This makes matching much more reliable.
+//   // =========================================================
+
+//   const normalizeText = (value) => {
+//     return String(value || "")
+//       .toLowerCase()
+//       .trim()
+//       .replace(/[^a-z0-9]/g, "");
+//   };
+
+//   // =========================================================
+//   // GET SPARE PART PRODUCTS
+//   //
+//   // IMPORTANT:
+//   // We DO NOT depend on sub_category/product_type.
+//   //
+//   // We directly search product_name.
+//   // =========================================================
+
+//   // const getSparePartProducts = (keyword) => {
+//   //   const normalizedKeyword = normalizeText(keyword);
+
+//   //   if (!normalizedKeyword) {
+//   //     return [];
+//   //   }
+
+//   //   return products
+//   //     .filter((product) => {
+//   //       // Only active products
+//   //       if (product.is_active !== true) {
+//   //         return false;
+//   //       }
+
+//   //       const productName = normalizeText(
+//   //         product.product_name
+//   //       );
+
+//   //       if (!productName) {
+//   //         return false;
+//   //       }
+
+//   //       return productName.includes(normalizedKeyword);
+//   //     })
+//   //     .sort((a, b) => {
+//   //       const aName = normalizeText(a.product_name);
+//   //       const bName = normalizeText(b.product_name);
+
+//   //       // =====================================================
+//   //       // Prefer product whose name starts with keyword
+//   //       // =====================================================
+
+//   //       const aStarts = aName.startsWith(normalizedKeyword);
+//   //       const bStarts = bName.startsWith(normalizedKeyword);
+
+//   //       if (aStarts && !bStarts) return -1;
+//   //       if (!aStarts && bStarts) return 1;
+
+//   //       return 0;
+//   //     });
+//   // };
+
+//   const getSparePartProducts = (keyword) => {
+//   const normalizedKeyword = normalizeText(keyword);
+
+//   if (!normalizedKeyword) return [];
+
+//   return products
+//     .filter((product) => {
+//       if (product.is_active !== true) return false;
+
+//       const productName = normalizeText(product.product_name);
+
+//       if (!productName) return false;
+
+//       if (!productName.includes(normalizedKeyword)) {
+//         return false;
+//       }
+
+//       // SP15 ko SP151 / SP152 se alag rakho
+//       if (normalizedKeyword.startsWith("sp")) {
+//         const index = productName.indexOf(normalizedKeyword);
+//         const nextCharacter =
+//           productName[index + normalizedKeyword.length];
+
+//         // agar next character number hai,
+//         // matlab longer model hai: SP151, SP152 etc.
+//         if (/\d/.test(nextCharacter || "")) {
+//           return false;
+//         }
+//       }
+
+//       return true;
+//     })
+//     .sort((a, b) => {
+//       const aName = normalizeText(a.product_name);
+//       const bName = normalizeText(b.product_name);
+
+//       const aStarts = aName.startsWith(normalizedKeyword);
+//       const bStarts = bName.startsWith(normalizedKeyword);
+
+//       if (aStarts && !bStarts) return -1;
+//       if (!aStarts && bStarts) return 1;
+
+//       return 0;
+//     });
+// };
+//   // =========================================================
+//   // GET BEST SPARE PART PRODUCT
+//   //
+//   // First matching product with image gets preference.
+//   // =========================================================
+
+//   const getSparePartProduct = (keyword) => {
+//     const matchingProducts =
+//       getSparePartProducts(keyword);
+
+//     if (!matchingProducts.length) {
+//       return null;
+//     }
+
+//     // Prefer product which has image
+//     const productWithImage =
+//       matchingProducts.find(
+//         (product) => product?.image
+//       );
+
+//     return productWithImage || matchingProducts[0];
+//   };
+
+//   // =========================================================
+//   // GET DYNAMIC SPARE PART IMAGE
+//   // =========================================================
+
+//   const getSparePartImage = (keyword) => {
+//     const product =
+//       getSparePartProduct(keyword);
+
+//     // No matching product
+//     if (!product) {
+//       return makpower_image;
+//     }
+
+//     const image = String(
+//       product.image || ""
+//     ).trim();
+
+//     // No image
+//     if (!image) {
+//       return makpower_image;
+//     }
+
+//     // =======================================================
+//     // If backend already returns complete URL
+//     // =======================================================
+
+//     if (
+//       image.startsWith("http://") ||
+//       image.startsWith("https://")
+//     ) {
+//       return image;
+//     }
+
+//     // =======================================================
+//     // Existing Cloudinary structure
+//     // Same as ProductCard
+//     // =======================================================
+
+//     return `https://res.cloudinary.com/djyr368zj/${image}?f_auto,q_auto,w_400`;
+//   };
+
+//   // =========================================================
+//   // GET SPARE PART COUNT
+//   // =========================================================
+
+//   const getSparePartsCount = (keyword) => {
+//     if (mainCategory.type !== "spare-parts") {
+//       return 0;
+//     }
+
+//     return getSparePartProducts(keyword).length;
+//   };
+
+//   // =========================================================
+//   // CLICK HANDLER
+//   // =========================================================
+
+//   const handleSubCategoryClick = (sub) => {
+//     const keyword = String(
+//       sub.keyword || ""
+//     ).toUpperCase();
+
+//     // =======================================================
+//     // 🔧 SPARE PARTS
+//     // =======================================================
+
+//     if (mainCategory.type === "spare-parts") {
+//       navigate(
+//         `/spare-parts/${encodeURIComponent(
+//           sub.keyword
+//         )}`
+//       );
+
+//       return;
+//     }
+
+//     // =======================================================
+//     // BATTERY / POLYMER
+//     // =======================================================
+
+//     if (
+//       keyword.includes("BATTERY") ||
+//       keyword.includes("POLYMER")
+//     ) {
+//       navigate(
+//         `/batteries/${encodeURIComponent(
+//           sub.keyword
+//         )}`
+//       );
+
+//       return;
+//     }
+
+//     // =======================================================
+//     // TEMPERED
+//     // =======================================================
+
+//     if (keyword.includes("TEMPERED")) {
+//       navigate(
+//         `/tempered/${encodeURIComponent(
+//           sub.keyword
+//         )}`
+//       );
+
+//       return;
+//     }
+
+//     // =======================================================
+//     // NORMAL CATEGORY
+//     // =======================================================
+
+//     navigate(
+//       `/category/${encodeURIComponent(
+//         sub.keyword
+//       )}`
+//     );
+//   };
+
+//   // =========================================================
+//   // UI
+//   // =========================================================
+
+//   return (
+//     <div className="min-h-screen bg-gray-50 px-3 sm:px-4 pb-20">
+
+//       {/* =====================================================
+//           HEADER
+//       ===================================================== */}
+
+//       <MobilePageHeader
+//         title={mainCategory.label}
+//       />
+
+//       <div className="pt-[60px] sm:pt-0 mx-auto">
+
+//         {/* ===================================================
+//             LOADING
+//         =================================================== */}
+
+//         {isLoading ? (
+//           <div className="flex items-center justify-center py-16">
+//             <p className="text-xs text-gray-500">
+//               Loading...
+//             </p>
+//           </div>
+//         ) : (
+
+//           /* =================================================
+//              CATEGORY GRID
+//           ================================================= */
+
+//           <div
+//             className="
+//               grid
+//               grid-cols-2
+//               sm:grid-cols-3
+//               md:grid-cols-4
+//               lg:grid-cols-6
+//               xl:grid-cols-7
+//               gap-2
+//               sm:gap-3
+//             "
+//           >
+
+//             {mainCategory.subcategories.map(
+//               (sub) => {
+
+//                 // =================================================
+//                 // SPARE PARTS ONLY
+//                 // =================================================
+
+//                 const isSpareParts =
+//                   mainCategory.type ===
+//                   "spare-parts";
+
+//                 // Dynamic product
+//                 const sparePartProduct =
+//                   isSpareParts
+//                     ? getSparePartProduct(
+//                         sub.keyword
+//                       )
+//                     : null;
+
+//                 // Dynamic image
+//                 const sparePartImage =
+//                   isSpareParts
+//                     ? getSparePartImage(
+//                         sub.keyword
+//                       )
+//                     : null;
+
+//                 // Count
+//                  const productCount =
+//                   isSpareParts
+//                     ? getSparePartsCount(sub.keyword)
+//                     : 0;
+
+//                 // =================================================
+//                 // HIDE SPARE PARTS WITH NO PRODUCTS
+//                 // =================================================
+
+//                 if (isSpareParts && productCount === 1) {
+//                   return null;
+//                 }
+
+//                 // =================================================
+//                 // NON-SPARE EXISTING IMAGE
+//                 // =================================================
+
+//                 const cardImage =
+//                   isSpareParts
+//                     ? sparePartImage
+//                     : sub.image;
+
+//                 return (
+//                   <div
+//                     key={sub.label}
+//                     onClick={() =>
+//                       handleSubCategoryClick(
+//                         sub
+//                       )
+//                     }
+//                     className="
+//                       group
+//                       bg-white
+//                       border
+//                       border-gray-200
+//                       rounded-lg
+//                       overflow-hidden
+//                       cursor-pointer
+//                       transition-all
+//                       duration-200
+//                       hover:border-blue-300
+//                       hover:shadow-md
+//                       active:scale-[0.98]
+//                     "
+//                   >
+
+//                     {/* =========================================
+//                         IMAGE
+//                     ========================================= */}
+
+//                     <div
+//                       className="
+//                         w-full
+//                         aspect-square
+//                         bg-gray-50
+//                         flex
+//                         items-center
+//                         justify-center
+//                         overflow-hidden
+//                       "
+//                     >
+
+//                       <img
+//                         src={cardImage}
+//                         alt={sub.label}
+//                         loading="lazy"
+//                         className="
+//                           w-full
+//                           h-full
+//                           object-contain
+//                           p-3
+//                           transition-transform
+//                           duration-200
+//                           group-hover:scale-105
+//                         "
+//                         onError={(e) => {
+
+//                           // =================================================
+//                           // Spare Parts → fallback
+//                           // =================================================
+
+//                           if (isSpareParts) {
+//                             e.currentTarget.onerror =
+//                               null;
+
+//                             e.currentTarget.src =
+//                               makpower_image;
+//                           }
+
+//                           // =================================================
+//                           // Other categories:
+//                           // keep existing image behavior
+//                           // =================================================
+//                         }}
+//                       />
+
+//                     </div>
+
+//                     {/* =========================================
+//                         DETAILS
+//                     ========================================= */}
+
+//                     <div
+//                       className="
+//                         px-2.5
+//                         py-2
+//                         border-t
+//                         border-gray-100
+//                       "
+//                     >
+
+//                       {/* =======================================
+//                           TITLE
+//                       ======================================= */}
+
+//                       <div
+//                         className="
+//                           flex
+//                           items-center
+//                           justify-between
+//                           gap-1
+//                         "
+//                       >
+
+//                         <h2
+//                           className="
+//                             text-[11px]
+//                             sm:text-xs
+//                             font-semibold
+//                             text-gray-800
+//                             truncate
+//                           "
+//                         >
+//                           {sub.label}
+//                         </h2>
+
+//                         <FaChevronRight
+//                           className="
+//                             text-[9px]
+//                             text-gray-400
+//                             flex-shrink-0
+//                           "
+//                         />
+
+//                       </div>
+
+//                       {/* =======================================
+//                           SPARE PART INFO
+//                       ======================================= */}
+
+//                       {isSpareParts && (
+//                         <div
+//                           className="
+//                             flex
+//                             items-center
+//                             justify-between
+//                             gap-1
+//                             mt-1
+//                           "
+//                         >
+
+//                           <div
+//                             className="
+//                               flex
+//                               items-center
+//                               gap-1
+//                               min-w-0
+//                             "
+//                           >
+
+//                             <FaBoxOpen
+//                               className="
+//                                 text-[9px]
+//                                 text-gray-400
+//                                 flex-shrink-0
+//                               "
+//                             />
+
+//                             <span
+//                               className="
+//                                 text-[9px]
+//                                 text-gray-500
+//                                 truncate
+//                               "
+//                             >
+//                              Spare Parts
+//                             </span>
+
+//                           </div>
+
+//                           {/* =================================
+//                               FIRST PRODUCT PRICE
+//                           ================================= */}
+
+                         
+
+//                         </div>
+//                       )}
+
+//                       {/* =======================================
+//                           EXISTING CATEGORY PRICE
+//                           ONLY NON-SPARE
+//                       ======================================= */}
+
+//                       {!isSpareParts &&
+//                         (() => {
+//                           const product =
+//                             getProductForSub(
+//                               sub.label
+//                             );
+
+//                           return product ? (
+//                             <div
+//                               className="
+//                                 text-[10px]
+//                                 text-gray-500
+//                                 mt-1
+//                               "
+//                             >
+//                               ₹ {product.price}
+//                             </div>
+//                           ) : null;
+//                         })()}
+
+//                     </div>
+//                   </div>
+//                 );
+//               }
+//             )}
+
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
 import { useParams, useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
 import categories from "../data/categoryData";
 import MobilePageHeader from "../components/MobilePageHeader";
 import { useCachedProducts } from "../hooks/useCachedProducts";
-import { FaChevronRight, FaBoxOpen } from "react-icons/fa";
+import {
+  FaChevronRight,
+  FaBoxOpen,
+  FaSearch,
+  FaTimes,
+} from "react-icons/fa";
 import makpower_image from "../assets/images/makpower_image.webp";
 
 export default function SubCategoryPage() {
   const { category } = useParams();
   const navigate = useNavigate();
 
-  const { data: products = [], isLoading } = useCachedProducts();
+  const { data: products = [], isLoading } =
+    useCachedProducts();
 
-  const decodedCategory = decodeURIComponent(category || "");
+  const [search, setSearch] = useState("");
+
+  const decodedCategory = decodeURIComponent(
+    category || ""
+  );
 
   // =========================================================
   // FIND MAIN CATEGORY
@@ -118,7 +763,10 @@ export default function SubCategoryPage() {
   // NO CATEGORY
   // =========================================================
 
-  if (!mainCategory || !mainCategory.subcategories?.length) {
+  if (
+    !mainCategory ||
+    !mainCategory.subcategories?.length
+  ) {
     return (
       <div className="p-4 text-center text-sm text-gray-500">
         No Subcategories Found
@@ -145,26 +793,20 @@ export default function SubCategoryPage() {
   // =========================================================
 
   const getProductForSub = (subLabel) => {
-    const productId = subCategoryProductMap[subLabel];
+    const productId =
+      subCategoryProductMap[subLabel];
 
     if (!productId) return null;
 
     return products.find(
-      (p) => Number(p.product_id) === Number(productId)
+      (p) =>
+        Number(p.product_id) ===
+        Number(productId)
     );
   };
 
   // =========================================================
   // NORMALIZE TEXT
-  //
-  // Example:
-  //
-  // "PARTY BOY"       → "partyboy"
-  // "Party Boy PCB"   → "partyboypcb"
-  // "SP 370"          → "sp370"
-  // "SP370 PCB"       → "sp370pcb"
-  //
-  // This makes matching much more reliable.
   // =========================================================
 
   const normalizeText = (value) => {
@@ -175,133 +817,372 @@ export default function SubCategoryPage() {
   };
 
   // =========================================================
-  // GET SPARE PART PRODUCTS
+  // ONLY THESE THREE PRODUCTS ARE SPARE PARTS
   //
   // IMPORTANT:
-  // We DO NOT depend on sub_category/product_type.
-  //
-  // We directly search product_name.
+  // These products can NEVER be used as the model card
+  // image.
   // =========================================================
 
-  // const getSparePartProducts = (keyword) => {
-  //   const normalizedKeyword = normalizeText(keyword);
+  const SPEAKER_SPARE_CATEGORIES = new Set([
+    "speaker pcb",
+    "speaker packing",
+    "speaker housing",
+  ]);
 
-  //   if (!normalizedKeyword) {
-  //     return [];
-  //   }
-
-  //   return products
-  //     .filter((product) => {
-  //       // Only active products
-  //       if (product.is_active !== true) {
-  //         return false;
-  //       }
-
-  //       const productName = normalizeText(
-  //         product.product_name
-  //       );
-
-  //       if (!productName) {
-  //         return false;
-  //       }
-
-  //       return productName.includes(normalizedKeyword);
-  //     })
-  //     .sort((a, b) => {
-  //       const aName = normalizeText(a.product_name);
-  //       const bName = normalizeText(b.product_name);
-
-  //       // =====================================================
-  //       // Prefer product whose name starts with keyword
-  //       // =====================================================
-
-  //       const aStarts = aName.startsWith(normalizedKeyword);
-  //       const bStarts = bName.startsWith(normalizedKeyword);
-
-  //       if (aStarts && !bStarts) return -1;
-  //       if (!aStarts && bStarts) return 1;
-
-  //       return 0;
-  //     });
-  // };
-
-  const getSparePartProducts = (keyword) => {
-  const normalizedKeyword = normalizeText(keyword);
-
-  if (!normalizedKeyword) return [];
-
-  return products
-    .filter((product) => {
-      if (product.is_active !== true) return false;
-
-      const productName = normalizeText(product.product_name);
-
-      if (!productName) return false;
-
-      if (!productName.includes(normalizedKeyword)) {
-        return false;
-      }
-
-      // SP15 ko SP151 / SP152 se alag rakho
-      if (normalizedKeyword.startsWith("sp")) {
-        const index = productName.indexOf(normalizedKeyword);
-        const nextCharacter =
-          productName[index + normalizedKeyword.length];
-
-        // agar next character number hai,
-        // matlab longer model hai: SP151, SP152 etc.
-        if (/\d/.test(nextCharacter || "")) {
-          return false;
-        }
-      }
-
-      return true;
-    })
-    .sort((a, b) => {
-      const aName = normalizeText(a.product_name);
-      const bName = normalizeText(b.product_name);
-
-      const aStarts = aName.startsWith(normalizedKeyword);
-      const bStarts = bName.startsWith(normalizedKeyword);
-
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
-
-      return 0;
-    });
-};
-  // =========================================================
-  // GET BEST SPARE PART PRODUCT
-  //
-  // First matching product with image gets preference.
-  // =========================================================
-
-  const getSparePartProduct = (keyword) => {
-    const matchingProducts =
-      getSparePartProducts(keyword);
-
-    if (!matchingProducts.length) {
-      return null;
+  const isSpeakerSpareProduct = (product) => {
+    if (product?.is_active !== true) {
+      return false;
     }
 
-    // Prefer product which has image
-    const productWithImage =
-      matchingProducts.find(
-        (product) => product?.image
-      );
+    const category = String(
+      product.category || ""
+    )
+      .trim()
+      .toLowerCase();
 
-    return productWithImage || matchingProducts[0];
+    const subCategory = String(
+      product.sub_category || ""
+    )
+      .trim()
+      .toLowerCase();
+
+    const productType = String(
+      product.product_type || ""
+    )
+      .trim()
+      .toLowerCase();
+
+    return (
+      SPEAKER_SPARE_CATEGORIES.has(category) ||
+      SPEAKER_SPARE_CATEGORIES.has(subCategory) ||
+      SPEAKER_SPARE_CATEGORIES.has(productType)
+    );
   };
 
   // =========================================================
-  // GET DYNAMIC SPARE PART IMAGE
+  // EXACT MODEL MATCH
+  //
+  // IMPORTANT CASES:
+  //
+  // SP15  → SP15 PCB       ✅
+  // SP15  → SP151 PCB      ❌
+  // SP15  → SP152 PCB      ❌
+  //
+  // SP151 → SP151 PCB      ✅
+  // SP151 → SP15 PCB       ❌
+  //
+  // RAFTAAR → RAFTAAR PCB  ✅
+  // RHYTHM  → RHYTHM PCB   ✅
+  //
+  // But these are used ONLY for spare-part matching.
+  // They are NOT used to select the model card image.
   // =========================================================
 
-  const getSparePartImage = (keyword) => {
-    const product =
-      getSparePartProduct(keyword);
+  const matchesSparePartModel = (
+    productName,
+    keyword
+  ) => {
+    const normalizedProduct =
+      normalizeText(productName);
 
-    // No matching product
+    const normalizedKeyword =
+      normalizeText(keyword);
+
+    if (
+      !normalizedProduct ||
+      !normalizedKeyword
+    ) {
+      return false;
+    }
+
+    const index =
+      normalizedProduct.indexOf(
+        normalizedKeyword
+      );
+
+    if (index === -1) {
+      return false;
+    }
+
+    const afterModel =
+      normalizedProduct[
+        index + normalizedKeyword.length
+      ] || "";
+
+    // =======================================================
+    // MODEL CODE PROTECTION
+    //
+    // SP15 must not match SP151 / SP152
+    // =======================================================
+
+    const keywordEndsWithNumber =
+      /\d$/.test(normalizedKeyword);
+
+    if (
+      keywordEndsWithNumber &&
+      /\d/.test(afterModel)
+    ) {
+      return false;
+    }
+
+    // =======================================================
+    // EXACT MODEL
+    // =======================================================
+
+    if (
+      normalizedProduct ===
+      normalizedKeyword
+    ) {
+      return true;
+    }
+
+    // =======================================================
+    // ALLOWED SPARE PART SUFFIXES
+    // =======================================================
+
+    const remaining =
+      normalizedProduct.slice(
+        index + normalizedKeyword.length
+      );
+
+    const validSuffixes = [
+      "pcb",
+      "packing",
+      "housing",
+      "speakerpcb",
+      "speakerpacking",
+      "speakerhousing",
+    ];
+
+    return validSuffixes.some(
+      (suffix) =>
+        remaining.startsWith(suffix)
+    );
+  };
+
+  // =========================================================
+  // GET SPARE PART PRODUCTS
+  //
+  // ONLY:
+  // SPEAKER PCB
+  // SPEAKER PACKING
+  // SPEAKER HOUSING
+  // =========================================================
+
+  const getSparePartProducts = (keyword) => {
+    const normalizedKeyword =
+      normalizeText(keyword);
+
+    if (!normalizedKeyword) {
+      return [];
+    }
+
+    return products
+      .filter((product) => {
+        // ---------------------------------------------------
+        // ACTIVE ONLY
+        // ---------------------------------------------------
+
+        if (product.is_active !== true) {
+          return false;
+        }
+
+        // ---------------------------------------------------
+        // ONLY THREE SPEAKER SPARE CATEGORIES
+        // ---------------------------------------------------
+
+        if (
+          !isSpeakerSpareProduct(product)
+        ) {
+          return false;
+        }
+
+        const productName = String(
+          product.product_name || ""
+        ).trim();
+
+        if (!productName) {
+          return false;
+        }
+
+        // ---------------------------------------------------
+        // EXACT MODEL MATCH
+        // ---------------------------------------------------
+
+        return matchesSparePartModel(
+          productName,
+          normalizedKeyword
+        );
+      })
+      .sort((a, b) => {
+        const aName =
+          normalizeText(
+            a.product_name
+          );
+
+        const bName =
+          normalizeText(
+            b.product_name
+          );
+
+        const aStarts =
+          aName.startsWith(
+            normalizedKeyword
+          );
+
+        const bStarts =
+          bName.startsWith(
+            normalizedKeyword
+          );
+
+        if (
+          aStarts &&
+          !bStarts
+        ) {
+          return -1;
+        }
+
+        if (
+          !aStarts &&
+          bStarts
+        ) {
+          return 1;
+        }
+
+        return 0;
+      });
+  };
+
+  // =========================================================
+  // GET ACTUAL SPEAKER / MODEL PRODUCT
+  //
+  // 🚨 VERY IMPORTANT:
+  //
+  // We explicitly EXCLUDE:
+  //
+  // SPEAKER PCB
+  // SPEAKER PACKING
+  // SPEAKER HOUSING
+  //
+  // Therefore PCB can NEVER become the model image.
+  // =========================================================
+
+  const getActualModelProduct = (
+    keyword
+  ) => {
+    const normalizedKeyword =
+      normalizeText(keyword);
+
+    if (!normalizedKeyword) {
+      return null;
+    }
+
+    const matchingProducts =
+      products.filter((product) => {
+        // ---------------------------------------------------
+        // ACTIVE ONLY
+        // ---------------------------------------------------
+
+        if (
+          product?.is_active !== true
+        ) {
+          return false;
+        }
+
+        // ---------------------------------------------------
+        // 🚨 NEVER USE SPARE PART PRODUCT
+        //
+        // This is the important fix for:
+        // RAFTAAR
+        // RHYTHM
+        // AUDIO PULSE
+        // etc.
+        // ---------------------------------------------------
+
+        if (
+          isSpeakerSpareProduct(
+            product
+          )
+        ) {
+          return false;
+        }
+
+        const productName =
+          String(
+            product.product_name || ""
+          )
+            .trim();
+
+        if (!productName) {
+          return false;
+        }
+
+        const normalizedProduct =
+          normalizeText(
+            productName
+          );
+
+        // ---------------------------------------------------
+        // MODEL MUST EXIST
+        // ---------------------------------------------------
+
+        if (
+          !normalizedProduct.includes(
+            normalizedKeyword
+          )
+        ) {
+          return false;
+        }
+
+        // ---------------------------------------------------
+        // PREVENT SP15 → SP151 / SP152
+        // ---------------------------------------------------
+
+        const index =
+          normalizedProduct.indexOf(
+            normalizedKeyword
+          );
+
+        const afterModel =
+          normalizedProduct[
+            index +
+              normalizedKeyword.length
+          ] || "";
+
+        if (
+          /\d$/.test(
+            normalizedKeyword
+          ) &&
+          /\d/.test(afterModel)
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+
+    // -------------------------------------------------------
+    // Prefer product which actually has an image
+    // -------------------------------------------------------
+
+    return (
+      matchingProducts.find(
+        (product) =>
+          String(
+            product?.image || ""
+          ).trim()
+      ) || null
+    );
+  };
+
+  // =========================================================
+  // PRODUCT IMAGE URL
+  // =========================================================
+
+  const getProductImage = (
+    product
+  ) => {
     if (!product) {
       return makpower_image;
     }
@@ -310,56 +1191,169 @@ export default function SubCategoryPage() {
       product.image || ""
     ).trim();
 
-    // No image
     if (!image) {
       return makpower_image;
     }
 
-    // =======================================================
-    // If backend already returns complete URL
-    // =======================================================
-
     if (
-      image.startsWith("http://") ||
-      image.startsWith("https://")
+      image.startsWith(
+        "http://"
+      ) ||
+      image.startsWith(
+        "https://"
+      )
     ) {
       return image;
     }
 
-    // =======================================================
-    // Existing Cloudinary structure
-    // Same as ProductCard
-    // =======================================================
-
     return `https://res.cloudinary.com/djyr368zj/${image}?f_auto,q_auto,w_400`;
+  };
+
+  // =========================================================
+  // GET MODEL CARD IMAGE
+  //
+  // 🚨 FINAL RULE:
+  //
+  // 1. Actual speaker image
+  // 2. Makpower fallback
+  //
+  // ❌ NEVER PCB
+  // ❌ NEVER PACKING
+  // ❌ NEVER HOUSING
+  //
+  // This condition applies to EVERY spare-part model.
+  // =========================================================
+
+  const getSparePartImage = (
+    keyword
+  ) => {
+    const actualModelProduct =
+      getActualModelProduct(
+        keyword
+      );
+
+    if (
+      actualModelProduct?.image
+    ) {
+      return getProductImage(
+        actualModelProduct
+      );
+    }
+
+    // 🚨 DO NOT FALL BACK TO SPARE PART IMAGE.
+    //
+    // Earlier code was doing:
+    //
+    // sparePartProduct → PCB image
+    //
+    // That caused the issue.
+    //
+    // Now if actual speaker image is not available,
+    // show Makpower fallback.
+    return makpower_image;
   };
 
   // =========================================================
   // GET SPARE PART COUNT
   // =========================================================
 
-  const getSparePartsCount = (keyword) => {
-    if (mainCategory.type !== "spare-parts") {
+  const getSparePartsCount = (
+    keyword
+  ) => {
+    if (
+      mainCategory.type !==
+      "spare-parts"
+    ) {
       return 0;
     }
 
-    return getSparePartProducts(keyword).length;
+    return getSparePartProducts(
+      keyword
+    ).length;
   };
+
+  // =========================================================
+  // SEARCH MODEL CARDS
+  //
+  // Search applies ONLY to Spare Parts.
+  //
+  // Example:
+  //
+  // Search "sp15"
+  // → SP15
+  // → SP151
+  // → SP152
+  //
+  // Search "rhythm"
+  // → RHYTHM
+  //
+  // Search "speaker"
+  // → Speaker-named models
+  // =========================================================
+
+  const normalizedSearch =
+    normalizeText(search);
+
+  const visibleSubcategories =
+    useMemo(() => {
+      if (
+        mainCategory.type !==
+        "spare-parts"
+      ) {
+        return mainCategory.subcategories;
+      }
+
+      if (!normalizedSearch) {
+        return mainCategory.subcategories;
+      }
+
+      return mainCategory.subcategories.filter(
+        (sub) => {
+          const label =
+            normalizeText(
+              sub.label
+            );
+
+          const keyword =
+            normalizeText(
+              sub.keyword
+            );
+
+          return (
+            label.includes(
+              normalizedSearch
+            ) ||
+            keyword.includes(
+              normalizedSearch
+            )
+          );
+        }
+      );
+    },
+    [
+      mainCategory,
+      normalizedSearch,
+    ]);
 
   // =========================================================
   // CLICK HANDLER
   // =========================================================
 
-  const handleSubCategoryClick = (sub) => {
+  const handleSubCategoryClick = (
+    sub
+  ) => {
     const keyword = String(
       sub.keyword || ""
     ).toUpperCase();
 
     // =======================================================
-    // 🔧 SPARE PARTS
+    // SPARE PARTS
     // =======================================================
 
-    if (mainCategory.type === "spare-parts") {
+    if (
+      mainCategory.type ===
+      "spare-parts"
+    ) {
       navigate(
         `/spare-parts/${encodeURIComponent(
           sub.keyword
@@ -374,8 +1368,12 @@ export default function SubCategoryPage() {
     // =======================================================
 
     if (
-      keyword.includes("BATTERY") ||
-      keyword.includes("POLYMER")
+      keyword.includes(
+        "BATTERY"
+      ) ||
+      keyword.includes(
+        "POLYMER"
+      )
     ) {
       navigate(
         `/batteries/${encodeURIComponent(
@@ -390,7 +1388,11 @@ export default function SubCategoryPage() {
     // TEMPERED
     // =======================================================
 
-    if (keyword.includes("TEMPERED")) {
+    if (
+      keyword.includes(
+        "TEMPERED"
+      )
+    ) {
       navigate(
         `/tempered/${encodeURIComponent(
           sub.keyword
@@ -418,15 +1420,151 @@ export default function SubCategoryPage() {
   return (
     <div className="min-h-screen bg-gray-50 px-3 sm:px-4 pb-20">
 
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
+      <div className="pt-[20px] sm:pt-0 mx-auto">
 
-      <MobilePageHeader
-        title={mainCategory.label}
-      />
+        {/* ===================================================
+            SPARE PART SEARCH BAR
+        =================================================== */}
 
-      <div className="pt-[60px] sm:pt-0 mx-auto">
+        {mainCategory.type ===
+          "spare-parts" && (
+          <div className="mb-3">
+
+            <div
+              className="
+                relative
+                bg-white
+                border
+                border-gray-200
+                rounded-xl
+                shadow-sm
+                transition-all
+                duration-200
+                focus-within:border-blue-300
+                focus-within:ring-2
+                focus-within:ring-blue-100
+              "
+            >
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-2.5
+                  px-3.5
+                  py-2.5
+                "
+              >
+
+                <FaSearch
+                  className="
+                    text-gray-400
+                    text-sm
+                    flex-shrink-0
+                  "
+                />
+
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) =>
+                    setSearch(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Search speaker model..."
+                  className="
+                    flex-1
+                    min-w-0
+                    bg-transparent
+                    outline-none
+                    text-xs
+                    sm:text-sm
+                    text-gray-700
+                    placeholder:text-gray-400
+                  "
+                />
+
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSearch("")
+                    }
+                    className="
+                      w-6
+                      h-6
+                      rounded-full
+                      flex
+                      items-center
+                      justify-center
+                      text-gray-400
+                      hover:text-gray-600
+                      hover:bg-gray-100
+                      transition-colors
+                    "
+                    aria-label="Clear search"
+                  >
+                    <FaTimes
+                      className="text-[10px]"
+                    />
+                  </button>
+                )}
+
+              </div>
+
+            </div>
+
+            {/* =================================================
+                SEARCH RESULT COUNT
+            ================================================= */}
+
+            {search && (
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  px-1
+                  mt-1.5
+                "
+              >
+
+                <span
+                  className="
+                    text-[10px]
+                    text-gray-400
+                  "
+                >
+                  {visibleSubcategories.length}{" "}
+                  model
+                  {visibleSubcategories.length !==
+                  1
+                    ? "s"
+                    : ""}{" "}
+                  found
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSearch("")
+                  }
+                  className="
+                    text-[10px]
+                    font-medium
+                    text-blue-500
+                    hover:text-blue-600
+                  "
+                >
+                  Clear
+                </button>
+
+              </div>
+            )}
+
+          </div>
+        )}
 
         {/* ===================================================
             LOADING
@@ -438,6 +1576,79 @@ export default function SubCategoryPage() {
               Loading...
             </p>
           </div>
+        ) : visibleSubcategories.length ===
+          0 ? (
+
+          /* =================================================
+             NO SEARCH RESULTS
+          ================================================= */
+
+          <div
+            className="
+              bg-white
+              border
+              border-gray-200
+              rounded-xl
+              py-12
+              px-4
+              text-center
+            "
+          >
+
+            <FaSearch
+              className="
+                mx-auto
+                text-gray-300
+                text-xl
+                mb-2.5
+              "
+            />
+
+            <p
+              className="
+                text-xs
+                font-medium
+                text-gray-600
+              "
+            >
+              No models found
+            </p>
+
+            <p
+              className="
+                text-[10px]
+                text-gray-400
+                mt-1
+              "
+            >
+              Try another speaker model name
+            </p>
+
+            {search && (
+              <button
+                type="button"
+                onClick={() =>
+                  setSearch("")
+                }
+                className="
+                  mt-3
+                  px-3
+                  py-1.5
+                  rounded-lg
+                  bg-blue-50
+                  text-[10px]
+                  font-medium
+                  text-blue-600
+                  hover:bg-blue-100
+                  transition-colors
+                "
+              >
+                Show all models
+              </button>
+            )}
+
+          </div>
+
         ) : (
 
           /* =================================================
@@ -457,54 +1668,44 @@ export default function SubCategoryPage() {
             "
           >
 
-            {mainCategory.subcategories.map(
+            {visibleSubcategories.map(
               (sub) => {
-
-                // =================================================
-                // SPARE PARTS ONLY
-                // =================================================
 
                 const isSpareParts =
                   mainCategory.type ===
                   "spare-parts";
 
-                // Dynamic product
-                const sparePartProduct =
+                // =================================================
+                // SPARE PART COUNT
+                // =================================================
+
+                const productCount =
                   isSpareParts
-                    ? getSparePartProduct(
+                    ? getSparePartsCount(
                         sub.keyword
                       )
-                    : null;
-
-                // Dynamic image
-                const sparePartImage =
-                  isSpareParts
-                    ? getSparePartImage(
-                        sub.keyword
-                      )
-                    : null;
-
-                // Count
-                 const productCount =
-                  isSpareParts
-                    ? getSparePartsCount(sub.keyword)
                     : 0;
 
                 // =================================================
-                // HIDE SPARE PARTS WITH NO PRODUCTS
+                // HIDE ONLY IF ZERO SPARE PARTS
                 // =================================================
 
-                if (isSpareParts && productCount === 1) {
+                if (
+                  isSpareParts &&
+                  productCount === 0
+                ) {
                   return null;
                 }
 
                 // =================================================
-                // NON-SPARE EXISTING IMAGE
+                // IMAGE
                 // =================================================
 
                 const cardImage =
                   isSpareParts
-                    ? sparePartImage
+                    ? getSparePartImage(
+                        sub.keyword
+                      )
                     : sub.image;
 
                 return (
@@ -520,7 +1721,7 @@ export default function SubCategoryPage() {
                       bg-white
                       border
                       border-gray-200
-                      rounded-lg
+                      rounded-xl
                       overflow-hidden
                       cursor-pointer
                       transition-all
@@ -561,23 +1762,17 @@ export default function SubCategoryPage() {
                           group-hover:scale-105
                         "
                         onError={(e) => {
+                          // -------------------------------------
+                          // IMPORTANT:
+                          // Never retry another spare-part image.
+                          // Always use safe fallback.
+                          // -------------------------------------
 
-                          // =================================================
-                          // Spare Parts → fallback
-                          // =================================================
+                          e.currentTarget.onerror =
+                            null;
 
-                          if (isSpareParts) {
-                            e.currentTarget.onerror =
-                              null;
-
-                            e.currentTarget.src =
-                              makpower_image;
-                          }
-
-                          // =================================================
-                          // Other categories:
-                          // keep existing image behavior
-                          // =================================================
+                          e.currentTarget.src =
+                            makpower_image;
                         }}
                       />
 
@@ -670,16 +1865,10 @@ export default function SubCategoryPage() {
                                 truncate
                               "
                             >
-                             Spare Parts
+                              Spare Parts
                             </span>
 
                           </div>
-
-                          {/* =================================
-                              FIRST PRODUCT PRICE
-                          ================================= */}
-
-                         
 
                         </div>
                       )}
