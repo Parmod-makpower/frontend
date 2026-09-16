@@ -1,4 +1,3 @@
-// 📁 src/components/BottomNav.jsx
 import { NavLink } from "react-router-dom";
 import {
   FaHome,
