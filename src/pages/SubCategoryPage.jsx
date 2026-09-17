@@ -3985,21 +3985,31 @@ export default function SubCategoryPage() {
   // =========================================================
 
   const speakerModels = useMemo(() => {
-    const result = [
-      ...normalSpeakerModels,
-    ];
+  const result = [
+    ...normalSpeakerModels,
+  ];
 
-    if (twisterFallbackModel) {
-      result.push(
-        twisterFallbackModel
-      );
-    }
+  if (twisterFallbackModel) {
+    result.push(
+      twisterFallbackModel
+    );
+  }
 
-    return result;
-  }, [
-    normalSpeakerModels,
-    twisterFallbackModel,
-  ]);
+  // ✅ Alphabetical order: A → Z
+  return result.sort((a, b) =>
+    String(a.modelName || "").localeCompare(
+      String(b.modelName || ""),
+      undefined,
+      {
+        numeric: true,
+        sensitivity: "base",
+      }
+    )
+  );
+}, [
+  normalSpeakerModels,
+  twisterFallbackModel,
+]);
 
   // =========================================================
   // SEARCH SPEAKER MODELS
