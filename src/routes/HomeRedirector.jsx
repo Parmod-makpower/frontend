@@ -22,7 +22,7 @@ export default function HomeRedirector() {
   } else if (role === "asm") {
     return <Navigate to="/home" replace />;
   }else if (role === "hr") {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/remarks" replace />;
   }  else {
     return <div className="p-4 text-red-600"> (Unauthorized User)</div>;
   }

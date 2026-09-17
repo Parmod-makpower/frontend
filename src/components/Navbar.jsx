@@ -1074,6 +1074,16 @@ export default function Navbar({
       }
     );
   }
+  if (user?.role === "HR") {
+    navItems.push(
+      { label: "Dashboard", path: "/remarks", icon: <FaHome /> },      
+      {
+        label: "Categories",
+        path: "/all-categories",
+        icon: <FaList />,
+      }
+    );
+  }
 
   /* =========================================================
      RENDER
