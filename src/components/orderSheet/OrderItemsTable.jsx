@@ -108,7 +108,7 @@ export default function OrderItemsTable({
 
   return (
     <div className="border-t border-r border-gray-500">
-      <div ref={tableScrollRef} className="max-h-[73vh] overflow-y-auto p-0 m-0 ">
+      <div ref={tableScrollRef} className="max-h-[70vh] overflow-y-auto p-0 m-0 ">
         <table className=" min-w-full border-collapse text-sm">
 
           {/* ================= HEADER ================= */}
@@ -274,7 +274,7 @@ export default function OrderItemsTable({
 
 
           {searchTerm && (
-            <div className="absolute left-0 right-0 top-full bg-white border shadow-lg max-h-24 overflow-y-auto z-[999]">
+            <div className="absolute left-0 right-0 top-full bg-white border shadow-lg max-h-34 overflow-y-auto z-[999]">
               {filteredProducts.length > 0 ? (
                 filteredProducts.map((prod, index) => {
                   const matchedSaleName = prod.sale_names?.find((name) =>

@@ -392,7 +392,7 @@ export default function CRMOrderDetailPage() {
     );
 
   return (
-    <div className="p-4 rounded pb-20 sm:p-0 sm:pb-11">
+    <div className="p-4 rounded pb-20 sm:p-0 sm:pb-25">
       {/* Header */}
       <MobilePageHeader title={order.order_id} />
       <div className="pb-4 flex flex-col flex-row items-center justify-between pt-[65px] sm:p-0 mb-2 bg-gray-200 border rounded">
@@ -452,7 +452,7 @@ export default function CRMOrderDetailPage() {
             getSchemeText={getSchemeText}
             setSelectedCity={setSelectedCity}
           />
-          <div className="flex justify-end mt-2">
+          {/* <div className="flex justify-end mt-2">
             <button
               onClick={() => setShowConfirmModal(true)}
               disabled={loadingApprove}
@@ -464,7 +464,45 @@ export default function CRMOrderDetailPage() {
               {loadingApprove && <Loader2 className="animate-spin w-4 h-4" />}
               Submit
             </button>
-          </div>
+          </div> */}
+
+
+
+
+          {/* ✅ Fixed Submit Footer */}
+<div
+  className="
+    fixed bottom-0 right-0 z-[90]
+    left-0 md:left-[220px]
+    flex h-[64px] items-center justify-end
+    border-t border-[#e7edf5]
+    bg-white/95 px-4 md:px-6
+    shadow-[0_-4px_16px_rgba(15,23,42,0.08)]
+    backdrop-blur-sm
+  "
+>
+  <button
+    type="button"
+    onClick={() => setShowConfirmModal(true)}
+    disabled={loadingApprove}
+    className={`
+      flex items-center justify-center gap-2
+      rounded-xl px-7 py-2.5
+      text-sm font-semibold text-white
+      shadow-sm transition-all duration-200
+      ${
+        loadingApprove
+          ? "cursor-not-allowed bg-blue-400"
+          : "bg-[#1769ff] hover:bg-blue-700 active:scale-[0.98]"
+      }
+    `}
+  >
+    {loadingApprove && (
+      <Loader2 className="h-4 w-4 animate-spin" />
+    )}
+    Submit
+  </button>
+</div>
         </div>
       </div>
 
