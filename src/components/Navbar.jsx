@@ -1129,6 +1129,7 @@ export default function Navbar({
             shrink-0
             items-center
             border-b
+            bg-gray-100
             border-white/[0.07]
             ${
               sidebarCollapsed
