@@ -977,11 +977,11 @@ export default function HROrderListPage() {
   ========================================================= */
 
   const openOrder = (order) => {
-    navigate(`/crm/orders/${order.id}`, {
-      state: {
-        order,
-      },
-    });
+    // navigate(`/crm/orders/${order.id}`, {
+    //   state: {
+    //     order,
+    //   },
+    // });
   };
 
   /* =========================================================
@@ -1637,11 +1637,7 @@ export default function HROrderListPage() {
               md:block
             ">
 
-              <div className="
-                h-[calc(100vh-290px)]
-                min-h-[400px]
-                overflow-auto
-              ">
+              <div >
 
                 <table className="
                   w-full
