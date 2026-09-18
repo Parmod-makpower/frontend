@@ -387,7 +387,7 @@ export default function ConfirmOrderPage() {
 
   // =========================================================
   // TOTAL
-  // Same calculation as original page
+  // Same calculation as original pa
   // =========================================================
   const orderTotal = selectedProducts
     .reduce(
