@@ -496,7 +496,7 @@ export default function SearchBarPage() {
                 {product._displayName}
               </span>
 
-              {user?.role !== "DS" && (
+             
                 <div className="shrink-0">
                   {!outOfStock ? (
                     <span className="rounded bg-blue-100 px-1 py-[1px] text-[10px] text-blue-600">
@@ -508,7 +508,7 @@ export default function SearchBarPage() {
                     </span>
                   )}
                 </div>
-              )}
+             
 
               {hasScheme(product.id) && (
                 <FaGift className="shrink-0 text-xs text-pink-500 animate-pulse" />

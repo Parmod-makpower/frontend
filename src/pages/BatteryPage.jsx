@@ -179,7 +179,8 @@ const sortedProducts = useMemo(() => {
                   >
                     <div className="flex items-center gap-2 font-medium text-xs truncate text-gray-800">
                       {prod._displayName}
-                      {user?.role !== "DS" && (<div>
+                     
+                        <div>
                       {!outOfStock ? (
                         <span className="bg-blue-100 text-blue-600 text-[10px] px-1 py-[1px] rounded">
                           In Stock
@@ -189,7 +190,7 @@ const sortedProducts = useMemo(() => {
                           Out of Stock
                         </span>
                       )}
-                      </div>)}
+                      </div>
                       {hasScheme(prodId) && (
                         <FaGift
                           title="Scheme Available"

@@ -152,7 +152,7 @@ export default function App() {
           <Route path="/add-new-user" element={<ProtectedRoute ><AddNewUser /></ProtectedRoute>} />
           <Route path="/all-users/list" element={<ProtectedRoute ><AllUsersList /></ProtectedRoute>} />
           <Route path="/crm/orders" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderListPage /></ProtectedRoute>} />
-          <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM','ADMIN','HR']}><CRMOrderDetailPage /></ProtectedRoute>} />
+          <Route path="/crm/orders/:orderId" element={<ProtectedRoute allowedRoles={['CRM']}><CRMOrderDetailPage /></ProtectedRoute>} />
 
 
           <Route path="/ss-page" element={<ProtectedRoute allowedRoles={['SS']}><HomePage /></ProtectedRoute>} />

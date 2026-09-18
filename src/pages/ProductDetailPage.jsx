@@ -177,8 +177,7 @@ export default function ProductDetailPage() {
                 Category: {product.sub_category || "N/A"}
               </p>
             </div>
-            {user?.role !== "DS" && (
-            
+          
             <div className="flex items-center gap-2">
               {!outOfStock ? (
                 <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
@@ -190,7 +189,7 @@ export default function ProductDetailPage() {
                 </span>
               )}
             </div>
-            )}
+           
             {/* Price */}
             <div className="flex items-center gap-3">
               {!isNaN(product.price) ? (

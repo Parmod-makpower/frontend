@@ -75,7 +75,6 @@ import { useMemo } from "react";
 
 import API from "../api/axios";
 
-import { useAuth } from "../context/AuthContext";
 import { useVirtualStock } from "./useVirtualStock";
 import { useMumbaiStock } from "./useMumbaiStock";
 
@@ -179,8 +178,6 @@ const formatProductPrice = (price) => {
 // =====================================================
 
 export const useCachedProducts = () => {
-  const { user } = useAuth();
-
   // ---------------------------------------------------
   // Products cache
   // ---------------------------------------------------
@@ -214,18 +211,11 @@ export const useCachedProducts = () => {
 
 
   // ---------------------------------------------------
-  // DS user ke liye stock fetching control
-  // ---------------------------------------------------
-
-  const isDS = user?.role === "DS";
-
-
-  // ---------------------------------------------------
   // Virtual Stock
   // ---------------------------------------------------
 
   const { data: virtualStockData = [] } =
-    useVirtualStock(!isDS);
+    useVirtualStock(true);
 
 
   // ---------------------------------------------------
@@ -233,7 +223,7 @@ export const useCachedProducts = () => {
   // ---------------------------------------------------
 
   const { data: mumbaiStockData = [] } =
-    useMumbaiStock(!isDS);
+    useMumbaiStock(true);
 
 
   // ===================================================

@@ -1496,7 +1496,7 @@ export default function Navbar({
                                 {product._displayName}
                               </span>
 
-                              {user?.role !== "DS" && (
+                              
                                 <span
                                   className={`
                                     shrink-0
@@ -1516,7 +1516,7 @@ export default function Navbar({
                                     ? "Out of Stock"
                                     : "In Stock"}
                                 </span>
-                              )}
+                              
 
                               {hasScheme(product.id) && (
                                 <FaGift className="shrink-0 text-[10px] text-pink-500" />

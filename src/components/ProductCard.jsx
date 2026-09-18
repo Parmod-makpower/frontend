@@ -188,7 +188,7 @@ export default function ProductCard({
         </h3>
 
         {/* Stock */}
-        {user?.role !== "DS" && (
+        
           <div className="flex items-center mt-1.5">
             {!outOfStock ? (
               <span
@@ -220,7 +220,7 @@ export default function ProductCard({
               </span>
             )}
           </div>
-        )}
+       
 
         {/* Guarantee */}
         {prod?.guarantee && (
