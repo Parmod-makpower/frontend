@@ -1,154 +1,3 @@
-// // 📁 pages/MoreOptionsPage.jsx
-// import { useAuth } from "../context/AuthContext";
-// import { useNavigate } from "react-router-dom";
-// import {
-//   FaUserCircle,
-//   FaSignOutAlt,
-//   FaInfoCircle,
-//   FaUsers,
-//   FaChartLine,
-//   FaBox,
-//   FaBan,
-//   FaRoute,
-// } from "react-icons/fa";
-// import MobilePageHeader from "../components/MobilePageHeader";
-
-
-
-// export default function MoreOptionsPage() {
-//   const { user, logout } = useAuth();
-//   const navigate = useNavigate();
-
-//   const handleLogout = () => {
-//   logout(() => {
-//     navigate("/login");
-//   });
-// };
-
-
-//   // ✅ role आधारित options
-//   const options = [
-//     ...(user?.role === "CRM"
-//       ? [
-//           {
-//             label: "Users",
-//             icon: <FaUsers className="text-green-600" />,
-//             action: () => navigate("/all-users/list"),
-//           },
-          
-//           {
-//             label: "Not In Stock",
-//             icon: <FaChartLine className="text-orange-600" />,
-//             action: () => navigate("/not-in-stock-reports"),
-//           },
-//         ]
-//       : []),
-//     ...(user?.role === "ADMIN"
-//       ? [
-//         {
-//             label: "Track-Orders",
-//             icon: <FaRoute className="text-red-600" />,
-//             action: () => navigate("/orders-tracking"),
-//           },
-//          {
-//             label: "Products",
-//             icon: <FaBox className="text-green-600" />,
-//             action: () => navigate("/products"),
-//           },
-//           {
-//             label: "Inactive Products",
-//             icon: <FaBan className="text-red-600" />,
-//             action: () => navigate("/inactive"),
-//           },
-//           {
-//             label: "Sale Name",
-//             icon: <FaBox className="text-yellow-600" />,
-//             action: () => navigate("/sale-name"),
-//           },
-//           {
-//             label: "DS Orders",
-//             icon: <FaBox className="text-blue-600" />,
-//             action: () => navigate("/ds/orders"),
-//           },
-          
-//         ]
-//       : []),
-//     ...(user?.role === "SS"
-//       ? [
-//           {
-//             label: "My Order",
-//             icon: <FaBox className="text-orange-600" />,
-//             action: () => navigate("/ss/history"),
-//           },
-         
-//         ]
-//       : []),
-      
-//     // ...(user?.role === "DS"
-//     //   ? [
-//     //       {
-//     //         label: "My Order",
-//     //         icon: <FaBox className="text-orange-600" />,
-//     //         action: () => navigate("/ds/my-orders"),
-//     //       },
-         
-//     //     ]
-//     //   : []),
-//     {
-//       label: "Help / Info",
-//       icon: <FaInfoCircle className="text-yellow-500" />,
-//       action: () => alert("Phone: 7428828836"),
-//     },
-//     {
-//       label: "Logout",
-//       icon: <FaSignOutAlt className="text-red-500" />,
-//       action: handleLogout,
-//       danger: true,
-//     },
-//   ];
-
-//   return (
-//     <div className="max-w-md mx-auto px-4 relative mb-50">
-//       {/* Header */}
-//       <MobilePageHeader title="More Options" />
-
-//       {/* Profile Section */}
-//       <div className="relative my-6 pt-[60px] sm:pt-4 ">
-//         <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-start gap-4">
-//           <div className="relative">
-//             <FaUserCircle className="text-6xl text-[#fc250c]" />
-//             <div className="absolute top-1 right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white" />
-//           </div>
-//           <div>
-//             <div className="text-sm font-bold text-gray-800">{user?.name}</div>
-//             <div className="text-xs text-gray-700">{user?.mobile}</div>
-//             <div className="text-xs text-gray-400">ID {user?.user_id}</div>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Options */}
-//       <div className="space-y-3">
-//         {options.map(({ label, icon, action, danger }, idx) => (
-//           <button
-//             key={idx}
-//             onClick={action}
-//             className={`w-full flex items-center gap-4 p-4 rounded-lg border shadow-sm transition-all duration-150 ${
-//               danger
-//                 ? "bg-red-50 border-red-200 text-[#fc250c] hover:bg-red-100 active:bg-red-200"
-//                 : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 active:bg-gray-100"
-//             }`}
-//           >
-//             {icon}
-//             <span className="text-base font-medium">{label}</span>
-//           </button>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
-
-
 
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -179,63 +28,37 @@ export default function MoreOptionsPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  // ---------------------------------------------------------
+  // LOGOUT
+  // ---------------------------------------------------------
   const handleLogout = () => {
     logout(() => {
       navigate("/login");
     });
   };
 
+  // ---------------------------------------------------------
+  // NAVIGATION
+  // ---------------------------------------------------------
   const goTo = (path) => {
     navigate(path);
   };
 
-  /* =========================================================
-     ROLE BASED OPTIONS
-     EXACTLY MATCHING NAVBAR ACCESS
-  ========================================================= */
-
+  // ---------------------------------------------------------
+  // ROLE-WISE OPTIONS
+  // IMPORTANT:
+  // Existing routes / labels / functionality preserved.
+  // ---------------------------------------------------------
   const roleOptions = {
     ADMIN: [
-      {
-        label: "Dashboard",
-        icon: <FaHome />,
-        path: "/",
-      },
-      {
-        label: "Products",
-        icon: <FaBox />,
-        path: "/products",
-      },
-      {
-        label: "Inactive",
-        icon: <FaBan />,
-        path: "/inactive",
-      },
-      {
-        label: "Sale Name",
-        icon: <FaBox />,
-        path: "/sale-name",
-      },
-      {
-        label: "Schemes",
-        icon: <FaGift />,
-        path: "/schemes",
-      },
-      {
-        label: "Users",
-        icon: <FaUsers />,
-        path: "/all-users/list",
-      },
-      {
-        label: "All Orders",
-        icon: <FaBox />,
-        path: "/all/orders-history",
-      },
-      {
-        label: "Dispatch",
-        icon: <FaTruck />,
-        path: "/dispatch-entries",
-      },
+      { label: "Dashboard", icon: <FaHome />, path: "/" },
+      { label: "Products", icon: <FaBox />, path: "/products" },
+      { label: "Inactive", icon: <FaBan />, path: "/inactive" },
+      { label: "Sale Name", icon: <FaBox />, path: "/sale-name" },
+      { label: "Schemes", icon: <FaGift />, path: "/schemes" },
+      { label: "Users", icon: <FaUsers />, path: "/all-users/list" },
+      { label: "All Orders", icon: <FaBox />, path: "/all/orders-history" },
+      { label: "Dispatch", icon: <FaTruck />, path: "/dispatch-entries" },
       {
         label: "Not In Stock",
         icon: <FaChartLine />,
@@ -264,21 +87,9 @@ export default function MoreOptionsPage() {
     ],
 
     CRM: [
-      {
-        label: "Dashboard",
-        icon: <FaHome />,
-        path: "/",
-      },
-      {
-        label: "Schemes",
-        icon: <FaGift />,
-        path: "/user-schemes",
-      },
-      {
-        label: "Users",
-        icon: <FaUsers />,
-        path: "/all-users/list",
-      },
+      { label: "Dashboard", icon: <FaHome />, path: "/" },
+      { label: "Schemes", icon: <FaGift />, path: "/user-schemes" },
+      { label: "Users", icon: <FaUsers />, path: "/all-users/list" },
       {
         label: "ASM Management",
         icon: <FaUserTie />,
@@ -411,233 +222,216 @@ export default function MoreOptionsPage() {
 
   const options = roleOptions[user?.role] || [];
 
-  /* =========================================================
-     RENDER
-  ========================================================= */
+  // ---------------------------------------------------------
+  // ICON STYLE
+  // MAkPOWER ORANGE / RED BRANDING
+  // ---------------------------------------------------------
+  const getIconStyle = (label) => {
+    const styles = {
+      Dashboard: "bg-[#fff1ee] text-[#fc250c]",
+      "ASM Dashboard": "bg-[#fff1ee] text-[#fc250c]",
+      Products: "bg-[#fff7ed] text-[#ea580c]",
+      Inactive: "bg-[#fff1f2] text-[#e11d48]",
+      "Sale Name": "bg-[#fff7ed] text-[#ea580c]",
+      Schemes: "bg-[#fff7ed] text-[#f97316]",
+      Users: "bg-[#fff1ee] text-[#fc250c]",
+      "All Orders": "bg-[#fff1ee] text-[#fc250c]",
+      Dispatch: "bg-[#fff7ed] text-[#ea580c]",
+      "Not In Stock": "bg-[#fff7ed] text-[#ea580c]",
+      "Track Orders": "bg-[#fff1ee] text-[#fc250c]",
+      "Goa Trip": "bg-[#fff7ed] text-[#f97316]",
+      Catalogue: "bg-[#fff1ee] text-[#fc250c]",
+      Settings: "bg-[#fef2f2] text-[#dc2626]",
+      "ASM Management": "bg-[#fff1ee] text-[#fc250c]",
+      "New Orders": "bg-[#fff1ee] text-[#fc250c]",
+      Remarks: "bg-[#fff7ed] text-[#ea580c]",
+      History: "bg-[#fff1ee] text-[#fc250c]",
+      "Spare Parts": "bg-[#fff7ed] text-[#ea580c]",
+      Categories: "bg-[#fff1ee] text-[#fc250c]",
+      Orders: "bg-[#fff1ee] text-[#fc250c]",
+      Cart: "bg-[#fff7ed] text-[#ea580c]",
+    };
+
+    return styles[label] || "bg-[#fff1ee] text-[#fc250c]";
+  };
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb]">
-      <div className="mx-auto w-full max-w-md px-4 pb-28 md:max-w-2xl">
-
-        {/* HEADER */}
+    <div className="min-h-screen bg-[#f6f7f9] text-[#172033]">
+      {/* =====================================================
+          MAIN MOBILE CONTAINER
+      ====================================================== */}
+      <div className="mx-auto w-full max-w-md px-3 pb-28 sm:px-4 md:max-w-2xl">
+        {/* ===================================================
+            HEADER
+        ==================================================== */}
         <MobilePageHeader title="More Options" />
 
-        {/* =====================================================
-            PROFILE
-        ===================================================== */}
+        {/* ===================================================
+            PROFILE CARD
+        ==================================================== */}
+        <section className="mb-5 mt-5 pt-[58px] sm:pt-4">
+          <div className="relative overflow-hidden rounded-[22px] border border-[#eceff3] bg-white shadow-[0_8px_28px_rgba(15,23,42,0.055)]">
+            {/* Brand top line */}
+            <div className="absolute inset-x-0 top-0 h-[4px] bg-gradient-to-r from-[#fc250c] via-[#ff4b2b] to-[#ea580c]" />
 
-        <div className="mb-6 mt-5 my-6 pt-[60px] sm:pt-4">
-          <div className="relative overflow-hidden rounded-2xl border border-[#e7edf5] bg-white p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
-
-            {/* small blue top accent */}
-            <div className="absolute left-0 right-0 top-0 h-1 bg-[#1769ff]" />
-
-            <div className="flex items-center gap-4 pt-1">
-
-              {/* AVATAR */}
+            <div className="relative flex items-center gap-3.5 p-4">
+              {/* Avatar */}
               <div className="relative shrink-0">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-[#1769ff]">
-                  <FaUserCircle className="text-[42px]" />
+                <div className="flex h-[58px] w-[58px] items-center justify-center rounded-[18px] bg-[#fff1ee] text-[#fc250c] ring-1 ring-[#ffe0db]">
+                  <FaUserCircle className="text-[43px]" />
                 </div>
 
-                <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
+                {/* Online indicator */}
+                <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-[2px] border-white bg-emerald-500 shadow-sm" />
               </div>
 
-              {/* USER INFO */}
+              {/* User information */}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[14px] font-extrabold text-[#0f172a]">
+                <p className="truncate text-[14px] font-extrabold leading-tight text-[#172033]">
                   {user?.name || "User"}
                 </p>
 
-                <p className="mt-0.5 text-[11px] font-medium text-slate-500">
+                <p className="mt-1 truncate text-[11px] font-medium text-[#64748b]">
                   {user?.mobile || "—"}
                 </p>
 
-                <div className="mt-1.5 flex items-center gap-2">
-                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-wide text-[#1769ff]">
+                <div className="mt-2 flex min-w-0 items-center gap-2">
+                  <span className="shrink-0 rounded-full border border-[#ffd9d2] bg-[#fff1ee] px-2.5 py-1 text-[8px] font-extrabold uppercase tracking-[0.08em] text-[#fc250c]">
                     {user?.role || "USER"}
                   </span>
 
-                  <span className="truncate text-[9px] font-medium text-slate-400">
+                  <span className="min-w-0 truncate text-[9px] font-medium text-[#94a3b8]">
                     ID: {user?.user_id || "—"}
                   </span>
                 </div>
               </div>
             </div>
+
+            {/* Small brand footer */}
+            <div className="flex items-center justify-between border-t border-[#f1f3f5] bg-[#fffaf9] px-4 py-2">
+              <span className="text-[8px] font-extrabold uppercase tracking-[0.16em] text-[#fc250c]">
+                MAkPOWER
+              </span>
+
+              <span className="text-[8px] font-medium text-[#94a3b8]">
+                Account & Access
+              </span>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* =====================================================
-            ROLE ACCESS
-        ===================================================== */}
+        {/* ===================================================
+            MENU HEADER
+        ==================================================== */}
+        <section className="mb-3.5 px-1">
+          <div className="flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="h-4 w-[3px] rounded-full bg-[#fc250c]" />
 
-        <div className="mb-3 flex items-center justify-between px-1">
-          <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#0f172a]">
-              {user?.role} Menu
-            </p>
+                <p className="truncate text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#172033]">
+                  {user?.role || "USER"} Menu
+                </p>
+              </div>
 
-            <p className="mt-0.5 text-[9px] font-medium text-slate-400">
-              Available features & access
-            </p>
+              <p className="mt-1 pl-[11px] text-[9px] font-medium text-[#94a3b8]">
+                Available features & access
+              </p>
+            </div>
+
+            {/* Option count */}
+            <span className="shrink-0 rounded-full border border-[#eceff3] bg-white px-2.5 py-1.5 text-[9px] font-bold text-[#64748b] shadow-[0_2px_8px_rgba(15,23,42,0.035)]">
+              <span className="text-[#fc250c]">{options.length}</span>{" "}
+              options
+            </span>
           </div>
+        </section>
 
-          <span className="rounded-full bg-white px-2.5 py-1 text-[9px] font-bold text-slate-400 shadow-sm ring-1 ring-slate-100">
-            {options.length} options
-          </span>
-        </div>
-
-        {/* MENU GRID */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* ===================================================
+            OPTIONS GRID
+        ==================================================== */}
+        <section className="grid grid-cols-2 gap-2.5 sm:gap-3">
           {options.map((item) => (
             <button
               key={`${item.label}-${item.path}`}
               type="button"
               onClick={() => goTo(item.path)}
-              className="
-                group
-                relative
-                flex
-                min-h-[86px]
-                flex-col
-                items-start
-                justify-between
-                overflow-hidden
-                rounded-2xl
-                border
-                border-[#e7edf5]
-                bg-white
-                p-4
-                text-left
-                shadow-[0_6px_24px_rgba(15,23,42,0.04)]
-                transition-all
-                duration-200
-                active:scale-[0.97]
-                hover:-translate-y-0.5
-                hover:border-blue-200
-                hover:shadow-[0_10px_30px_rgba(23,105,255,0.10)]
-              "
+              aria-label={item.label}
+              className="group relative flex min-h-[94px] flex-col items-start justify-between overflow-hidden rounded-[19px] border border-[#e9edf1] bg-white p-3.5 text-left shadow-[0_5px_18px_rgba(15,23,42,0.035)] transition-all duration-200 active:scale-[0.96] hover:-translate-y-0.5 hover:border-[#ffcfc7] hover:shadow-[0_10px_28px_rgba(252,37,12,0.09)]"
             >
-              {/* ICON */}
+              {/* Icon */}
               <div
-                className="
-                  flex
-                  h-9
-                  w-9
-                  items-center
-                  justify-center
-                  rounded-xl
-                  bg-blue-50
-                  text-[#1769ff]
-                  transition-all
-                  duration-200
-                  group-hover:scale-105
-                  group-hover:bg-[#1769ff]
-                  group-hover:text-white
-                "
+                className={`flex h-10 w-10 items-center justify-center rounded-[13px] transition-all duration-200 group-hover:scale-[1.04] ${getIconStyle(
+                  item.label
+                )}`}
               >
-                <span className="text-[15px]">
-                  {item.icon}
-                </span>
+                <span className="text-[15px]">{item.icon}</span>
               </div>
 
-              {/* LABEL */}
-              <div className="mt-3 flex w-full items-center justify-between gap-2">
-                <span className="truncate text-[10px] font-extrabold text-[#334155]">
+              {/* Label + Arrow */}
+              <div className="mt-3 flex w-full min-w-0 items-center justify-between gap-2">
+                <span className="min-w-0 truncate text-[10px] font-extrabold leading-tight text-[#334155]">
                   {item.label}
                 </span>
 
-                <span className="text-[12px] text-slate-300 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-[#1769ff]">
+                <span className="shrink-0 text-[13px] font-medium text-[#cbd5e1] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#fc250c]">
                   →
                 </span>
               </div>
 
-              {/* HOVER ACCENT */}
-              <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-[#1769ff] transition-all duration-200 group-hover:w-full" />
+              {/* Bottom brand line */}
+              <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[#fc250c] to-[#ff6b4a] transition-all duration-200 group-hover:w-full" />
             </button>
           ))}
-        </div>
+        </section>
 
-        {/* =====================================================
-            HELP / INFO
-        ===================================================== */}
+        {/* ===================================================
+            SUPPORT
+        ==================================================== */}
+        <section className="mt-7">
+          <div className="mb-3 flex items-center gap-2 px-1">
+            <span className="h-3 w-[3px] rounded-full bg-[#f97316]" />
 
-        <div className="mt-7">
-          <p className="mb-3 px-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">
-            Support
-          </p>
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#64748b]">
+              Support
+            </p>
+          </div>
 
           <button
             type="button"
             onClick={() => alert("Phone: 7428828836")}
-            className="
-              group
-              flex
-              w-full
-              items-center
-              gap-3
-              rounded-2xl
-              border
-              border-[#e7edf5]
-              bg-white
-              p-4
-              text-left
-              shadow-[0_6px_24px_rgba(15,23,42,0.04)]
-              transition-all
-              duration-200
-              active:scale-[0.98]
-              hover:border-blue-200
-              hover:bg-blue-50/30
-            "
+            className="group flex w-full items-center gap-3 rounded-[19px] border border-[#e9edf1] bg-white p-3.5 text-left shadow-[0_5px_18px_rgba(15,23,42,0.035)] transition-all duration-200 active:scale-[0.98] hover:border-[#ffd5cb] hover:bg-[#fffaf8]"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-500 transition-transform duration-200 group-hover:scale-105">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[#fff7ed] text-[#f97316] ring-1 ring-[#ffedd5] transition-transform duration-200 group-hover:scale-[1.04]">
               <FaInfoCircle size={16} />
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-extrabold text-slate-700">
+              <p className="text-[11px] font-extrabold text-[#334155]">
                 Help / Info
               </p>
 
-              <p className="mt-0.5 text-[9px] font-medium text-slate-400">
+              <p className="mt-0.5 truncate text-[9px] font-medium text-[#94a3b8]">
                 Contact support for assistance
               </p>
             </div>
 
-            <span className="text-slate-300 group-hover:text-[#1769ff]">
+            <span className="shrink-0 text-[13px] text-[#cbd5e1] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#fc250c]">
               →
             </span>
           </button>
-        </div>
+        </section>
 
-        {/* =====================================================
+        {/* ===================================================
             LOGOUT
-        ===================================================== */}
-
-        <div className="mt-3">
+        ==================================================== */}
+        <section className="mt-3">
           <button
             type="button"
             onClick={handleLogout}
-            className="
-              group
-              flex
-              w-full
-              items-center
-              gap-3
-              rounded-2xl
-              border
-              border-red-100
-              bg-red-50/70
-              p-4
-              text-left
-              transition-all
-              duration-200
-              active:scale-[0.98]
-              hover:border-red-200
-              hover:bg-red-50
-            "
+            className="group flex w-full items-center gap-3 rounded-[19px] border border-red-100 bg-red-50/70 p-3.5 text-left transition-all duration-200 active:scale-[0.98] hover:border-red-200 hover:bg-red-50"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-500 transition-transform duration-200 group-hover:scale-105">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-red-100 text-red-500 transition-transform duration-200 group-hover:scale-[1.04]">
               <FaSignOutAlt size={15} />
             </div>
 
@@ -646,23 +440,36 @@ export default function MoreOptionsPage() {
                 Logout
               </p>
 
-              <p className="mt-0.5 text-[9px] font-medium text-red-400">
+              <p className="mt-0.5 truncate text-[9px] font-medium text-red-400">
                 Sign out from your account
               </p>
             </div>
 
-            <span className="text-red-300 transition-transform group-hover:translate-x-0.5 group-hover:text-red-500">
+            <span className="shrink-0 text-[13px] text-red-300 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-red-500">
               →
             </span>
           </button>
-        </div>
+        </section>
 
+        {/* ===================================================
+            BOTTOM BRANDING
+        ==================================================== */}
+        <div className="mt-6 flex items-center justify-center pb-2">
+          <div className="flex items-center gap-2">
+            <span className="h-px w-8 bg-[#e5e7eb]" />
+
+            <span className="text-[8px] font-extrabold tracking-[0.2em] text-[#cbd5e1]">
+              MAKPOWER
+            </span>
+
+            <span className="h-px w-8 bg-[#e5e7eb]" />
+          </div>
+        </div>
       </div>
 
       {/* =====================================================
-          ANIMATION
-      ===================================================== */}
-
+          REDUCED MOTION
+      ====================================================== */}
       <style>
         {`
           @media (prefers-reduced-motion: reduce) {
