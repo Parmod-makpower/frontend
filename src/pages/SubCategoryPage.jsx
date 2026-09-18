@@ -679,7 +679,7 @@
 //                               FIRST PRODUCT PRICE
 //                           ================================= */}
 
-                         
+
 
 //                         </div>
 //                       )}
@@ -3595,9 +3595,9 @@ export default function SubCategoryPage() {
   const getModelName = (product) => {
     return String(
       product?.product_name ||
-        product?.name ||
-        product?.sale_name ||
-        ""
+      product?.name ||
+      product?.sale_name ||
+      ""
     ).trim();
   };
 
@@ -3724,7 +3724,7 @@ export default function SubCategoryPage() {
 
         const afterModel =
           productText[
-            index + model.length
+          index + model.length
           ] || "";
 
         if (
@@ -3985,31 +3985,31 @@ export default function SubCategoryPage() {
   // =========================================================
 
   const speakerModels = useMemo(() => {
-  const result = [
-    ...normalSpeakerModels,
-  ];
+    const result = [
+      ...normalSpeakerModels,
+    ];
 
-  if (twisterFallbackModel) {
-    result.push(
-      twisterFallbackModel
+    if (twisterFallbackModel) {
+      result.push(
+        twisterFallbackModel
+      );
+    }
+
+    // ✅ Alphabetical order: A → Z
+    return result.sort((a, b) =>
+      String(a.modelName || "").localeCompare(
+        String(b.modelName || ""),
+        undefined,
+        {
+          numeric: true,
+          sensitivity: "base",
+        }
+      )
     );
-  }
-
-  // ✅ Alphabetical order: A → Z
-  return result.sort((a, b) =>
-    String(a.modelName || "").localeCompare(
-      String(b.modelName || ""),
-      undefined,
-      {
-        numeric: true,
-        sensitivity: "base",
-      }
-    )
-  );
-}, [
-  normalSpeakerModels,
-  twisterFallbackModel,
-]);
+  }, [
+    normalSpeakerModels,
+    twisterFallbackModel,
+  ]);
 
   // =========================================================
   // SEARCH SPEAKER MODELS
@@ -4135,9 +4135,51 @@ export default function SubCategoryPage() {
   // PRODUCT IMAGE
   // =========================================================
 
+  // const getProductImage = (
+  //   product
+  // ) => {
+  //   if (!product) {
+  //     return makpower_image;
+  //   }
+
+  //   const image = String(
+  //     product?.image || ""
+  //   ).trim();
+
+  //   if (!image) {
+  //     return makpower_image;
+  //   }
+
+  //   if (
+  //     image.startsWith(
+  //       "http://"
+  //     ) ||
+  //     image.startsWith(
+  //       "https://"
+  //     )
+  //   ) {
+  //     return image;
+  //   }
+
+  //   return `https://res.cloudinary.com/djyr368zj/${image}?f_auto,q_auto,w_400`;
+  // };
+
   const getProductImage = (
-    product
+    product,
+    isManualTwister = false
   ) => {
+    // =====================================================
+    // TWISTER SPECIAL IMAGE
+    // =====================================================
+
+    if (isManualTwister) {
+      return "https://res.cloudinary.com/djyr368zj/image/upload/v1757908154/eg8xi3afjpp5jnz01ola.png";
+    }
+
+    // =====================================================
+    // EXISTING IMAGE LOGIC
+    // =====================================================
+
     if (!product) {
       return makpower_image;
     }
@@ -4151,12 +4193,8 @@ export default function SubCategoryPage() {
     }
 
     if (
-      image.startsWith(
-        "http://"
-      ) ||
-      image.startsWith(
-        "https://"
-      )
+      image.startsWith("http://") ||
+      image.startsWith("https://")
     ) {
       return image;
     }
@@ -4286,22 +4324,22 @@ export default function SubCategoryPage() {
 
         {mainCategory.type ===
           "spare-parts" && (
-          <div className="mb-4">
+            <div className="mb-4">
 
-            {/* SEARCH + MODEL COUNT */}
+              {/* SEARCH + MODEL COUNT */}
 
-            <div
-              className="
+              <div
+                className="
                 flex
                 items-center
                 gap-2
               "
-            >
+              >
 
-              {/* SEARCH */}
+                {/* SEARCH */}
 
-              <div
-                className="
+                <div
+                  className="
                   flex-1
                   relative
                   bg-white
@@ -4315,34 +4353,34 @@ export default function SubCategoryPage() {
                   focus-within:ring-2
                   focus-within:ring-blue-100
                 "
-              >
-                <div
-                  className="
+                >
+                  <div
+                    className="
                     flex
                     items-center
                     gap-2.5
                     px-3.5
                     py-2.5
                   "
-                >
-                  <FaSearch
-                    className="
+                  >
+                    <FaSearch
+                      className="
                       text-gray-400
                       text-sm
                       flex-shrink-0
                     "
-                  />
+                    />
 
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) =>
-                      setSearch(
-                        e.target.value
-                      )
-                    }
-                    placeholder="Search speaker model..."
-                    className="
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(e) =>
+                        setSearch(
+                          e.target.value
+                        )
+                      }
+                      placeholder="Search speaker model..."
+                      className="
                       flex-1
                       min-w-0
                       bg-transparent
@@ -4352,15 +4390,15 @@ export default function SubCategoryPage() {
                       text-gray-700
                       placeholder:text-gray-400
                     "
-                  />
+                    />
 
-                  {search && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSearch("")
-                      }
-                      className="
+                    {search && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSearch("")
+                        }
+                        className="
                         w-6
                         h-6
                         rounded-full
@@ -4372,20 +4410,20 @@ export default function SubCategoryPage() {
                         hover:bg-gray-100
                         transition-colors
                       "
-                    >
-                      <FaTimes className="text-[10px]" />
-                    </button>
-                  )}
+                      >
+                        <FaTimes className="text-[10px]" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* MODEL COUNT
+                {/* MODEL COUNT
                   ONLY MODELS
                   NO SPARE PART TOTAL
               */}
 
-              <div
-                className="
+                <div
+                  className="
                   flex
                   items-center
                   gap-1.5
@@ -4397,82 +4435,82 @@ export default function SubCategoryPage() {
                   border
                   border-blue-100
                 "
-              >
-                <FaBoxOpen
-                  className="
+                >
+                  <FaBoxOpen
+                    className="
                     text-blue-500
                     text-xs
                   "
-                />
+                  />
 
-                <span
-                  className="
+                  <span
+                    className="
                     text-[11px]
                     font-semibold
                     text-blue-700
                   "
-                >
-                  {visibleSpeakerModels.length}
-                </span>
+                  >
+                    {visibleSpeakerModels.length}
+                  </span>
 
-                <span
-                  className="
+                  <span
+                    className="
                     text-[10px]
                     text-blue-500
                     hidden
                     sm:inline
                   "
-                >
-                  Models
-                </span>
+                  >
+                    Models
+                  </span>
+                </div>
               </div>
-            </div>
 
-            {/* SEARCH INFO */}
+              {/* SEARCH INFO */}
 
-            {search && (
-              <div
-                className="
+              {search && (
+                <div
+                  className="
                   flex
                   items-center
                   justify-between
                   px-1
                   mt-1.5
                 "
-              >
-                <span
-                  className="
+                >
+                  <span
+                    className="
                     text-[10px]
                     text-gray-400
                   "
-                >
-                  {visibleSpeakerModels.length}{" "}
-                  model
-                  {visibleSpeakerModels.length !==
-                  1
-                    ? "s"
-                    : ""}{" "}
-                  found
-                </span>
+                  >
+                    {visibleSpeakerModels.length}{" "}
+                    model
+                    {visibleSpeakerModels.length !==
+                      1
+                      ? "s"
+                      : ""}{" "}
+                    found
+                  </span>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSearch("")
-                  }
-                  className="
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSearch("")
+                    }
+                    className="
                     text-[10px]
                     font-medium
                     text-blue-500
                     hover:text-blue-600
                   "
-                >
-                  Clear
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+                  >
+                    Clear
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
         {/* =================================================
             LOADING
@@ -4527,7 +4565,7 @@ export default function SubCategoryPage() {
           ================================================= */
 
           visibleSpeakerModels.length ===
-          0 ? (
+            0 ? (
 
             <div
               className="
@@ -4629,10 +4667,10 @@ export default function SubCategoryPage() {
                       item.isManualTwister
                         ? "manual-twister"
                         : (
-                            modelProduct?.id ??
-                            modelProduct?.product_id ??
-                            `${modelName}-${index}`
-                          );
+                          modelProduct?.id ??
+                          modelProduct?.product_id ??
+                          `${modelName}-${index}`
+                        );
 
                     return (
                       <div
@@ -4688,8 +4726,12 @@ export default function SubCategoryPage() {
                           "
                         >
                           <img
+                            // src={getProductImage(
+                            //   modelProduct
+                            // )}
                             src={getProductImage(
-                              modelProduct
+                              modelProduct,
+                              item.isManualTwister
                             )}
                             alt={modelName}
                             loading="lazy"
@@ -4818,7 +4860,7 @@ export default function SubCategoryPage() {
                             >
                               {productCount}{" "}
                               {productCount ===
-                              1
+                                1
                                 ? "Item"
                                 : "Items"}
                             </span>
@@ -4836,26 +4878,26 @@ export default function SubCategoryPage() {
 
               {visibleCount <
                 visibleSpeakerModels.length && (
-                <div
-                  ref={loadMoreRef}
-                  className="
+                  <div
+                    ref={loadMoreRef}
+                    className="
                     flex
                     items-center
                     justify-center
                     py-6
                   "
-                >
-                  <div
-                    className="
+                  >
+                    <div
+                      className="
                       flex
                       items-center
                       gap-2
                       text-[10px]
                       text-gray-400
                     "
-                  >
-                    <span
-                      className="
+                    >
+                      <span
+                        className="
                         w-3
                         h-3
                         rounded-full
@@ -4864,12 +4906,12 @@ export default function SubCategoryPage() {
                         border-t-blue-500
                         animate-spin
                       "
-                    />
+                      />
 
-                    Loading more models...
+                      Loading more models...
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* =================================================
                   ALL LOADED
@@ -4878,19 +4920,19 @@ export default function SubCategoryPage() {
               {visibleCount >=
                 visibleSpeakerModels.length &&
                 visibleSpeakerModels.length >
-                  INITIAL_VISIBLE && (
-                <div
-                  className="
+                INITIAL_VISIBLE && (
+                  <div
+                    className="
                     text-center
                     py-5
                     text-[10px]
                     text-gray-400
                   "
-                >
-                  All {visibleSpeakerModels.length}{" "}
-                  models loaded
-                </div>
-              )}
+                  >
+                    All {visibleSpeakerModels.length}{" "}
+                    models loaded
+                  </div>
+                )}
             </>
           )
 
