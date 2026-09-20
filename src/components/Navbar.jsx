@@ -647,6 +647,7 @@ import {
 import {
   Bell,
   MoreVertical,
+  Tags,
 } from "lucide-react";
 
 import {
@@ -928,6 +929,7 @@ export default function Navbar({
     navItems.push(
       { label: "Dashboard", path: "/", icon: <FaHome /> },
       { label: "Products", path: "/products", icon: <FaBox /> },
+      { label: "Price Management", path: "/price-management", icon: <Tags/>,},
       { label: "Inactive", path: "/inactive", icon: <FaBan /> },
       { label: "Sale Name", path: "/sale-name", icon: <FaBox /> },
       { label: "Schemes", path: "/schemes", icon: <FaGift /> },
@@ -970,6 +972,7 @@ export default function Navbar({
         path: "/all-users/list",
         icon: <FaUsers />,
       },
+      // { label: "Price Management", path: "/price-management", icon: <Tags/>,},
       {
         label: "ASM Management",
         path: "/asm-assignment",

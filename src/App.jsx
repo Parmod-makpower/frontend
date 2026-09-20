@@ -62,6 +62,8 @@ import SparePartsProductPage from "./pages/SparePartsProductPage";
 import ASMDashboard from "./pages/ASM/ASMDashboard";
 import ASMSSDetailPage from "./pages/ASM/ASMSSDetailPage";
 import ASMAssignmentPage from "./pages/CRM/ASMAssignmentPage";
+import PriceManagementPage from "./pages/ADMIN/PriceManagementPage";
+import PriceHistoryPage from "./pages/ADMIN/PriceHistoryPage";
 
 
 export default function App() {
@@ -166,6 +168,24 @@ export default function App() {
           <Route path="/asm" element={<ProtectedRoute allowedRoles={["ASM"]}> <ASMDashboard /> </ProtectedRoute>} />
           <Route path="/asm/ss/:ss_id" element={<ProtectedRoute allowedRoles={["ASM"]}> <ASMSSDetailPage /></ProtectedRoute>} />
           <Route path="/asm-assignment" element={<ProtectedRoute allowedRoles={["CRM", "ADMIN"]}> <ASMAssignmentPage /> </ProtectedRoute>} />
+
+          <Route
+  path="/price-management"
+  element={
+    <ProtectedRoute allowedRoles={["ADMIN", "CRM"]}>
+      <PriceManagementPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/price-management/history"
+  element={
+    <ProtectedRoute allowedRoles={["ADMIN", "CRM"]}>
+      <PriceHistoryPage />
+    </ProtectedRoute>
+  }
+/>
 
 
 
