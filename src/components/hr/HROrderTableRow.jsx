@@ -40,34 +40,26 @@ const statusConfig = {
 ========================================================= */
 
 const getInitial = (name = "") => {
-  return (
-    name.trim().charAt(0).toUpperCase() || "?"
-  );
+  return name.trim().charAt(0).toUpperCase() || "?";
 };
 
 const formatDate = (dateValue) => {
   if (!dateValue) return "-";
 
-  return new Date(dateValue).toLocaleDateString(
-    "en-IN",
-    {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }
-  );
+  return new Date(dateValue).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 };
 
 const formatTime = (dateValue) => {
   if (!dateValue) return "-";
 
-  return new Date(dateValue).toLocaleTimeString(
-    "en-IN",
-    {
-      hour: "2-digit",
-      minute: "2-digit",
-    }
-  );
+  return new Date(dateValue).toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
 /* =========================================================
@@ -79,8 +71,7 @@ export function HROrderTableRow({
   onClick,
 }) {
   const status =
-    statusConfig[order.status] ||
-    statusConfig.HOLD;
+    statusConfig[order.status] || statusConfig.HOLD;
 
   const user = JSON.parse(
     localStorage.getItem("user")
@@ -156,50 +147,45 @@ export function HROrderTableRow({
         hover:bg-blue-50/30
       "
     >
-
       {/* =====================================================
           ORDER
       ===================================================== */}
 
-      <td className="border-b border-slate-100 px-5 py-3.5 align-middle">
-
-        <div className="flex items-center gap-2.5">
-
-          <div className="
-            flex
-            h-7
-            w-7
-            shrink-0
-            items-center
-            justify-center
-            border
-            border-slate-200
-            bg-slate-50
-            text-[10px]
-            font-bold
-            text-slate-500
-            transition-colors
-            group-hover:border-blue-200
-            group-hover:bg-blue-50
-            group-hover:text-blue-600
-          ">
+      <td className="border-b border-slate-100 px-4 py-3.5 align-middle">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div
+            className="
+              flex
+              h-7
+              w-7
+              shrink-0
+              items-center
+              justify-center
+              border
+              border-slate-200
+              bg-slate-50
+              text-[10px]
+              font-bold
+              text-slate-500
+              transition-colors
+              group-hover:border-blue-200
+              group-hover:bg-blue-50
+              group-hover:text-blue-600
+            "
+          >
             #
           </div>
 
           <div className="min-w-0">
-
-            <p className="truncate text-[12px] font-bold text-slate-800">
+            <p className="break-words text-[12px] font-bold text-slate-800">
               {order.order_id}
             </p>
 
             <p className="mt-0.5 text-[10px] font-medium text-slate-400">
               Order
             </p>
-
           </div>
-
         </div>
-
       </td>
 
       {/* =====================================================
@@ -207,50 +193,47 @@ export function HROrderTableRow({
       ===================================================== */}
 
       <td className="border-b border-slate-100 px-4 py-3.5 align-middle">
-
         <div className="flex min-w-0 items-center gap-3">
-
-          <div className="
-            flex
-            h-8
-            w-8
-            shrink-0
-            items-center
-            justify-center
-            border
-            border-blue-100
-            bg-blue-50
-            text-[10px]
-            font-bold
-            text-blue-600
-          ">
+          <div
+            className="
+              flex
+              h-8
+              w-8
+              shrink-0
+              items-center
+              justify-center
+              border
+              border-blue-100
+              bg-blue-50
+              text-[10px]
+              font-bold
+              text-blue-600
+            "
+          >
             {getInitial(order.ss_party_name)}
           </div>
 
           <div className="min-w-0">
-
-            <p className="max-w-[280px] truncate text-[12px] font-semibold text-slate-800">
-              {order.ss_party_name ||
-                "Unknown Party"}
+            <p className="break-words text-[12px] font-semibold text-slate-800">
+              {order.ss_party_name || "Unknown Party"}
             </p>
 
-            <p className="
-              mt-0.5
-              flex
-              items-center
-              gap-1
-              text-[10px]
-              font-medium
-              text-slate-400
-            ">
+            <p
+              className="
+                mt-0.5
+                flex
+                items-center
+                gap-1
+                text-[10px]
+                font-medium
+                text-slate-400
+              "
+            >
               <FaBuilding size={7} />
               Super Stockist
             </p>
-
           </div>
-
         </div>
-
       </td>
 
       {/* =====================================================
@@ -258,49 +241,47 @@ export function HROrderTableRow({
       ===================================================== */}
 
       <td className="border-b border-slate-100 px-4 py-3.5 align-middle">
-
-        <div className="flex items-center gap-2.5">
-
-          <div className="
-            flex
-            h-7
-            w-7
-            shrink-0
-            items-center
-            justify-center
-            border
-            border-indigo-100
-            bg-indigo-50
-            text-[10px]
-            font-bold
-            text-indigo-600
-          ">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div
+            className="
+              flex
+              h-7
+              w-7
+              shrink-0
+              items-center
+              justify-center
+              border
+              border-indigo-100
+              bg-indigo-50
+              text-[10px]
+              font-bold
+              text-indigo-600
+            "
+          >
             {getInitial(order.crm_name)}
           </div>
 
           <div className="min-w-0">
-
-            <p className="max-w-[150px] truncate text-[12px] font-semibold text-slate-700">
+            <p className="break-words text-[12px] font-semibold text-slate-700">
               {order.crm_name || "-"}
             </p>
 
-            <p className="
-              mt-0.5
-              flex
-              items-center
-              gap-1
-              text-[10px]
-              font-medium
-              text-slate-400
-            ">
+            <p
+              className="
+                mt-0.5
+                flex
+                items-center
+                gap-1
+                text-[10px]
+                font-medium
+                text-slate-400
+              "
+            >
               <FaUserTie size={7} />
               CRM
             </p>
-
           </div>
-
         </div>
-
       </td>
 
       {/* =====================================================
@@ -308,28 +289,26 @@ export function HROrderTableRow({
       ===================================================== */}
 
       <td className="border-b border-slate-100 px-4 py-3.5 align-middle">
-
         <div className="whitespace-nowrap">
-
           <p className="text-[12px] font-semibold text-slate-700">
             {formatDate(order.created_at)}
           </p>
 
-          <p className="
-            mt-1
-            flex
-            items-center
-            gap-1
-            text-[10px]
-            font-medium
-            text-slate-400
-          ">
+          <p
+            className="
+              mt-1
+              flex
+              items-center
+              gap-1
+              text-[10px]
+              font-medium
+              text-slate-400
+            "
+          >
             <FaClock size={7} />
             {formatTime(order.created_at)}
           </p>
-
         </div>
-
       </td>
 
       {/* =====================================================
@@ -337,7 +316,6 @@ export function HROrderTableRow({
       ===================================================== */}
 
       <td className="border-b border-slate-100 px-4 py-3.5 align-middle">
-
         <span
           className={`
             inline-flex
@@ -355,15 +333,11 @@ export function HROrderTableRow({
           `}
         >
           <FaCircle
-            className={`
-              ${status.dot}
-              text-[9px]
-            `}
+            className={`${status.dot} text-[9px]`}
           />
 
           {status.label}
         </span>
-
       </td>
 
       {/* =====================================================
@@ -371,7 +345,6 @@ export function HROrderTableRow({
       ===================================================== */}
 
       <td className="border-b border-slate-100 px-4 py-3.5 align-middle">
-
         {/* ===================================================
             NON CRM
         =================================================== */}
@@ -379,7 +352,7 @@ export function HROrderTableRow({
         {user?.role !== "CRM" ? (
           <div
             className="
-              max-w-[400px]
+              w-full
               border
               border-slate-200
               bg-slate-50
@@ -389,39 +362,46 @@ export function HROrderTableRow({
             title={order.notes || ""}
           >
             {order.notes ? (
-              <p className="
-                line-clamp-2
-                text-[10px]
-                font-medium
-                leading-5
-                text-slate-600
-              ">
+              <p
+                className="
+                  line-clamp-2
+                  break-words
+                  text-[10px]
+                  font-medium
+                  leading-5
+                  text-slate-600
+                "
+              >
                 {order.notes}
               </p>
             ) : (
-              <p className="
-                text-[10px]
-                font-medium
-                italic
-                text-slate-400
-              ">
+              <p
+                className="
+                  text-[10px]
+                  font-medium
+                  italic
+                  text-slate-400
+                "
+              >
                 No remarks added
               </p>
             )}
           </div>
         ) : isEditing ? (
-
           /* =================================================
              EDIT / ADD MODE
           ================================================= */
 
           <div
-            onClick={(e) =>
-              e.stopPropagation()
-            }
-            className="flex max-w-[430px] items-start gap-2"
+            onClick={(e) => e.stopPropagation()}
+            className="
+              flex
+              w-full
+              min-w-0
+              items-start
+              gap-2
+            "
           >
-
             <textarea
               rows={2}
               value={remarks}
@@ -434,6 +414,7 @@ export function HROrderTableRow({
               placeholder="Add a remark..."
               className="
                 min-h-[56px]
+                min-w-0
                 flex-1
                 resize-none
                 border
@@ -492,11 +473,8 @@ export function HROrderTableRow({
                 </>
               )}
             </button>
-
           </div>
-
         ) : (
-
           /* =================================================
              SAVED MODE
           ================================================= */
@@ -508,7 +486,8 @@ export function HROrderTableRow({
             className="
               group/remark
               flex
-              max-w-[400px]
+              w-full
+              min-w-0
               items-start
               gap-2
               border
@@ -519,20 +498,23 @@ export function HROrderTableRow({
             "
             title={remarks}
           >
-
             <FaCheck
               size={9}
               className="mt-1 shrink-0 text-emerald-500"
             />
 
-            <p className="
-              line-clamp-2
-              flex-1
-              text-[10px]
-              font-medium
-              leading-5
-              text-slate-600
-            ">
+            <p
+              className="
+                line-clamp-2
+                min-w-0
+                flex-1
+                break-words
+                text-[10px]
+                font-medium
+                leading-5
+                text-slate-600
+              "
+            >
               {remarks}
             </p>
 
@@ -563,12 +545,9 @@ export function HROrderTableRow({
               <FaEdit size={8} />
               Edit
             </button>
-
           </div>
         )}
-
       </td>
-
     </tr>
   );
 }
@@ -649,6 +628,7 @@ export function HROrderMobileCard({
       onClick={onClick}
       className="
         group
+        w-full
         overflow-hidden
         border
         border-slate-200
@@ -658,43 +638,43 @@ export function HROrderMobileCard({
         active:bg-slate-50
       "
     >
-
       {/* =====================================================
           CARD HEADER
       ===================================================== */}
 
-      <div className="
-        flex
-        items-start
-        justify-between
-        gap-3
-        border-b
-        border-slate-100
-        px-4
-        py-3
-      ">
-
+      <div
+        className="
+          flex
+          items-start
+          justify-between
+          gap-3
+          border-b
+          border-slate-100
+          px-4
+          py-3
+        "
+      >
         <div className="flex min-w-0 items-center gap-3">
-
-          <div className="
-            flex
-            h-9
-            w-9
-            shrink-0
-            items-center
-            justify-center
-            border
-            border-blue-100
-            bg-blue-50
-            text-[12px]
-            font-bold
-            text-blue-600
-          ">
+          <div
+            className="
+              flex
+              h-9
+              w-9
+              shrink-0
+              items-center
+              justify-center
+              border
+              border-blue-100
+              bg-blue-50
+              text-[12px]
+              font-bold
+              text-blue-600
+            "
+          >
             {getInitial(order.ss_party_name)}
           </div>
 
           <div className="min-w-0">
-
             <h3 className="truncate text-xs font-semibold text-slate-800">
               {order.ss_party_name ||
                 "Unknown Party"}
@@ -703,9 +683,7 @@ export function HROrderMobileCard({
             <p className="mt-0.5 truncate text-[10px] font-medium text-slate-400">
               {order.order_id}
             </p>
-
           </div>
-
         </div>
 
         <span
@@ -730,7 +708,6 @@ export function HROrderMobileCard({
 
           {status.label}
         </span>
-
       </div>
 
       {/* =====================================================
@@ -738,81 +715,79 @@ export function HROrderMobileCard({
       ===================================================== */}
 
       <div className="grid grid-cols-2 border-b border-slate-100">
-
-        <div className="border-r border-slate-100 px-4 py-3">
-
-          <p className="
-            text-[8px]
-            font-semibold
-            uppercase
-            tracking-[0.1em]
-            text-slate-400
-          ">
+        <div className="min-w-0 border-r border-slate-100 px-4 py-3">
+          <p
+            className="
+              text-[8px]
+              font-semibold
+              uppercase
+              tracking-[0.1em]
+              text-slate-400
+            "
+          >
             CRM
           </p>
 
           <div className="mt-1.5 flex min-w-0 items-center gap-2">
-
-            <div className="
-              flex
-              h-6
-              w-6
-              shrink-0
-              items-center
-              justify-center
-              border
-              border-indigo-100
-              bg-indigo-50
-              text-[8px]
-              font-bold
-              text-indigo-600
-            ">
+            <div
+              className="
+                flex
+                h-6
+                w-6
+                shrink-0
+                items-center
+                justify-center
+                border
+                border-indigo-100
+                bg-indigo-50
+                text-[8px]
+                font-bold
+                text-indigo-600
+              "
+            >
               {getInitial(order.crm_name)}
             </div>
 
             <p className="truncate text-[10px] font-semibold text-slate-700">
               {order.crm_name || "-"}
             </p>
-
           </div>
-
         </div>
 
-        <div className="px-4 py-3">
-
-          <p className="
-            text-[8px]
-            font-semibold
-            uppercase
-            tracking-[0.1em]
-            text-slate-400
-          ">
+        <div className="min-w-0 px-4 py-3">
+          <p
+            className="
+              text-[8px]
+              font-semibold
+              uppercase
+              tracking-[0.1em]
+              text-slate-400
+            "
+          >
             Created
           </p>
 
           <div className="mt-1.5">
-
             <p className="text-[10px] font-semibold text-slate-700">
               {formatDate(order.created_at)}
             </p>
 
-            <p className="
-              mt-0.5
-              flex
-              items-center
-              gap-1
-              text-[8px]
-              font-medium
-              text-slate-400
-            ">
+            <p
+              className="
+                mt-0.5
+                flex
+                items-center
+                gap-1
+                text-[8px]
+                font-medium
+                text-slate-400
+              "
+            >
               <FaClock size={6} />
               {formatTime(order.created_at)}
             </p>
-
           </div>
-
         </div>
-
       </div>
 
       {/* =====================================================
@@ -825,35 +800,36 @@ export function HROrderMobileCard({
         }
         className="border-b border-slate-100 px-4 py-3"
       >
-
         <div className="mb-1.5 flex items-center justify-between">
-
-          <p className="
-            text-[8px]
-            font-semibold
-            uppercase
-            tracking-[0.1em]
-            text-slate-400
-          ">
+          <p
+            className="
+              text-[8px]
+              font-semibold
+              uppercase
+              tracking-[0.1em]
+              text-slate-400
+            "
+          >
             Remarks
           </p>
 
           {user?.role === "CRM" &&
             saved &&
             !isEditing && (
-              <span className="
-                flex
-                items-center
-                gap-1
-                text-[8px]
-                font-semibold
-                text-emerald-500
-              ">
+              <span
+                className="
+                  flex
+                  items-center
+                  gap-1
+                  text-[8px]
+                  font-semibold
+                  text-emerald-500
+                "
+              >
                 <FaCheck size={7} />
                 Saved
               </span>
             )}
-
         </div>
 
         {/* ===================================================
@@ -861,44 +837,47 @@ export function HROrderMobileCard({
         =================================================== */}
 
         {user?.role !== "CRM" ? (
-          <div className="
-            border
-            border-slate-200
-            bg-slate-50
-            px-3
-            py-2.5
-          ">
-
+          <div
+            className="
+              w-full
+              border
+              border-slate-200
+              bg-slate-50
+              px-3
+              py-2.5
+            "
+          >
             {order.notes ? (
-              <p className="
-                text-[10px]
-                font-medium
-                leading-5
-                text-slate-600
-              ">
+              <p
+                className="
+                  break-words
+                  text-[10px]
+                  font-medium
+                  leading-5
+                  text-slate-600
+                "
+              >
                 {order.notes}
               </p>
             ) : (
-              <p className="
-                text-[10px]
-                font-medium
-                italic
-                text-slate-400
-              ">
+              <p
+                className="
+                  text-[10px]
+                  font-medium
+                  italic
+                  text-slate-400
+                "
+              >
                 No remarks added
               </p>
             )}
-
           </div>
-
         ) : isEditing ? (
-
           /* =================================================
              MOBILE EDIT
           ================================================= */
 
-          <div className="flex gap-2">
-
+          <div className="flex min-w-0 gap-2">
             <textarea
               rows={2}
               value={remarks}
@@ -911,6 +890,7 @@ export function HROrderMobileCard({
               placeholder="Add a remark..."
               className="
                 min-h-[56px]
+                min-w-0
                 flex-1
                 resize-none
                 border
@@ -967,37 +947,39 @@ export function HROrderMobileCard({
                 </>
               )}
             </button>
-
           </div>
-
         ) : (
-
           /* =================================================
              MOBILE SAVED
           ================================================= */
 
-          <div className="
-            border
-            border-emerald-100
-            bg-emerald-50/50
-            px-3
-            py-2.5
-          ">
-
-            <div className="flex items-start gap-2">
-
+          <div
+            className="
+              w-full
+              border
+              border-emerald-100
+              bg-emerald-50/50
+              px-3
+              py-2.5
+            "
+          >
+            <div className="flex min-w-0 items-start gap-2">
               <FaCheck
                 size={8}
                 className="mt-1 shrink-0 text-emerald-500"
               />
 
-              <p className="
-                flex-1
-                text-[10px]
-                font-medium
-                leading-5
-                text-slate-600
-              ">
+              <p
+                className="
+                  min-w-0
+                  flex-1
+                  break-words
+                  text-[10px]
+                  font-medium
+                  leading-5
+                  text-slate-600
+                "
+              >
                 {remarks}
               </p>
 
@@ -1025,43 +1007,48 @@ export function HROrderMobileCard({
                 <FaEdit size={8} />
                 Edit
               </button>
-
             </div>
-
           </div>
         )}
-
       </div>
 
       {/* =====================================================
           OPEN ORDER
       ===================================================== */}
 
-      <div className="
-        flex
-        items-center
-        justify-between
-        bg-slate-50/70
-        px-4
-        py-2.5
-      ">
-
-        <span className="
-          text-[8px]
-          font-medium
-          text-slate-400
-        ">
+      <div
+        className="
+          flex
+          items-center
+          justify-between
+          gap-3
+          bg-slate-50/70
+          px-4
+          py-2.5
+        "
+      >
+        <span
+          className="
+            truncate
+            text-[8px]
+            font-medium
+            text-slate-400
+          "
+        >
           Tap to view order details
         </span>
 
-        <span className="
-          flex
-          items-center
-          gap-1
-          text-[10px]
-          font-semibold
-          text-blue-600
-        ">
+        <span
+          className="
+            flex
+            shrink-0
+            items-center
+            gap-1
+            text-[10px]
+            font-semibold
+            text-blue-600
+          "
+        >
           Open
 
           <FaArrowRight
@@ -1069,9 +1056,7 @@ export function HROrderMobileCard({
             className="transition-transform group-hover:translate-x-0.5"
           />
         </span>
-
       </div>
-
     </div>
   );
 }
