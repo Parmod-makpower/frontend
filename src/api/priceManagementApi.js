@@ -45,9 +45,7 @@ export const getPriceHistory = async ({
 
   const response = await API.get(
     "/price-history/",
-    {
-      params,
-    }
+    { params }
   );
 
   return response.data;
@@ -57,12 +55,7 @@ export const getPriceHistory = async ({
    SALE NAME
 ========================================================= */
 
-/**
- * Get sale-name records for one product.
- */
-export const getSaleNamesByProduct = async (
-  product_id
-) => {
+export const getSaleNamesByProduct = async (product_id) => {
   const response = await API.get(
     "/sale-names/",
     {
@@ -74,25 +67,13 @@ export const getSaleNamesByProduct = async (
 
   const data = response.data;
 
-  if (Array.isArray(data)) {
-    return data;
-  }
-
-  if (Array.isArray(data?.results)) {
-    return data.results;
-  }
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.results)) return data.results;
+  if (Array.isArray(data?.sale_names)) return data.sale_names;
 
   return [];
 };
 
-/**
- * Create Sale Name.
- *
- * IMPORTANT:
- * Backend validation is intentionally not guessed here.
- * If API returns 400, Axios preserves response.data so
- * the actual backend validation error can be inspected.
- */
 export const addSaleName = async ({
   product_id,
   sale_name,
@@ -113,29 +94,17 @@ export const addSaleName = async ({
     );
   }
 
-  try {
-    const response = await API.post(
-      "/sale-names/",
-      {
-        product: product_id,
-        sale_name: cleanSaleName,
-      }
-    );
+  const response = await API.post(
+    "/sale-names/",
+    {
+      product: product_id,
+      sale_name: cleanSaleName,
+    }
+  );
 
-    return response.data;
-  } catch (error) {
-    console.error(
-      "❌ Add Sale Name API Error:",
-      error?.response?.data || error
-    );
-
-    throw error;
-  }
+  return response.data;
 };
 
-/**
- * Edit an existing SaleName record.
- */
 export const updateSaleName = async ({
   sale_name_id,
   sale_name,
@@ -156,21 +125,12 @@ export const updateSaleName = async ({
     );
   }
 
-  try {
-    const response = await API.patch(
-      `/sale-names/${sale_name_id}/`,
-      {
-        sale_name: cleanSaleName,
-      }
-    );
+  const response = await API.patch(
+    `/sale-names/${sale_name_id}/`,
+    {
+      sale_name: cleanSaleName,
+    }
+  );
 
-    return response.data;
-  } catch (error) {
-    console.error(
-      "❌ Update Sale Name API Error:",
-      error?.response?.data || error
-    );
-
-    throw error;
-  }
+  return response.data;
 };

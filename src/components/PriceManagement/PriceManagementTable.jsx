@@ -1,37 +1,176 @@
 import {
   memo,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-
+import { createPortal } from "react-dom";
 import PriceManagementColumnFilter from "./PriceManagementColumnFilter";
 
-/* =========================================================
-   FILTER ICON
-========================================================= */
+const PRICE_FIELDS = ["price", "ds_price", "dlr_price"];
 
-const FilterIcon = ({ size = 15, active = false }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={active ? "2.2" : "1.8"}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M4 5h16" />
-    <path d="M7 12h10" />
-    <path d="M10 19h4" />
-  </svg>
-);
+const COLUMN_DEFS = [
+  { key: "sku", label: "ID", width: 62, align: "center" },
+  { key: "category", label: "CATEGORY", width: 145, align: "center" },
+  { key: "product", label: "PRODUCT", width: 180, align: "center", autoWidth: true },
+  { key: "saleName", label: "SALE NAME", width: 190, align: "center", autoWidth: true },
+  {
+    key: "price",
+    label: "SS PRICE",
+    width: 100,
+    align: "center",
+    priceColumn: true,
+  },
+  {
+    key: "dsPrice",
+    label: "DS PRICE",
+    width: 100,
+    align: "center",
+    priceColumn: true,
+  },
+  {
+    key: "dlrPrice",
+    label: "DLR PRICE",
+    width: 100,
+    align: "center",
+    priceColumn: true,
+  },
+  {
+    key: "guarantee",
+    label: "GUARANTEE",
+    width: 115,
+    align: "center",
+  },
+  {
+    key: "carton",
+    label: "CTN",
+    width: 90,
+    align: "center",
+  },
+  {
+    key: "mah",
+    label: "MAH",
+    width: 85,
+    align: "center",
+  },
+  {
+    key: "status",
+    label: "STATUS",
+    width: 100,
+    align: "center",
+  },
+];
 
-/* =========================================================
-   PRICE MANAGEMENT TABLE
-========================================================= */
+const ROW_HEIGHT = {
+  compact: 34,
+  comfortable: 42,
+  spacious: 48,
+};
+
+const HEADER_HEIGHT = 38;
+const INDEX_WIDTH = 42;
+const SELECT_WIDTH = 42;
+
+const getProductId = (product) =>
+  Number(product?.product_id ?? product?.id ?? 0);
+
+const getSaleNameText = (value) => {
+  if (value === null || value === undefined) return "";
+
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (typeof value === "object") {
+    return String(
+      value?.sale_name ??
+        value?.name ??
+        value?.title ??
+        ""
+    ).trim();
+  }
+
+  return String(value).trim();
+};
+
+const getSaleNames = (product) =>
+  Array.isArray(product?.sale_names)
+    ? product.sale_names
+        .map(getSaleNameText)
+        .filter(Boolean)
+    : [];
+
+const getGuaranteeValue = (product) =>
+  String(
+    product?.guarantee ??
+      product?.guarantee_period ??
+      product?.warranty ??
+      product?.warranty_period ??
+      ""
+  ).trim();
+
+const getCartonValue = (product) =>
+  String(
+    product?.cartoon_size ??
+      product?.carton_size ??
+      product?.carton ??
+      ""
+  ).trim();
+
+const getMahValue = (product) =>
+  String(product?.mah ?? product?.mAh ?? "").trim();
+
+const getColumnValue = (product, key) => {
+  switch (key) {
+    case "sku":
+      return product?.product_id ?? product?.id ?? "";
+    case "category":
+      return product?.sub_category || "UNCATEGORIZED";
+    case "product":
+      return product?.product_name || "";
+    case "saleName":
+      return getSaleNames(product);
+    case "price":
+      return product?.price ?? "";
+    case "dsPrice":
+      return product?.ds_price ?? "";
+    case "dlrPrice":
+      return product?.dlr_price ?? "";
+    case "guarantee":
+      return getGuaranteeValue(product);
+    case "carton":
+      return getCartonValue(product);
+    case "mah":
+      return getMahValue(product);
+    case "status":
+      return product?.is_active === false ? "Inactive" : "Active";
+    default:
+      return "";
+  }
+};
+
+const categoryTone = (category) => {
+  const key = String(category || "").toUpperCase();
+
+  if (key.includes("AUDIO"))
+    return "bg-violet-50 text-violet-700 border-violet-100";
+  if (key.includes("TWS"))
+    return "bg-amber-50 text-amber-700 border-amber-100";
+  if (key.includes("NECK"))
+    return "bg-emerald-50 text-emerald-700 border-emerald-100";
+  if (key.includes("SPEAKER"))
+    return "bg-rose-50 text-rose-700 border-rose-100";
+  if (key.includes("CABLE"))
+    return "bg-sky-50 text-sky-700 border-sky-100";
+  if (key.includes("BLUETOOTH"))
+    return "bg-blue-50 text-blue-700 border-blue-100";
+  if (key.includes("CAR"))
+    return "bg-orange-50 text-orange-700 border-orange-100";
+
+  return "bg-slate-50 text-slate-600 border-slate-200";
+};
 
 export default function PriceManagementTable({
   products = [],
@@ -43,692 +182,1388 @@ export default function PriceManagementTable({
   onFocusCell,
   onMoveCell,
   onPaste,
-
-  /* Column actions */
   onColumnSort,
   onColumnFilter,
   onColumnFilterChange,
   onColumnClearFilter,
   onClearColumnFilter,
+  onHideColumn,
+  onFreezeColumn,
   columnFilters = {},
+  frozenColumns = [],
+  selectedRows = [],
+  onSelectRow,
+  onSelectAll,
+  allPageSelected = false,
   sort = null,
-
-  /* Page-level visibility */
   visibleColumns: externalVisibleColumns = {},
-
-  /* Optional */
-  density = "comfortable",
+  density = "compact",
+  isLoading = false,
+  isFetching = false,
 }) {
   const [selectedCell, setSelectedCell] = useState(null);
   const [openColumnMenu, setOpenColumnMenu] = useState(null);
+  const [filterAnchor, setFilterAnchor] = useState(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  /* =======================================================
-     NORMALIZE COLUMN CALLBACKS
-  ======================================================= */
+  const [columnWidths, setColumnWidths] = useState(() =>
+    Object.fromEntries(
+      COLUMN_DEFS.map((column) => [
+        column.key,
+        column.width,
+      ])
+    )
+  );
+
+  const scrollRef = useRef(null);
+  const filterButtonRefs = useRef({});
+
+  const rowHeight =
+    ROW_HEIGHT[density] || ROW_HEIGHT.compact;
+
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node) return;
+
+    const updateWidth = () => {
+      setContainerWidth(node.clientWidth);
+    };
+
+    updateWidth();
+
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(updateWidth);
+      observer.observe(node);
+
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener("resize", updateWidth);
+
+    return () => {
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, []);
+
+  const updateFilterPosition = useCallback(() => {
+    if (!openColumnMenu) return;
+
+    const button =
+      filterButtonRefs.current[openColumnMenu];
+
+    if (!button) return;
+
+    const rect = button.getBoundingClientRect();
+    const width = 248;
+    const gap = 4;
+    const viewportPadding = 8;
+
+    const left = Math.max(
+      viewportPadding,
+      Math.min(
+        rect.left,
+        window.innerWidth -
+          width -
+          viewportPadding
+      )
+    );
+
+    setFilterAnchor({
+      top: rect.bottom + gap,
+      left,
+    });
+  }, [openColumnMenu]);
+
+  useEffect(() => {
+    if (!openColumnMenu) {
+      setFilterAnchor(null);
+      return;
+    }
+
+    updateFilterPosition();
+
+    const handlePositionUpdate = () => {
+      updateFilterPosition();
+    };
+
+    window.addEventListener(
+      "resize",
+      handlePositionUpdate
+    );
+
+    const node = scrollRef.current;
+
+    node?.addEventListener(
+      "scroll",
+      handlePositionUpdate,
+      { passive: true }
+    );
+
+    return () => {
+      window.removeEventListener(
+        "resize",
+        handlePositionUpdate
+      );
+
+      node?.removeEventListener(
+        "scroll",
+        handlePositionUpdate
+      );
+    };
+  }, [
+    openColumnMenu,
+    updateFilterPosition,
+  ]);
+
+  const closeColumnMenu = useCallback(() => {
+    setOpenColumnMenu(null);
+    setFilterAnchor(null);
+  }, []);
+
+  const toggleColumnMenu = useCallback(
+    (columnKey, button) => {
+      if (openColumnMenu === columnKey) {
+        closeColumnMenu();
+        return;
+      }
+
+      filterButtonRefs.current[columnKey] = button;
+      setOpenColumnMenu(columnKey);
+
+      requestAnimationFrame(() => {
+        const rect = button.getBoundingClientRect();
+        const width = 248;
+        const padding = 8;
+
+        const left = Math.max(
+          padding,
+          Math.min(
+            rect.left,
+            window.innerWidth -
+              width -
+              padding
+          )
+        );
+
+        setFilterAnchor({
+          top: rect.bottom + 4,
+          left,
+        });
+      });
+    },
+    [openColumnMenu, closeColumnMenu]
+  );
+
+  const [virtualWindow, setVirtualWindow] =
+    useState({
+      start: 0,
+      end: 30,
+    });
+
+  const updateVirtualWindow = useCallback(
+    (scrollTop) => {
+      const viewportHeight = 500;
+      const overscan = 8;
+
+      const start = Math.max(
+        0,
+        Math.floor(scrollTop / rowHeight) -
+          overscan
+      );
+
+      const end = Math.min(
+        products.length,
+        Math.ceil(
+          (scrollTop + viewportHeight) /
+            rowHeight
+        ) + overscan
+      );
+
+      setVirtualWindow((current) => {
+        if (
+          current.start === start &&
+          current.end === end
+        ) {
+          return current;
+        }
+
+        return { start, end };
+      });
+    },
+    [products.length, rowHeight]
+  );
+
+  const handleTableScroll = useCallback(
+    (event) => {
+      updateVirtualWindow(
+        event.currentTarget.scrollTop
+      );
+    },
+    [updateVirtualWindow]
+  );
+
+  useEffect(() => {
+    const node = scrollRef.current;
+
+    if (node) {
+      updateVirtualWindow(node.scrollTop);
+    }
+  }, [
+    products.length,
+    rowHeight,
+    updateVirtualWindow,
+  ]);
+
+  const visibleProducts = useMemo(
+    () =>
+      products.slice(
+        virtualWindow.start,
+        virtualWindow.end
+      ),
+    [
+      products,
+      virtualWindow.start,
+      virtualWindow.end,
+    ]
+  );
+
+  const topSpacerHeight =
+    virtualWindow.start * rowHeight;
+
+  const bottomSpacerHeight = Math.max(
+    0,
+    (products.length -
+      virtualWindow.end) *
+      rowHeight
+  );
 
   const handleFilterChange =
     onColumnFilterChange || onColumnFilter;
 
   const handleClearFilter =
-    onColumnClearFilter || onClearColumnFilter;
-
-  /* =======================================================
-     COLUMN DEFINITIONS
-  ======================================================= */
-
-  const columns = useMemo(
-    () => [
-      {
-        key: "sku",
-        label: "ID",
-        width: "82px",
-        align: "left",
-      },
-      {
-        key: "category",
-        label: "CATEGORY",
-        width: "145px",
-        align: "left",
-      },
-      {
-        key: "product",
-        label: "PRODUCT",
-        width: "230px",
-        align: "left",
-      },
-      {
-        key: "saleName",
-        label: "SALE NAME",
-        width: "235px",
-        align: "left",
-      },
-      {
-        key: "price",
-        label: "SS PRICE",
-        width: "135px",
-        align: "right",
-        priceColumn: true,
-        accent: "blue",
-        type: "price",
-      },
-      {
-        key: "dsPrice",
-        label: "DS PRICE",
-        width: "135px",
-        align: "right",
-        priceColumn: true,
-        accent: "violet",
-        type: "price",
-      },
-      {
-        key: "guarantee",
-        label: "GUARANTEE",
-        width: "110px",
-        align: "center",
-      },
-      {
-        key: "status",
-        label: "STATUS",
-        width: "100px",
-        align: "center",
-      },
-      {
-        key: "updated",
-        label: "LAST UPDATED",
-        width: "145px",
-        align: "left",
-      },
-    ],
-    []
-  );
-
-  /* =======================================================
-     COLUMN VISIBILITY
-  ======================================================= */
+    onColumnClearFilter ||
+    onClearColumnFilter;
 
   const visibleColumns = useMemo(() => {
-    const hasExternalVisibility =
-      Object.keys(externalVisibleColumns || {}).length > 0;
-
-    if (!hasExternalVisibility) {
-      return {
-        sku: true,
-        category: true,
-        product: true,
-        saleName: true,
-        price: true,
-        dsPrice: true,
-        guarantee: true,
-        status: true,
-        updated: true,
-      };
+    if (
+      !externalVisibleColumns ||
+      Object.keys(externalVisibleColumns).length === 0
+    ) {
+      return Object.fromEntries(
+        COLUMN_DEFS.map((column) => [
+          column.key,
+          true,
+        ])
+      );
     }
 
-    return {
-      sku: externalVisibleColumns.sku !== false,
-      category: externalVisibleColumns.category !== false,
-      product: externalVisibleColumns.product !== false,
-      saleName: externalVisibleColumns.saleName !== false,
-      price: externalVisibleColumns.price !== false,
-      dsPrice: externalVisibleColumns.dsPrice !== false,
-      guarantee: externalVisibleColumns.guarantee !== false,
-      status: externalVisibleColumns.status !== false,
-      updated: externalVisibleColumns.updated !== false,
-    };
+    return Object.fromEntries(
+      COLUMN_DEFS.map((column) => [
+        column.key,
+        externalVisibleColumns[column.key] !== false,
+      ])
+    );
   }, [externalVisibleColumns]);
 
-  /* =======================================================
-     FILTER OPTIONS
-  ======================================================= */
+  const visibleDefs = useMemo(
+    () =>
+      COLUMN_DEFS.filter(
+        (column) =>
+          visibleColumns[column.key]
+      ),
+    [visibleColumns]
+  );
+
+  const frozenSet = useMemo(
+    () => new Set(frozenColumns || []),
+    [frozenColumns]
+  );
+
+  const selectedSet = useMemo(
+    () => new Set(selectedRows || []),
+    [selectedRows]
+  );
+
+  const fixedTableWidth = useMemo(
+    () =>
+      INDEX_WIDTH +
+      SELECT_WIDTH +
+      visibleDefs.reduce(
+        (total, column) =>
+          total +
+          (column.autoWidth
+            ? 0
+            : columnWidths[column.key] ??
+              column.width),
+        0
+      ),
+    [visibleDefs, columnWidths]
+  );
+
+  const autoWidthColumns = useMemo(
+    () =>
+      visibleDefs.filter(
+        (column) => column.autoWidth
+      ),
+    [visibleDefs]
+  );
+
+  const minimumAutoWidth =
+    autoWidthColumns.reduce(
+      (total, column) =>
+        total +
+        (columnWidths[column.key] ??
+          column.width),
+      0
+    );
+
+  const minimumTableWidth =
+    fixedTableWidth + minimumAutoWidth;
+
+  const tableWidth = Math.max(
+    containerWidth || 0,
+    minimumTableWidth
+  );
+
+  const extraWidth = Math.max(
+    0,
+    tableWidth - minimumTableWidth
+  );
+
+  const autoColumnWidths = useMemo(() => {
+    const result = {};
+
+    if (!autoWidthColumns.length) {
+      return result;
+    }
+
+    const extraPerColumn =
+      extraWidth / autoWidthColumns.length;
+
+    autoWidthColumns.forEach((column) => {
+      result[column.key] =
+        (columnWidths[column.key] ??
+          column.width) +
+        extraPerColumn;
+    });
+
+    return result;
+  }, [
+    autoWidthColumns,
+    columnWidths,
+    extraWidth,
+  ]);
+
+  const getColumnWidth = useCallback(
+    (column) =>
+      column.autoWidth
+        ? autoColumnWidths[column.key] ??
+          column.width
+        : columnWidths[column.key] ??
+          column.width,
+    [autoColumnWidths, columnWidths]
+  );
+
+  const frozenOffsets = useMemo(() => {
+    const offsets = {};
+    let left = INDEX_WIDTH + SELECT_WIDTH;
+
+    visibleDefs.forEach((column) => {
+      if (frozenSet.has(column.key)) {
+        offsets[column.key] = left;
+        left += getColumnWidth(column);
+      }
+    });
+
+    return offsets;
+  }, [
+    visibleDefs,
+    frozenSet,
+    getColumnWidth,
+  ]);
 
   const filterOptions = useMemo(() => {
-    const options = {};
-
-    const filterSource =
-      Array.isArray(allProducts) && allProducts.length > 0
+    const source =
+      allProducts.length > 0
         ? allProducts
         : products;
 
-    columns.forEach((column) => {
-      const values = new Set();
+    const result = {};
 
-      filterSource.forEach((product) => {
-        const value = getColumnValue(
+    COLUMN_DEFS.forEach((column) => {
+      const map = new Map();
+
+      source.forEach((product) => {
+        const raw = getColumnValue(
           product,
           column.key
         );
 
-        if (Array.isArray(value)) {
-          value.forEach((item) => {
-            const text = getSaleNameText(item);
+        const values = Array.isArray(raw)
+          ? raw
+          : [raw];
 
-            if (text.trim()) {
-              values.add(text);
-            }
-          });
-        } else if (
-          value !== undefined &&
-          value !== null &&
-          String(value).trim()
-        ) {
-          values.add(
-            String(value).trim()
+        values.forEach((value) => {
+          const text = String(
+            value ?? ""
+          ).trim();
+
+          if (!text) return;
+
+          map.set(
+            text,
+            (map.get(text) || 0) + 1
           );
-        }
+        });
       });
 
-      options[column.key] =
-        Array.from(values).sort(
-          (a, b) =>
-            a.localeCompare(
-              b,
-              undefined,
-              {
-                numeric: true,
-                sensitivity: "base",
-              }
-            )
-        );
+      result[column.key] = Array.from(
+        map.entries()
+      )
+        .sort(([a], [b]) =>
+          a.localeCompare(
+            b,
+            undefined,
+            {
+              numeric: true,
+              sensitivity: "base",
+            }
+          )
+        )
+        .slice(0, 500)
+        .map(([value, count]) => ({
+          value,
+          label: value,
+          count,
+        }));
     });
 
-    return options;
-  }, [
-    allProducts,
-    products,
-    columns,
-  ]);
+    return result;
+  }, [allProducts, products]);
 
-  /* =======================================================
-     CELL FOCUS
-  ======================================================= */
+  const handleCellFocus = useCallback(
+    (payload) => {
+      setSelectedCell(payload);
+      onFocusCell?.(payload);
+    },
+    [onFocusCell]
+  );
 
-  const handleCellFocus = (payload) => {
-    setSelectedCell(payload);
-  };
-
-  /* =======================================================
-     MOVE CELL
-  ======================================================= */
-
-  const moveCell = ({
-    direction,
-    productId,
-    field,
-  }) => {
-    if (onMoveCell) {
-      onMoveCell({
-        direction,
-        productId,
-        field,
-      });
-
-      return;
-    }
-
-    const currentIndex =
-      products.findIndex(
-        (item) =>
-          Number(item?.product_id) ===
-          Number(productId)
-      );
-
-    if (currentIndex === -1) {
-      return;
-    }
-
-    let nextIndex = currentIndex;
-    let nextField = field;
-
-    /* UP */
-    if (direction === "up") {
-      nextIndex = Math.max(
-        0,
-        currentIndex - 1
-      );
-    }
-
-    /* DOWN */
-    if (direction === "down") {
-      nextIndex = Math.min(
-        products.length - 1,
-        currentIndex + 1
-      );
-    }
-
-    /* TAB */
-    if (direction === "next") {
-      if (field === "price") {
-        nextField = "ds_price";
-      } else {
-        nextField = "price";
-
-        nextIndex = Math.min(
-          products.length - 1,
-          currentIndex + 1
-        );
-      }
-    }
-
-    /* SHIFT + TAB */
-    if (direction === "previous") {
-      if (field === "ds_price") {
-        nextField = "price";
-      } else {
-        nextField = "ds_price";
-
-        nextIndex = Math.max(
-          0,
-          currentIndex - 1
-        );
-      }
-    }
-
-    const nextProduct =
-      products[nextIndex];
-
-    if (!nextProduct) {
-      return;
-    }
-
-    const nextPayload = {
-      productId:
-        nextProduct.product_id,
-      field: nextField,
-    };
-
-    setSelectedCell(nextPayload);
-    onFocusCell?.(nextPayload);
-
-    requestAnimationFrame(() => {
+  const focusPriceCell = useCallback(
+    (productId, field) => {
       const element =
         document.querySelector(
-          `[data-price-cell="${nextProduct.product_id}-${nextField}"]`
+          `[data-price-cell="${productId}-${field}"]`
         );
 
       if (element) {
         element.focus();
         element.select?.();
+        return;
       }
-    });
-  };
 
-  /* =======================================================
-     ROW PADDING
-  ======================================================= */
+      requestAnimationFrame(() => {
+        const retry =
+          document.querySelector(
+            `[data-price-cell="${productId}-${field}"]`
+          );
 
-  const rowPadding =
-    density === "compact"
-      ? "py-1"
-      : density === "spacious"
-        ? "py-2"
-        : "py-1";
+        retry?.focus();
+        retry?.select?.();
+      });
+    },
+    []
+  );
+
+  const moveCell = useCallback(
+    ({ direction, productId, field }) => {
+      if (onMoveCell) {
+        onMoveCell({
+          direction,
+          productId,
+          field,
+        });
+        return;
+      }
+
+      const currentIndex =
+        products.findIndex(
+          (item) =>
+            getProductId(item) ===
+            Number(productId)
+        );
+
+      if (currentIndex < 0) return;
+
+      let nextIndex = currentIndex;
+      let nextField = field;
+
+      if (direction === "up") {
+        nextIndex = Math.max(
+          0,
+          currentIndex - 1
+        );
+      }
+
+      if (direction === "down") {
+        nextIndex = Math.min(
+          products.length - 1,
+          currentIndex + 1
+        );
+      }
+
+      if (direction === "next") {
+        if (field === "price") {
+          nextField = "ds_price";
+        } else if (field === "ds_price") {
+          nextField = "dlr_price";
+        } else {
+          nextField = "price";
+          nextIndex = Math.min(
+            products.length - 1,
+            currentIndex + 1
+          );
+        }
+      }
+
+      if (direction === "previous") {
+        if (field === "dlr_price") {
+          nextField = "ds_price";
+        } else if (field === "ds_price") {
+          nextField = "price";
+        } else {
+          nextField = "dlr_price";
+          nextIndex = Math.max(
+            0,
+            currentIndex - 1
+          );
+        }
+      }
+
+      const nextProduct =
+        products[nextIndex];
+
+      if (!nextProduct) return;
+
+      const payload = {
+        productId:
+          getProductId(nextProduct),
+        field: nextField,
+      };
+
+      setSelectedCell(payload);
+      onFocusCell?.(payload);
+
+      if (
+        nextIndex < virtualWindow.start ||
+        nextIndex >= virtualWindow.end
+      ) {
+        const container =
+          scrollRef.current;
+
+        if (container) {
+          container.scrollTop = Math.max(
+            0,
+            nextIndex * rowHeight -
+              rowHeight * 4
+          );
+        }
+      }
+
+      requestAnimationFrame(() => {
+        focusPriceCell(
+          payload.productId,
+          payload.field
+        );
+      });
+    },
+    [
+      onMoveCell,
+      products,
+      onFocusCell,
+      virtualWindow.start,
+      virtualWindow.end,
+      rowHeight,
+      focusPriceCell,
+    ]
+  );
+
+  const resizeColumn = useCallback(
+    (key, width) => {
+      setColumnWidths((current) => ({
+        ...current,
+        [key]: Math.max(
+          68,
+          Math.min(420, width)
+        ),
+      }));
+    },
+    []
+  );
+
+  const autoFitColumn = useCallback(
+    (column) => {
+      const source =
+        allProducts.length > 0
+          ? allProducts
+          : products;
+
+      const canvas =
+        document.createElement("canvas");
+      const context =
+        canvas.getContext("2d");
+
+      if (!context) return;
+
+      context.font = "600 13px Arial";
+
+      let width =
+        context.measureText(
+          column.label
+        ).width + 42;
+
+      const sample =
+        source.length > 500
+          ? source.slice(0, 500)
+          : source;
+
+      sample.forEach((product) => {
+        const raw = getColumnValue(
+          product,
+          column.key
+        );
+
+        const values = Array.isArray(raw)
+          ? raw
+          : [raw];
+
+        values.forEach((value) => {
+          width = Math.max(
+            width,
+            context.measureText(
+              String(value ?? "")
+            ).width + 36
+          );
+        });
+      });
+
+      setColumnWidths((current) => ({
+        ...current,
+        [column.key]: Math.max(
+          72,
+          Math.min(360, Math.ceil(width))
+        ),
+      }));
+    },
+    [allProducts, products]
+  );
+
+  const handlePaste = useCallback(
+    (event) => {
+      if (!selectedCell) return;
+
+      const text =
+        event.clipboardData?.getData(
+          "text/plain"
+        );
+
+      if (!text) return;
+
+      const rows = text
+        .replace(/\r/g, "")
+        .split("\n")
+        .map((row) => row.split("\t"))
+        .filter((row) =>
+          row.some(
+            (value) => value !== ""
+          )
+        );
+
+      if (!rows.length) return;
+
+      event.preventDefault();
+
+      if (onPaste) {
+        onPaste({
+          productId:
+            selectedCell.productId,
+          field: selectedCell.field,
+          rows,
+        });
+        return;
+      }
+
+      const startFieldIndex =
+        PRICE_FIELDS.indexOf(
+          selectedCell.field
+        );
+
+      if (startFieldIndex < 0) return;
+
+      const selectedIndex =
+        products.findIndex(
+          (product) =>
+            getProductId(product) ===
+            Number(
+              selectedCell.productId
+            )
+        );
+
+      if (selectedIndex < 0) return;
+
+      rows.forEach(
+        (row, rowOffset) => {
+          const product =
+            products[
+              selectedIndex + rowOffset
+            ];
+
+          if (!product) return;
+
+          row.forEach(
+            (value, columnOffset) => {
+              const field =
+                PRICE_FIELDS[
+                  startFieldIndex +
+                    columnOffset
+                ];
+
+              if (!field || value === "") {
+                return;
+              }
+
+              const number = Number(value);
+
+              if (Number.isFinite(number)) {
+                onPriceChange?.(
+                  getProductId(product),
+                  field,
+                  number
+                );
+              }
+            }
+          );
+        }
+      );
+    },
+    [
+      selectedCell,
+      onPaste,
+      products,
+      onPriceChange,
+    ]
+  );
+
+  const rowHeightClass =
+    density === "spacious"
+      ? "h-[48px]"
+      : density === "comfortable"
+        ? "h-[42px]"
+        : "h-[34px]";
+
+  const activeFilterColumn =
+    openColumnMenu
+      ? COLUMN_DEFS.find(
+          (column) =>
+            column.key === openColumnMenu
+        )
+      : null;
 
   return (
-    <div
-      className="
-        flex
-        min-h-0
-        w-full
-        overflow-hidden
-        border
-        border-slate-300
-        bg-white
-      "
-    >
-      <div className="min-w-0 flex-1">
-        <div
-          onPaste={onPaste}
-          className="
-            relative
-            h-full
-            min-h-[520px]
-            overflow-auto
-            bg-white
-            scrollbar-thin
-            scrollbar-thumb-slate-300
-            scrollbar-track-transparent
-          "
+    <div className="relative z-0 flex h-full min-h-0 w-full flex-col overflow-hidden border border-slate-300 bg-white">
+      <div
+        ref={scrollRef}
+        onScroll={handleTableScroll}
+        onPaste={handlePaste}
+        onClick={closeColumnMenu}
+        className="
+          relative
+          z-0
+          h-[500px]
+          min-h-[470px]
+          max-h-[470px]
+          w-full
+          min-w-0
+          overflow-auto
+          bg-white
+          [scrollbar-width:thin]
+          [scrollbar-color:#cbd5e1_transparent]
+          [&::-webkit-scrollbar]:h-[7px]
+          [&::-webkit-scrollbar]:w-[7px]
+          [&::-webkit-scrollbar-track]:bg-transparent
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          [&::-webkit-scrollbar-thumb]:bg-slate-300
+          hover:[&::-webkit-scrollbar-thumb]:bg-slate-400
+        "
+      >
+        <table
+          className="table-fixed border-collapse"
+          style={{
+            width: `${tableWidth}px`,
+            minWidth: `${minimumTableWidth}px`,
+          }}
         >
-          <table
-            className="
-              w-full
-              min-w-[1330px]
-              border-collapse
-              table-fixed
-            "
-          >
-            {/* =================================================
-                HEADER
-            ================================================= */}
+          <colgroup>
+            <col style={{ width: INDEX_WIDTH }} />
+            <col style={{ width: SELECT_WIDTH }} />
 
-            <thead className="sticky top-0 z-30">
-              <tr
+            {visibleDefs.map((column) => (
+              <col
+                key={column.key}
+                style={{
+                  width: getColumnWidth(column),
+                }}
+              />
+            ))}
+          </colgroup>
+
+          <thead className="sticky top-0 z-10">
+            <tr
+              style={{
+                height: HEADER_HEIGHT,
+              }}
+              className="
+                border-b
+                border-slate-300
+                bg-slate-50
+              "
+            >
+              <th
                 className="
-                  h-9
-                  border-b
+                  sticky
+                  left-0
+                  z-20
+                  border-r
                   border-slate-300
-                  bg-[#f8fafc]
-                  shadow-[0_1px_0_rgba(15,23,42,0.05)]
+                  bg-slate-50
+                  p-0
+                  text-center
+                  text-[11px]
+                  font-bold
+                  text-slate-500
                 "
               >
-                {/* ROW NUMBER */}
+                #
+              </th>
 
-                <th
-                  className="
-                    sticky
-                    left-0
-                    z-40
-                    w-[42px]
-                    border-r
-                    border-slate-300
-                    bg-[#f8fafc]
-                    px-1
-                    text-center
-                  "
-                >
-                  <span className="text-[9px] font-bold text-slate-500">
-                    #
-                  </span>
-                </th>
-
-                {/* COLUMNS */}
-
-                {columns.map((column) => {
-                  if (
-                    !visibleColumns[column.key]
-                  ) {
-                    return null;
+              <th
+                className="
+                  sticky
+                  left-[42px]
+                  z-20
+                  border-r
+                  border-slate-300
+                  bg-slate-50
+                  p-0
+                  text-center
+                "
+              >
+                <input
+                  type="checkbox"
+                  checked={allPageSelected}
+                  onChange={(event) =>
+                    onSelectAll?.(
+                      event.target.checked
+                    )
                   }
+                  onClick={(event) =>
+                    event.stopPropagation()
+                  }
+                  className="
+                    h-4
+                    w-4
+                    cursor-pointer
+                    accent-blue-600
+                  "
+                />
+              </th>
 
-                  return (
-                    <SpreadsheetHeader
-                      key={column.key}
-                      column={column}
-                      menuKey={column.key}
-                      label={column.label}
-                      width={column.width}
-                      align={column.align}
-                      priceColumn={
-                        column.priceColumn
-                      }
-                      accent={column.accent}
-                      openColumnMenu={
-                        openColumnMenu
-                      }
-                      setOpenColumnMenu={
-                        setOpenColumnMenu
-                      }
-                      filterValue={
-                        columnFilters?.[
-                          column.key
-                        ] || ""
-                      }
-                      filterOptions={
-                        filterOptions[
-                          column.key
-                        ] || []
-                      }
-                      onSort={
-                        onColumnSort
-                      }
-                      onFilterChange={
-                        handleFilterChange
-                      }
-                      onClearFilter={
-                        handleClearFilter
-                      }
-                      currentSort={sort}
-                    />
-                  );
-                })}
+              {visibleDefs.map((column) => (
+                <SpreadsheetHeader
+                  key={column.key}
+                  column={column}
+                  width={getColumnWidth(column)}
+                  menuKey={column.key}
+                  openColumnMenu={
+                    openColumnMenu
+                  }
+                  setOpenColumnMenu={
+                    setOpenColumnMenu
+                  }
+                  toggleColumnMenu={
+                    toggleColumnMenu
+                  }
+                  filterButtonRefs={
+                    filterButtonRefs
+                  }
+                  filterValue={
+                    columnFilters?.[
+                      column.key
+                    ] || ""
+                  }
+                  filterOptions={
+                    filterOptions[
+                      column.key
+                    ] || []
+                  }
+                  onSort={onColumnSort}
+                  onFilterChange={
+                    handleFilterChange
+                  }
+                  onClearFilter={
+                    handleClearFilter
+                  }
+                  onHideColumn={
+                    onHideColumn
+                  }
+                  onFreezeColumn={
+                    onFreezeColumn
+                  }
+                  isFrozen={frozenSet.has(
+                    column.key
+                  )}
+                  currentSort={sort}
+                  onResize={resizeColumn}
+                  onAutoFit={autoFitColumn}
+                  frozenOffset={
+                    frozenOffsets[
+                      column.key
+                    ]
+                  }
+                  frozen={frozenSet.has(
+                    column.key
+                  )}
+                />
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+            {topSpacerHeight > 0 && (
+              <tr
+                aria-hidden="true"
+                style={{
+                  height: topSpacerHeight,
+                }}
+              >
+                <td
+                  colSpan={
+                    visibleDefs.length + 2
+                  }
+                />
               </tr>
-            </thead>
+            )}
 
-            {/* =================================================
-                BODY
-            ================================================= */}
+            {visibleProducts.map(
+              (product, localIndex) => {
+                const index =
+                  virtualWindow.start +
+                  localIndex;
 
-            <tbody>
-              {products.map(
-                (product, index) => {
-                  const draft =
-                    drafts?.[
-                      product.product_id
-                    ] || {};
+                const id =
+                  getProductId(product);
 
-                  const changed =
-                    Object.keys(
-                      draft
-                    ).length > 0;
+                const draft =
+                  drafts[id] || {};
 
-                  return (
-                    <PriceRow
-                      key={
-                        product.product_id
-                      }
-                      product={product}
-                      index={index}
-                      draft={draft}
-                      changed={changed}
-                      selectedCell={
-                        selectedCell
-                      }
-                      visibleColumns={
-                        visibleColumns
-                      }
-                      rowPadding={
-                        rowPadding
-                      }
-                      onPriceChange={
-                        onPriceChange
-                      }
-                      onSaleNameChange={
-                        onSaleNameChange
-                      }
-                      onFillDown={
-                        onFillDown
-                      }
-                      onFocus={
-                        handleCellFocus
-                      }
-                      onMove={moveCell}
-                    />
-                  );
-                }
-              )}
-            </tbody>
-          </table>
+                const changed =
+                  Object.keys(draft).length >
+                  0;
 
-          {products.length === 0 && (
-            <EmptyState />
-          )}
-        </div>
+                return (
+                  <PriceRow
+                    key={id}
+                    product={product}
+                    index={index}
+                    draft={draft}
+                    changed={changed}
+                    rowHeight={
+                      rowHeightClass
+                    }
+                    visibleColumns={
+                      visibleColumns
+                    }
+                    selectedPriceCell={
+                      selectedCell
+                    }
+                    selected={selectedSet.has(
+                      id
+                    )}
+                    frozenColumns={
+                      frozenSet
+                    }
+                    frozenOffsets={
+                      frozenOffsets
+                    }
+                    onSelect={onSelectRow}
+                    onPriceChange={
+                      onPriceChange
+                    }
+                    onSaleNameChange={
+                      onSaleNameChange
+                    }
+                    onFillDown={onFillDown}
+                    onFocus={
+                      handleCellFocus
+                    }
+                    onMove={moveCell}
+                  />
+                );
+              }
+            )}
+
+            {bottomSpacerHeight > 0 && (
+              <tr
+                aria-hidden="true"
+                style={{
+                  height:
+                    bottomSpacerHeight,
+                }}
+              >
+                <td
+                  colSpan={
+                    visibleDefs.length + 2
+                  }
+                />
+              </tr>
+            )}
+          </tbody>
+        </table>
+
+        {products.length === 0 && (
+          <div className="flex min-h-[360px] items-center justify-center">
+            <div className="text-center">
+              <div
+                className="
+                  mx-auto
+                  flex
+                  h-10
+                  w-10
+                  items-center
+                  justify-center
+                  rounded-lg
+                  border
+                  border-slate-200
+                  bg-slate-50
+                  text-slate-400
+                "
+              >
+                <SearchIcon />
+              </div>
+
+              <div className="mt-3 text-[12px] font-semibold text-black">
+                No products found
+              </div>
+
+              <div className="mt-1 text-[12px] text-slate-400">
+                Try another search or filter.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isLoading && (
+          <div
+            className="
+              pointer-events-none
+              absolute
+              inset-x-0
+              top-0
+              z-[100]
+              h-0.5
+              overflow-hidden
+              bg-blue-50
+            "
+          >
+            <div
+              className="
+                h-full
+                w-1/3
+                animate-[pmSlide_1s_ease-in-out_infinite]
+                bg-blue-500
+              "
+            />
+          </div>
+        )}
+
+        {isFetching && !isLoading && (
+          <div
+            className="
+              pointer-events-none
+              fixed
+              bottom-4
+              right-4
+              z-[100]
+              rounded-full
+              border
+              border-slate-200
+              bg-white
+              px-3
+              py-1.5
+              text-[11px]
+              font-medium
+              text-slate-500
+              shadow-lg
+            "
+          >
+            Refreshing…
+          </div>
+        )}
       </div>
+
+      {openColumnMenu &&
+        filterAnchor &&
+        activeFilterColumn &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed z-[100000]"
+            style={{
+              top: filterAnchor.top,
+              left: filterAnchor.left,
+            }}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+            onMouseDown={(event) =>
+              event.stopPropagation()
+            }
+          >
+            <PriceManagementColumnFilter
+              column={activeFilterColumn}
+              filterValue={
+                columnFilters?.[
+                  activeFilterColumn.key
+                ] || ""
+              }
+              filterOptions={
+                filterOptions[
+                  activeFilterColumn.key
+                ] || []
+              }
+              currentSort={sort}
+              onSort={onColumnSort}
+              onFilterChange={
+                handleFilterChange
+              }
+              onClearFilter={
+                handleClearFilter
+              }
+              onHideColumn={
+                onHideColumn
+              }
+              onFreezeColumn={
+                onFreezeColumn
+              }
+              isFrozen={frozenSet.has(
+                activeFilterColumn.key
+              )}
+              close={closeColumnMenu}
+            />
+          </div>,
+          document.body
+        )}
+
+      <style>{`
+        @keyframes pmSlide {
+          0% {
+            transform: translateX(-120%);
+          }
+          100% {
+            transform: translateX(420%);
+          }
+        }
+      `}</style>
     </div>
   );
 }
 
-/* =========================================================
-   HEADER
-========================================================= */
-
 const SpreadsheetHeader = memo(
   function SpreadsheetHeader({
     column,
-    label,
     width,
     menuKey,
     openColumnMenu,
-    setOpenColumnMenu,
-    priceColumn = false,
-    accent,
-    align = "left",
-    filterValue = "",
-    filterOptions = [],
+    toggleColumnMenu,
+    filterButtonRefs,
+    filterValue,
+    filterOptions,
     onSort,
     onFilterChange,
     onClearFilter,
+    onHideColumn,
+    onFreezeColumn,
+    isFrozen,
     currentSort,
+    onResize,
+    onAutoFit,
+    frozen,
+    frozenOffset,
   }) {
     const menuOpen =
       openColumnMenu === menuKey;
 
-    const filterText =
-      Array.isArray(filterValue)
-        ? filterValue.join("||")
-        : String(
-            filterValue || ""
-          );
-
-    const filtered =
-      filterText.trim().length > 0;
-
-    const sorted =
-      currentSort?.key === menuKey;
-
     const active =
       menuOpen ||
-      filtered ||
-      sorted;
+      Boolean(
+        String(filterValue || "").trim()
+      ) ||
+      currentSort?.key === column.key;
+
+    const startResize = useCallback(
+      (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const startX = event.clientX;
+        const startWidth = width;
+
+        const move = (moveEvent) => {
+          onResize?.(
+            column.key,
+            startWidth +
+              moveEvent.clientX -
+              startX
+          );
+        };
+
+        const stop = () => {
+          document.removeEventListener(
+            "mousemove",
+            move
+          );
+          document.removeEventListener(
+            "mouseup",
+            stop
+          );
+        };
+
+        document.addEventListener(
+          "mousemove",
+          move
+        );
+
+        document.addEventListener(
+          "mouseup",
+          stop
+        );
+      },
+      [column.key, width, onResize]
+    );
 
     return (
       <th
-        style={{ width }}
-        className={`
+        style={{
+          width,
+          minWidth: width,
+          maxWidth: width,
+          position: frozen
+            ? "sticky"
+            : undefined,
+          left: frozen
+            ? frozenOffset
+            : undefined,
+          zIndex: frozen ? 20 : 12,
+          background: "#f8fafc",
+        }}
+        className="
           relative
           border-r
           border-slate-300
-          ${
-            priceColumn
-              ? accent === "blue"
-                ? "bg-blue-50/70"
-                : "bg-violet-50/70"
-              : "bg-[#f8fafc]"
-          }
-        `}
+          bg-slate-50
+          p-0
+          text-center
+        "
       >
         <div
-          className={`
+          className="
             flex
-            h-9
+            h-[38px]
             items-center
+            justify-center
             gap-1
-            px-1.5
-            ${
-              align === "right"
-                ? "justify-end"
-                : align === "center"
-                  ? "justify-center"
-                  : "justify-between"
-            }
-          `}
+            px-2
+          "
+          onClick={(event) =>
+            event.stopPropagation()
+          }
         >
           <span
             className={`
-              min-w-0
               truncate
-              text-[9px]
+              text-[11px]
               font-bold
-              tracking-[0.04em]
+              tracking-wide
               ${
-                priceColumn
-                  ? accent === "blue"
-                    ? "text-blue-700"
-                    : "text-violet-700"
-                  : "text-slate-700"
+                active
+                  ? "text-blue-700"
+                  : "text-black"
               }
             `}
           >
-            {label}
+            {column.label}
           </span>
 
           <button
+            ref={(element) => {
+              if (element) {
+                filterButtonRefs.current[
+                  menuKey
+                ] = element;
+              }
+            }}
             type="button"
             onClick={(event) => {
               event.stopPropagation();
 
-              setOpenColumnMenu(
-                menuOpen
-                  ? null
-                  : menuKey
+              toggleColumnMenu(
+                menuKey,
+                event.currentTarget
               );
             }}
             className={`
-              relative
               flex
               h-6
               w-6
               shrink-0
-              cursor-pointer
               items-center
               justify-center
+              rounded-md
               transition
+              hover:bg-slate-200
               ${
                 active
-                  ? "bg-blue-100 text-blue-700"
-                  : "text-slate-500 hover:bg-slate-200 hover:text-slate-800"
+                  ? "text-blue-600"
+                  : "text-slate-400"
               }
             `}
-            title={`${label} filter & sort`}
-            aria-label={`${label} filter & sort`}
+            title={`Filter ${column.label}`}
           >
-            <FilterIcon
-              size={13}
-              active={active}
-            />
-
-            {filtered && (
-              <span
-                className="
-                  absolute
-                  right-[3px]
-                  top-[3px]
-                  h-1.5
-                  w-1.5
-                  rounded-full
-                  bg-blue-600
-                  ring-1
-                  ring-white
-                "
-              />
-            )}
+            <FilterIcon />
           </button>
         </div>
 
-        {menuOpen && (
-          <PriceManagementColumnFilter
-            column={column}
-            filterValue={
-              filterValue
-            }
-            filterOptions={
-              filterOptions
-            }
-            currentSort={
-              currentSort
-            }
-            onSort={onSort}
-            onFilterChange={
-              onFilterChange
-            }
-            onClearFilter={
-              onClearFilter
-            }
-            close={() =>
-              setOpenColumnMenu(
-                null
-              )
-            }
-          />
-        )}
+        <div
+          onMouseDown={startResize}
+          onDoubleClick={() =>
+            onAutoFit?.(column)
+          }
+          className="
+            absolute
+            right-0
+            top-0
+            z-30
+            h-full
+            w-1
+            cursor-col-resize
+            hover:bg-blue-300
+          "
+          title="Drag to resize / double-click to auto-fit"
+        />
       </th>
     );
   }
 );
-
-/* =========================================================
-   ROW
-========================================================= */
 
 const PriceRow = memo(
   function PriceRow({
@@ -736,63 +1571,48 @@ const PriceRow = memo(
     index,
     draft,
     changed,
-    selectedCell,
+    rowHeight,
     visibleColumns,
-    rowPadding,
+    selectedPriceCell,
+    selected,
+    frozenColumns,
+    frozenOffsets,
+    onSelect,
     onPriceChange,
     onSaleNameChange,
     onFillDown,
     onFocus,
     onMove,
   }) {
-    const [
-      editingSale,
-      setEditingSale,
-    ] = useState(false);
-
-    const saleCellRef =
-      useRef(null);
+    const id = getProductId(product);
 
     const saleNames =
-      Array.isArray(
-        product.sale_names
-      )
-        ? product.sale_names
-        : [];
+      getSaleNames(product);
 
     const saleName =
-      getSaleNameText(
-        saleNames[0]
-      );
+      saleNames[0] || "";
 
-    const [
-      saleValue,
-      setSaleValue,
-    ] = useState(
-      saleName
-    );
+    const selectedPriceId =
+      selectedPriceCell?.productId;
+
+    const selectedPriceField =
+      selectedPriceCell?.field;
+
+    const [editingSale, setEditingSale] =
+      useState(false);
+
+    const [saleValue, setSaleValue] =
+      useState(saleName);
 
     const saleInputRef =
       useRef(null);
 
-    /* =====================================================
-       SALE NAME SYNC
-    ===================================================== */
-
     useEffect(() => {
-      setSaleValue(
-        saleName
-      );
+      setSaleValue(saleName);
     }, [saleName]);
 
-    /* =====================================================
-       SALE NAME FOCUS
-    ===================================================== */
-
     useEffect(() => {
-      if (!editingSale) {
-        return;
-      }
+      if (!editingSale) return;
 
       requestAnimationFrame(() => {
         saleInputRef.current?.focus();
@@ -800,318 +1620,274 @@ const PriceRow = memo(
       });
     }, [editingSale]);
 
-    /* =====================================================
-       SALE NAME OUTSIDE CLICK
+    const cellBase = `
+      border-r
+      border-b
+      border-slate-200
+      px-2
+      align-middle
+      whitespace-nowrap
+      overflow-hidden
+      text-center
+    `;
 
-       Clicking anywhere outside the Sale Name cell
-       closes edit mode.
-    ===================================================== */
+    const frozenStyle = useCallback(
+      (key, zIndex = 20) => ({
+        position: "sticky",
+        left: frozenOffsets[key],
+        zIndex,
+        background: selected
+          ? "#eff6ff"
+          : "#ffffff",
+      }),
+      [frozenOffsets, selected]
+    );
 
-    useEffect(() => {
-      if (!editingSale) {
+    const saveSale = useCallback(() => {
+      const clean = saleValue.trim();
+
+      if (!clean) {
+        setSaleValue(saleName);
+        setEditingSale(false);
         return;
       }
-
-      const handleOutsideClick = (
-        event
-      ) => {
-        if (
-          saleCellRef.current &&
-          !saleCellRef.current.contains(
-            event.target
-          )
-        ) {
-          setSaleValue(
-            saleName
-          );
-
-          setEditingSale(
-            false
-          );
-        }
-      };
-
-      document.addEventListener(
-        "mousedown",
-        handleOutsideClick
-      );
-
-      return () => {
-        document.removeEventListener(
-          "mousedown",
-          handleOutsideClick
-        );
-      };
-    }, [
-      editingSale,
-      saleName,
-    ]);
-
-    /* =====================================================
-       SAVE SALE NAME
-    ===================================================== */
-
-    const saveSaleName = () => {
-      const value =
-        saleValue.trim();
-
-      if (!value) {
-        setSaleValue(
-          saleName
-        );
-
-        setEditingSale(
-          false
-        );
-
-        return;
-      }
-
-      /* Same value = nothing */
 
       if (
-        value.toLowerCase() ===
-        saleName
-          .trim()
-          .toLowerCase()
+        clean.toLowerCase() ===
+        saleName.trim().toLowerCase()
       ) {
-        setEditingSale(
-          false
-        );
-
+        setEditingSale(false);
         return;
       }
-
-      /* Duplicate protection */
 
       const duplicate =
         saleNames.some(
           (item) =>
-            getSaleNameText(item)
-              .trim()
-              .toLowerCase() ===
-            value.toLowerCase()
+            getSaleNameText(
+              item
+            ).toLowerCase() ===
+            clean.toLowerCase()
         );
 
       if (duplicate) {
-        setSaleValue(
-          saleName
-        );
-
-        setEditingSale(
-          false
-        );
-
+        setSaleValue(saleName);
+        setEditingSale(false);
         return;
       }
 
-      /*
-        Pass existing Sale Name record.
-      */
-
-      const existingSaleRecord =
-        saleNames.length > 0
-          ? saleNames[0]
+      const record =
+        Array.isArray(
+          product?.sale_names
+        ) &&
+        product.sale_names.length
+          ? product.sale_names[0]
           : null;
 
       onSaleNameChange?.(
         product,
-        value,
-        existingSaleRecord
+        clean,
+        record
       );
 
-      setEditingSale(
-        false
-      );
-    };
+      setEditingSale(false);
+    }, [
+      saleValue,
+      saleName,
+      saleNames,
+      product,
+      onSaleNameChange,
+    ]);
 
     return (
       <tr
+        data-price-row={id}
         className={`
+          ${rowHeight}
           group
-          h-[43px]
-          border-b
-          border-slate-200
-          transition-colors
-          duration-75
           ${
-            selectedCell?.productId ===
-            product.product_id
-              ? "bg-blue-50/40"
+            selected
+              ? "bg-blue-50"
               : changed
-                ? "bg-amber-50/20"
+                ? "bg-amber-50/30"
                 : "bg-white"
           }
           hover:bg-slate-50
         `}
       >
-        {/* =================================================
-            ROW NUMBER
-        ================================================= */}
-
         <td
           className={`
+            ${cellBase}
             sticky
             left-0
             z-10
-            border-r
-            border-slate-200
-            bg-inherit
-            px-1
+            bg-white
             text-center
-            ${rowPadding}
           `}
+          style={{
+            background: selected
+              ? "#eff6ff"
+              : "#fff",
+          }}
         >
-          <span
-            className={`
-              text-[9px]
-              font-semibold
-              ${
-                selectedCell?.productId ===
-                product.product_id
-                  ? "text-blue-600"
-                  : "text-slate-500"
-              }
-            `}
-          >
+          <span className="text-[11px] font-semibold text-slate-500">
             {index + 1}
           </span>
         </td>
 
-        {/* =================================================
-            SKU
-        ================================================= */}
+        <td
+          className={`
+            ${cellBase}
+            sticky
+            left-[42px]
+            z-10
+            bg-white
+            text-center
+          `}
+          style={{
+            background: selected
+              ? "#eff6ff"
+              : "#fff",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={(event) =>
+              onSelect?.(
+                id,
+                event.target.checked
+              )
+            }
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+            className="
+              h-4
+              w-4
+              cursor-pointer
+              accent-blue-600
+            "
+          />
+        </td>
 
         {visibleColumns.sku && (
-          <td
-            className={`
-              border-r
-              border-slate-200
-              px-1.5
-              transition
-              hover:bg-slate-100
-              ${rowPadding}
-            `}
+          <DataCell
+            columnKey="sku"
+            frozen={frozenColumns.has(
+              "sku"
+            )}
+            frozenStyle={frozenStyle(
+              "sku",
+              9
+            )}
+            className={cellBase}
           >
-            <span className="text-[10px] font-semibold text-slate-800">
-              {product.product_id}
+            <span className="text-[13px] font-semibold text-slate-800">
+              {id}
             </span>
-          </td>
+          </DataCell>
         )}
 
-        {/* =================================================
-            CATEGORY
-        ================================================= */}
-
         {visibleColumns.category && (
-          <td
-            className={`
-              border-r
-              border-slate-200
-              px-1.5
-              transition
-              hover:bg-slate-100
-              ${rowPadding}
-            `}
+          <DataCell
+            columnKey="category"
+            frozen={frozenColumns.has(
+              "category"
+            )}
+            frozenStyle={frozenStyle(
+              "category",
+              8
+            )}
+            className={cellBase}
+          >
+            <span
+              className={`
+                inline-flex
+                max-w-full
+                items-center
+                justify-center
+                rounded-md
+                border
+                px-2
+                py-1
+                text-center
+                text-[11px]
+                font-bold
+                ${categoryTone(
+                  product.sub_category
+                )}
+              `}
+            >
+              <span className="truncate text-center">
+                {product.sub_category ||
+                  "UNCATEGORIZED"}
+              </span>
+            </span>
+          </DataCell>
+        )}
+
+        {visibleColumns.product && (
+          <DataCell
+            columnKey="product"
+            frozen={frozenColumns.has(
+              "product"
+            )}
+            frozenStyle={frozenStyle(
+              "product",
+              7
+            )}
+            className={cellBase}
           >
             <span
               className="
-                inline-block
-                max-w-[125px]
+                block
                 truncate
-                text-[10px]
-                font-medium
-                text-slate-700
+                text-center
+                text-[13px]
+                font-semibold
+                text-slate-800
               "
               title={
-                product.sub_category ||
-                ""
+                product.product_name
               }
             >
-              {product.sub_category ||
-                "UNCATEGORIZED"}
+              {product.product_name ||
+                "—"}
             </span>
-          </td>
+          </DataCell>
         )}
-
-        {/* =================================================
-            PRODUCT
-        ================================================= */}
-
-        {visibleColumns.product && (
-          <td
-            className={`
-              border-r
-              border-slate-200
-              px-1.5
-              transition
-              hover:bg-slate-100
-              ${rowPadding}
-            `}
-          >
-            <div className="min-w-0">
-              <div
-                className="
-                  truncate
-                  text-[11px]
-                  font-semibold
-                  text-slate-900
-                "
-                title={
-                  product.product_name
-                }
-              >
-                {product.product_name ||
-                  "—"}
-              </div>
-            </div>
-          </td>
-        )}
-
-        {/* =================================================
-            SALE NAME
-        ================================================= */}
 
         {visibleColumns.saleName && (
-          <td
-            ref={saleCellRef}
-            className={`
-              border-r
-              border-slate-200
-              px-1
-              ${rowPadding}
-            `}
+          <DataCell
+            columnKey="saleName"
+            frozen={frozenColumns.has(
+              "saleName"
+            )}
+            frozenStyle={frozenStyle(
+              "saleName",
+              6
+            )}
+            className={`${cellBase} px-1`}
           >
             {editingSale ? (
               <div
                 className="
                   flex
-                  h-[34px]
+                  h-8
                   items-center
-                  gap-1
-                  border
-                  border-blue-500
-                  bg-blue-50
-                  ring-2
-                  ring-blue-100
+                  justify-center
+                  rounded-md
+                  bg-white
                 "
               >
                 <input
                   ref={saleInputRef}
-                  data-sale-name-edit={
-                    product.product_id
-                  }
+                  data-sale-name-edit={id}
                   value={saleValue}
                   onChange={(event) =>
                     setSaleValue(
                       event.target.value
                     )
-                  }
-                  onClick={(event) =>
-                    event.stopPropagation()
-                  }
-                  onMouseDown={(event) =>
-                    event.stopPropagation()
                   }
                   onKeyDown={(event) => {
                     if (
@@ -1119,7 +1895,7 @@ const PriceRow = memo(
                       "Enter"
                     ) {
                       event.preventDefault();
-                      saveSaleName();
+                      saveSale();
                     }
 
                     if (
@@ -1127,928 +1903,714 @@ const PriceRow = memo(
                       "Escape"
                     ) {
                       event.preventDefault();
-
                       setSaleValue(
                         saleName
                       );
-
-                      setEditingSale(
-                        false
-                      );
+                      setEditingSale(false);
                     }
                   }}
                   className="
-                    h-full
                     min-w-0
                     flex-1
-                    cursor-text
                     bg-transparent
                     px-2
-                    text-[11px]
+                    text-center
+                    text-[13px]
                     font-semibold
-                    text-slate-900
+                    text-slate-800
                     outline-none
                   "
                 />
 
                 <button
                   type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    saveSaleName();
-                  }}
+                  onClick={saveSale}
                   className="
                     mr-1
                     flex
                     h-6
                     w-6
-                    shrink-0
-                    cursor-pointer
                     items-center
                     justify-center
-                    bg-blue-600
-                    text-[11px]
+                    rounded-md
+                    bg-emerald-50
+                    text-sm
                     font-bold
-                    text-white
-                    transition
-                    hover:bg-blue-700
+                    text-emerald-600
+                    hover:bg-emerald-100
                   "
-                  title="Save Sale Name"
                 >
                   ✓
                 </button>
               </div>
-            ) : saleNames.length > 0 ? (
+            ) : saleName ? (
               <button
                 type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-
-                  setEditingSale(
-                    true
-                  );
-                }}
+                onClick={() =>
+                  setEditingSale(true)
+                }
                 className="
-                  group/sale
                   flex
-                  h-[34px]
+                  h-8
                   w-full
-                  min-w-0
-                  cursor-text
                   items-center
-                  border
-                  border-transparent
-                  bg-white
+                  justify-center
+                  rounded-md
                   px-2
-                  text-left
-                  transition-all
-                  hover:border-slate-300
+                  text-center
+                  text-[13px]
+                  font-semibold
+                  text-black
                   hover:bg-slate-50
-                  focus:border-blue-500
-                  focus:bg-blue-50/40
-                  focus:outline-none
                 "
-                title="Click to edit Sale Name"
+                title="Edit Sale Name"
               >
-                <span
-                  className="
-                    min-w-0
-                    flex-1
-                    truncate
-                    text-[11px]
-                    font-semibold
-                    text-slate-800
-                    group-hover/sale:text-blue-700
-                  "
-                  title={
-                    saleName
-                  }
-                >
+                <span className="truncate text-center">
                   {saleName}
                 </span>
 
-                {saleNames.length >
-                  1 && (
-                    <span className="ml-1 shrink-0 text-[8px] font-bold text-slate-500">
-                      +
-                      {saleNames.length -
-                        1}
-                    </span>
-                  )}
-
-                <span
-                  className="
-                    ml-1
-                    hidden
-                    shrink-0
-                    text-[10px]
-                    text-slate-400
-                    group-hover/sale:block
-                  "
-                >
-                  ✎
-                </span>
+                {saleNames.length > 1 && (
+                  <span className="ml-1 shrink-0 text-[10px] font-bold text-slate-400">
+                    +{saleNames.length - 1}
+                  </span>
+                )}
               </button>
             ) : (
               <button
                 type="button"
-                data-sale-name-edit={
-                  product.product_id
+                data-sale-name-edit={id}
+                onClick={() =>
+                  setEditingSale(true)
                 }
-                onClick={(event) => {
-                  event.stopPropagation();
-
-                  setEditingSale(
-                    true
-                  );
-                }}
                 className="
                   flex
-                  h-[34px]
+                  h-8
                   w-full
-                  cursor-text
                   items-center
+                  justify-center
+                  rounded-md
                   border
                   border-dashed
                   border-slate-300
-                  bg-white
-                  px-2
-                  text-left
-                  text-[10px]
+                  text-center
+                  text-[11px]
                   font-semibold
-                  text-slate-500
-                  transition
-                  hover:border-blue-400
-                  hover:bg-blue-50/40
-                  hover:text-blue-700
+                  text-slate-400
+                  hover:border-blue-300
+                  hover:bg-blue-50
+                  hover:text-blue-600
                 "
               >
-                + Add Sale Name
+                + Add
               </button>
             )}
-          </td>
+          </DataCell>
         )}
-
-        {/* =================================================
-            SS PRICE
-        ================================================= */}
 
         {visibleColumns.price && (
-          <td
-            className={`
-              border-r
-              border-slate-200
-              bg-blue-50/20
-              px-1
-              ${rowPadding}
-            `}
-          >
-            <PriceInput
-              product={product}
-              field="price"
-              value={
-                draft.new_price ??
-                product.price ??
-                ""
-              }
-              changed={
-                draft.new_price !==
-                undefined
-              }
-              selected={
-                selectedCell?.productId ===
-                  product.product_id &&
-                selectedCell?.field ===
-                  "price"
-              }
-              onChange={
-                onPriceChange
-              }
-              onFocus={onFocus}
-              onMove={onMove}
-            />
-          </td>
+          <PriceCell
+            product={product}
+            field="price"
+            value={
+              draft.new_price ??
+              product.price ??
+              ""
+            }
+            changed={
+              draft.new_price !==
+              undefined
+            }
+            selected={
+              selectedPriceId === id &&
+              selectedPriceField ===
+                "price"
+            }
+            frozen={frozenColumns.has(
+              "price"
+            )}
+            frozenStyle={frozenStyle(
+              "price",
+              5
+            )}
+            onChange={onPriceChange}
+            onFocus={onFocus}
+            onMove={onMove}
+            onFillDown={onFillDown}
+          />
         )}
-
-        {/* =================================================
-            DS PRICE
-        ================================================= */}
 
         {visibleColumns.dsPrice && (
-          <td
-            className={`
-              border-r
-              border-slate-200
-              bg-violet-50/20
-              px-1
-              ${rowPadding}
-            `}
-          >
-            <PriceInput
-              product={product}
-              field="ds_price"
-              value={
-                draft.new_ds_price ??
-                product.ds_price ??
-                ""
-              }
-              changed={
-                draft.new_ds_price !==
-                undefined
-              }
-              selected={
-                selectedCell?.productId ===
-                  product.product_id &&
-                selectedCell?.field ===
-                  "ds_price"
-              }
-              onChange={
-                onPriceChange
-              }
-              onFocus={onFocus}
-              onMove={onMove}
-            />
-          </td>
+          <PriceCell
+            product={product}
+            field="ds_price"
+            value={
+              draft.new_ds_price ??
+              product.ds_price ??
+              ""
+            }
+            changed={
+              draft.new_ds_price !==
+              undefined
+            }
+            selected={
+              selectedPriceId === id &&
+              selectedPriceField ===
+                "ds_price"
+            }
+            frozen={frozenColumns.has(
+              "dsPrice"
+            )}
+            frozenStyle={frozenStyle(
+              "dsPrice",
+              4
+            )}
+            onChange={onPriceChange}
+            onFocus={onFocus}
+            onMove={onMove}
+            onFillDown={onFillDown}
+          />
         )}
 
-        {/* =================================================
-            GUARANTEE
-        ================================================= */}
+        {visibleColumns.dlrPrice && (
+          <PriceCell
+            product={product}
+            field="dlr_price"
+            value={
+              draft.new_dlr_price ??
+              product.dlr_price ??
+              ""
+            }
+            changed={
+              draft.new_dlr_price !==
+              undefined
+            }
+            selected={
+              selectedPriceId === id &&
+              selectedPriceField ===
+                "dlr_price"
+            }
+            frozen={frozenColumns.has(
+              "dlrPrice"
+            )}
+            frozenStyle={frozenStyle(
+              "dlrPrice",
+              3
+            )}
+            onChange={onPriceChange}
+            onFocus={onFocus}
+            onMove={onMove}
+            onFillDown={onFillDown}
+          />
+        )}
 
         {visibleColumns.guarantee && (
-          <td
-            className={`
-              border-r
-              border-slate-200
-              px-1.5
-              text-center
-              transition
-              hover:bg-slate-100
-              ${rowPadding}
-            `}
+          <DataCell
+            columnKey="guarantee"
+            frozen={frozenColumns.has(
+              "guarantee"
+            )}
+            frozenStyle={frozenStyle(
+              "guarantee",
+              2
+            )}
+            className={cellBase}
           >
-            <span
-              className="
-                text-[10px]
-                font-semibold
-                text-slate-800
-              "
-            >
+            <span className="block truncate text-center text-[13px] font-medium text-slate-600">
               {getGuaranteeValue(
                 product
               ) || "—"}
             </span>
-          </td>
+          </DataCell>
         )}
 
-        {/* =================================================
-            STATUS
-        ================================================= */}
+        {visibleColumns.carton && (
+          <DataCell
+            columnKey="carton"
+            frozen={frozenColumns.has(
+              "carton"
+            )}
+            frozenStyle={frozenStyle(
+              "carton",
+              2
+            )}
+            className={cellBase}
+          >
+            <span className="text-center text-[13px] font-semibold text-black">
+              {getCartonValue(
+                product
+              ) || "—"}
+            </span>
+          </DataCell>
+        )}
+
+        {visibleColumns.mah && (
+          <DataCell
+            columnKey="mah"
+            frozen={frozenColumns.has(
+              "mah"
+            )}
+            frozenStyle={frozenStyle(
+              "mah",
+              2
+            )}
+            className={cellBase}
+          >
+            <span className="text-center text-[13px] font-semibold text-black">
+              {getMahValue(product) ||
+                "—"}
+            </span>
+          </DataCell>
+        )}
 
         {visibleColumns.status && (
-          <td
-            className={`
-              border-r
-              border-slate-200
-              px-1.5
-              text-center
-              transition
-              hover:bg-slate-100
-              ${rowPadding}
-            `}
-          >
-            {changed ? (
-              <StatusBadge
-                type="changed"
-                text="CHANGED"
-              />
-            ) : (
-              <StatusBadge
-                type="active"
-                text="ACTIVE"
-              />
+          <DataCell
+            columnKey="status"
+            frozen={frozenColumns.has(
+              "status"
             )}
-          </td>
-        )}
-
-        {/* =================================================
-            LAST UPDATED
-        ================================================= */}
-
-        {visibleColumns.updated && (
-          <td
-            className={`
-              border-r
-              border-slate-200
-              px-1.5
-              transition
-              hover:bg-slate-100
-              ${rowPadding}
-            `}
+            frozenStyle={frozenStyle(
+              "status",
+              2
+            )}
+            className={cellBase}
           >
-            <div className="flex flex-col">
-              <span className="text-[9px] font-medium text-slate-700">
-                {formatUpdatedDate(
-                  product.updated_at ||
-                    product.last_updated
-                )}
-              </span>
+            <span
+              className={`
+                inline-flex
+                items-center
+                justify-center
+                gap-1.5
+                rounded-full
+                border
+                px-2.5
+                py-1
+                text-center
+                text-[10px]
+                font-bold
+                ${
+                  changed
+                    ? "border-amber-100 bg-amber-50 text-amber-700"
+                    : product.is_active ===
+                        false
+                      ? "border-slate-200 bg-slate-50 text-slate-500"
+                      : "border-emerald-100 bg-emerald-50 text-emerald-700"
+                }
+              `}
+            >
+              <span
+                className={`
+                  h-1.5
+                  w-1.5
+                  rounded-full
+                  ${
+                    changed
+                      ? "bg-amber-500"
+                      : product.is_active ===
+                          false
+                        ? "bg-slate-400"
+                        : "bg-emerald-500"
+                  }
+                `}
+              />
 
-              <span className="text-[8px] text-slate-400">
-                {product.updated_by ||
-                  "System"}
-              </span>
-            </div>
-          </td>
+              {changed
+                ? "Changed"
+                : product.is_active ===
+                    false
+                  ? "Inactive"
+                  : "Active"}
+            </span>
+          </DataCell>
         )}
       </tr>
     );
   }
 );
 
-/* =========================================================
-   PRICE INPUT
-========================================================= */
+const DataCell = memo(
+  function DataCell({
+    className = "",
+    frozen,
+    frozenStyle,
+    children,
+  }) {
+    return (
+      <td
+        className={className}
+        style={
+          frozen
+            ? frozenStyle
+            : undefined
+        }
+      >
+        {children}
+      </td>
+    );
+  }
+);
 
-function PriceInput({
-  product,
-  field,
-  value,
-  changed,
-  selected,
-  onChange,
-  onFocus,
-  onMove,
-}) {
-  const inputRef =
-    useRef(null);
+const PriceCell = memo(
+  function PriceCell({
+    product,
+    field,
+    value,
+    changed,
+    selected,
+    frozen,
+    frozenStyle,
+    onChange,
+    onFocus,
+    onMove,
+    onFillDown,
+  }) {
+    const id = getProductId(product);
+    const inputRef = useRef(null);
 
-  const [
-    localValue,
-    setLocalValue,
-  ] = useState(
-    value === null ||
-      value === undefined
-      ? ""
-      : String(value)
-  );
+    const [localValue, setLocalValue] =
+      useState(
+        value === null ||
+          value === undefined
+          ? ""
+          : String(value)
+      );
 
-  const lastExternalValue =
-    useRef(
-      value === null ||
+    const externalValueRef =
+      useRef(localValue);
+
+    useEffect(() => {
+      const next =
+        value === null ||
         value === undefined
-        ? ""
-        : String(value)
+          ? ""
+          : String(value);
+
+      if (
+        next !==
+        externalValueRef.current
+      ) {
+        externalValueRef.current = next;
+        setLocalValue(next);
+      }
+    }, [value]);
+
+    const change = useCallback(
+      (event) => {
+        const next =
+          event.target.value;
+
+        if (
+          next !== "" &&
+          !/^\d*(\.\d*)?$/.test(next)
+        ) {
+          return;
+        }
+
+        setLocalValue(next);
+        externalValueRef.current = next;
+
+        if (next === "") {
+          onChange?.(
+            id,
+            field,
+            ""
+          );
+          return;
+        }
+
+        const number = Number(next);
+
+        if (Number.isFinite(number)) {
+          onChange?.(
+            id,
+            field,
+            number
+          );
+        }
+      },
+      [id, field, onChange]
     );
 
-  /* =======================================================
-     SYNC EXTERNAL VALUE
-  ======================================================= */
-
-  useEffect(() => {
-    const next =
-      value === null ||
-      value === undefined
-        ? ""
-        : String(value);
-
-    if (
-      next !==
-      lastExternalValue.current
-    ) {
-      lastExternalValue.current =
-        next;
-
-      setLocalValue(
-        next
-      );
-    }
-  }, [value]);
-
-  /* =======================================================
-     VALUE CHANGE
-  ======================================================= */
-
-  const handleChange = (
-    event
-  ) => {
-    const nextValue =
-      event.target.value;
-
-    if (
-      nextValue !== "" &&
-      !/^\d*\.?\d*$/.test(
-        nextValue
-      )
-    ) {
-      return;
-    }
-
-    setLocalValue(
-      nextValue
-    );
-
-    lastExternalValue.current =
-      nextValue;
-
-    if (nextValue === "") {
-      onChange?.(
-        product.product_id,
-        field,
-        ""
-      );
-
-      return;
-    }
-
-    const numericValue =
-      Number(
-        nextValue
-      );
-
-    if (
-      Number.isFinite(
-        numericValue
-      )
-    ) {
-      onChange?.(
-        product.product_id,
-        field,
-        numericValue
-      );
-    }
-  };
-
-  /* =======================================================
-     RESTORE ORIGINAL
-  ======================================================= */
-
-  const restoreOriginal =
-    () => {
+    const restore = useCallback(() => {
       const original =
         product[field] ?? "";
 
-      const next =
-        original === null ||
-        original === undefined
-          ? ""
-          : String(
-              original
-            );
+      const restored =
+        String(original);
 
-      setLocalValue(
-        next
-      );
-
-      lastExternalValue.current =
-        next;
+      setLocalValue(restored);
+      externalValueRef.current =
+        restored;
 
       onChange?.(
-        product.product_id,
+        id,
         field,
         original
       );
 
-      requestAnimationFrame(
-        () => {
-          inputRef.current?.focus();
-          inputRef.current?.select();
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      });
+    }, [
+      product,
+      field,
+      id,
+      onChange,
+    ]);
+
+    const keyDown = useCallback(
+      (event) => {
+        if (
+          (event.ctrlKey ||
+            event.metaKey) &&
+          event.key.toLowerCase() ===
+            "d"
+        ) {
+          event.preventDefault();
+
+          onFillDown?.(
+            id,
+            field
+          );
+
+          return;
         }
-      );
-    };
 
-  /* =======================================================
-     KEYBOARD
-  ======================================================= */
+        if (event.key === "Enter") {
+          event.preventDefault();
 
-  const handleKeyDown = (
-    event
-  ) => {
-    /* ENTER */
-
-    if (
-      event.key ===
-      "Enter"
-    ) {
-      event.preventDefault();
-
-      onMove?.({
-        direction:
-          event.shiftKey
-            ? "up"
-            : "down",
-        productId:
-          product.product_id,
-        field,
-      });
-
-      return;
-    }
-
-    /* TAB */
-
-    if (
-      event.key ===
-      "Tab"
-    ) {
-      event.preventDefault();
-
-      onMove?.({
-        direction:
-          event.shiftKey
-            ? "previous"
-            : "next",
-        productId:
-          product.product_id,
-        field,
-      });
-
-      return;
-    }
-
-    /* DOWN */
-
-    if (
-      event.key ===
-      "ArrowDown"
-    ) {
-      event.preventDefault();
-
-      onMove?.({
-        direction: "down",
-        productId:
-          product.product_id,
-        field,
-      });
-
-      return;
-    }
-
-    /* UP */
-
-    if (
-      event.key ===
-      "ArrowUp"
-    ) {
-      event.preventDefault();
-
-      onMove?.({
-        direction: "up",
-        productId:
-          product.product_id,
-        field,
-      });
-
-      return;
-    }
-
-    /* ESCAPE */
-
-    if (
-      event.key ===
-      "Escape"
-    ) {
-      event.preventDefault();
-
-      restoreOriginal();
-    }
-  };
-
-  return (
-    <div
-      className={`
-        relative
-        h-[34px]
-        border
-        transition-all
-        duration-75
-        ${
-          selected
-            ? field === "price"
-              ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100"
-              : "border-violet-500 bg-violet-50 ring-2 ring-violet-100"
-            : changed
-              ? "border-amber-300 bg-amber-50/70"
-              : "border-transparent bg-white hover:border-slate-300"
-        }
-      `}
-    >
-      <input
-        ref={inputRef}
-        data-price-cell={`${product.product_id}-${field}`}
-        value={localValue}
-        inputMode="decimal"
-        autoComplete="off"
-        spellCheck={false}
-        onMouseDown={(
-          event
-        ) => {
-          event.stopPropagation();
-
-          onFocus?.({
-            productId:
-              product.product_id,
+          onMove?.({
+            direction:
+              event.shiftKey
+                ? "up"
+                : "down",
+            productId: id,
             field,
           });
-        }}
-        onClick={(
-          event
-        ) => {
-          event.stopPropagation();
-        }}
-        onFocus={() => {
-          onFocus?.({
-            productId:
-              product.product_id,
+
+          return;
+        }
+
+        if (event.key === "Tab") {
+          event.preventDefault();
+
+          onMove?.({
+            direction:
+              event.shiftKey
+                ? "previous"
+                : "next",
+            productId: id,
             field,
           });
+
+          return;
+        }
+
+        if (
+          event.key ===
+          "ArrowDown"
+        ) {
+          event.preventDefault();
+
+          onMove?.({
+            direction: "down",
+            productId: id,
+            field,
+          });
+
+          return;
+        }
+
+        if (
+          event.key ===
+          "ArrowUp"
+        ) {
+          event.preventDefault();
+
+          onMove?.({
+            direction: "up",
+            productId: id,
+            field,
+          });
+
+          return;
+        }
+
+        if (event.key === "Escape") {
+          event.preventDefault();
+          restore();
+        }
+      },
+      [
+        id,
+        field,
+        onFillDown,
+        onMove,
+        restore,
+      ]
+    );
+
+    const theme =
+      field === "price"
+        ? {
+            text: "text-blue-700",
+            selected:
+              "bg-blue-50/70",
+            changed:
+              "bg-amber-50/60",
+          }
+        : field === "ds_price"
+          ? {
+              text:
+                "text-violet-700",
+              selected:
+                "bg-violet-50/70",
+              changed:
+                "bg-amber-50/60",
+            }
+          : {
+              text: "text-black",
+              selected:
+                "bg-slate-50",
+              changed:
+                "bg-amber-50/60",
+            };
+
+    const cellBackground =
+      selected
+        ? theme.selected
+        : changed
+          ? theme.changed
+          : "transparent";
+
+    return (
+      <td
+        className="
+          border-r
+          border-b
+          border-slate-200
+          px-1
+          align-middle
+          text-center
+        "
+        style={{
+          ...(frozen
+            ? frozenStyle
+            : {}),
+          background:
+            frozen
+              ? frozenStyle?.background
+              : undefined,
         }}
-        onChange={
-          handleChange
-        }
-        onKeyDown={
-          handleKeyDown
-        }
-        className={`
-          h-full
-          w-full
-          cursor-text
-          bg-transparent
-          px-2
-          text-right
-          text-[11px]
-          font-bold
-          outline-none
-          ${
-            field === "price"
-              ? "text-blue-900"
-              : "text-violet-900"
-          }
-        `}
-      />
-
-      {changed && (
-        <span
-          className="
-            pointer-events-none
-            absolute
-            right-1
-            top-1
-            h-1.5
-            w-1.5
-            rounded-full
-            bg-amber-500
-          "
-        />
-      )}
-    </div>
-  );
-}
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-function StatusBadge({
-  type,
-  text,
-}) {
-  const changed =
-    type === "changed";
-
-  return (
-    <span
-      className={`
-        inline-flex
-        items-center
-        gap-1
-        px-1.5
-        py-1
-        text-[8px]
-        font-bold
-        ${
-          changed
-            ? "border border-amber-300 bg-amber-50 text-amber-800"
-            : "border border-emerald-300 bg-emerald-50 text-emerald-700"
-        }
-      `}
-    >
-      <span
-        className={`
-          h-1.5
-          w-1.5
-          rounded-full
-          ${
-            changed
-              ? "bg-amber-500"
-              : "bg-emerald-500"
-          }
-        `}
-      />
-
-      {text}
-    </span>
-  );
-}
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-function EmptyState() {
-  return (
-    <div
-      className="
-        flex
-        min-h-[500px]
-        items-center
-        justify-center
-      "
-    >
-      <div className="text-center">
+      >
         <div
           className="
-            mx-auto
-            mb-3
+            relative
             flex
-            h-10
-            w-10
+            h-8
+            w-full
             items-center
             justify-center
-            border
-            border-slate-300
-            bg-slate-50
-            text-sm
-            text-slate-500
           "
+          style={{
+            background:
+              cellBackground,
+          }}
         >
-          ⌕
+          <input
+            ref={inputRef}
+            data-price-cell={`${id}-${field}`}
+            value={localValue}
+            inputMode="decimal"
+            autoComplete="off"
+            spellCheck={false}
+            onFocus={() =>
+              onFocus?.({
+                productId: id,
+                field,
+              })
+            }
+            onMouseDown={(event) =>
+              event.stopPropagation()
+            }
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+            onChange={change}
+            onKeyDown={keyDown}
+            className={`
+              h-full
+              w-full
+              bg-transparent
+              px-2
+              text-center
+              text-[12px]
+              font-bold
+              outline-none
+              focus:outline-none
+              focus:ring-0
+              ${theme.text}
+            `}
+          />
+
+          {selected && (
+            <span
+              className="
+                pointer-events-none
+                absolute
+                inset-x-0
+                bottom-0
+                h-[2px]
+                bg-blue-500/70
+              "
+            />
+          )}
+
+          {changed && (
+            <span
+              className="
+                pointer-events-none
+                absolute
+                right-1
+                top-1
+                h-1.5
+                w-1.5
+                rounded-full
+                bg-amber-500
+              "
+            />
+          )}
         </div>
-
-        <p className="text-[11px] font-bold text-slate-800">
-          No products found
-        </p>
-
-        <p className="mt-1 text-[9px] text-slate-500">
-          Try another search or filter.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function getSaleNameText(item) {
-  if (
-    item === null ||
-    item === undefined
-  ) {
-    return "";
-  }
-
-  if (
-    typeof item ===
-    "string"
-  ) {
-    return item;
-  }
-
-  if (
-    typeof item ===
-    "number"
-  ) {
-    return String(
-      item
+      </td>
     );
   }
+);
 
-  if (
-    typeof item ===
-    "object"
-  ) {
-    return String(
-      item.sale_name ??
-        item.name ??
-        item.title ??
-        ""
-    );
-  }
+const FilterIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="h-3.5 w-3.5"
+  >
+    <path d="M4 5h16M7 12h10M10 19h4" />
+  </svg>
+);
 
-  return String(item);
-}
-
-/* =========================================================
-   GUARANTEE VALUE
-========================================================= */
-
-function getGuaranteeValue(
-  product
-) {
-  return (
-    product?.guarantee ??
-    product?.guarantee_period ??
-    product?.warranty ??
-    ""
-  );
-}
-
-/* =========================================================
-   COLUMN VALUE
-========================================================= */
-
-function getColumnValue(
-  product,
-  key
-) {
-  switch (key) {
-    case "sku":
-      return product.product_id;
-
-    case "category":
-      return (
-        product.sub_category ||
-        ""
-      );
-
-    case "product":
-      return (
-        product.product_name ||
-        ""
-      );
-
-    case "saleName":
-      return Array.isArray(
-        product.sale_names
-      )
-        ? product.sale_names
-        : [];
-
-    case "price":
-      return (
-        product.price ??
-        ""
-      );
-
-    case "dsPrice":
-      return (
-        product.ds_price ??
-        ""
-      );
-
-    case "guarantee":
-      return getGuaranteeValue(
-        product
-      );
-
-    case "status":
-      return (
-        product.status ||
-        ""
-      );
-
-    case "updated":
-      return (
-        product.updated_at ||
-        product.last_updated ||
-        ""
-      );
-
-    default:
-      return "";
-  }
-}
-
-/* =========================================================
-   DATE
-========================================================= */
-
-function formatUpdatedDate(
-  value
-) {
-  if (!value) {
-    return "Not available";
-  }
-
-  const date =
-    new Date(value);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return String(value);
-  }
-
-  return date.toLocaleDateString(
-    "en-IN",
-    {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }
-  );
-}
+const SearchIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="h-5 w-5"
+  >
+    <circle
+      cx="11"
+      cy="11"
+      r="7"
+    />
+    <path d="m20 20-3.5-3.5" />
+  </svg>
+);

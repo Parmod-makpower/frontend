@@ -619,7 +619,7 @@
 
 
 
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate , useLocation} from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 import {
@@ -676,6 +676,7 @@ export default function Navbar({
 }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { getStockValue } = useStock();
 
   const [profileDropdownOpen, setProfileDropdownOpen] =
@@ -837,6 +838,14 @@ export default function Navbar({
       quantity: initialQty,
     });
   };
+
+useEffect(() => {
+  const expandedPages = ["/CRMDashboard", "/user-schemes"];
+
+  const shouldExpand = expandedPages.includes(location.pathname);
+
+  setSidebarCollapsed(!shouldExpand);
+}, [location.pathname, setSidebarCollapsed]);
 
   /* =========================================================
      CART COUNT

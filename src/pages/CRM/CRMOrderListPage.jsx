@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BackButton from "../../Layout/BackButton";
 
 import {
   FaCalendarAlt,
@@ -171,7 +172,10 @@ const [filterStatus, setFilterStatus] = useState(() => {
     "
   >
     <div className="flex items-center gap-2">
-     
+       <div className="hidden md:block shrink-0">
+    <BackButton />
+  </div>
+
 
       {/* Search box */}
       <div

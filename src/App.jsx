@@ -64,6 +64,7 @@ import ASMSSDetailPage from "./pages/ASM/ASMSSDetailPage";
 import ASMAssignmentPage from "./pages/CRM/ASMAssignmentPage";
 import PriceManagementPage from "./pages/ADMIN/PriceManagementPage";
 import PriceHistoryPage from "./pages/ADMIN/PriceHistoryPage";
+import CRMNewOrderPage from "./pages/CRM/CRMNewOrderPage";
 
 
 export default function App() {
@@ -183,6 +184,18 @@ export default function App() {
   element={
     <ProtectedRoute allowedRoles={["ADMIN", "CRM"]}>
       <PriceHistoryPage />
+    </ProtectedRoute>
+  }
+/>
+
+
+
+
+<Route
+  path="/crm/new-order"
+  element={
+    <ProtectedRoute allowedRoles={["CRM"]}>
+      <CRMNewOrderPage />
     </ProtectedRoute>
   }
 />

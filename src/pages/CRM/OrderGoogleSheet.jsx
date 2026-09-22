@@ -1,3 +1,2177 @@
+// import {
+//   useEffect,
+//   useMemo,
+//   useRef,
+//   useState,
+// } from "react";
+
+// import { useCachedProducts } from "../../hooks/useCachedProducts";
+// import { useSelectedProducts } from "../../hooks/useSelectedProducts";
+
+// const INITIAL_ROWS = 15;
+// const PRODUCT_COL = 0;
+// const QTY_COL = 1;
+
+// const createEmptyRow = () => ({
+//   id: null,
+//   product_name: "",
+//   cartoon_size: "",
+//   quantity: "",
+//   price: 0,
+//   virtual_stock: 0,
+// });
+
+// const createRows = (count = INITIAL_ROWS) =>
+//   Array.from({ length: count }, createEmptyRow);
+
+// const getProductId = (product) =>
+//   product?.id ?? product?.product_id ?? null;
+
+// const normalize = (value) =>
+//   String(value ?? "").trim().toLowerCase();
+
+// const sanitizeQuantity = (value) =>
+//   String(value ?? "").replace(/\D/g, "");
+
+// const isFilledRow = (row) =>
+//   Boolean(row?.id || String(row?.product_name || "").trim());
+
+// const emptyProductData = () => ({
+//   id: null,
+//   product_name: "",
+//   cartoon_size: "",
+//   price: 0,
+//   virtual_stock: 0,
+// });
+
+// /* =========================================================
+//    PRODUCT CELL
+// ========================================================= */
+
+// function SheetProductCell({
+//   products,
+//   value,
+//   onSelect,
+//   onGridKeyDown,
+//   onPaste,
+//   inputRef,
+//   usedProductIds,
+//   currentRowProductId,
+
+//   // ✅ NEW: Last/near-last row dropdown direction
+//   dropUp = false,
+// }) {
+//   const [term, setTerm] = useState(value || "");
+//   const [open, setOpen] = useState(false);
+//   const [highlight, setHighlight] = useState(0);
+//   const wrapperRef = useRef(null);
+
+//   useEffect(() => {
+//     setTerm(value || "");
+//     setOpen(false);
+//     setHighlight(0);
+//   }, [value]);
+
+//   const filtered = useMemo(() => {
+//     const search = normalize(term);
+
+//     if (!search) return [];
+
+//     return products
+//       .filter((product) => {
+//         const id = getProductId(product);
+
+//         if (!id) return false;
+
+//         if (
+//           usedProductIds.has(String(id)) &&
+//           String(id) !== String(currentRowProductId)
+//         ) {
+//           return false;
+//         }
+
+//         return normalize(product.product_name).includes(search);
+//       })
+//       .slice(0, 10);
+//   }, [
+//     products,
+//     term,
+//     usedProductIds,
+//     currentRowProductId,
+//   ]);
+
+//   useEffect(() => {
+//     setHighlight(0);
+//   }, [term]);
+
+//   useEffect(() => {
+//     const close = (event) => {
+//       if (
+//         wrapperRef.current &&
+//         !wrapperRef.current.contains(event.target)
+//       ) {
+//         setOpen(false);
+//       }
+//     };
+
+//     document.addEventListener("mousedown", close);
+
+//     return () =>
+//       document.removeEventListener("mousedown", close);
+//   }, []);
+
+//   const selectProduct = (product) => {
+//     const id = getProductId(product);
+
+//     if (!id) return;
+
+//     if (
+//       usedProductIds.has(String(id)) &&
+//       String(id) !== String(currentRowProductId)
+//     ) {
+//       setOpen(false);
+//       return;
+//     }
+
+//     onSelect(product);
+//     setTerm(product.product_name || "");
+//     setOpen(false);
+//     setHighlight(0);
+//   };
+
+//   const handleChange = (event) => {
+//     const value = event.target.value;
+
+//     setTerm(value);
+//     setOpen(Boolean(value.trim()));
+//   };
+
+//   const handleKeyDown = (event) => {
+//     if (open && filtered.length) {
+//       if (event.key === "ArrowDown") {
+//         event.preventDefault();
+//         event.stopPropagation();
+
+//         setHighlight((v) =>
+//           Math.min(v + 1, filtered.length - 1)
+//         );
+//         return;
+//       }
+
+//       if (event.key === "ArrowUp") {
+//         event.preventDefault();
+//         event.stopPropagation();
+
+//         setHighlight((v) => Math.max(v - 1, 0));
+//         return;
+//       }
+
+//       if (event.key === "Enter") {
+//         event.preventDefault();
+//         event.stopPropagation();
+
+//         if (filtered[highlight]) {
+//           selectProduct(filtered[highlight]);
+//         }
+
+//         return;
+//       }
+
+//       if (event.key === "Escape") {
+//         event.preventDefault();
+//         event.stopPropagation();
+
+//         setOpen(false);
+//         return;
+//       }
+//     }
+
+//     onGridKeyDown?.(event);
+//   };
+
+//   return (
+//     <div
+//       ref={wrapperRef}
+//       className="relative h-full w-full"
+//     >
+//       <input
+//         ref={inputRef}
+//         value={term}
+//         onChange={handleChange}
+//         onFocus={() => setOpen(false)}
+//         onKeyDown={handleKeyDown}
+//         onPaste={onPaste}
+//         data-sheet-product-cell="true"
+//         autoComplete="off"
+//         className="
+//           h-full
+//           min-h-[34px]
+//           w-full
+//           border-0
+//           bg-transparent
+//           px-2.5
+//           text-left
+//           text-xs
+//           text-slate-700
+//           outline-none
+//         "
+//       />
+
+//       {/* =====================================================
+//           PRODUCT DROPDOWN
+
+//           Normal rows  -> opens DOWN
+//           Last rows    -> opens UP
+
+//           This prevents the dropdown from getting clipped
+//           inside the table/footer area.
+//       ===================================================== */}
+
+//       {open && filtered.length > 0 && (
+//         <div
+//           className={`
+//             absolute
+//             left-0
+//             z-[200]
+//             max-h-64
+//             min-w-[280px]
+//             overflow-y-auto
+//             rounded-md
+//             border
+//             border-slate-300
+//             bg-white
+//             shadow-xl
+
+//             ${
+//               dropUp
+//                 ? "bottom-full mb-1"
+//                 : "top-full mt-1"
+//             }
+//           `}
+//         >
+//           {filtered.map((product, index) => (
+//             <button
+//               key={
+//                 getProductId(product) ??
+//                 `${product.product_name}-${index}`
+//               }
+//               type="button"
+//               onMouseDown={(event) => {
+//                 event.preventDefault();
+//                 selectProduct(product);
+//               }}
+//               className={`
+//                 flex
+//                 w-full
+//                 items-center
+//                 justify-between
+//                 border-b
+//                 border-slate-100
+//                 px-3
+//                 py-2
+//                 text-left
+//                 text-xs
+//                 last:border-0
+//                 ${
+//                   index === highlight
+//                     ? "bg-blue-100 text-blue-800"
+//                     : "bg-white text-slate-700 hover:bg-slate-50"
+//                 }
+//               `}
+//             >
+//               <span className="truncate">
+//                 {product.product_name}
+//               </span>
+
+//               {index === highlight && (
+//                 <span className="ml-2 text-[9px]">
+//                   ✓
+//                 </span>
+//               )}
+//             </button>
+//           ))}
+//         </div>
+//       )}
+
+//       {open &&
+//         term.trim() &&
+//         filtered.length === 0 && (
+//           <div
+//             className={`
+//               absolute
+//               left-0
+//               z-[200]
+//               min-w-[280px]
+//               rounded-md
+//               border
+//               border-slate-300
+//               bg-white
+//               px-3
+//               py-3
+//               text-[10px]
+//               text-slate-400
+//               shadow-xl
+
+//               ${
+//                 dropUp
+//                   ? "bottom-full mb-1"
+//                   : "top-full mt-1"
+//               }
+//             `}
+//           >
+//             No product found
+//           </div>
+//         )}
+//     </div>
+//   );
+// }
+
+// /* =========================================================
+//    MAIN
+// ========================================================= */
+
+// export default function OrderGoogleSheet() {
+//   const { data: allProducts = [] } =
+//     useCachedProducts();
+
+//   const {
+//     selectedProducts,
+//     setSelectedProducts,
+//   } = useSelectedProducts();
+
+//   const [selectedSS, setSelectedSS] =
+//     useState("");
+
+//   const [selectedSSName, setSelectedSSName] =
+//     useState("");
+
+//   const [rows, setRows] = useState(() =>
+//     createRows()
+//   );
+
+//   /* =======================================================
+//      GRID REFS
+//   ======================================================= */
+
+//   const gridRef = useRef(null);
+//   const cellRefs = useRef({});
+//   const initializedFocus = useRef(false);
+
+//   const setCellRef = (
+//     rowIndex,
+//     colIndex,
+//     element
+//   ) => {
+//     if (!cellRefs.current[rowIndex]) {
+//       cellRefs.current[rowIndex] = {};
+//     }
+
+//     cellRefs.current[rowIndex][colIndex] =
+//       element;
+//   };
+
+//   const focusCell = (
+//     rowIndex,
+//     colIndex,
+//     selectText = true
+//   ) => {
+//     if (
+//       rowIndex < 0 ||
+//       rowIndex >= rows.length ||
+//       colIndex < 0 ||
+//       colIndex > QTY_COL
+//     ) {
+//       return;
+//     }
+
+//     const element =
+//       cellRefs.current[rowIndex]?.[colIndex];
+
+//     if (!element) return;
+
+//     element.focus();
+
+//     if (
+//       selectText &&
+//       typeof element.select === "function"
+//     ) {
+//       element.select();
+//     }
+//   };
+
+//   /* =======================================================
+//      SELECTION
+//   ======================================================= */
+
+//   const [selection, setSelection] = useState({
+//     startRow: 0,
+//     startCol: PRODUCT_COL,
+//     endRow: 0,
+//     endCol: PRODUCT_COL,
+//   });
+
+//   const [isDragging, setIsDragging] =
+//     useState(false);
+
+//   const normalizeSelection = (s) => ({
+//     minRow: Math.min(s.startRow, s.endRow),
+//     maxRow: Math.max(s.startRow, s.endRow),
+//     minCol: Math.min(s.startCol, s.endCol),
+//     maxCol: Math.max(s.startCol, s.endCol),
+//   });
+
+//   const isCellSelected = (
+//     rowIndex,
+//     colIndex
+//   ) => {
+//     const s =
+//       normalizeSelection(selection);
+
+//     return (
+//       rowIndex >= s.minRow &&
+//       rowIndex <= s.maxRow &&
+//       colIndex >= s.minCol &&
+//       colIndex <= s.maxCol
+//     );
+//   };
+
+//   const isActiveCell = (
+//     rowIndex,
+//     colIndex
+//   ) =>
+//     selection.endRow === rowIndex &&
+//     selection.endCol === colIndex;
+
+//   const selectSingleCell = (
+//     rowIndex,
+//     colIndex
+//   ) => {
+//     setSelection({
+//       startRow: rowIndex,
+//       startCol: colIndex,
+//       endRow: rowIndex,
+//       endCol: colIndex,
+//     });
+//   };
+
+//   const extendSelection = (
+//     rowIndex,
+//     colIndex
+//   ) => {
+//     setSelection((current) => ({
+//       ...current,
+//       endRow: rowIndex,
+//       endCol: colIndex,
+//     }));
+//   };
+
+//   /* =======================================================
+//      MOUSE SELECTION
+//   ======================================================= */
+
+//   const handleCellMouseDown = (
+//     rowIndex,
+//     colIndex,
+//     event
+//   ) => {
+//     if (event.shiftKey) {
+//       extendSelection(
+//         rowIndex,
+//         colIndex
+//       );
+//     } else {
+//       selectSingleCell(
+//         rowIndex,
+//         colIndex
+//       );
+//     }
+
+//     setIsDragging(true);
+//   };
+
+//   const handleCellMouseEnter = (
+//     rowIndex,
+//     colIndex
+//   ) => {
+//     if (!isDragging) return;
+
+//     extendSelection(
+//       rowIndex,
+//       colIndex
+//     );
+//   };
+
+//   useEffect(() => {
+//     const stop = () =>
+//       setIsDragging(false);
+
+//     document.addEventListener(
+//       "mouseup",
+//       stop
+//     );
+
+//     return () =>
+//       document.removeEventListener(
+//         "mouseup",
+//         stop
+//       );
+//   }, []);
+
+//   /* =======================================================
+//      USED PRODUCTS
+//   ======================================================= */
+
+//   const usedProductIdsByRow =
+//     useMemo(
+//       () =>
+//         rows.map((_, rowIndex) => {
+//           const set = new Set();
+
+//           rows.forEach(
+//             (row, index) => {
+//               if (
+//                 index !== rowIndex &&
+//                 row?.id != null
+//               ) {
+//                 set.add(String(row.id));
+//               }
+//             }
+//           );
+
+//           return set;
+//         }),
+//       [rows]
+//     );
+
+//   /* =======================================================
+//      CLEAR
+//   ======================================================= */
+
+//   const clearSelectedCells = () => {
+//     const s =
+//       normalizeSelection(selection);
+
+//     setRows((current) =>
+//       current.map((row, rowIndex) => {
+//         if (
+//           rowIndex < s.minRow ||
+//           rowIndex > s.maxRow
+//         ) {
+//           return row;
+//         }
+
+//         let updated = {
+//           ...row,
+//         };
+
+//         for (
+//           let col = s.minCol;
+//           col <= s.maxCol;
+//           col++
+//         ) {
+//           if (col === PRODUCT_COL) {
+//             updated = {
+//               ...emptyProductData(),
+//               quantity: "",
+//             };
+//           }
+
+//           if (col === QTY_COL) {
+//             updated.quantity = "";
+//           }
+//         }
+
+//         return updated;
+//       })
+//     );
+//   };
+
+//   /* =======================================================
+//      BOUNDARY
+//   ======================================================= */
+
+//   const getBoundaryRow = (
+//     rowIndex,
+//     direction
+//   ) => {
+//     let target = rowIndex;
+
+//     if (direction === "up") {
+//       while (
+//         target > 0 &&
+//         isFilledRow(rows[target - 1])
+//       ) {
+//         target--;
+//       }
+//     }
+
+//     if (direction === "down") {
+//       while (
+//         target < rows.length - 1 &&
+//         isFilledRow(rows[target + 1])
+//       ) {
+//         target++;
+//       }
+//     }
+
+//     return target;
+//   };
+
+//   /* =======================================================
+//      KEYBOARD
+//   ======================================================= */
+
+//   const handleGridKeyDown = (
+//     rowIndex,
+//     colIndex,
+//     event
+//   ) => {
+//     const key = event.key;
+//     const ctrl =
+//       event.ctrlKey || event.metaKey;
+
+//     /* Ctrl+C / Ctrl+V are handled by grid */
+//     if (
+//       ctrl &&
+//       ["c", "C", "v", "V"].includes(key)
+//     ) {
+//       return;
+//     }
+
+//     /* Ctrl+A */
+//     if (ctrl && ["a", "A"].includes(key)) {
+//       event.preventDefault();
+
+//       setSelection({
+//         startRow: 0,
+//         startCol: PRODUCT_COL,
+//         endRow: Math.max(
+//           rows.length - 1,
+//           0
+//         ),
+//         endCol: QTY_COL,
+//       });
+
+//       return;
+//     }
+
+//     /* Delete */
+//     if (
+//       key === "Delete" ||
+//       key === "Backspace"
+//     ) {
+//       const active =
+//         document.activeElement;
+
+//       const isProduct =
+//         active?.dataset
+//           ?.sheetProductCell === "true";
+
+//       const s =
+//         normalizeSelection(selection);
+
+//       const range =
+//         s.minRow !== s.maxRow ||
+//         s.minCol !== s.maxCol;
+
+//       if (
+//         key === "Backspace" &&
+//         isProduct &&
+//         !range
+//       ) {
+//         return;
+//       }
+
+//       event.preventDefault();
+//       clearSelectedCells();
+//       return;
+//     }
+
+//     /* Ctrl + Shift + Arrow */
+//     if (ctrl && event.shiftKey) {
+//       if (
+//         key === "ArrowUp" ||
+//         key === "ArrowDown" ||
+//         key === "ArrowLeft" ||
+//         key === "ArrowRight"
+//       ) {
+//         event.preventDefault();
+
+//         let nextRow =
+//           selection.endRow;
+
+//         let nextCol =
+//           selection.endCol;
+
+//         if (key === "ArrowUp") {
+//           nextRow = getBoundaryRow(
+//             selection.endRow,
+//             "up"
+//           );
+//         }
+
+//         if (key === "ArrowDown") {
+//           nextRow = getBoundaryRow(
+//             selection.endRow,
+//             "down"
+//           );
+//         }
+
+//         if (key === "ArrowLeft") {
+//           nextCol = PRODUCT_COL;
+//         }
+
+//         if (key === "ArrowRight") {
+//           nextCol = QTY_COL;
+//         }
+
+//         extendSelection(
+//           nextRow,
+//           nextCol
+//         );
+
+//         focusCell(
+//           nextRow,
+//           nextCol,
+//           false
+//         );
+
+//         return;
+//       }
+//     }
+
+//     /* Shift + Arrow */
+//     if (
+//       event.shiftKey &&
+//       !ctrl
+//     ) {
+//       if (
+//         key === "ArrowUp" ||
+//         key === "ArrowDown" ||
+//         key === "ArrowLeft" ||
+//         key === "ArrowRight"
+//       ) {
+//         event.preventDefault();
+
+//         let nextRow =
+//           selection.endRow;
+
+//         let nextCol =
+//           selection.endCol;
+
+//         if (key === "ArrowUp") {
+//           nextRow = Math.max(
+//             0,
+//             nextRow - 1
+//           );
+//         }
+
+//         if (key === "ArrowDown") {
+//           nextRow = Math.min(
+//             rows.length - 1,
+//             nextRow + 1
+//           );
+//         }
+
+//         if (key === "ArrowLeft") {
+//           nextCol = Math.max(
+//             PRODUCT_COL,
+//             nextCol - 1
+//           );
+//         }
+
+//         if (key === "ArrowRight") {
+//           nextCol = Math.min(
+//             QTY_COL,
+//             nextCol + 1
+//           );
+//         }
+
+//         extendSelection(
+//           nextRow,
+//           nextCol
+//         );
+
+//         focusCell(
+//           nextRow,
+//           nextCol,
+//           false
+//         );
+
+//         return;
+//       }
+//     }
+
+//     /* Normal arrows */
+//     if (
+//       key === "ArrowUp" ||
+//       key === "ArrowDown" ||
+//       key === "ArrowLeft" ||
+//       key === "ArrowRight"
+//     ) {
+//       event.preventDefault();
+
+//       let nextRow = rowIndex;
+//       let nextCol = colIndex;
+
+//       if (key === "ArrowUp") {
+//         nextRow = Math.max(
+//           0,
+//           rowIndex - 1
+//         );
+//       }
+
+//       if (key === "ArrowDown") {
+//         nextRow = Math.min(
+//           rows.length - 1,
+//           rowIndex + 1
+//         );
+//       }
+
+//       if (key === "ArrowLeft") {
+//         nextCol = Math.max(
+//           PRODUCT_COL,
+//           colIndex - 1
+//         );
+//       }
+
+//       if (key === "ArrowRight") {
+//         nextCol = Math.min(
+//           QTY_COL,
+//           colIndex + 1
+//         );
+//       }
+
+//       selectSingleCell(
+//         nextRow,
+//         nextCol
+//       );
+
+//       focusCell(
+//         nextRow,
+//         nextCol
+//       );
+
+//       return;
+//     }
+
+//     /* Tab / Enter */
+//     if (
+//       key === "Tab" ||
+//       key === "Enter"
+//     ) {
+//       event.preventDefault();
+
+//       let nextRow = rowIndex;
+//       let nextCol = colIndex + 1;
+
+//       if (nextCol > QTY_COL) {
+//         nextCol = PRODUCT_COL;
+//         nextRow++;
+//       }
+
+//       if (nextRow >= rows.length) {
+//         setRows((current) => [
+//           ...current,
+//           createEmptyRow(),
+//         ]);
+//       }
+
+//       selectSingleCell(
+//         nextRow,
+//         nextCol
+//       );
+
+//       requestAnimationFrame(() =>
+//         focusCell(
+//           nextRow,
+//           nextCol
+//         )
+//       );
+//     }
+//   };
+
+//   /* =======================================================
+//      PRODUCT SELECT
+//   ======================================================= */
+
+//   const handleRowProductSelect = (
+//     index,
+//     product
+//   ) => {
+//     const productId =
+//       getProductId(product);
+
+//     if (!productId) return;
+
+//     const duplicate = rows.some(
+//       (row, rowIndex) =>
+//         rowIndex !== index &&
+//         String(row?.id) ===
+//           String(productId)
+//     );
+
+//     if (duplicate) return;
+
+//     setRows((current) => {
+//       const updated = current.map(
+//         (row) => ({ ...row })
+//       );
+
+//       updated[index] = {
+//         id: productId,
+//         product_name:
+//           product.product_name || "",
+//         cartoon_size:
+//           product.cartoon_size || "",
+//         quantity: "",
+//         price: product.price || 0,
+//         virtual_stock:
+//           product.virtual_stock || 0,
+//       };
+
+//       /* One blank row after last row */
+//       if (
+//         index ===
+//         current.length - 1
+//       ) {
+//         updated.push(
+//           createEmptyRow()
+//         );
+//       }
+
+//       return updated;
+//     });
+
+//     /*
+//       Product select -> Qty cell.
+//     */
+//     requestAnimationFrame(() => {
+//       selectSingleCell(
+//         index,
+//         QTY_COL
+//       );
+
+//       focusCell(
+//         index,
+//         QTY_COL
+//       );
+//     });
+//   };
+
+//   /* =======================================================
+//      QUANTITY
+//   ======================================================= */
+
+//   const handleQtyChange = (
+//     index,
+//     value
+//   ) => {
+//     const quantity =
+//       sanitizeQuantity(value);
+
+//     setRows((current) => {
+//       const updated = current.map(
+//         (row) => ({ ...row })
+//       );
+
+//       updated[index] = {
+//         ...updated[index],
+//         quantity,
+//       };
+
+//       return updated;
+//     });
+//   };
+
+//   /* =======================================================
+//      CLIPBOARD
+//   ======================================================= */
+
+//   const buildSelectedTSV = () => {
+//     const s =
+//       normalizeSelection(selection);
+
+//     const result = [];
+
+//     for (
+//       let row = s.minRow;
+//       row <= s.maxRow;
+//       row++
+//     ) {
+//       const values = [];
+
+//       for (
+//         let col = s.minCol;
+//         col <= s.maxCol;
+//         col++
+//       ) {
+//         values.push(
+//           col === PRODUCT_COL
+//             ? rows[row]?.product_name || ""
+//             : rows[row]?.quantity || ""
+//         );
+//       }
+
+//       result.push(values.join("\t"));
+//     }
+
+//     return result.join("\n");
+//   };
+
+//   const handleClipboardPaste = (
+//     startRow,
+//     startCol,
+//     text
+//   ) => {
+//     if (!text) return;
+
+//     const lines = String(text)
+//       .replace(/\r/g, "")
+//       .split("\n")
+//       .filter(
+//         (_, index, arr) =>
+//           index !== arr.length - 1 ||
+//           _.trim() !== ""
+//       );
+
+//     if (!lines.length) return;
+
+//     setRows((current) => {
+//       const updated = current.map(
+//         (row) => ({ ...row })
+//       );
+
+//       const needed =
+//         startRow + lines.length;
+
+//       while (
+//         updated.length < needed
+//       ) {
+//         updated.push(
+//           createEmptyRow()
+//         );
+//       }
+
+//       const usedIds = new Set();
+
+//       updated.forEach((row) => {
+//         if (row?.id) {
+//           usedIds.add(String(row.id));
+//         }
+//       });
+
+//       const pastedIds = new Set();
+
+//       lines.forEach(
+//         (line, rowOffset) => {
+//           const rowIndex =
+//             startRow + rowOffset;
+
+//           const columns =
+//             line.split("\t");
+
+//           columns.forEach(
+//             (raw, colOffset) => {
+//               const col =
+//                 startCol + colOffset;
+
+//               if (col > QTY_COL)
+//                 return;
+
+//               const value =
+//                 raw.trim();
+
+//               /* Product */
+//               if (
+//                 col === PRODUCT_COL
+//               ) {
+//                 if (!value) {
+//                   updated[rowIndex] = {
+//                     ...emptyProductData(),
+//                     quantity:
+//                       updated[rowIndex]
+//                         ?.quantity || "",
+//                   };
+
+//                   return;
+//                 }
+
+//                 const product =
+//                   allProducts.find(
+//                     (p) =>
+//                       normalize(
+//                         p.product_name
+//                       ) ===
+//                       normalize(value)
+//                   );
+
+//                 if (!product) {
+//                   updated[rowIndex] = {
+//                     ...updated[rowIndex],
+//                     product_name:
+//                       value,
+//                     id:
+//                       updated[rowIndex]
+//                         ?.id || null,
+//                   };
+
+//                   return;
+//                 }
+
+//                 const id =
+//                   getProductId(
+//                     product
+//                   );
+
+//                 if (!id) return;
+
+//                 const idKey =
+//                   String(id);
+
+//                 const duplicate =
+//                   updated.some(
+//                     (
+//                       row,
+//                       index
+//                     ) =>
+//                       index !==
+//                         rowIndex &&
+//                       String(
+//                         row?.id
+//                       ) === idKey
+//                   );
+
+//                 if (
+//                   duplicate ||
+//                   pastedIds.has(idKey)
+//                 ) {
+//                   return;
+//                 }
+
+//                 updated[rowIndex] = {
+//                   id,
+//                   product_name:
+//                     product.product_name ||
+//                     "",
+//                   cartoon_size:
+//                     product.cartoon_size ||
+//                     "",
+//                   quantity: "",
+//                   price:
+//                     product.price || 0,
+//                   virtual_stock:
+//                     product.virtual_stock ||
+//                     0,
+//                 };
+
+//                 pastedIds.add(idKey);
+//               }
+
+//               /* Quantity */
+//               if (
+//                 col === QTY_COL
+//               ) {
+//                 updated[rowIndex] = {
+//                   ...updated[rowIndex],
+//                   quantity:
+//                     sanitizeQuantity(
+//                       value
+//                     ),
+//                 };
+//               }
+//             }
+//           );
+//         }
+//       );
+
+//       /* Always keep one empty row */
+//       let lastFilled = -1;
+
+//       updated.forEach(
+//         (row, index) => {
+//           if (isFilledRow(row)) {
+//             lastFilled = index;
+//           }
+//         }
+//       );
+
+//       if (
+//         lastFilled ===
+//         updated.length - 1
+//       ) {
+//         updated.push(
+//           createEmptyRow()
+//         );
+//       }
+
+//       return updated;
+//     });
+
+//     const maxColumns = Math.max(
+//       ...lines.map(
+//         (line) =>
+//           line.split("\t").length
+//       )
+//     );
+
+//     setSelection({
+//       startRow,
+//       startCol,
+//       endRow:
+//         startRow +
+//         lines.length -
+//         1,
+//       endCol: Math.min(
+//         QTY_COL,
+//         startCol +
+//           maxColumns -
+//           1
+//       ),
+//     });
+
+//     requestAnimationFrame(() =>
+//       focusCell(
+//         startRow,
+//         startCol
+//       )
+//     );
+//   };
+
+//   const handleProductPaste = (
+//     rowIndex,
+//     event
+//   ) => {
+//     event.preventDefault();
+
+//     handleClipboardPaste(
+//       rowIndex,
+//       PRODUCT_COL,
+//       event.clipboardData.getData(
+//         "text/plain"
+//       )
+//     );
+//   };
+
+//   /* =======================================================
+//      GRID CLIPBOARD
+//   ======================================================= */
+
+//   const handleGridCopy = (event) => {
+//     const active =
+//       document.activeElement;
+
+//     if (
+//       !gridRef.current?.contains(
+//         active
+//       )
+//     ) {
+//       return;
+//     }
+
+//     const text =
+//       buildSelectedTSV();
+
+//     if (!text) return;
+
+//     event.preventDefault();
+
+//     event.clipboardData.setData(
+//       "text/plain",
+//       text
+//     );
+//   };
+
+//   const handleGridPaste = (event) => {
+//     const active =
+//       document.activeElement;
+
+//     if (
+//       !gridRef.current?.contains(
+//         active
+//       )
+//     ) {
+//       return;
+//     }
+
+//     if (
+//       active?.dataset
+//         ?.sheetProductCell === "true"
+//     ) {
+//       return;
+//     }
+
+//     event.preventDefault();
+
+//     handleClipboardPaste(
+//       selection.startRow,
+//       selection.startCol,
+//       event.clipboardData.getData(
+//         "text/plain"
+//       )
+//     );
+//   };
+
+//   /* =======================================================
+//      LOCAL STORAGE LOAD
+//   ======================================================= */
+
+//   useEffect(() => {
+//     const savedSS =
+//       localStorage.getItem(
+//         "crm_selected_ss"
+//       );
+
+//     const savedSSName =
+//       localStorage.getItem(
+//         "crm_selected_ss_name"
+//       );
+
+//     const savedProducts =
+//       localStorage.getItem(
+//         "crm_selected_products"
+//       );
+
+//     if (savedSS) {
+//       setSelectedSS(savedSS);
+//     }
+
+//     if (savedSSName) {
+//       setSelectedSSName(
+//         savedSSName
+//       );
+//     }
+
+//     if (!savedProducts) {
+//       return;
+//     }
+
+//     try {
+//       const parsed =
+//         JSON.parse(savedProducts);
+
+//       setSelectedProducts(parsed);
+
+//       const unique = [];
+//       const ids = new Set();
+
+//       parsed.forEach((product) => {
+//         const id =
+//           product?.id ??
+//           product?.product_id;
+
+//         if (!id) return;
+
+//         const key = String(id);
+
+//         if (ids.has(key)) return;
+
+//         ids.add(key);
+
+//         unique.push({
+//           id,
+//           product_name:
+//             product.product_name || "",
+//           cartoon_size:
+//             product.cartoon_size || "",
+//           quantity:
+//             product.quantity == null
+//               ? ""
+//               : String(
+//                   product.quantity
+//                 ),
+//           price:
+//             product.price || 0,
+//           virtual_stock:
+//             product.virtual_stock ||
+//             0,
+//         });
+//       });
+
+//       const loaded =
+//         createRows(
+//           Math.max(
+//             INITIAL_ROWS,
+//             unique.length + 1
+//           )
+//         );
+
+//       unique.forEach(
+//         (product, index) => {
+//           loaded[index] =
+//             product;
+//         }
+//       );
+
+//       setRows(loaded);
+//     } catch {
+//       localStorage.removeItem(
+//         "crm_selected_products"
+//       );
+//     }
+//   }, [setSelectedProducts]);
+
+//   /* =======================================================
+//      IMPORTANT:
+//      INITIAL FOCUS
+     
+//      Refresh ke baad last cell par focus nahi.
+//      Data ke baad first empty Product cell.
+//   ======================================================= */
+
+//   useEffect(() => {
+//     if (initializedFocus.current)
+//       return;
+
+//     if (!rows.length) return;
+
+//     /*
+//       Last filled row find karo.
+//     */
+//     let lastFilled = -1;
+
+//     rows.forEach(
+//       (row, index) => {
+//         if (isFilledRow(row)) {
+//           lastFilled = index;
+//         }
+//       }
+//     );
+
+//     /*
+//       Next available row.
+//       Agar koi data nahi -> row 0.
+//     */
+//     const targetRow =
+//       lastFilled + 1;
+
+//     /*
+//       Safety:
+//       Always first available empty Product cell.
+//     */
+//     const rowIndex =
+//       targetRow < rows.length
+//         ? targetRow
+//         : rows.length - 1;
+
+//     initializedFocus.current = true;
+
+//     setSelection({
+//       startRow: rowIndex,
+//       startCol: PRODUCT_COL,
+//       endRow: rowIndex,
+//       endCol: PRODUCT_COL,
+//     });
+
+//     /*
+//       Wait until DOM is ready.
+//     */
+//     requestAnimationFrame(() => {
+//       requestAnimationFrame(() => {
+//         focusCell(
+//           rowIndex,
+//           PRODUCT_COL,
+//           false
+//         );
+//       });
+//     });
+//   }, [rows]);
+
+//   /* =======================================================
+//      LOCAL STORAGE SYNC
+//   ======================================================= */
+
+//   useEffect(() => {
+//     localStorage.setItem(
+//       "crm_selected_ss",
+//       selectedSS || ""
+//     );
+
+//     localStorage.setItem(
+//       "crm_selected_ss_name",
+//       selectedSSName || ""
+//     );
+
+//     localStorage.setItem(
+//       "crm_selected_products",
+//       JSON.stringify(
+//         selectedProducts || []
+//       )
+//     );
+//   }, [
+//     selectedSS,
+//     selectedSSName,
+//     selectedProducts,
+//   ]);
+
+//   /* =======================================================
+//      ROWS -> SELECTED PRODUCTS
+//   ======================================================= */
+
+//   useEffect(() => {
+//     const validProducts = rows
+//       .filter(
+//         (row) =>
+//           row.id &&
+//           Number(row.quantity) > 0
+//       )
+//       .map((row) => ({
+//         id: row.id,
+//         product_name:
+//           row.product_name,
+//         cartoon_size:
+//           row.cartoon_size,
+//         quantity:
+//           Number(row.quantity),
+//         price:
+//           row.price || 0,
+//         virtual_stock:
+//           row.virtual_stock || 0,
+//       }));
+
+//     setSelectedProducts(
+//       validProducts
+//     );
+//   }, [
+//     rows,
+//     setSelectedProducts,
+//   ]);
+
+//   /* =======================================================
+//      TOTALS
+//   ======================================================= */
+
+//   const totalQty = useMemo(
+//     () =>
+//       rows.reduce(
+//         (sum, row) =>
+//           sum +
+//           (Number(row.quantity) ||
+//             0),
+//         0
+//       ),
+//     [rows]
+//   );
+
+//   const totalAmount = useMemo(
+//     () =>
+//       rows.reduce(
+//         (sum, row) =>
+//           sum +
+//           (Number(row.quantity) || 0) *
+//             (Number(row.price) || 0),
+//         0
+//       ),
+//     [rows]
+//   );
+
+//   const selectedCellCount =
+//     useMemo(() => {
+//       const s =
+//         normalizeSelection(
+//           selection
+//         );
+
+//       return (
+//         (s.maxRow - s.minRow + 1) *
+//         (s.maxCol - s.minCol + 1)
+//       );
+//     }, [selection]);
+
+//   const formatCurrency = (value) => {
+//     if (
+//       value == null ||
+//       value === "" ||
+//       Number.isNaN(Number(value))
+//     ) {
+//       return "--";
+//     }
+
+//     return Number(value).toFixed(1);
+//   };
+
+//   /* =======================================================
+//      ADD ROW
+//   ======================================================= */
+
+//   const addRow = () => {
+//     setRows((current) => [
+//       ...current,
+//       createEmptyRow(),
+//     ]);
+//   };
+
+//   /* =======================================================
+//      RENDER
+//   ======================================================= */
+
+//   return (
+//     <div
+//       className="
+//         min-h-screen
+//         bg-slate-50
+//         px-2
+//         sm:px-3
+//         pb-24
+//       "
+//     >
+//       <div
+//         ref={gridRef}
+//         tabIndex={-1}
+//         onCopy={handleGridCopy}
+//         onPaste={handleGridPaste}
+//         className="
+//           w-full
+//           overflow-x-auto
+//           rounded-lg
+//           border
+//           border-slate-300
+//           bg-white
+//           shadow-sm
+//           select-none
+//         "
+//       >
+//         <table
+//           className="
+//             w-full
+//             min-w-[850px]
+//             border-collapse
+//             text-xs
+//           "
+//         >
+//           <thead>
+//             <tr>
+//               <th
+//                 className="
+//                   sticky
+//                   left-0
+//                   z-20
+//                   w-10
+//                   border
+//                   border-slate-300
+//                   bg-[#eef2f6]
+//                   px-2
+//                   py-2
+//                   text-center
+//                   text-[10px]
+//                   font-semibold
+//                   text-slate-500
+//                 "
+//               >
+//                 #
+//               </th>
+
+//               <th
+//                 className="
+//                   w-[360px]
+//                   border
+//                   border-slate-300
+//                   bg-[#f7f2e9]
+//                   px-2.5
+//                   py-2
+//                   text-left
+//                   text-[10px]
+//                   font-semibold
+//                   text-slate-700
+//                 "
+//               >
+//                 Product
+//               </th>
+
+//               <th
+//                 className="
+//                   w-24
+//                   border
+//                   border-slate-300
+//                   bg-[#f7f2e9]
+//                   px-2
+//                   py-2
+//                   text-center
+//                   text-[10px]
+//                   font-semibold
+//                   text-slate-700
+//                 "
+//               >
+//                 Qty
+//               </th>
+
+//               <th
+//                 className="
+//                   w-24
+//                   border
+//                   border-slate-300
+//                   bg-[#eef2f6]
+//                   px-2
+//                   py-2
+//                   text-center
+//                   text-[10px]
+//                   font-semibold
+//                   text-slate-600
+//                 "
+//               >
+//                 Carton
+//               </th>
+
+//               <th
+//                 className="
+//                   w-24
+//                   border
+//                   border-slate-300
+//                   bg-[#eef2f6]
+//                   px-2
+//                   py-2
+//                   text-center
+//                   text-[10px]
+//                   font-semibold
+//                   text-slate-600
+//                 "
+//               >
+//                 Stock
+//               </th>
+
+//               <th
+//                 className="
+//                   w-24
+//                   border
+//                   border-slate-300
+//                   bg-[#eef2f6]
+//                   px-2
+//                   py-2
+//                   text-center
+//                   text-[10px]
+//                   font-semibold
+//                   text-slate-600
+//                 "
+//               >
+//                 Price
+//               </th>
+
+//               <th
+//                 className="
+//                   w-28
+//                   border
+//                   border-slate-300
+//                   bg-[#eef2f6]
+//                   px-2
+//                   py-2
+//                   text-center
+//                   text-[10px]
+//                   font-semibold
+//                   text-slate-600
+//                 "
+//               >
+//                 Total
+//               </th>
+//             </tr>
+//           </thead>
+
+//           <tbody>
+//             {rows.map(
+//               (row, rowIndex) => {
+//                 const productSelected =
+//                   isCellSelected(
+//                     rowIndex,
+//                     PRODUCT_COL
+//                   );
+
+//                 const qtySelected =
+//                   isCellSelected(
+//                     rowIndex,
+//                     QTY_COL
+//                   );
+
+//                 const productActive =
+//                   isActiveCell(
+//                     rowIndex,
+//                     PRODUCT_COL
+//                   );
+
+//                 const qtyActive =
+//                   isActiveCell(
+//                     rowIndex,
+//                     QTY_COL
+//                   );
+
+//                 return (
+//                   <tr
+//                     key={rowIndex}
+//                     className="
+//                       h-[35px]
+//                       hover:bg-slate-50
+//                     "
+//                   >
+//                     {/* ROW NUMBER */}
+
+//                     <td
+//                       className="
+//                         sticky
+//                         left-0
+//                         z-10
+//                         border
+//                         border-slate-300
+//                         bg-slate-50
+//                         text-center
+//                         text-[10px]
+//                         font-medium
+//                         text-slate-400
+//                       "
+//                     >
+//                       {rowIndex + 1}
+//                     </td>
+
+//                     {/* PRODUCT */}
+
+//                     <td
+//                       className={`
+//                         relative
+//                         border
+//                         border-slate-300
+//                         p-0
+//                         ${
+//                           productSelected
+//                             ? "bg-blue-50"
+//                             : "bg-white"
+//                         }
+//                         ${
+//                           productActive
+//                             ? "ring-2 ring-inset ring-blue-600"
+//                             : ""
+//                         }
+//                       `}
+//                       onMouseDown={(event) =>
+//                         handleCellMouseDown(
+//                           rowIndex,
+//                           PRODUCT_COL,
+//                           event
+//                         )
+//                       }
+//                       onMouseEnter={() =>
+//                         handleCellMouseEnter(
+//                           rowIndex,
+//                           PRODUCT_COL
+//                         )
+//                       }
+//                     >
+//                       <SheetProductCell
+//                         products={
+//                           allProducts
+//                         }
+//                         value={
+//                           row.product_name
+//                         }
+//                         currentRowProductId={
+//                           row.id
+//                         }
+//                         usedProductIds={
+//                           usedProductIdsByRow[
+//                             rowIndex
+//                           ] ||
+//                           new Set()
+//                         }
+
+//                         /*
+//                           =================================================
+//                           DROPDOWN FIX
+
+//                           Last 2 rows -> dropdown UP
+//                           Other rows  -> dropdown DOWN
+
+//                           This prevents clipping by the table/footer.
+//                           =================================================
+//                         */
+//                         dropUp={
+//                           rowIndex >=
+//                           rows.length - 2
+//                         }
+
+//                         onSelect={(product) =>
+//                           handleRowProductSelect(
+//                             rowIndex,
+//                             product
+//                           )
+//                         }
+//                         onGridKeyDown={(
+//                           event
+//                         ) =>
+//                           handleGridKeyDown(
+//                             rowIndex,
+//                             PRODUCT_COL,
+//                             event
+//                           )
+//                         }
+//                         onPaste={(event) =>
+//                           handleProductPaste(
+//                             rowIndex,
+//                             event
+//                           )
+//                         }
+//                         inputRef={(element) =>
+//                           setCellRef(
+//                             rowIndex,
+//                             PRODUCT_COL,
+//                             element
+//                           )
+//                         }
+//                       />
+//                     </td>
+
+//                     {/* QTY */}
+
+//                     <td
+//                       className={`
+//                         border
+//                         border-slate-300
+//                         p-0
+//                         ${
+//                           qtySelected
+//                             ? "bg-blue-50"
+//                             : "bg-white"
+//                         }
+//                         ${
+//                           qtyActive
+//                             ? "ring-2 ring-inset ring-blue-600"
+//                             : ""
+//                         }
+//                       `}
+//                       onMouseDown={(event) =>
+//                         handleCellMouseDown(
+//                           rowIndex,
+//                           QTY_COL,
+//                           event
+//                         )
+//                       }
+//                       onMouseEnter={() =>
+//                         handleCellMouseEnter(
+//                           rowIndex,
+//                           QTY_COL
+//                         )
+//                       }
+//                     >
+//                       <input
+//                         ref={(element) =>
+//                           setCellRef(
+//                             rowIndex,
+//                             QTY_COL,
+//                             element
+//                           )
+//                         }
+//                         type="text"
+//                         inputMode="numeric"
+//                         value={
+//                           row.quantity
+//                         }
+//                         onChange={(event) =>
+//                           handleQtyChange(
+//                             rowIndex,
+//                             event.target.value
+//                           )
+//                         }
+//                         onKeyDown={(event) =>
+//                           handleGridKeyDown(
+//                             rowIndex,
+//                             QTY_COL,
+//                             event
+//                           )
+//                         }
+//                         autoComplete="off"
+//                         className="
+//                           h-full
+//                           min-h-[34px]
+//                           w-full
+//                           border-0
+//                           bg-transparent
+//                           px-2
+//                           text-center
+//                           text-xs
+//                           text-slate-700
+//                           outline-none
+//                         "
+//                       />
+//                     </td>
+
+//                     {/* CARTON */}
+
+//                     <td
+//                       className="
+//                         border
+//                         border-slate-300
+//                         px-2
+//                         text-center
+//                         text-[10px]
+//                         text-slate-500
+//                       "
+//                     >
+//                       {row.cartoon_size ||
+//                         "--"}
+//                     </td>
+
+//                     {/* STOCK */}
+
+//                     <td
+//                       className="
+//                         border
+//                         border-slate-300
+//                         px-2
+//                         text-center
+//                         text-[10px]
+//                         text-slate-500
+//                       "
+//                     >
+//                       {row.virtual_stock ||
+//                         "--"}
+//                     </td>
+
+//                     {/* PRICE */}
+
+//                     <td
+//                       className="
+//                         border
+//                         border-slate-300
+//                         px-2
+//                         text-center
+//                         text-[10px]
+//                         text-slate-500
+//                       "
+//                     >
+//                       {formatCurrency(
+//                         row.price
+//                       )}
+//                     </td>
+
+//                     {/* TOTAL */}
+
+//                     <td
+//                       className="
+//                         border
+//                         border-slate-300
+//                         px-2
+//                         text-center
+//                         text-[10px]
+//                         font-medium
+//                         text-slate-700
+//                       "
+//                     >
+//                       {formatCurrency(
+//                         (Number(
+//                           row.price
+//                         ) || 0) *
+//                           (Number(
+//                             row.quantity
+//                           ) || 0)
+//                       )}
+//                     </td>
+//                   </tr>
+//                 );
+//               }
+//             )}
+//           </tbody>
+
+//           {/* FOOTER */}
+
+//           <tfoot>
+//             <tr>
+//               <td
+//                 colSpan={2}
+//                 className="
+//                   border
+//                   border-slate-300
+//                   bg-slate-50
+//                   px-3
+//                   py-2
+//                   text-right
+//                   text-[10px]
+//                   font-semibold
+//                   text-slate-600
+//                 "
+//               >
+//                 Total
+//               </td>
+
+//               <td
+//                 className="
+//                   border
+//                   border-slate-300
+//                   bg-slate-50
+//                   px-2
+//                   py-2
+//                   text-center
+//                   text-[10px]
+//                   font-bold
+//                   text-slate-800
+//                 "
+//               >
+//                 {totalQty}
+//               </td>
+
+//               <td
+//                 colSpan={3}
+//                 className="
+//                   border
+//                   border-slate-300
+//                   bg-slate-50
+//                   px-2
+//                   py-2
+//                   text-right
+//                   text-[10px]
+//                   font-semibold
+//                   text-slate-500
+//                 "
+//               >
+//                 Total Amount
+//               </td>
+
+//               <td
+//                 className="
+//                   border
+//                   border-slate-300
+//                   bg-slate-50
+//                   px-2
+//                   py-2
+//                   text-center
+//                   text-[10px]
+//                   font-bold
+//                   text-slate-800
+//                 "
+//               >
+//                 ₹{" "}
+//                 {formatCurrency(
+//                   totalAmount
+//                 )}
+//               </td>
+//             </tr>
+
+//             <tr>
+//               <td
+//                 colSpan={7}
+//                 className="
+//                   border
+//                   border-slate-300
+//                   bg-white
+//                   px-3
+//                   py-1.5
+//                   text-[9px]
+//                   text-slate-400
+//                 "
+//               >
+//                 {rows.length} rows ·{" "}
+//                 {selectedCellCount} selected
+//                 {" · "}
+//                 ↑↓←→ Navigate · Tab / Enter
+//                 Next · Shift + Arrow Select ·
+//                 Ctrl+C / Ctrl+V
+//               </td>
+//             </tr>
+//           </tfoot>
+//         </table>
+//       </div>
+
+    
+//     </div>
+//   );
+// }
+
+
+
 
 import {
   useState,
@@ -497,7 +2671,7 @@ function SheetProductCell({
    MAIN PAGE
 ========================================================= */
 
-export default function OrderGoogleSheet() {
+export default function OrderGoogleSheet({ orderId }) {
   const {
     data: allProducts = [],
   } = useCachedProducts();
@@ -527,6 +2701,15 @@ export default function OrderGoogleSheet() {
   const [rows, setRows] = useState(() =>
     createRows(INITIAL_ROWS)
   );
+
+  /* =======================================================
+     NEW ORDER INITIALIZATION
+     Every newly created CRM order must start clean.
+     Existing sheet functionality remains unchanged.
+  ======================================================= */
+
+  const [isInitialized, setIsInitialized] =
+    useState(false);
 
   /* =======================================================
      GRID REFS
@@ -1933,183 +4116,47 @@ export default function OrderGoogleSheet() {
   ]);
 
   /* =======================================================
-     LOCAL STORAGE LOAD
-======================================================= */
+     NEW ORDER INITIALIZATION
+  ======================================================= */
 
   useEffect(() => {
+    if (!orderId) return;
+
+    /*
+      IMPORTANT:
+      This is a NEW CRM order, so never restore product rows
+      from the previous order. Clear the shared selection first.
+    */
+    localStorage.removeItem("crm_selected_products");
+    setSelectedProducts([]);
+    setRows(createRows(INITIAL_ROWS));
+
+    /*
+      SS information belongs to the current newly-created order
+      and is still restored from the values set by the parent.
+    */
     const savedSS =
-      localStorage.getItem(
-        "crm_selected_ss"
-      );
+      localStorage.getItem("crm_selected_ss");
 
     const savedSSName =
-      localStorage.getItem(
-        "crm_selected_ss_name"
-      );
+      localStorage.getItem("crm_selected_ss_name");
 
-    const savedProducts =
-      localStorage.getItem(
-        "crm_selected_products"
-      );
+    setSelectedSS(savedSS || "");
+    setSelectedSSName(savedSSName || "");
 
-    if (savedSS) {
-      setSelectedSS(savedSS);
-    }
-
-    if (savedSSName) {
-      setSelectedSSName(
-        savedSSName
-      );
-    }
-
-    if (savedProducts) {
-      try {
-        const parsed =
-          JSON.parse(
-            savedProducts
-          );
-
-        setSelectedProducts(
-          parsed
-        );
-
-        /*
-          IMPORTANT:
-          Minimum ALWAYS 25 rows,
-          even when localStorage has products.
-        */
-
-        const requiredRows =
-          Math.max(
-            INITIAL_ROWS,
-            parsed.length + 1
-          );
-
-        const loadedRows =
-          createRows(
-            requiredRows
-          );
-
-        /*
-          Also prevent duplicate localStorage
-          products from creating duplicate rows.
-        */
-
-        const loadedIds =
-          new Set();
-
-        let targetIndex = 0;
-
-        parsed.forEach(
-          (product) => {
-            const id =
-              product.id ??
-              product.product_id;
-
-            if (!id) return;
-
-            const idKey =
-              String(id);
-
-            if (
-              loadedIds.has(
-                idKey
-              )
-            ) {
-              return;
-            }
-
-            loadedIds.add(
-              idKey
-            );
-
-            if (
-              targetIndex >=
-              loadedRows.length
-            ) {
-              loadedRows.push(
-                createEmptyRow()
-              );
-            }
-
-            loadedRows[
-              targetIndex
-            ] = {
-              id,
-
-              product_name:
-                product.product_name ||
-                "",
-
-              cartoon_size:
-                product.cartoon_size ||
-                "",
-
-              quantity:
-                product.quantity ==
-                null
-                  ? ""
-                  : String(
-                      product.quantity
-                    ),
-
-              price:
-                product.price || 0,
-
-              virtual_stock:
-                product.virtual_stock ||
-                0,
-            };
-
-            targetIndex++;
-          }
-        );
-
-        /*
-          Make sure one extra blank row
-          exists after loaded products.
-        */
-
-        if (
-          targetIndex >=
-          loadedRows.length
-        ) {
-          loadedRows.push(
-            createEmptyRow()
-          );
-        }
-
-        /*
-          Minimum remains 25.
-        */
-
-        while (
-          loadedRows.length <
-          INITIAL_ROWS
-        ) {
-          loadedRows.push(
-            createEmptyRow()
-          );
-        }
-
-        setRows(
-          loadedRows
-        );
-      } catch {
-        localStorage.removeItem(
-          "crm_selected_products"
-        );
-      }
-    }
-  }, [
-    setSelectedProducts,
-  ]);
+    /*
+      Only after the clean reset do we allow sync effects to run.
+    */
+    setIsInitialized(true);
+  }, [orderId, setSelectedProducts]);
 
   /* =======================================================
      LOCAL STORAGE SYNC
 ======================================================= */
 
   useEffect(() => {
+    if (!isInitialized) return;
+
     localStorage.setItem(
       "crm_selected_ss",
       selectedSS || ""
@@ -2127,6 +4174,7 @@ export default function OrderGoogleSheet() {
       )
     );
   }, [
+    isInitialized,
     selectedSS,
     selectedSSName,
     selectedProducts,
@@ -2137,6 +4185,8 @@ export default function OrderGoogleSheet() {
 ======================================================= */
 
   useEffect(() => {
+    if (!isInitialized) return;
+
     const validProducts =
       rows
         .filter(
@@ -2169,6 +4219,7 @@ export default function OrderGoogleSheet() {
       validProducts
     );
   }, [
+    isInitialized,
     rows,
     setSelectedProducts,
   ]);

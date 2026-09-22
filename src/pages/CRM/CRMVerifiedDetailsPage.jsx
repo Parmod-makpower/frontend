@@ -18,6 +18,7 @@ import { useVerifiedOrderDetail } from "../../hooks/useVerifiedOrderDetail";
 import CustomLoader from "../../components/CustomLoader";
 import { useCargoDetails } from "../../hooks/CRM/useCargoDetails";
 import { useGSTDetails } from "../../hooks/CRM/useGSTDetails";
+import BackButton from "../../Layout/BackButton";
 
 export default function CRMVerifiedDetailsPage() {
   const { user } = useAuth();
@@ -410,6 +411,11 @@ export default function CRMVerifiedDetailsPage() {
           gstPercentage={currentGST}
           gstAmount={gstAmount}
         />
+
+{/* Desktop Back Button */}
+<div className="hidden md:flex items-center gap-3 mb-2">
+  <BackButton />
+</div>
 
         <MobilePageHeader title={orderCode} />
 

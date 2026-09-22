@@ -5,64 +5,39 @@ import React, {
   useRef,
   useState,
 } from "react";
-
 import { useNavigate } from "react-router-dom";
 
-import { useAdminAllProducts } from "../../hooks/useAdminAllProducts";
+import { getSaleNamesByProduct } from "../../api/priceManagementApi";
 
+import { useAdminAllProducts } from "../../hooks/useAdminAllProducts";
 import {
-  useUpdateProductPrices,
   useSaveSaleName,
+  useUpdateProductPrices,
 } from "../../hooks/usePriceManagement";
 
 import PriceManagementToolbar from "../../components/PriceManagement/PriceManagementToolbar";
 import PriceManagementTable from "../../components/PriceManagement/PriceManagementTable";
 import PriceManagementCategoryTabs from "../../components/PriceManagement/PriceManagementCategoryTabs";
-import { exportPriceManagementExcel} from "../../utils/exportPriceManagementExcel";
+import { exportPriceManagementExcel } from "../../utils/exportPriceManagementExcel";
 
-const PAGE_SIZE = 12;
+const PRICE_FIELDS = [
+  "price",
+  "ds_price",
+  "dlr_price",
+];
 
-const today = () => {
-  const date = new Date();
-  return date.toISOString().slice(0, 10);
-};
-
-/* ============================================================================
- * Helpers
- * ========================================================================== */
+const today = () =>
+  new Date().toISOString().slice(0, 10);
 
 const getProductId = (product) =>
-  Number(product?.product_id ?? product?.id ?? 0);
-
-const getSaleNames = (product) => {
-  if (!Array.isArray(product?.sale_names)) {
-    return [];
-  }
-
-  return product.sale_names
-    .map((item) => {
-      if (typeof item === "string") {
-        return item.trim();
-      }
-
-      return String(
-        item?.sale_name ??
-          item?.name ??
-          item?.title ??
-          ""
-      ).trim();
-    })
-    .filter(Boolean);
-};
-
-/* -------------------------------------------------------------------------- */
-/* Sale Name helpers                                                          */
-/* -------------------------------------------------------------------------- */
+  Number(
+    product?.product_id ??
+      product?.id ??
+      0
+  );
 
 const getSaleNameText = (item) => {
-  if (item === null || item === undefined) {
-    return "";
-  }
+  if (item == null) return "";
 
   if (typeof item === "string") {
     return item.trim();
@@ -80,84 +55,93 @@ const getSaleNameText = (item) => {
   return String(item).trim();
 };
 
-const getSaleNameId = (item) => {
-  if (item && typeof item === "object") {
-    return (
-      item?.id ??
+const getSaleNames = (product) =>
+  Array.isArray(product?.sale_names)
+    ? product.sale_names
+        .map(getSaleNameText)
+        .filter(Boolean)
+    : [];
+
+const getSaleNameId = (item) =>
+  item && typeof item === "object"
+    ? item?.id ??
       item?.sale_name_id ??
       item?.pk ??
       null
-    );
-  }
+    : null;
 
-  return null;
-};
-
-const getProductSaleNameRecords = (product) => {
-  const productNames = Array.isArray(product?.sale_names)
+const getSaleRecords = (product) => {
+  const source = Array.isArray(
+    product?.sale_names
+  )
     ? product.sale_names
     : [];
 
-  const result = [];
-  const seenIds = new Set();
-  const seenNames = new Set();
+  const seen = new Set();
 
-  productNames.forEach((item) => {
+  return source.filter((item) => {
     const name = getSaleNameText(item);
 
-    if (!name) {
-      return;
-    }
+    if (!name) return false;
 
     const id = getSaleNameId(item);
 
-    if (
-      id !== null &&
-      id !== undefined &&
-      String(id).trim() !== ""
-    ) {
-      const idKey = String(id);
+    const key =
+      id != null
+        ? `id:${id}`
+        : `name:${name.toLowerCase()}`;
 
-      if (seenIds.has(idKey)) {
-        return;
-      }
+    if (seen.has(key)) return false;
 
-      seenIds.add(idKey);
-      result.push(item);
-      return;
-    }
+    seen.add(key);
 
-    const nameKey = name.toLowerCase();
-
-    if (seenNames.has(nameKey)) {
-      return;
-    }
-
-    seenNames.add(nameKey);
-    result.push(item);
+    return true;
   });
-
-  return result;
 };
 
-/* -------------------------------------------------------------------------- */
-/* Price helpers                                                              */
-/* -------------------------------------------------------------------------- */
+const getGuarantee = (product) =>
+  String(
+    product?.guarantee ??
+      product?.guarantee_period ??
+      product?.warranty ??
+      product?.warranty_period ??
+      ""
+  ).trim();
 
-const getOriginalPrice = (product) =>
-  product?.price ?? "";
+const getCarton = (product) =>
+  String(
+    product?.cartoon_size ??
+      product?.carton_size ??
+      product?.carton ??
+      ""
+  ).trim();
 
-const getOriginalDsPrice = (product) =>
-  product?.ds_price ?? "";
+const getMah = (product) =>
+  String(
+    product?.mah ??
+      product?.mAh ??
+      ""
+  ).trim();
 
-const isPriceDifferent = (
+const normalizePrice = (value) => {
+  if (value === "" || value == null) {
+    return "";
+  }
+
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? number
+    : value;
+};
+
+const priceChanged = (
   nextValue,
   originalValue
 ) => {
   if (
     nextValue === "" ||
-    nextValue === null ||
-    nextValue === undefined
+    nextValue == null
   ) {
     return (
       String(originalValue ?? "") !== ""
@@ -170,81 +154,271 @@ const isPriceDifferent = (
   );
 };
 
-const normalizePrice = (value) => {
-  if (
-    value === "" ||
-    value === null ||
-    value === undefined
+const normalizeColumnKey = (key) => {
+  const map = {
+    sku: "sku",
+    product_id: "sku",
+    category: "category",
+    sub_category: "category",
+    product: "product",
+    product_name: "product",
+    saleName: "saleName",
+    sale_names: "saleName",
+    price: "price",
+    dsPrice: "dsPrice",
+    ds_price: "dsPrice",
+    dlrPrice: "dlrPrice",
+    dlr_price: "dlrPrice",
+    guarantee: "guarantee",
+    carton: "carton",
+    mah: "mah",
+    status: "status",
+    updated: "updated",
+    last_updated: "updated",
+  };
+
+  return map[key] ?? key;
+};
+
+const TABLE_COLUMNS = [
+  {
+    key: "sku",
+    label: "ID",
+    type: "number",
+  },
+  {
+    key: "category",
+    label: "CATEGORY",
+    type: "text",
+  },
+  {
+    key: "product",
+    label: "PRODUCT",
+    type: "text",
+  },
+  {
+    key: "saleName",
+    label: "SALE NAME",
+    type: "text",
+  },
+  {
+    key: "price",
+    label: "SS PRICE",
+    type: "price",
+  },
+  {
+    key: "dsPrice",
+    label: "DS PRICE",
+    type: "price",
+  },
+  {
+    key: "dlrPrice",
+    label: "DLR PRICE",
+    type: "price",
+  },
+  {
+    key: "guarantee",
+    label: "GUARANTEE",
+    type: "text",
+  },
+  {
+    key: "carton",
+    label: "CARTON",
+    type: "number",
+  },
+  {
+    key: "mah",
+    label: "MAH",
+    type: "number",
+  },
+  {
+    key: "status",
+    label: "STATUS",
+    type: "text",
+  },
+  {
+    key: "updated",
+    label: "LAST UPDATED",
+    type: "text",
+  },
+];
+
+const DEFAULT_VISIBLE_COLUMNS =
+  Object.fromEntries(
+    TABLE_COLUMNS.map(({ key }) => [
+      key,
+      true,
+    ])
+  );
+
+const getColumnValue = (
+  product,
+  key,
+  draft = {}
+) => {
+  if (!product) return "";
+
+  switch (key) {
+    case "sku":
+      return (
+        product?.product_id ??
+        product?.id ??
+        ""
+      );
+
+    case "category":
+      return (
+        product?.sub_category ?? ""
+      );
+
+    case "product":
+      return (
+        product?.product_name ?? ""
+      );
+
+    case "saleName":
+      return getSaleNames(product).join(
+        " "
+      );
+
+    case "price":
+      return (
+        draft.new_price ??
+        product?.price ??
+        ""
+      );
+
+    case "dsPrice":
+      return (
+        draft.new_ds_price ??
+        product?.ds_price ??
+        ""
+      );
+
+    case "dlrPrice":
+      return (
+        draft.new_dlr_price ??
+        product?.dlr_price ??
+        ""
+      );
+
+    case "guarantee":
+      return getGuarantee(product);
+
+    case "carton":
+      return getCarton(product);
+
+    case "mah":
+      return getMah(product);
+
+    case "status":
+      return product?.is_active === false
+        ? "Inactive"
+        : "Active";
+
+    case "updated":
+      return (
+        product?.updated_at ??
+        product?.last_updated ??
+        ""
+      );
+
+    default:
+      return product?.[key] ?? "";
+  }
+};
+
+const cloneDrafts = (value) =>
+  JSON.parse(
+    JSON.stringify(value || {})
+  );
+
+const parseCsv = (text) => {
+  const rows = [];
+
+  let row = [];
+  let cell = "";
+  let quoted = false;
+
+  for (
+    let i = 0;
+    i < text.length;
+    i += 1
   ) {
-    return "";
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (
+      char === '"' &&
+      quoted &&
+      next === '"'
+    ) {
+      cell += '"';
+      i += 1;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (
+      char === "," &&
+      !quoted
+    ) {
+      row.push(cell.trim());
+      cell = "";
+    } else if (
+      (char === "\n" ||
+        char === "\r") &&
+      !quoted
+    ) {
+      if (
+        char === "\r" &&
+        next === "\n"
+      ) {
+        i += 1;
+      }
+
+      row.push(cell.trim());
+
+      if (row.some(Boolean)) {
+        rows.push(row);
+      }
+
+      row = [];
+      cell = "";
+    } else {
+      cell += char;
+    }
   }
 
-  const number = Number(value);
+  row.push(cell.trim());
 
-  return Number.isFinite(number)
-    ? number
-    : value;
+  if (row.some(Boolean)) {
+    rows.push(row);
+  }
+
+  if (!rows.length) {
+    return [];
+  }
+
+  const headers = rows[0].map(
+    (header) =>
+      String(header)
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "_")
+  );
+
+  return rows
+    .slice(1)
+    .map((values) =>
+      Object.fromEntries(
+        headers.map(
+          (header, index) => [
+            header,
+            values[index] ?? "",
+          ]
+        )
+      )
+    );
 };
-
-/* -------------------------------------------------------------------------- */
-/* Guarantee helper                                                           */
-/* -------------------------------------------------------------------------- */
-
-const getGuaranteeValue = (product) => {
-  return String(
-    product?.guarantee ??
-      product?.guarantee_period ??
-      product?.warranty ??
-      product?.warranty_period ??
-      ""
-  ).trim();
-};
-
-/* ============================================================================
- * Table UI key -> Product data key
- * ========================================================================== */
-
-const COLUMN_KEY_MAP = {
-  sku: "product_id",
-  product_id: "product_id",
-
-  category: "sub_category",
-  sub_category: "sub_category",
-
-  product: "product_name",
-  product_name: "product_name",
-
-  saleName: "sale_names",
-  sale_names: "sale_names",
-
-  guarantee: "guarantee",
-
-  price: "price",
-  dsPrice: "ds_price",
-  ds_price: "ds_price",
-
-  status: "status",
-
-  updated: "last_updated",
-  last_updated: "last_updated",
-};
-
-const normalizeColumnKey = (key) =>
-  COLUMN_KEY_MAP[key] ?? key;
-
-/* ============================================================================
- * CSV / Excel helper
- * ========================================================================== */
-
-const escapeCsvValue = (value) => {
-  const text = String(value ?? "");
-
-  return `"${text.replace(/"/g, '""')}"`;
-};
-
-/* ============================================================================
- * Price Management Page
- * ========================================================================== */
 
 const PriceManagementPage = () => {
   const navigate = useNavigate();
@@ -256,43 +430,14 @@ const PriceManagementPage = () => {
     refetch,
   } = useAdminAllProducts();
 
-  const updatePrices = useUpdateProductPrices();
-  const saveSaleName = useSaveSaleName();
+  const updatePrices =
+    useUpdateProductPrices();
 
-  /* ==========================================================================
-   * Base products
-   * ======================================================================== */
+  const saveSaleName =
+    useSaveSaleName();
 
-  const allProducts = useMemo(() => {
-    if (Array.isArray(allProductsData)) {
-      return allProductsData;
-    }
-
-    if (Array.isArray(allProductsData?.results)) {
-      return allProductsData.results;
-    }
-
-    return [];
-  }, [allProductsData]);
-
-  const products = useMemo(() => {
-    return allProducts.filter(
-      (product) =>
-        product?.is_active === true &&
-        !String(
-          product?.sub_category ?? ""
-        )
-          .trim()
-          .toUpperCase()
-          .startsWith("TEMPERED")
-    );
-  }, [allProducts]);
-
-  /* ==========================================================================
-   * UI state
-   * ======================================================================== */
-
-  const [search, setSearch] = useState("");
+  const [search, setSearch] =
+    useState("");
 
   const [quickFilter, setQuickFilter] =
     useState("all");
@@ -303,11 +448,9 @@ const PriceManagementPage = () => {
   ] = useState("ALL");
 
   const [sort, setSort] = useState({
-    key: "product_id",
+    key: "sku",
     direction: "asc",
   });
-
-  const [page, setPage] = useState(1);
 
   const [density, setDensity] =
     useState("compact");
@@ -315,7 +458,9 @@ const PriceManagementPage = () => {
   const [
     visibleColumns,
     setVisibleColumns,
-  ] = useState([]);
+  ] = useState(
+    DEFAULT_VISIBLE_COLUMNS
+  );
 
   const [
     columnFilters,
@@ -323,14 +468,9 @@ const PriceManagementPage = () => {
   ] = useState({});
 
   const [
-    frozenColumns,
-    setFrozenColumns,
+    selectedRows,
+    setSelectedRows,
   ] = useState([]);
-
-  const [
-    selectedProductId,
-    setSelectedProductId,
-  ] = useState(null);
 
   const [
     focusedCell,
@@ -346,59 +486,89 @@ const PriceManagementPage = () => {
   ] = useState(today());
 
   const [reason, setReason] =
-    useState("");
+    useState("Price Update");
 
   const [
     lastUpdated,
     setLastUpdated,
   ] = useState(new Date());
 
+  const [bulkOpen, setBulkOpen] =
+    useState(false);
+
+  const [bulkField, setBulkField] =
+    useState("price");
+
+  const [bulkValue, setBulkValue] =
+    useState("");
+
+  const [undoStack, setUndoStack] =
+    useState([]);
+
+  const [redoStack, setRedoStack] =
+    useState([]);
+
   const searchRef = useRef(null);
+  const importRef = useRef(null);
+  const historyEditKeyRef =
+    useRef(null);
 
-  /* ==========================================================================
-   * Selected product
-   * ======================================================================== */
-
-  const selectedProduct = useMemo(() => {
-    if (
-      selectedProductId === null ||
-      selectedProductId === undefined
-    ) {
-      return null;
+  const allProducts = useMemo(() => {
+    if (Array.isArray(allProductsData)) {
+      return allProductsData;
     }
 
-    return (
-      products.find(
-        (product) =>
-          getProductId(product) ===
-          Number(selectedProductId)
-      ) ?? null
-    );
-  }, [
-    products,
-    selectedProductId,
-  ]);
+    if (
+      Array.isArray(
+        allProductsData?.results
+      )
+    ) {
+      return allProductsData.results;
+    }
 
-  /* ==========================================================================
-   * Categories
-   * ======================================================================== */
+    return [];
+  }, [allProductsData]);
+
+  const products = useMemo(
+    () =>
+      allProducts.filter(
+        (product) =>
+          product?.is_active === true &&
+          !String(
+            product?.sub_category ?? ""
+          )
+            .trim()
+            .toUpperCase()
+            .startsWith("TEMPERED")
+      ),
+    [allProducts]
+  );
+
+  const productMap = useMemo(
+    () =>
+      new Map(
+        products.map((product) => [
+          getProductId(product),
+          product,
+        ])
+      ),
+    [products]
+  );
 
   const categories = useMemo(() => {
-    const values = new Set();
+    const set = new Set();
 
     products.forEach((product) => {
-      const category = String(
-        product?.sub_category ?? ""
-      ).trim();
-
-      values.add(
-        category || "UNCATEGORIZED"
+      set.add(
+        String(
+          product?.sub_category ?? ""
+        ).trim() ||
+          "UNCATEGORIZED"
       );
     });
 
-    return Array.from(values).sort(
-      (a, b) =>
-        a.localeCompare(b)
+    return [...set].sort((a, b) =>
+      a.localeCompare(b)
     );
   }, [products]);
 
@@ -408,433 +578,187 @@ const PriceManagementPage = () => {
     };
 
     products.forEach((product) => {
-      const category = String(
-        product?.sub_category ?? ""
-      ).trim();
+      const category =
+        String(
+          product?.sub_category ?? ""
+        ).trim() ||
+        "UNCATEGORIZED";
 
-      const key =
-        category || "UNCATEGORIZED";
-
-      counts[key] =
-        (counts[key] ?? 0) + 1;
+      counts[category] =
+        (counts[category] ?? 0) + 1;
     });
 
     return counts;
   }, [products]);
 
-  /* ==========================================================================
-   * Search
-   * ======================================================================== */
-
-  const searchFilteredProducts = useMemo(() => {
+  const filteredProducts = useMemo(() => {
     const query =
       search.trim().toLowerCase();
 
-    if (!query) {
-      return products;
-    }
+    const filterEntries =
+      Object.entries(columnFilters);
 
     return products.filter((product) => {
-      const productId = String(
-        product?.product_id ??
-          product?.id ??
-          ""
-      );
+      const productId =
+        getProductId(product);
 
-      const productName = String(
-        product?.product_name ?? ""
-      );
+      const draft =
+        drafts[productId] ?? {};
 
-      const category = String(
-        product?.sub_category ?? ""
-      );
+      if (query) {
+        const searchable = [
+          product?.product_id ?? "",
+          product?.product_name ?? "",
+          product?.sub_category ?? "",
+          getSaleNames(product).join(" "),
+          getGuarantee(product),
+          getCarton(product),
+          getMah(product),
+        ]
+          .join(" ")
+          .toLowerCase();
 
-      const saleNames =
-        getSaleNames(product).join(" ");
+        if (
+          !searchable.includes(query)
+        ) {
+          return false;
+        }
+      }
 
-      const guarantee =
-        getGuaranteeValue(product);
-
-      return [
-        productId,
-        productName,
-        category,
-        saleNames,
-        guarantee,
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(query);
-    });
-  }, [
-    products,
-    search,
-  ]);
-
-  /* ==========================================================================
-   * Category + filters
-   * ======================================================================== */
-
-  const filteredProducts = useMemo(() => {
-    let result = searchFilteredProducts;
-
-    if (selectedCategory !== "ALL") {
-      result = result.filter((product) => {
+      if (
+        selectedCategory !== "ALL"
+      ) {
         const category =
           String(
             product?.sub_category ?? ""
           ).trim() ||
           "UNCATEGORIZED";
 
-        return (
-          category === selectedCategory
-        );
-      });
-    }
-
-    if (quickFilter === "changed") {
-      result = result.filter((product) =>
-        Boolean(
-          drafts[
-            getProductId(product)
-          ]
-        )
-      );
-    }
-
-    if (quickFilter === "missing") {
-      result = result.filter(
-        (product) =>
-          getSaleNames(product)
-            .length === 0
-      );
-    }
-
-    Object.entries(
-      columnFilters
-    ).forEach(
-      ([uiKey, filterValue]) => {
         if (
-          filterValue === null ||
-          filterValue === undefined ||
-          String(filterValue).trim() === ""
+          category !==
+          selectedCategory
         ) {
-          return;
+          return false;
+        }
+      }
+
+      if (
+        quickFilter === "changed" &&
+        !Object.keys(draft).length
+      ) {
+        return false;
+      }
+
+      if (
+        quickFilter === "missing" &&
+        getSaleNames(product).length
+      ) {
+        return false;
+      }
+
+      for (
+        let index = 0;
+        index < filterEntries.length;
+        index += 1
+      ) {
+        const [
+          rawKey,
+          filterValue,
+        ] = filterEntries[index];
+
+        if (
+          filterValue == null ||
+          String(filterValue).trim() ===
+            ""
+        ) {
+          continue;
         }
 
         const key =
-          normalizeColumnKey(uiKey);
+          normalizeColumnKey(rawKey);
 
-        const selectedValues =
-          String(filterValue)
-            .split("||")
-            .map((item) =>
-              item.trim().toLowerCase()
-            )
-            .filter(Boolean);
+        const values = String(
+          filterValue
+        )
+          .split("||")
+          .map((value) =>
+            value.trim().toLowerCase()
+          )
+          .filter(Boolean);
+
+        const current = String(
+          getColumnValue(
+            product,
+            key,
+            draft
+          ) ?? ""
+        )
+          .trim()
+          .toLowerCase();
 
         if (
-          selectedValues.length === 0
+          !values.some((value) =>
+            current.includes(value)
+          )
         ) {
-          return;
+          return false;
         }
-
-        result = result.filter(
-          (product) => {
-            let value = "";
-
-            switch (key) {
-              case "product_id":
-                value = String(
-                  product?.product_id ??
-                    product?.id ??
-                    ""
-                );
-                break;
-
-              case "sub_category":
-                value = String(
-                  product?.sub_category ??
-                    ""
-                );
-                break;
-
-              case "product_name":
-                value = String(
-                  product?.product_name ??
-                    ""
-                );
-                break;
-
-              case "guarantee":
-                value =
-                  getGuaranteeValue(
-                    product
-                  );
-                break;
-
-              case "sale_names":
-                value =
-                  getSaleNames(
-                    product
-                  ).join(" ");
-                break;
-
-              case "price": {
-                const productId =
-                  getProductId(
-                    product
-                  );
-
-                const draft =
-                  drafts[productId] ??
-                  {};
-
-                value = String(
-                  draft.new_price ??
-                    product?.price ??
-                    ""
-                );
-
-                break;
-              }
-
-              case "ds_price": {
-                const productId =
-                  getProductId(
-                    product
-                  );
-
-                const draft =
-                  drafts[productId] ??
-                  {};
-
-                value = String(
-                  draft.new_ds_price ??
-                    product?.ds_price ??
-                    ""
-                );
-
-                break;
-              }
-
-              case "status":
-                value = String(
-                  product?.status ??
-                    (product?.is_active
-                      ? "Active"
-                      : "Inactive")
-                );
-                break;
-
-              case "last_updated":
-                value = String(
-                  product?.last_updated ??
-                    product?.updated_at ??
-                    ""
-                );
-                break;
-
-              default:
-                value = String(
-                  product?.[key] ?? ""
-                );
-            }
-
-            const normalizedValue =
-              value
-                .trim()
-                .toLowerCase();
-
-            return selectedValues.some(
-              (selectedValue) =>
-                normalizedValue.includes(
-                  selectedValue
-                )
-            );
-          }
-        );
       }
-    );
 
-    return result;
+      return true;
+    });
   }, [
-    searchFilteredProducts,
+    products,
+    drafts,
+    search,
     selectedCategory,
     quickFilter,
-    drafts,
     columnFilters,
   ]);
-
-  /* ==========================================================================
-   * Sorting
-   * ======================================================================== */
 
   const sortedProducts = useMemo(() => {
     const result = [
       ...filteredProducts,
     ];
 
-    const normalizedSortKey =
+    const key =
       normalizeColumnKey(sort.key);
 
-    const {
-      direction,
-    } = sort;
-
     const multiplier =
-      direction === "desc"
+      sort.direction === "desc"
         ? -1
         : 1;
 
     result.sort((a, b) => {
-      const aId = getProductId(a);
-      const bId = getProductId(b);
+      const av = getColumnValue(
+        a,
+        key,
+        drafts[getProductId(a)] ?? {}
+      );
 
-      const aDraft =
-        drafts[aId] ?? {};
+      const bv = getColumnValue(
+        b,
+        key,
+        drafts[getProductId(b)] ?? {}
+      );
 
-      const bDraft =
-        drafts[bId] ?? {};
-
-      let aValue;
-      let bValue;
-
-      if (
-        normalizedSortKey ===
-        "product_id"
-      ) {
-        aValue =
-          a?.product_id ??
-          a?.id ??
-          "";
-
-        bValue =
-          b?.product_id ??
-          b?.id ??
-          "";
-      } else if (
-        normalizedSortKey ===
-        "sub_category"
-      ) {
-        aValue =
-          a?.sub_category ?? "";
-
-        bValue =
-          b?.sub_category ?? "";
-      } else if (
-        normalizedSortKey ===
-        "product_name"
-      ) {
-        aValue =
-          a?.product_name ?? "";
-
-        bValue =
-          b?.product_name ?? "";
-      } else if (
-        normalizedSortKey ===
-        "guarantee"
-      ) {
-        aValue =
-          getGuaranteeValue(a);
-
-        bValue =
-          getGuaranteeValue(b);
-      } else if (
-        normalizedSortKey ===
-        "price"
-      ) {
-        aValue =
-          aDraft.new_price ??
-          a.price ??
-          0;
-
-        bValue =
-          bDraft.new_price ??
-          b.price ??
-          0;
-      } else if (
-        normalizedSortKey ===
-        "ds_price"
-      ) {
-        aValue =
-          aDraft.new_ds_price ??
-          a.ds_price ??
-          0;
-
-        bValue =
-          bDraft.new_ds_price ??
-          b.ds_price ??
-          0;
-      } else if (
-        normalizedSortKey ===
-        "sale_names"
-      ) {
-        aValue =
-          getSaleNames(a)[0] ??
-          "";
-
-        bValue =
-          getSaleNames(b)[0] ??
-          "";
-      } else if (
-        normalizedSortKey ===
-        "status"
-      ) {
-        aValue = String(
-          a?.status ??
-            (a?.is_active
-              ? "Active"
-              : "Inactive")
-        );
-
-        bValue = String(
-          b?.status ??
-            (b?.is_active
-              ? "Active"
-              : "Inactive")
-        );
-      } else if (
-        normalizedSortKey ===
-        "last_updated"
-      ) {
-        aValue =
-          a?.last_updated ??
-          a?.updated_at ??
-          "";
-
-        bValue =
-          b?.last_updated ??
-          b?.updated_at ??
-          "";
-      } else {
-        aValue =
-          a?.[normalizedSortKey] ??
-          "";
-
-        bValue =
-          b?.[normalizedSortKey] ??
-          "";
-      }
-
-      const aNumber = Number(aValue);
-      const bNumber = Number(bValue);
+      const an = Number(av);
+      const bn = Number(bv);
 
       if (
-        Number.isFinite(aNumber) &&
-        Number.isFinite(bNumber) &&
-        aValue !== "" &&
-        bValue !== ""
+        Number.isFinite(an) &&
+        Number.isFinite(bn) &&
+        av !== "" &&
+        bv !== ""
       ) {
         return (
-          (aNumber - bNumber) *
-          multiplier
+          (an - bn) * multiplier
         );
       }
 
       return (
-        String(aValue).localeCompare(
-          String(bValue),
+        String(av ?? "").localeCompare(
+          String(bv ?? ""),
           undefined,
           {
             numeric: true,
@@ -847,46 +771,28 @@ const PriceManagementPage = () => {
     return result;
   }, [
     filteredProducts,
-    sort,
     drafts,
+    sort,
   ]);
 
-  /* ==========================================================================
-   * Pagination
-   * ======================================================================== */
+  const selectedProduct = useMemo(() => {
+    if (!focusedCell) {
+      return null;
+    }
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(
-      sortedProducts.length /
-        PAGE_SIZE
-    )
-  );
+    return (
+      productMap.get(
+        Number(focusedCell.productId)
+      ) ?? null
+    );
+  }, [
+    focusedCell,
+    productMap,
+  ]);
 
-  const paginatedProducts =
-    useMemo(() => {
-      const start =
-        (page - 1) *
-        PAGE_SIZE;
-
-      return sortedProducts.slice(
-        start,
-        start + PAGE_SIZE
-      );
-    }, [
-      sortedProducts,
-      page,
-    ]);
-
-  /* ==========================================================================
-   * Changed items
-   * ======================================================================== */
-
-  const changedItems =
-    useMemo(() => {
-      return Object.entries(
-        drafts
-      ).map(
+  const changedItems = useMemo(
+    () =>
+      Object.entries(drafts).map(
         ([productId, draft]) => ({
           product_id:
             Number(productId),
@@ -894,13 +800,31 @@ const PriceManagementPage = () => {
             draft.new_price,
           new_ds_price:
             draft.new_ds_price,
+          new_dlr_price:
+            draft.new_dlr_price,
         })
-      );
-    }, [drafts]);
+      ),
+    [drafts]
+  );
 
-  /* ==========================================================================
-   * Price editing
-   * ======================================================================== */
+  const changedCount =
+    changedItems.length;
+
+  const pushUndoSnapshot =
+    useCallback((snapshot) => {
+      setUndoStack((current) => {
+        const next = [
+          ...current,
+          cloneDrafts(snapshot),
+        ];
+
+        return next.length > 30
+          ? next.slice(-30)
+          : next;
+      });
+
+      setRedoStack([]);
+    }, []);
 
   const handlePriceChange =
     useCallback(
@@ -909,30 +833,58 @@ const PriceManagementPage = () => {
         field,
         value
       ) => {
+        const product =
+          productMap.get(
+            Number(productId)
+          );
+
+        if (!product) {
+          return;
+        }
+
+        const fields = {
+          price: [
+            "price",
+            "new_price",
+          ],
+          ds_price: [
+            "ds_price",
+            "new_ds_price",
+          ],
+          dlr_price: [
+            "dlr_price",
+            "new_dlr_price",
+          ],
+        };
+
+        const config =
+          fields[field];
+
+        if (!config) {
+          return;
+        }
+
+        const [
+          originalField,
+          draftField,
+        ] = config;
+
         const numericValue =
           normalizePrice(value);
 
+        const editKey =
+          `${productId}:${field}`;
+
+        if (
+          historyEditKeyRef.current !==
+          editKey
+        ) {
+          pushUndoSnapshot(drafts);
+          historyEditKeyRef.current =
+            editKey;
+        }
+
         setDrafts((current) => {
-          const product =
-            products.find(
-              (item) =>
-                getProductId(item) ===
-                Number(productId)
-            );
-
-          if (!product) {
-            return current;
-          }
-
-          const original =
-            field === "price"
-              ? getOriginalPrice(
-                  product
-                )
-              : getOriginalDsPrice(
-                  product
-                );
-
           const existing =
             current[productId] ?? {};
 
@@ -940,26 +892,20 @@ const PriceManagementPage = () => {
             ...existing,
           };
 
-          const draftField =
-            field === "price"
-              ? "new_price"
-              : "new_ds_price";
-
           if (
-            !isPriceDifferent(
+            priceChanged(
               numericValue,
-              original
+              product[originalField]
             )
           ) {
-            delete next[draftField];
-          } else {
             next[draftField] =
               numericValue;
+          } else {
+            delete next[draftField];
           }
 
           if (
-            Object.keys(next)
-              .length === 0
+            !Object.keys(next).length
           ) {
             const copy = {
               ...current,
@@ -976,146 +922,101 @@ const PriceManagementPage = () => {
           };
         });
       },
-      [products]
+      [
+        productMap,
+        drafts,
+        pushUndoSnapshot,
+      ]
     );
 
-  /* ==========================================================================
-   * Focus cell
-   * ======================================================================== */
-
   const focusCell = useCallback(
-    (
-      productId,
-      field
-    ) => {
+    (payload) => {
+      if (!payload) {
+        return;
+      }
+
+      historyEditKeyRef.current =
+        null;
+
       setFocusedCell({
-        productId:
-          Number(productId),
-        field,
+        productId: Number(
+          payload.productId
+        ),
+        field: payload.field,
       });
 
       requestAnimationFrame(() => {
         const element =
           document.querySelector(
-            `[data-price-cell="${productId}-${field}"]`
+            `[data-price-cell="${payload.productId}-${payload.field}"]`
           );
 
-        if (element) {
-          element.focus();
-          element.select?.();
-        }
+        element?.focus();
+        element?.select?.();
       });
     },
     []
   );
 
-  /* ==========================================================================
-   * Formula bar value
-   * ======================================================================== */
-
-  const formulaValue =
-    useMemo(() => {
-      if (!focusedCell) {
-        return "";
-      }
-
-      const product =
-        products.find(
-          (item) =>
-            getProductId(item) ===
-            Number(
-              focusedCell.productId
-            )
-        );
-
-      if (!product) {
-        return "";
-      }
-
-      const draft =
-        drafts[
-          focusedCell.productId
-        ] ?? {};
-
-      if (
-        focusedCell.field ===
-        "price"
-      ) {
-        return (
-          draft.new_price ??
-          product.price ??
-          ""
-        );
-      }
-
-      if (
-        focusedCell.field ===
-        "ds_price"
-      ) {
-        return (
-          draft.new_ds_price ??
-          product.ds_price ??
-          ""
-        );
-      }
-
-      return "";
-    }, [
-      focusedCell,
-      products,
-      drafts,
-    ]);
-
-  const handleFormulaChange =
-    useCallback(
-      (value) => {
-        if (!focusedCell) {
-          return;
+  const handleUndo =
+    useCallback(() => {
+      setUndoStack((current) => {
+        if (!current.length) {
+          return current;
         }
 
-        handlePriceChange(
-          focusedCell.productId,
-          focusedCell.field,
-          value
+        const previous =
+          current[current.length - 1];
+
+        setRedoStack((redo) => [
+          ...redo,
+          cloneDrafts(drafts),
+        ]);
+
+        setDrafts(
+          cloneDrafts(previous)
         );
-      },
-      [
-        focusedCell,
-        handlePriceChange,
-      ]
-    );
 
-  const handleFormulaConfirm =
+        historyEditKeyRef.current =
+          null;
+
+        return current.slice(0, -1);
+      });
+    }, [drafts]);
+
+  const handleRedo =
     useCallback(() => {
-      if (!focusedCell) {
-        return;
-      }
+      setRedoStack((current) => {
+        if (!current.length) {
+          return current;
+        }
 
-      focusCell(
-        focusedCell.productId,
-        focusedCell.field
-      );
-    }, [
-      focusedCell,
-      focusCell,
-    ]);
+        const next =
+          current[current.length - 1];
 
-  /* ==========================================================================
-   * Column controls
-   * ======================================================================== */
+        setUndoStack((undo) => [
+          ...undo,
+          cloneDrafts(drafts),
+        ]);
+
+        setDrafts(
+          cloneDrafts(next)
+        );
+
+        historyEditKeyRef.current =
+          null;
+
+        return current.slice(0, -1);
+      });
+    }, [drafts]);
 
   const handleColumnSort =
     useCallback(
       (key, direction) => {
-        const normalizedKey =
-          normalizeColumnKey(key);
-
         setSort({
-          key: normalizedKey,
+          key: normalizeColumnKey(key),
           direction,
         });
-
-        setPage(1);
       },
       []
     );
@@ -1123,493 +1024,462 @@ const PriceManagementPage = () => {
   const handleColumnFilter =
     useCallback(
       (key, value) => {
-        setColumnFilters(
-          (current) => ({
-            ...current,
-            [key]: value,
-          })
-        );
-
-        setPage(1);
+        setColumnFilters((current) => ({
+          ...current,
+          [key]: value,
+        }));
       },
       []
     );
 
   const handleClearColumnFilter =
     useCallback((key) => {
-      setColumnFilters(
-        (current) => {
-          const next = {
-            ...current,
-          };
+      setColumnFilters((current) => {
+        const next = {
+          ...current,
+        };
 
-          delete next[key];
+        delete next[key];
 
-          return next;
-        }
-      );
-
-      setPage(1);
+        return next;
+      });
     }, []);
 
   const handleHideColumn =
     useCallback((key) => {
-      setVisibleColumns(
-        (current) => {
-          const existing =
-            current.length > 0
-              ? current
-              : TABLE_COLUMNS.map(
-                  (item) =>
-                    item.key
-                );
+      setVisibleColumns((current) => {
+        const visibleCount =
+          Object.values(current).filter(
+            Boolean
+          ).length;
 
-          const normalizedKey =
-            normalizeColumnKey(key);
-
-          return existing.filter(
-            (item) =>
-              normalizeColumnKey(
-                item
-              ) !== normalizedKey
-          );
+        if (visibleCount <= 1) {
+          return current;
         }
-      );
+
+        return {
+          ...current,
+          [key]: false,
+        };
+      });
     }, []);
 
-  const handleToggleColumn =
-    useCallback((key) => {
-      setVisibleColumns(
-        (current) => {
-          const allKeys =
-            TABLE_COLUMNS.map(
-              (item) =>
-                item.key
-            );
-
-          const normalizedKey =
-            normalizeColumnKey(key);
-
-          const existing =
-            current.length > 0
-              ? current
-              : allKeys;
-
-          const hasColumn =
-            existing.some(
-              (item) =>
-                normalizeColumnKey(
-                  item
-                ) ===
-                normalizedKey
-            );
-
-          if (hasColumn) {
-            if (
-              existing.length ===
-              1
-            ) {
-              return existing;
-            }
-
-            return existing.filter(
-              (item) =>
-                normalizeColumnKey(
-                  item
-                ) !==
-                normalizedKey
-            );
-          }
-
-          if (
-            allKeys.includes(
-              normalizedKey
+  const handleSelectRow =
+    useCallback(
+      (
+        productId,
+        checked
+      ) => {
+        setSelectedRows((current) => {
+          if (checked) {
+            return current.includes(
+              productId
             )
-          ) {
-            return [
-              ...existing,
-              normalizedKey,
-            ];
+              ? current
+              : [
+                  ...current,
+                  productId,
+                ];
           }
 
-          return existing;
-        }
-      );
-    }, []);
+          return current.filter(
+            (id) => id !== productId
+          );
+        });
+      },
+      []
+    );
 
-  const handleFreezeColumn =
-    useCallback((key) => {
-      const normalizedKey =
-        normalizeColumnKey(key);
+  const handleSelectAll =
+    useCallback(
+      (checked) => {
+        const ids =
+          sortedProducts.map(
+            getProductId
+          );
 
-      setFrozenColumns(
-        (current) =>
-          current.includes(
-            normalizedKey
-          )
-            ? current.filter(
-                (item) =>
-                  item !==
-                  normalizedKey
-              )
-            : [
+        const idSet = new Set(ids);
+
+        setSelectedRows((current) => {
+          if (checked) {
+            return Array.from(
+              new Set([
                 ...current,
-                normalizedKey,
-              ]
-      );
-    }, []);
+                ...ids,
+              ])
+            );
+          }
 
-  /* ==========================================================================
-   * SALE NAME
-   *
-   * Rule:
-   * - No Sale Name -> ADD / POST
-   * - Existing Sale Name with ID -> EDIT / PATCH
-   * - Existing Sale Name without ID -> POST blocked
-   *
-   * This version does NOT import getSaleNamesByProduct directly.
-   * ======================================================================== */
+          return current.filter(
+            (id) => !idSet.has(id)
+          );
+        });
+      },
+      [sortedProducts]
+    );
 
   const handleAddSaleName =
     useCallback(
       async (
-        productOrId,
+        product,
         saleName,
         saleRecord = null
       ) => {
-        let productId = null;
-        let finalSaleName =
-          saleName;
+        const productId =
+          getProductId(product);
 
-        /* ------------------------------------------------------------------ */
-        /* Resolve Product ID                                                  */
-        /* ------------------------------------------------------------------ */
+        const clean = String(
+          saleName ?? ""
+        ).trim();
+
+        if (!productId || !clean) {
+          return;
+        }
+
+        const records =
+          getSaleRecords(product);
+
+        const record =
+          saleRecord ??
+          records[0] ??
+          null;
+
+        const saleNameId =
+          record?.id ??
+          record?.sale_name_id ??
+          record?.pk ??
+          null;
 
         if (
-          productOrId !== null &&
-          productOrId !== undefined &&
-          (
-            typeof productOrId ===
-              "number" ||
-            typeof productOrId ===
-              "string"
-          )
+          saleNameId !== null &&
+          saleNameId !== undefined &&
+          String(saleNameId).trim() !==
+            ""
         ) {
-          productId =
-            Number(productOrId);
-        } else if (
-          productOrId &&
-          typeof productOrId ===
-            "object"
-        ) {
-          productId =
-            getProductId(
-              productOrId
+          await saveSaleName.mutateAsync(
+            {
+              mode: "edit",
+              product_id: productId,
+              sale_name_id: saleNameId,
+              sale_name: clean,
+            }
+          );
+
+          return;
+        }
+
+        if (!records.length) {
+          await saveSaleName.mutateAsync(
+            {
+              mode: "add",
+              product_id: productId,
+              sale_name: clean,
+            }
+          );
+
+          return;
+        }
+
+        try {
+          const freshRecords =
+            await getSaleNamesByProduct(
+              productId
             );
-        }
 
-        if (
-          finalSaleName ===
-            undefined &&
-          typeof productOrId ===
-            "string"
-        ) {
-          finalSaleName =
-            productOrId;
+          const freshRecord =
+            Array.isArray(freshRecords)
+              ? freshRecords.find(
+                  (item) => {
+                    const name =
+                      typeof item ===
+                      "string"
+                        ? item.trim()
+                        : String(
+                            item?.sale_name ??
+                              item?.name ??
+                              ""
+                          ).trim();
 
-          productId =
-            selectedProductId;
-        }
+                    return (
+                      name.toLowerCase() ===
+                      clean.toLowerCase()
+                    );
+                  }
+                ) ??
+                freshRecords[0] ??
+                null
+              : null;
 
-        if (
-          !Number.isFinite(
-            Number(productId)
-          ) ||
-          Number(productId) <= 0
-        ) {
-          productId =
-            selectedProductId;
-        }
+          const freshSaleNameId =
+            freshRecord?.id ??
+            freshRecord?.sale_name_id ??
+            freshRecord?.pk ??
+            null;
 
-        const cleanSaleName =
-          String(
-            finalSaleName ?? ""
-          ).trim();
-
-        if (
-          !Number.isFinite(
-            Number(productId)
-          ) ||
-          Number(productId) <= 0
-        ) {
-          console.warn(
-            "Sale Name skipped: Product ID missing."
-          );
-          return;
-        }
-
-        if (!cleanSaleName) {
-          return;
-        }
-
-        /* ------------------------------------------------------------------ */
-        /* Current product                                                      */
-        /* ------------------------------------------------------------------ */
-
-        const currentProduct =
-          products.find(
-            (product) =>
-              getProductId(
-                product
-              ) ===
-              Number(productId)
-          ) ??
-          (
-            selectedProduct &&
-            getProductId(
-              selectedProduct
-            ) ===
-              Number(productId)
-              ? selectedProduct
-              : null
-          );
-
-        const existingRecords =
-          getProductSaleNameRecords(
-            currentProduct
-          );
-
-        /* ------------------------------------------------------------------ */
-        /* Resolve direct Sale Name record ID                                  */
-        /* ------------------------------------------------------------------ */
-
-        let directSaleNameId =
-          getSaleNameId(
-            saleRecord
-          );
-
-        /*
-         * Agar table ne record nahi diya,
-         * product.sale_names ke object se ID lene ki koshish.
-         */
-        if (
-          directSaleNameId === null ||
-          directSaleNameId === undefined ||
-          String(
-            directSaleNameId
-          ).trim() === ""
-        ) {
           if (
-            existingRecords.length >
-            0
+            freshSaleNameId !== null &&
+            freshSaleNameId !== undefined &&
+            String(
+              freshSaleNameId
+            ).trim() !== ""
           ) {
-            directSaleNameId =
-              getSaleNameId(
-                existingRecords[0]
-              );
+            await saveSaleName.mutateAsync(
+              {
+                mode: "edit",
+                product_id: productId,
+                sale_name_id:
+                  freshSaleNameId,
+                sale_name: clean,
+              }
+            );
           }
+        } catch (error) {
+          console.error(
+            "Failed to resolve Sale Name ID:",
+            error
+          );
         }
+      },
+      [saveSaleName]
+    );
 
-        /* ------------------------------------------------------------------ */
-        /* Existing record -> PATCH                                            */
-        /* ------------------------------------------------------------------ */
-
-        if (
-          directSaleNameId !== null &&
-          directSaleNameId !== undefined &&
-          String(
-            directSaleNameId
-          ).trim() !== ""
-        ) {
-          await saveSaleName.mutateAsync({
-            mode: "edit",
-            product_id:
-              Number(productId),
-            sale_name_id:
-              directSaleNameId,
-            sale_name:
-              cleanSaleName,
-          });
-
-          return;
-        }
-
-        /* ------------------------------------------------------------------ */
-        /* Existing Sale Name but no ID -> block duplicate POST                */
-        /* ------------------------------------------------------------------ */
-
-        if (
-          existingRecords.length >
-          0
-        ) {
-          console.warn(
-            "Sale Name already exists, but Sale Name ID is unavailable. POST blocked."
+  const handleFillDown =
+    useCallback(
+      (productId, field) => {
+        const sourceIndex =
+          sortedProducts.findIndex(
+            (product) =>
+              getProductId(product) ===
+              Number(productId)
           );
 
+        if (sourceIndex < 0) {
           return;
         }
 
-        /* ------------------------------------------------------------------ */
-        /* No Sale Name -> POST                                                 */
-        /* ------------------------------------------------------------------ */
+        const sourceProduct =
+          sortedProducts[sourceIndex];
 
-        await saveSaleName.mutateAsync({
-          mode: "add",
-          product_id:
-            Number(productId),
-          sale_name:
-            cleanSaleName,
+        const sourceDraft =
+          drafts[productId] ?? {};
+
+        const draftField =
+          field === "price"
+            ? "new_price"
+            : field === "ds_price"
+              ? "new_ds_price"
+              : "new_dlr_price";
+
+        const value =
+          sourceDraft[draftField] ??
+          sourceProduct[field] ??
+          "";
+
+        pushUndoSnapshot(drafts);
+
+        setDrafts((current) => {
+          const next = {
+            ...current,
+          };
+
+          sortedProducts
+            .slice(sourceIndex + 1)
+            .forEach((product) => {
+              const id =
+                getProductId(product);
+
+              const original =
+                product[field] ?? "";
+
+              const existing = {
+                ...(next[id] ?? {}),
+              };
+
+              if (
+                priceChanged(
+                  value,
+                  original
+                )
+              ) {
+                existing[draftField] =
+                  normalizePrice(value);
+              } else {
+                delete existing[draftField];
+              }
+
+              if (
+                Object.keys(existing)
+                  .length
+              ) {
+                next[id] = existing;
+              } else {
+                delete next[id];
+              }
+            });
+
+          return next;
         });
       },
       [
-        products,
-        selectedProduct,
-        selectedProductId,
-        saveSaleName,
+        sortedProducts,
+        drafts,
+        pushUndoSnapshot,
       ]
     );
 
-  /* ==========================================================================
-   * Product selection
-   * ======================================================================== */
-
-  const handleProductSelect =
-    useCallback((product) => {
-      if (!product) {
-        setSelectedProductId(null);
-        return;
-      }
-
-      setSelectedProductId(
-        getProductId(product)
-      );
-    }, []);
-
-  /* ==========================================================================
-   * Product history
-   * ======================================================================== */
-
-  const handleViewProductHistory =
-    useCallback(() => {
-      if (!selectedProduct) {
-        return;
-      }
-
-      const productId =
-        getProductId(
-          selectedProduct
-        );
-
-      if (
-        !Number.isFinite(productId) ||
-        productId <= 0
-      ) {
-        return;
-      }
-
-      navigate(
-        `/price-history?product_id=${productId}`
-      );
-    }, [
-      selectedProduct,
-      navigate,
-    ]);
-
-  /* ==========================================================================
-   * Copy SKU
-   * ======================================================================== */
-
-  const handleCopySku =
-    useCallback(async (sku) => {
-      const value = String(
-        sku ?? ""
-      ).trim();
-
-      if (!value) {
-        return;
-      }
-
-      try {
-        if (
-          navigator.clipboard?.writeText
-        ) {
-          await navigator.clipboard.writeText(
-            value
+  const handlePaste =
+    useCallback(
+      ({
+        productId,
+        field,
+        rows,
+      }) => {
+        const startIndex =
+          sortedProducts.findIndex(
+            (product) =>
+              getProductId(product) ===
+              Number(productId)
           );
 
+        const startField =
+          PRICE_FIELDS.indexOf(field);
+
+        if (
+          startIndex < 0 ||
+          startField < 0 ||
+          !rows?.length
+        ) {
           return;
         }
 
-        const textarea =
-          document.createElement(
-            "textarea"
+        pushUndoSnapshot(drafts);
+
+        setDrafts((current) => {
+          const next = {
+            ...current,
+          };
+
+          rows.forEach(
+            (row, rowOffset) => {
+              const product =
+                sortedProducts[
+                  startIndex + rowOffset
+                ];
+
+              if (!product) {
+                return;
+              }
+
+              row.forEach(
+                (
+                  rawValue,
+                  columnOffset
+                ) => {
+                  const priceField =
+                    PRICE_FIELDS[
+                      startField +
+                        columnOffset
+                    ];
+
+                  if (
+                    !priceField ||
+                    String(
+                      rawValue
+                    ).trim() === ""
+                  ) {
+                    return;
+                  }
+
+                  const value =
+                    normalizePrice(
+                      String(
+                        rawValue
+                      ).trim()
+                    );
+
+                  if (value === "") {
+                    return;
+                  }
+
+                  const id =
+                    getProductId(
+                      product
+                    );
+
+                  const draft = {
+                    ...(next[id] ?? {}),
+                  };
+
+                  const draftField =
+                    priceField ===
+                    "price"
+                      ? "new_price"
+                      : priceField ===
+                          "ds_price"
+                        ? "new_ds_price"
+                        : "new_dlr_price";
+
+                  if (
+                    priceChanged(
+                      value,
+                      product[
+                        priceField
+                      ] ?? ""
+                    )
+                  ) {
+                    draft[draftField] =
+                      value;
+                  } else {
+                    delete draft[
+                      draftField
+                    ];
+                  }
+
+                  if (
+                    Object.keys(draft)
+                      .length
+                  ) {
+                    next[id] = draft;
+                  } else {
+                    delete next[id];
+                  }
+                }
+              );
+            }
           );
 
-        textarea.value = value;
-        textarea.style.position =
-          "fixed";
-        textarea.style.opacity =
-          "0";
+          return next;
+        });
+      },
+      [
+        sortedProducts,
+        drafts,
+        pushUndoSnapshot,
+      ]
+    );
 
-        document.body.appendChild(
-          textarea
-        );
-
-        textarea.focus();
-        textarea.select();
-
-        document.execCommand(
-          "copy"
-        );
-
-        textarea.remove();
-      } catch (error) {
-        console.error(
-          "Failed to copy SKU:",
-          error
-        );
-      }
-    }, []);
-
-  /* ==========================================================================
-   * EXPORT
-   *
-   * CSV file Excel mein directly open hoti hai.
-   * Current filtered products export honge.
-   * ======================================================================== */
-
-const handleExportProduct = useCallback(() => {
-  exportPriceManagementExcel(sortedProducts);
-}, [sortedProducts]);
-
-  /* ==========================================================================
-   * Save prices
-   * ======================================================================== */
-
-  const saveChanges =
+  const handleSave =
     useCallback(async () => {
-      if (
-        changedItems.length ===
-        0
-      ) {
+      if (!changedItems.length) {
         return;
       }
 
       await updatePrices.mutateAsync({
         applicable_from:
           applicableFrom,
-        reason:
-          reason.trim(),
-        items:
-          changedItems,
+        reason: reason.trim(),
+        items: changedItems,
       });
 
       setDrafts({});
+      setUndoStack([]);
+      setRedoStack([]);
+      setSelectedRows([]);
       setFocusedCell(null);
 
-      setLastUpdated(
-        new Date()
-      );
+      historyEditKeyRef.current = null;
+
+      setLastUpdated(new Date());
     }, [
       changedItems,
       applicableFrom,
@@ -1617,195 +1487,393 @@ const handleExportProduct = useCallback(() => {
       updatePrices,
     ]);
 
-  /* ==========================================================================
-   * Refresh
-   * ======================================================================== */
-
   const handleRefresh =
     useCallback(async () => {
       await refetch();
-
-      setLastUpdated(
-        new Date()
-      );
+      setLastUpdated(new Date());
     }, [refetch]);
 
-  /* ==========================================================================
-   * Keyboard shortcuts
-   * ======================================================================== */
+  const handleExport =
+    useCallback(() => {
+      exportPriceManagementExcel(
+        sortedProducts
+      );
+    }, [sortedProducts]);
 
-  useEffect(() => {
-    const handleKeyDown =
-      (event) => {
-        if (
-          (event.ctrlKey ||
-            event.metaKey) &&
-          event.key.toLowerCase() ===
-            "k"
-        ) {
-          event.preventDefault();
+  const handleImportClick =
+    useCallback(() => {
+      importRef.current?.click();
+    }, []);
 
-          searchRef.current?.focus();
-          searchRef.current?.select();
+  const handleImport =
+    useCallback(
+      async (event) => {
+        const file =
+          event.target.files?.[0];
+
+        event.target.value = "";
+
+        if (!file) {
+          return;
         }
 
-        if (
-          (event.ctrlKey ||
-            event.metaKey) &&
-          event.key.toLowerCase() ===
-            "s"
-        ) {
-          event.preventDefault();
+        const rows = parseCsv(
+          await file.text()
+        );
+
+        if (!rows.length) {
+          return;
+        }
+
+        const byId = new Map(
+          products.map((product) => [
+            String(
+              getProductId(product)
+            ),
+            product,
+          ])
+        );
+
+        const before =
+          cloneDrafts(drafts);
+
+        const nextDrafts = {
+          ...drafts,
+        };
+
+        let imported = 0;
+
+        rows.forEach((row) => {
+          const id =
+            row.product_id ||
+            row.productid ||
+            row.id ||
+            row.sku;
+
+          const product =
+            byId.get(
+              String(id ?? "").trim()
+            );
+
+          if (!product) {
+            return;
+          }
+
+          const productId =
+            getProductId(product);
+
+          const next = {
+            ...(nextDrafts[productId] ??
+              {}),
+          };
+
+          const price =
+            row.new_price ??
+            row.price ??
+            row.ss_price;
+
+          const dsPrice =
+            row.new_ds_price ??
+            row.ds_price;
+
+          const dlrPrice =
+            row.new_dlr_price ??
+            row.dlr_price;
 
           if (
-            changedItems.length > 0 &&
-            !updatePrices.isPending
+            price !== undefined &&
+            price !== ""
           ) {
-            saveChanges();
+            next.new_price =
+              normalizePrice(price);
           }
+
+          if (
+            dsPrice !== undefined &&
+            dsPrice !== ""
+          ) {
+            next.new_ds_price =
+              normalizePrice(dsPrice);
+          }
+
+          if (
+            dlrPrice !== undefined &&
+            dlrPrice !== ""
+          ) {
+            next.new_dlr_price =
+              normalizePrice(dlrPrice);
+          }
+
+          if (
+            Object.keys(next).length
+          ) {
+            nextDrafts[productId] =
+              next;
+
+            imported += 1;
+          }
+        });
+
+        if (!imported) {
+          return;
         }
-      };
+
+        setUndoStack((current) => [
+          ...current.slice(-29),
+          before,
+        ]);
+
+        setRedoStack([]);
+        setDrafts(nextDrafts);
+      },
+      [products, drafts]
+    );
+
+  const handleBulkApply =
+    useCallback(() => {
+      if (
+        !selectedRows.length ||
+        bulkValue === ""
+      ) {
+        setBulkOpen(false);
+        return;
+      }
+
+      const config = {
+        price: [
+          "price",
+          "new_price",
+        ],
+        dsPrice: [
+          "ds_price",
+          "new_ds_price",
+        ],
+        dlrPrice: [
+          "dlr_price",
+          "new_dlr_price",
+        ],
+      }[bulkField];
+
+      if (!config) {
+        return;
+      }
+
+      const [
+        originalField,
+        draftField,
+      ] = config;
+
+      const numeric =
+        normalizePrice(bulkValue);
+
+      pushUndoSnapshot(drafts);
+
+      setDrafts((current) => {
+        const next = {
+          ...current,
+        };
+
+        selectedRows.forEach(
+          (productId) => {
+            const product =
+              productMap.get(
+                Number(productId)
+              );
+
+            if (!product) {
+              return;
+            }
+
+            const draft = {
+              ...(next[productId] ??
+                {}),
+            };
+
+            if (
+              priceChanged(
+                numeric,
+                product[
+                  originalField
+                ]
+              )
+            ) {
+              draft[draftField] =
+                numeric;
+            } else {
+              delete draft[draftField];
+            }
+
+            if (
+              Object.keys(draft).length
+            ) {
+              next[productId] =
+                draft;
+            } else {
+              delete next[productId];
+            }
+          }
+        );
+
+        return next;
+      });
+
+      setBulkValue("");
+      setBulkOpen(false);
+    }, [
+      selectedRows,
+      bulkValue,
+      bulkField,
+      productMap,
+      drafts,
+      pushUndoSnapshot,
+    ]);
+
+  const handleRowAction =
+    useCallback(
+      (product, action) => {
+        const id =
+          getProductId(product);
+
+        if (action === "copy") {
+          navigator.clipboard?.writeText(
+            String(id)
+          );
+
+          return;
+        }
+
+        if (action === "history") {
+          navigate(
+            `/price-history?product_id=${id}`
+          );
+
+          return;
+        }
+
+        if (action === "sale") {
+          focusCell({
+            productId: id,
+            field: "price",
+          });
+
+          requestAnimationFrame(() => {
+            document
+              .querySelector(
+                `[data-sale-name-edit="${id}"]`
+              )
+              ?.click();
+          });
+        }
+      },
+      [navigate, focusCell]
+    );
+
+  useEffect(() => {
+    const handler = (event) => {
+      const modifier =
+        event.ctrlKey ||
+        event.metaKey;
+
+      const key =
+        event.key.toLowerCase();
+
+      if (
+        modifier &&
+        key === "k"
+      ) {
+        event.preventDefault();
+
+        searchRef.current?.focus();
+        searchRef.current?.select();
+      }
+
+      if (
+        modifier &&
+        key === "s" &&
+        changedCount &&
+        !updatePrices.isPending
+      ) {
+        event.preventDefault();
+        handleSave();
+      }
+    };
 
     document.addEventListener(
       "keydown",
-      handleKeyDown
+      handler
     );
 
     return () =>
       document.removeEventListener(
         "keydown",
-        handleKeyDown
+        handler
       );
   }, [
-    changedItems.length,
+    changedCount,
+    handleSave,
     updatePrices.isPending,
-    saveChanges,
   ]);
 
-  /* ==========================================================================
-   * Reset page
-   * ======================================================================== */
+  const selectedRowSet = useMemo(
+    () => new Set(selectedRows),
+    [selectedRows]
+  );
 
-  useEffect(() => {
-    setPage(1);
-  }, [
-    search,
-    quickFilter,
-    selectedCategory,
-    columnFilters,
-  ]);
-
-  const changedCount =
-    changedItems.length;
-
-  /* ==========================================================================
-   * Render
-   * ======================================================================== */
+  const allPageSelected =
+    sortedProducts.length > 0 &&
+    sortedProducts.every((product) =>
+      selectedRowSet.has(
+        getProductId(product)
+      )
+    );
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-gray-50">
-      {/* ================================================================== */}
-      {/* Header                                                             */}
-      {/* ================================================================== */}
-
-      <div className="shrink-0 border-b border-gray-200 bg-white">
-        <div className="flex h-[58px] items-center justify-between px-5">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-[16px] font-semibold text-gray-800">
-                Price Management
-              </h1>
-
-              <span className="text-[10px] text-gray-400">
-                {products.length.toLocaleString(
-                  "en-IN"
-                )}{" "}
-                products
-              </span>
-
-              {changedCount > 0 && (
-                <span className="bg-blue-50 px-2 py-1 text-[9px] font-semibold text-blue-600">
-                  {changedCount} changed
-                </span>
-              )}
-            </div>
-
-            <div className="mt-0.5 text-[10px] text-gray-400">
-              Manage SS & DS prices
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2">
-              <span className="text-[10px] text-gray-400">
-                Applicable from
-              </span>
-
-              <input
-                type="date"
-                value={
-                  applicableFrom
-                }
-                onChange={(event) =>
-                  setApplicableFrom(
-                    event.target.value
-                  )
-                }
-                className="h-[30px] border border-gray-200 bg-white px-2 text-[10px] text-gray-600 outline-none focus:border-blue-400"
-              />
-            </label>
-
-            <label className="hidden items-center gap-2 xl:flex">
-              <span className="text-[10px] text-gray-400">
-                Reason
-              </span>
-
-              <input
-                value={reason}
-                onChange={(event) =>
-                  setReason(
-                    event.target.value
-                  )
-                }
-                placeholder="Optional"
-                className="h-[30px] w-[150px] border border-gray-200 bg-white px-2 text-[10px] outline-none focus:border-blue-400"
-              />
-            </label>
-          </div>
-        </div>
-
+    <div
+      className="
+        flex
+        h-full
+        min-h-0
+        w-full
+        flex-col
+        overflow-hidden
+        bg-[#f8fafc]
+        text-slate-800
+      "
+    >
+      <section
+        className="
+          relative
+          z-30
+          shrink-0
+          overflow-visible
+          border-b
+          border-slate-200
+          bg-white
+        "
+      >
         <PriceManagementToolbar
+          title="Price Management"
+          subtitle="Manage SS & DS prices"
           search={search}
-          onSearchChange={
-            setSearch
-          }
-          quickFilter={
-            quickFilter
-          }
+          onSearchChange={setSearch}
+          quickFilter={quickFilter}
           onQuickFilterChange={
             setQuickFilter
           }
-          changedCount={
-            changedCount
-          }
+          changedCount={changedCount}
           totalCount={
             filteredProducts.length
           }
-          columns={
-            TABLE_COLUMNS
-          }
-          visibleColumns={
-            visibleColumns
-          }
-          onToggleColumn={
-            handleToggleColumn
-          }
           density={density}
-          onDensityChange={
-            setDensity
+          onDensityChange={setDensity}
+          onRefresh={handleRefresh}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          canUndo={
+            undoStack.length > 0
           }
-          onRefresh={
-            handleRefresh
+          canRedo={
+            redoStack.length > 0
           }
           saving={
             updatePrices.isPending
@@ -1813,245 +1881,313 @@ const handleExportProduct = useCallback(() => {
           hasChanges={
             changedCount > 0
           }
-          onSave={
-            saveChanges
-          }
-          lastUpdated={
-            lastUpdated
-          }
+          onSave={handleSave}
+          lastUpdated={lastUpdated}
           syncStatus={
             updatePrices.isPending
               ? "saving"
-              : "saved"
+              : changedCount > 0
+                ? "unsaved"
+                : "saved"
           }
-          searchInputRef={
-            searchRef
+          searchInputRef={searchRef}
+          onImport={
+            handleImportClick
           }
+          onExport={handleExport}
+          onBulkEdit={() =>
+            setBulkOpen(true)
+          }
+          selectedCount={
+            selectedRows.length
+          }
+          applicableFrom={
+            applicableFrom
+          }
+          onApplicableFromChange={
+            setApplicableFrom
+          }
+          reason={reason}
+          onReasonChange={setReason}
+        />
+      </section>
 
-          /* Extra supported actions */
-          onExport={
-            handleExportProduct
+      <main
+        className="
+          relative
+          min-h-0
+          flex-1
+          overflow-hidden
+          px-2
+          pb-0
+          pt-1.5
+        "
+      >
+        <div
+          className="
+            h-full
+            min-h-0
+            w-full
+            overflow-hidden
+          "
+        >
+          <PriceManagementTable
+            products={sortedProducts}
+            allProducts={products}
+            drafts={drafts}
+            onPriceChange={
+              handlePriceChange
+            }
+            onSaleNameChange={
+              handleAddSaleName
+            }
+            onFillDown={
+              handleFillDown
+            }
+            onPaste={handlePaste}
+            onFocusCell={focusCell}
+            columnFilters={
+              columnFilters
+            }
+            selectedRows={
+              selectedRows
+            }
+            onSelectRow={
+              handleSelectRow
+            }
+            onSelectAll={
+              handleSelectAll
+            }
+            allPageSelected={
+              allPageSelected
+            }
+            onRowAction={
+              handleRowAction
+            }
+            onColumnSort={
+              handleColumnSort
+            }
+            onColumnFilter={
+              handleColumnFilter
+            }
+            onClearColumnFilter={
+              handleClearColumnFilter
+            }
+            onHideColumn={
+              handleHideColumn
+            }
+            sort={sort}
+            visibleColumns={
+              visibleColumns
+            }
+            density={density}
+            isLoading={isLoading}
+            isFetching={isFetching}
+          />
+        </div>
+      </main>
+
+      <div className="min-h-0 w-full">
+        <PriceManagementCategoryTabs
+          categories={categories}
+          selectedCategory={
+            selectedCategory
           }
-          onCopySku={
-            handleCopySku
+          onCategoryChange={
+            setSelectedCategory
+          }
+          categoryCounts={
+            categoryCounts
           }
         />
       </div>
 
-      {/* ================================================================== */}
-      {/* Main                                                               */}
-      {/* ================================================================== */}
+      <input
+        ref={importRef}
+        type="file"
+        accept=".csv,text/csv"
+        className="hidden"
+        onChange={handleImport}
+      />
 
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="min-h-0 flex-1 overflow-hidden">
-            <PriceManagementTable
-              products={
-                paginatedProducts
-              }
-              allProducts={
-                products
-              }
-              drafts={drafts}
-              onPriceChange={
-                handlePriceChange
-              }
-              focusedCell={
-                focusedCell
-              }
-              onFocusCell={
-                focusCell
-              }
-              onProductSelect={
-                handleProductSelect
-              }
-              selectedProduct={
-                selectedProduct
-              }
-              density={density}
-              visibleColumns={
-                visibleColumns
-              }
-              columnFilters={
-                columnFilters
-              }
-              frozenColumns={
-                frozenColumns
-              }
-              sort={sort}
-              onColumnSort={
-                handleColumnSort
-              }
-              onColumnFilter={
-                handleColumnFilter
-              }
-              onClearColumnFilter={
-                handleClearColumnFilter
-              }
-              onHideColumn={
-                handleHideColumn
-              }
-              onFreezeColumn={
-                handleFreezeColumn
-              }
-              onSaleNameChange={
-                handleAddSaleName
-              }
-              isLoading={
-                isLoading
-              }
-              isFetching={
-                isFetching
-              }
-            />
+      {bulkOpen && (
+        <div
+          className="
+            fixed
+            inset-0
+            z-[200]
+            flex
+            items-center
+            justify-center
+            bg-slate-900/25
+            p-4
+            backdrop-blur-[2px]
+          "
+        >
+          <div
+            className="
+              w-full
+              max-w-md
+              rounded-2xl
+              border
+              border-slate-200
+              bg-white
+              p-5
+              shadow-2xl
+            "
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-[16px] font-bold text-slate-900">
+                  Bulk Edit
+                </h2>
+
+                <p className="mt-1 text-[11px] text-slate-500">
+                  Update{" "}
+                  {selectedRows.length}{" "}
+                  selected product
+                  {selectedRows.length ===
+                  1
+                    ? ""
+                    : "s"}
+                  .
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setBulkOpen(false)
+                }
+                className="
+                  text-xl
+                  text-slate-400
+                  transition
+                  hover:text-slate-700
+                "
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <label className="text-[11px] font-semibold text-slate-600">
+                Price field
+
+                <select
+                  value={bulkField}
+                  onChange={(event) =>
+                    setBulkField(
+                      event.target.value
+                    )
+                  }
+                  className="
+                    mt-1
+                    h-10
+                    w-full
+                    rounded-lg
+                    border
+                    border-slate-200
+                    px-3
+                    text-[12px]
+                    outline-none
+                    focus:border-blue-400
+                  "
+                >
+                  <option value="price">
+                    SS Price
+                  </option>
+
+                  <option value="dsPrice">
+                    DS Price
+                  </option>
+
+                  <option value="dlrPrice">
+                    DLR Price
+                  </option>
+                </select>
+              </label>
+
+              <label className="text-[11px] font-semibold text-slate-600">
+                New value
+
+                <input
+                  value={bulkValue}
+                  onChange={(event) =>
+                    setBulkValue(
+                      event.target.value
+                    )
+                  }
+                  inputMode="decimal"
+                  placeholder="e.g. 199"
+                  className="
+                    mt-1
+                    h-10
+                    w-full
+                    rounded-lg
+                    border
+                    border-slate-200
+                    px-3
+                    text-[12px]
+                    outline-none
+                    focus:border-blue-400
+                  "
+                />
+              </label>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setBulkOpen(false)
+                }
+                className="
+                  h-9
+                  rounded-lg
+                  border
+                  border-slate-200
+                  px-4
+                  text-[11px]
+                  font-semibold
+                  text-slate-600
+                  transition
+                  hover:bg-slate-50
+                "
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={
+                  !selectedRows.length ||
+                  bulkValue === ""
+                }
+                onClick={
+                  handleBulkApply
+                }
+                className="
+                  h-9
+                  rounded-lg
+                  bg-blue-600
+                  px-4
+                  text-[11px]
+                  font-semibold
+                  text-white
+                  transition
+                  hover:bg-blue-700
+                  disabled:opacity-40
+                "
+              >
+                Apply Changes
+              </button>
+            </div>
           </div>
-
-          {/* ============================================================ */}
-          {/* Category Tabs                                                 */}
-          {/* ============================================================ */}
-
-          <PriceManagementCategoryTabs
-            categories={
-              categories
-            }
-            selectedCategory={
-              selectedCategory
-            }
-            onCategoryChange={(
-              category
-            ) => {
-              setSelectedCategory(
-                category
-              );
-
-              setPage(1);
-            }}
-            categoryCounts={
-              categoryCounts
-            }
-          />
         </div>
-      </div>
-
-      {/* ================================================================== */}
-      {/* Bottom Pagination                                                  */}
-      {/* ================================================================== */}
-
-      <div className="flex h-[38px] shrink-0 items-center justify-between border-t border-gray-200 bg-white px-4">
-        <span className="text-[10px] text-gray-400">
-          Showing{" "}
-          {sortedProducts.length ===
-          0
-            ? 0
-            : (page - 1) *
-                PAGE_SIZE +
-              1}{" "}
-          –{" "}
-          {Math.min(
-            page * PAGE_SIZE,
-            sortedProducts.length
-          )}{" "}
-          of{" "}
-          {sortedProducts.length}
-        </span>
-
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() =>
-              setPage(
-                (current) =>
-                  Math.max(
-                    1,
-                    current - 1
-                  )
-              )
-            }
-            className="flex h-[26px] w-[26px] items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30"
-          >
-            ‹
-          </button>
-
-          <span className="px-2 text-[10px] text-gray-500">
-            {page} /{" "}
-            {totalPages}
-          </span>
-
-          <button
-            type="button"
-            disabled={
-              page >= totalPages
-            }
-            onClick={() =>
-              setPage(
-                (current) =>
-                  Math.min(
-                    totalPages,
-                    current + 1
-                  )
-              )
-            }
-            className="flex h-[26px] w-[26px] items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30"
-          >
-            ›
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
-
-/* ============================================================================
- * Table Columns
- * ========================================================================== */
-
-const TABLE_COLUMNS = [
-  {
-    key: "product_id",
-    label: "SKU",
-    type: "number",
-  },
-  {
-    key: "sub_category",
-    label: "Category",
-    type: "text",
-  },
-  {
-    key: "product_name",
-    label: "Product",
-    type: "text",
-  },
-  {
-    key: "guarantee",
-    label: "Guarantee",
-    type: "text",
-  },
-  {
-    key: "sale_names",
-    label: "Sale Name",
-    type: "text",
-  },
-  {
-    key: "price",
-    label: "SS Price",
-    type: "price",
-  },
-  {
-    key: "ds_price",
-    label: "DS Price",
-    type: "price",
-  },
-  {
-    key: "status",
-    label: "Status",
-    type: "text",
-  },
-  {
-    key: "last_updated",
-    label: "Last Updated",
-    type: "text",
-  },
-];
 
 export default PriceManagementPage;

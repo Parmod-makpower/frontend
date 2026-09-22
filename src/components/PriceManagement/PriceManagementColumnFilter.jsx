@@ -1,25 +1,23 @@
 import React, {
   memo,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 
-/* =========================================================
-   ICONS
-========================================================= */
-
-const FilterIcon = ({ size = 16 }) => (
+const FilterIcon = ({ size = 14 }) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="1.8"
+    strokeWidth="1.9"
     strokeLinecap="round"
     strokeLinejoin="round"
+    aria-hidden="true"
   >
     <path d="M4 5h16" />
     <path d="M7 12h10" />
@@ -27,7 +25,7 @@ const FilterIcon = ({ size = 16 }) => (
   </svg>
 );
 
-const SearchIcon = ({ size = 16 }) => (
+const SearchIcon = ({ size = 14 }) => (
   <svg
     width={size}
     height={size}
@@ -37,68 +35,58 @@ const SearchIcon = ({ size = 16 }) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    aria-hidden="true"
   >
     <circle cx="11" cy="11" r="7" />
     <path d="m20 20-3.5-3.5" />
   </svg>
 );
 
-const CheckIcon = ({ size = 13 }) => (
+const CheckIcon = ({ size = 11 }) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2.5"
+    strokeWidth="2.8"
     strokeLinecap="round"
     strokeLinejoin="round"
+    aria-hidden="true"
   >
     <path d="m5 12 4 4L19 6" />
   </svg>
 );
 
-const SortAscIcon = () => (
+const SortIcon = ({ desc = false }) => (
   <svg
-    width="16"
-    height="16"
+    width="14"
+    height="14"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth="1.8"
     strokeLinecap="round"
     strokeLinejoin="round"
+    aria-hidden="true"
   >
-    <path d="M8 17V5" />
-    <path d="m4 9 4-4 4 4" />
+    {desc ? (
+      <>
+        <path d="M8 5v14" />
+        <path d="m4 15 4 4 4-4" />
+      </>
+    ) : (
+      <>
+        <path d="M8 19V5" />
+        <path d="m4 9 4-4 4 4" />
+      </>
+    )}
+
     <path d="M14 7h6" />
     <path d="M14 12h4" />
     <path d="M14 17h2" />
   </svg>
 );
-
-const SortDescIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M8 7v12" />
-    <path d="m4 15 4 4 4-4" />
-    <path d="M14 7h6" />
-    <path d="M14 12h4" />
-    <path d="M14 17h2" />
-  </svg>
-);
-
-/* =========================================================
-   COMPONENT
-========================================================= */
 
 const PriceManagementColumnFilter = ({
   column,
@@ -109,82 +97,57 @@ const PriceManagementColumnFilter = ({
   onFilterChange,
   onClearFilter,
   onHideColumn,
-  onFreezeColumn,
-  isFrozen = false,
   close,
 }) => {
   const menuRef = useRef(null);
+  const searchRef = useRef(null);
 
   const [searchText, setSearchText] = useState("");
   const [selectedValues, setSelectedValues] = useState([]);
 
-  /* =======================================================
-     NORMALIZE OPTIONS
-  ======================================================= */
-
   const options = useMemo(() => {
-    if (!Array.isArray(filterOptions)) {
+    if (!Array.isArray(filterOptions) || !filterOptions.length) {
       return [];
     }
 
-    const map = new Map();
+    const unique = new Map();
 
-    filterOptions.forEach((option) => {
-      if (
-        option === null ||
-        option === undefined
-      ) {
-        return;
-      }
+    for (const option of filterOptions) {
+      if (option == null) continue;
 
-      let value;
-      let label;
-      let count;
-
-      if (
+      const isObject =
         typeof option === "object" &&
-        option !== null
-      ) {
-        value = option.value;
-        label =
-          option.label ??
-          option.value;
-        count = option.count;
-      } else {
-        value = option;
-        label = String(option);
-      }
+        option !== null;
 
-      if (
-        value === null ||
-        value === undefined
-      ) {
-        return;
-      }
+      const value = isObject
+        ? option.value
+        : option;
 
-      const labelText = String(label).trim();
+      if (value == null) continue;
 
-      if (!labelText) {
-        return;
-      }
+      const label = String(
+        isObject
+          ? option.label ?? value
+          : value
+      ).trim();
+
+      if (!label) continue;
 
       const key = String(value);
 
-      if (!map.has(key)) {
-        map.set(key, {
+      if (!unique.has(key)) {
+        unique.set(key, {
           value,
-          label: labelText,
-          count,
+          label,
+          count: isObject
+            ? option.count
+            : undefined,
         });
       }
-    });
+    }
 
-    return Array.from(map.values());
+    return Array.from(unique.values());
   }, [filterOptions]);
-
-  /* =======================================================
-     INITIAL SELECTION
-  ======================================================= */
 
   useEffect(() => {
     if (Array.isArray(filterValue)) {
@@ -198,171 +161,91 @@ const PriceManagementColumnFilter = ({
       typeof filterValue === "string" &&
       filterValue.trim()
     ) {
-      const values = filterValue
-        .split("||")
-        .map((item) => item.trim())
-        .filter(Boolean);
+      setSelectedValues(
+        filterValue
+          .split("||")
+          .map((value) => value.trim())
+          .filter(Boolean)
+      );
 
-      setSelectedValues(values);
       return;
     }
 
     setSelectedValues([]);
   }, [filterValue]);
 
-  /* =======================================================
-     OUTSIDE CLICK
-  ======================================================= */
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      searchRef.current?.focus();
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
-    const handleOutside = (event) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target)
-      ) {
+    const handlePointerDown = (event) => {
+      if (!menuRef.current?.contains(event.target)) {
         close?.();
       }
     };
 
+    const handleKeyDown = (event) => {
+      if (event.key !== "Escape") return;
+
+      event.preventDefault();
+      close?.();
+    };
+
     document.addEventListener(
       "mousedown",
-      handleOutside
+      handlePointerDown
+    );
+
+    document.addEventListener(
+      "keydown",
+      handleKeyDown
     );
 
     return () => {
       document.removeEventListener(
         "mousedown",
-        handleOutside
+        handlePointerDown
+      );
+
+      document.removeEventListener(
+        "keydown",
+        handleKeyDown
       );
     };
   }, [close]);
 
-  /* =======================================================
-     SEARCH OPTIONS
-  ======================================================= */
-
   const filteredOptions = useMemo(() => {
-    const search = searchText
+    const query = searchText
       .trim()
       .toLowerCase();
 
-    if (!search) {
+    if (!query) {
       return options.slice(0, 200);
     }
 
-    return options
-      .filter((option) =>
+    const result = [];
+
+    for (const option of options) {
+      if (
         option.label
           .toLowerCase()
-          .includes(search)
-      )
-      .slice(0, 200);
-  }, [options, searchText]);
-
-  /* =======================================================
-     SELECTION STATE
-  ======================================================= */
-
-  const allSelected =
-    options.length > 0 &&
-    selectedValues.length ===
-      options.length;
-
-  /* =======================================================
-     TOGGLE VALUE
-  ======================================================= */
-
-  const toggleValue = (value) => {
-    const stringValue = String(value);
-
-    setSelectedValues((previous) => {
-      if (
-        previous.includes(stringValue)
+          .includes(query)
       ) {
-        return previous.filter(
-          (item) =>
-            item !== stringValue
-        );
+        result.push(option);
+
+        if (result.length >= 200) {
+          break;
+        }
       }
+    }
 
-      return [
-        ...previous,
-        stringValue,
-      ];
-    });
-  };
-
-  /* =======================================================
-     SELECT ALL
-  ======================================================= */
-
-  const handleSelectAll = () => {
-    setSelectedValues(
-      options.map((option) =>
-        String(option.value)
-      )
-    );
-  };
-
-  /* =======================================================
-     CLEAR ALL
-  ======================================================= */
-
- const handleClearAll = () => {
-  setSelectedValues([]);
-};
-
-  /* =======================================================
-     APPLY FILTER
-  ======================================================= */
-
- const handleApply = () => {
-  const key = column?.key;
-
-  if (!key) {
-    close?.();
-    return;
-  }
-
-  if (selectedValues.length === 0) {
-    onClearFilter?.(key);
-    close?.();
-    return;
-  }
-
-  const value =
-    selectedValues.length === 1
-      ? selectedValues[0]
-      : selectedValues.join("||");
-
-  onFilterChange?.(key, value);
-  close?.();
-};
-
-  /* =======================================================
-     CANCEL
-  ======================================================= */
-
-  const handleCancel = () => {
-    close?.();
-  };
-
-  /* =======================================================
-     SORT
-  ======================================================= */
-
-  const handleSort = (direction) => {
-    onSort?.(
-      column?.key,
-      direction
-    );
-
-    close?.();
-  };
-
-  /* =======================================================
-     COLUMN INFO
-  ======================================================= */
+    return result;
+  }, [options, searchText]);
 
   const title =
     column?.label ||
@@ -370,219 +253,307 @@ const PriceManagementColumnFilter = ({
     column?.key ||
     "Column";
 
+  const columnKey = column?.key;
+
   const isNumeric =
     column?.type === "number" ||
     column?.type === "price" ||
     column?.type === "currency" ||
-    column?.key === "price" ||
-    column?.key === "dsPrice";
+    columnKey === "price" ||
+    columnKey === "ds_price" ||
+    columnKey === "dlr_price" ||
+    columnKey === "dsPrice" ||
+    columnKey === "dlrPrice";
 
-  /* =======================================================
-     RENDER
-  ======================================================= */
+  const allSelected =
+    filteredOptions.length > 0 &&
+    filteredOptions.every((option) =>
+      selectedValues.includes(
+        String(option.value)
+      )
+    );
+
+  const hasFilter =
+    selectedValues.length > 0 &&
+    selectedValues.length < options.length;
+
+  const toggleValue = useCallback((value) => {
+    const key = String(value);
+
+    setSelectedValues((current) => {
+      if (current.includes(key)) {
+        return current.filter(
+          (item) => item !== key
+        );
+      }
+
+      return [...current, key];
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    const visibleValues = filteredOptions.map(
+      (option) => String(option.value)
+    );
+
+    if (!visibleValues.length) return;
+
+    setSelectedValues((current) => {
+      const selected = new Set(current);
+
+      visibleValues.forEach((value) => {
+        selected.add(value);
+      });
+
+      return Array.from(selected);
+    });
+  }, [filteredOptions]);
+
+  const handleClearAll = useCallback(() => {
+    setSelectedValues([]);
+  }, []);
+
+  const handleApply = useCallback(() => {
+    if (!columnKey) {
+      close?.();
+      return;
+    }
+
+    if (!selectedValues.length) {
+      onClearFilter?.(columnKey);
+    } else {
+      onFilterChange?.(
+        columnKey,
+        selectedValues.length === 1
+          ? selectedValues[0]
+          : selectedValues.join("||")
+      );
+    }
+
+    close?.();
+  }, [
+    columnKey,
+    selectedValues,
+    onClearFilter,
+    onFilterChange,
+    close,
+  ]);
+
+  const handleSort = useCallback(
+    (direction) => {
+      if (columnKey) {
+        onSort?.(
+          columnKey,
+          direction
+        );
+      }
+
+      close?.();
+    },
+    [columnKey, onSort, close]
+  );
+
+  const isSortActive = useCallback(
+    (direction) =>
+      currentSort?.key === columnKey &&
+      currentSort?.direction === direction,
+    [currentSort, columnKey]
+  );
+
+  const handleSearchKeyDown = useCallback(
+    (event) => {
+      if (event.key !== "Enter") return;
+
+      event.preventDefault();
+      handleApply();
+    },
+    [handleApply]
+  );
 
   return (
     <div
       ref={menuRef}
+      onClick={(event) =>
+        event.stopPropagation()
+      }
+      onMouseDown={(event) =>
+        event.stopPropagation()
+      }
       className="
         absolute
-        right-0
-        top-[calc(100%+2px)]
-        z-[200]
-        w-[270px]
+        left-0
+        top-full
+        z-[9999]
+        mt-[3px]
+        w-[248px]
+        max-w-[calc(100vw-16px)]
         overflow-hidden
         border
-        border-slate-200
+        border-[#B8C1CC]
         bg-white
-        shadow-[0_8px_24px_rgba(15,23,42,0.14)]
+        text-[#172033]
+        shadow-[0_10px_28px_rgba(15,23,42,0.18)]
       "
     >
-      {/* =================================================
-          HEADER
-      ================================================= */}
+      <div
+        className="
+          flex
+          h-[36px]
+          items-center
+          justify-between
+          gap-2
+          border-b
+          border-[#D7DCE3]
+          bg-[#F7F9FC]
+          px-2.5
+        "
+      >
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span className="shrink-0 text-blue-600">
+            <FilterIcon size={14} />
+          </span>
 
-      <div className="border-b border-slate-200 px-3 py-2">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="shrink-0 text-slate-600">
-              <FilterIcon size={15} />
-            </span>
-
-            <span className="truncate text-[12px] font-semibold uppercase tracking-wide text-slate-800">
-              {title}
-            </span>
-          </div>
-
-          {selectedValues.length > 0 &&
-            selectedValues.length <
-              options.length && (
-              <span className="shrink-0 text-[10px] font-medium text-blue-600">
-                {selectedValues.length}
-              </span>
-            )}
+          <span
+            title={title}
+            className="
+              truncate
+              text-[11px]
+              font-bold
+              uppercase
+              tracking-wide
+              text-[#172033]
+            "
+          >
+            {title}
+          </span>
         </div>
+
+        {hasFilter && (
+          <span
+            className="
+              shrink-0
+              rounded-[2px]
+              bg-blue-50
+              px-1.5
+              py-0.5
+              text-[9px]
+              font-bold
+              text-blue-700
+            "
+          >
+            {selectedValues.length}
+          </span>
+        )}
       </div>
 
-      {/* =================================================
-          SORT
-      ================================================= */}
-
-      <div className="border-b border-slate-200 py-0.5">
-        <button
-          type="button"
+      <div className="border-b border-[#D7DCE3] py-0.5">
+        <FilterAction
+          icon={<SortIcon />}
+          label={
+            isNumeric
+              ? "Sort low → high"
+              : "Sort A → Z"
+          }
+          active={isSortActive("asc")}
           onClick={() =>
             handleSort("asc")
           }
-          className="
-            flex
-            h-[34px]
-            w-full
-            items-center
-            gap-2.5
-            px-3
-            text-left
-            text-[12px]
-            font-medium
-            text-slate-700
-            hover:bg-slate-50
-          "
-        >
-          <span className="text-slate-500">
-            <SortAscIcon />
-          </span>
+        />
 
-          <span>
-            {isNumeric
-              ? "Sort low → high"
-              : "Sort A to Z"}
-          </span>
-
-          {currentSort?.key ===
-            column?.key &&
-            currentSort?.direction ===
-              "asc" && (
-              <span className="ml-auto text-[12px] font-bold text-blue-600">
-                ✓
-              </span>
-            )}
-        </button>
-
-        <button
-          type="button"
+        <FilterAction
+          icon={<SortIcon desc />}
+          label={
+            isNumeric
+              ? "Sort high → low"
+              : "Sort Z → A"
+          }
+          active={isSortActive("desc")}
           onClick={() =>
             handleSort("desc")
           }
+        />
+      </div>
+
+      <div className="px-2.5 pb-1 pt-2">
+        <div className="flex items-center justify-between">
+          <span
+            className="
+              text-[9px]
+              font-bold
+              uppercase
+              tracking-[0.06em]
+              text-[#4B5563]
+            "
+          >
+            Filter by values
+          </span>
+
+          <span className="text-[9px] text-[#6B7280]">
+            {selectedValues.length}/
+            {options.length}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 px-2.5 pb-1.5">
+        <button
+          type="button"
+          onClick={handleSelectAll}
+          disabled={
+            !filteredOptions.length ||
+            allSelected
+          }
           className="
-            flex
-            h-[34px]
-            w-full
-            items-center
-            gap-2.5
-            px-3
-            text-left
-            text-[12px]
-            font-medium
-            text-slate-700
-            hover:bg-slate-50
+            text-[10px]
+            font-semibold
+            text-blue-700
+            hover:text-blue-900
+            disabled:cursor-default
+            disabled:text-[#9CA3AF]
           "
         >
-          <span className="text-slate-500">
-            <SortDescIcon />
-          </span>
+          Select all
+        </button>
 
-          <span>
-            {isNumeric
-              ? "Sort high → low"
-              : "Sort Z to A"}
-          </span>
+        <span className="text-[9px] text-[#9CA3AF]">
+          |
+        </span>
 
-          {currentSort?.key ===
-            column?.key &&
-            currentSort?.direction ===
-              "desc" && (
-              <span className="ml-auto text-[12px] font-bold text-blue-600">
-                ✓
-              </span>
-            )}
+        <button
+          type="button"
+          onClick={handleClearAll}
+          disabled={!selectedValues.length}
+          className="
+            text-[10px]
+            font-semibold
+            text-blue-700
+            hover:text-blue-900
+            disabled:cursor-default
+            disabled:text-[#9CA3AF]
+          "
+        >
+          Clear
         </button>
       </div>
 
-      {/* =================================================
-          FILTER TITLE
-      ================================================= */}
-
-      <div className="px-3 pb-1.5 pt-2.5">
-        <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-          Filter by values
-        </div>
-      </div>
-
-      {/* =================================================
-          SELECT / CLEAR
-      ================================================= */}
-
-      <div className="flex items-center justify-between px-3 pb-1.5">
-        <div className="flex items-center gap-1.5 text-[11px]">
-          <button
-            type="button"
-            onClick={
-              handleSelectAll
-            }
-            className="
-              font-medium
-              text-blue-600
-              hover:text-blue-800
-              hover:underline
-            "
-          >
-            Select all
-          </button>
-
-          <span className="text-slate-300">
-            •
-          </span>
-
-          <button
-            type="button"
-            onClick={
-              handleClearAll
-            }
-            className="
-              font-medium
-              text-blue-600
-              hover:text-blue-800
-              hover:underline
-            "
-          >
-            Clear all
-          </button>
-        </div>
-
-        <span className="text-[10px] text-slate-500">
-          {selectedValues.length}/
-          {options.length}
-        </span>
-      </div>
-
-      {/* =================================================
-          SEARCH
-      ================================================= */}
-
-      <div className="px-3 pb-2">
+      <div className="px-2.5 pb-1.5">
         <div
           className="
             flex
-            h-[32px]
+            h-[29px]
             items-center
             border
-            border-slate-300
+            border-[#B8C1CC]
             bg-white
             focus-within:border-blue-500
-            focus-within:ring-1
-            focus-within:ring-blue-500
           "
         >
+          <span className="pl-2 text-[#6B7280]">
+            <SearchIcon size={13} />
+          </span>
+
           <input
+            ref={searchRef}
             type="text"
             value={searchText}
             onChange={(event) =>
@@ -590,228 +561,135 @@ const PriceManagementColumnFilter = ({
                 event.target.value
               )
             }
-            placeholder="Search values"
+            onKeyDown={
+              handleSearchKeyDown
+            }
+            placeholder="Search values..."
+            spellCheck={false}
+            autoComplete="off"
             className="
               min-w-0
               flex-1
               bg-transparent
-              px-2.5
+              px-1.5
               text-[11px]
-              text-slate-800
+              text-[#172033]
               outline-none
-              placeholder:text-slate-400
+              placeholder:text-[#9CA3AF]
             "
           />
 
-          <div className="pr-2 text-slate-500">
-            <SearchIcon size={15} />
-          </div>
+          {searchText && (
+            <button
+              type="button"
+              onClick={() =>
+                setSearchText("")
+              }
+              className="
+                mr-1
+                flex
+                h-5
+                w-5
+                items-center
+                justify-center
+                text-[12px]
+                text-[#6B7280]
+                hover:text-[#172033]
+              "
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
         </div>
       </div>
-
-      {/* =================================================
-          VALUE LIST
-      ================================================= */}
 
       <div
         className="
-          mx-3
-          max-h-[180px]
+          mx-2.5
+          max-h-[172px]
           overflow-y-auto
-          border-t
-          border-slate-100
-          pb-1
+          border-y
+          border-[#E5E7EB]
+          py-0.5
         "
+        style={{
+          scrollbarWidth: "thin",
+        }}
       >
-        {filteredOptions.length ===
-        0 ? (
-          <div className="px-2 py-5 text-center text-[11px] text-slate-500">
+        {filteredOptions.length === 0 ? (
+          <div
+            className="
+              flex
+              h-[70px]
+              items-center
+              justify-center
+              text-[10px]
+              text-[#6B7280]
+            "
+          >
             No matching values
           </div>
         ) : (
-          filteredOptions.map(
-            (option) => {
-              const value = String(
-                option.value
-              );
+          filteredOptions.map((option) => {
+            const value = String(
+              option.value
+            );
 
-              const checked =
-                selectedValues.includes(
-                  value
-                );
+            const checked =
+              selectedValues.includes(value);
 
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() =>
-                    toggleValue(value)
-                  }
-                  className="
-                    flex
-                    min-h-[30px]
-                    w-full
-                    items-center
-                    gap-2
-                    px-1.5
-                    text-left
-                    hover:bg-slate-50
-                  "
-                >
-                  {/* Checkbox */}
-
-                  <span
-                    className={`
-                      flex
-                      h-[15px]
-                      w-[15px]
-                      shrink-0
-                      items-center
-                      justify-center
-                      border
-                      ${
-                        checked
-                          ? "border-blue-600 bg-blue-600 text-white"
-                          : "border-slate-400 bg-white text-transparent"
-                      }
-                    `}
-                  >
-                    <CheckIcon size={11} />
-                  </span>
-
-                  {/* Value */}
-
-                  <span
-                    className="
-                      min-w-0
-                      flex-1
-                      truncate
-                      text-[11px]
-                      text-slate-700
-                    "
-                    title={
-                      option.label
-                    }
-                  >
-                    {option.label}
-                  </span>
-
-                  {/* Count */}
-
-                  {option.count !==
-                    undefined &&
-                    option.count !==
-                      null && (
-                      <span className="text-[10px] text-slate-400">
-                        {
-                          option.count
-                        }
-                      </span>
-                    )}
-                </button>
-              );
-            }
-          )
+            return (
+              <FilterValue
+                key={value}
+                option={option}
+                checked={checked}
+                onToggle={toggleValue}
+              />
+            );
+          })
         )}
       </div>
 
-      {/* =================================================
-          FREEZE / HIDE
-      ================================================= */}
-
-      {(onFreezeColumn ||
-        onHideColumn) && (
-        <div className="border-t border-slate-200 py-0.5">
-          {onFreezeColumn && (
-            <button
-              type="button"
-              onClick={() => {
-                onFreezeColumn?.(
-                  column?.key
-                );
-                close?.();
-              }}
-              className="
-                flex
-                h-[32px]
-                w-full
-                items-center
-                justify-between
-                px-3
-                text-left
-                text-[11px]
-                text-slate-700
-                hover:bg-slate-50
-              "
-            >
-              <span>
-                {isFrozen
-                  ? "Unfreeze column"
-                  : "Freeze column"}
-              </span>
-            </button>
-          )}
-
-          {onHideColumn && (
-            <button
-              type="button"
-              onClick={() => {
-                onHideColumn?.(
-                  column?.key
-                );
-                close?.();
-              }}
-              className="
-                flex
-                h-[32px]
-                w-full
-                items-center
-                px-3
-                text-left
-                text-[11px]
-                text-slate-700
-                hover:bg-slate-50
-              "
-            >
-              Hide column
-            </button>
-          )}
+      {onHideColumn && (
+        <div className="border-b border-[#D7DCE3] py-0.5">
+          <MenuButton
+            label="Hide column"
+            onClick={() => {
+              onHideColumn(columnKey);
+              close?.();
+            }}
+          />
         </div>
       )}
-
-      {/* =================================================
-          FOOTER
-      ================================================= */}
 
       <div
         className="
           flex
+          h-[40px]
           items-center
           justify-end
           gap-1.5
-          border-t
-          border-slate-200
-          bg-slate-50
-          px-3
-          py-2
+          bg-[#F7F9FC]
+          px-2.5
         "
       >
         <button
           type="button"
-          onClick={
-            handleCancel
+          onClick={() =>
+            close?.()
           }
           className="
-            h-[30px]
-            min-w-[62px]
+            h-[27px]
+            min-w-[58px]
             border
-            border-slate-300
+            border-[#B8C1CC]
             bg-white
-            px-3
-            text-[11px]
-            font-medium
-            text-slate-700
-            hover:bg-slate-100
+            px-2.5
+            text-[10px]
+            font-semibold
+            text-[#374151]
+            hover:bg-[#F3F4F6]
           "
         >
           Cancel
@@ -819,26 +697,195 @@ const PriceManagementColumnFilter = ({
 
         <button
           type="button"
-          onClick={
-            handleApply
-          }
+          onClick={handleApply}
           className="
-            h-[30px]
-            min-w-[62px]
+            h-[27px]
+            min-w-[58px]
+            border
+            border-blue-600
             bg-blue-600
-            px-3
-            text-[11px]
-            font-semibold
+            px-2.5
+            text-[10px]
+            font-bold
             text-white
             hover:bg-blue-700
           "
         >
-          OK
+          Apply
         </button>
       </div>
     </div>
   );
 };
+
+const FilterAction = memo(
+  ({
+    icon,
+    label,
+    active,
+    onClick,
+  }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className="
+        flex
+        h-[29px]
+        w-full
+        items-center
+        gap-2
+        px-2.5
+        text-left
+        text-[10px]
+        font-semibold
+        text-[#374151]
+        hover:bg-blue-50
+        hover:text-blue-700
+      "
+    >
+      <span
+        className="
+          flex
+          w-[15px]
+          shrink-0
+          items-center
+          justify-center
+          text-[#6B7280]
+        "
+      >
+        {icon}
+      </span>
+
+      <span className="truncate">
+        {label}
+      </span>
+
+      {active && (
+        <span
+          className="
+            ml-auto
+            text-[11px]
+            font-bold
+            text-blue-600
+          "
+        >
+          ✓
+        </span>
+      )}
+    </button>
+  )
+);
+
+FilterAction.displayName = "FilterAction";
+
+const FilterValue = memo(
+  ({
+    option,
+    checked,
+    onToggle,
+  }) => (
+    <button
+      type="button"
+      onClick={() =>
+        onToggle(option.value)
+      }
+      className="
+        flex
+        min-h-[27px]
+        w-full
+        items-center
+        gap-1.5
+        px-1
+        text-left
+        hover:bg-blue-50
+      "
+    >
+      <span
+        className={`
+          flex
+          h-[14px]
+          w-[14px]
+          shrink-0
+          items-center
+          justify-center
+          border
+          ${
+            checked
+              ? `
+                border-blue-600
+                bg-blue-600
+                text-white
+              `
+              : `
+                border-[#B8C1CC]
+                bg-white
+                text-transparent
+              `
+          }
+        `}
+      >
+        <CheckIcon size={10} />
+      </span>
+
+      <span
+        title={option.label}
+        className="
+          min-w-0
+          flex-1
+          truncate
+          text-[10px]
+          font-medium
+          text-[#374151]
+        "
+      >
+        {option.label}
+      </span>
+
+      {option.count != null && (
+        <span
+          className="
+            min-w-[18px]
+            shrink-0
+            text-right
+            text-[9px]
+            font-medium
+            text-[#6B7280]
+          "
+        >
+          {option.count}
+        </span>
+      )}
+    </button>
+  )
+);
+
+FilterValue.displayName = "FilterValue";
+
+const MenuButton = memo(
+  ({ label, onClick }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className="
+        flex
+        h-[28px]
+        w-full
+        items-center
+        px-2.5
+        text-left
+        text-[10px]
+        font-medium
+        text-[#374151]
+        hover:bg-blue-50
+        hover:text-blue-700
+      "
+    >
+      {label}
+    </button>
+  )
+);
+
+MenuButton.displayName = "MenuButton";
 
 export default memo(
   PriceManagementColumnFilter

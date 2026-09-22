@@ -6,23 +6,29 @@ import React, {
 } from "react";
 
 const PriceManagementToolbar = ({
+  title = "Price Management",
+  subtitle = "Manage product pricing and sale names",
+  totalCount = 0,
+  changedCount = 0,
+
+  applicableFrom,
+  onApplicableFromChange,
+
+  reason = "",
+  onReasonChange,
+
   search = "",
   onSearchChange,
 
   quickFilter = "all",
   onQuickFilterChange,
 
-  changedCount = 0,
-  totalCount = 0,
-
-  columns = [],
-  visibleColumns = [],
-  onToggleColumn,
+  density = "compact",
+  onDensityChange,
 
   onImport,
   onExport,
   onBulkEdit,
-
   onRefresh,
   onUndo,
   onRedo,
@@ -38,232 +44,365 @@ const PriceManagementToolbar = ({
   syncStatus = "saved",
 
   searchInputRef,
+  selectedCount = 0,
 }) => {
-  const [openMenu, setOpenMenu] =
-    useState(null);
-
-  const menuRef = useRef(null);
-
-  /* ==========================================================================
-   * Close menus when clicking outside
-   * ======================================================================== */
+  const [openMenu, setOpenMenu] = useState(null);
+  const rootRef = useRef(null);
 
   useEffect(() => {
-    const handleOutsideClick = (event) => {
-      if (
-        !menuRef.current?.contains(
-          event.target
-        )
-      ) {
+    const handleClick = (event) => {
+      if (!rootRef.current?.contains(event.target)) {
         setOpenMenu(null);
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleOutsideClick
-    );
-
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleOutsideClick
-      );
-    };
-  }, []);
-
-  /* ==========================================================================
-   * Escape closes open menu
-   * ======================================================================== */
-
-  useEffect(() => {
-    const handleEscape = (event) => {
+    const handleKey = (event) => {
       if (event.key === "Escape") {
         setOpenMenu(null);
       }
     };
 
-    document.addEventListener(
-      "keydown",
-      handleEscape
-    );
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
 
     return () => {
-      document.removeEventListener(
-        "keydown",
-        handleEscape
-      );
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
     };
   }, []);
 
-  /* ==========================================================================
-   * Menu toggle
-   * ======================================================================== */
+  const updatedText = lastUpdated
+    ? lastUpdated instanceof Date
+      ? lastUpdated.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : String(lastUpdated)
+    : "Not saved";
+
+  const sync =
+    {
+      saved: {
+        label: "Saved",
+        dot: "bg-emerald-500",
+        text: "text-emerald-600",
+        bg: "bg-emerald-50",
+      },
+      saving: {
+        label: "Saving...",
+        dot: "bg-blue-500 animate-pulse",
+        text: "text-blue-600",
+        bg: "bg-blue-50",
+      },
+      unsaved: {
+        label: "Unsaved",
+        dot: "bg-amber-500",
+        text: "text-amber-600",
+        bg: "bg-amber-50",
+      },
+      error: {
+        label: "Sync error",
+        dot: "bg-red-500",
+        text: "text-red-600",
+        bg: "bg-red-50",
+      },
+    }[syncStatus] || {
+      label: "Saved",
+      dot: "bg-emerald-500",
+      text: "text-emerald-600",
+      bg: "bg-emerald-50",
+    };
+
+  const dateValue =
+    applicableFrom instanceof Date
+      ? applicableFrom.toISOString().slice(0, 10)
+      : applicableFrom || "";
 
   const toggleMenu = (menu) => {
     setOpenMenu((current) =>
-      current === menu
-        ? null
-        : menu
+      current === menu ? null : menu
     );
-  };
-
-  /* ==========================================================================
-   * Search keyboard
-   * ======================================================================== */
-
-  const handleSearchKeyDown = (event) => {
-    if (event.key === "Escape") {
-      onSearchChange?.("");
-      event.currentTarget.blur();
-    }
-  };
-
-  /* ==========================================================================
-   * Updated time
-   * ======================================================================== */
-
-  const formatUpdated = () => {
-    if (!lastUpdated) {
-      return "Not synced";
-    }
-
-    if (lastUpdated instanceof Date) {
-      return lastUpdated.toLocaleTimeString(
-        [],
-        {
-          hour: "2-digit",
-          minute: "2-digit",
-        }
-      );
-    }
-
-    return String(lastUpdated);
-  };
-
-  /* ==========================================================================
-   * Column visibility
-   *
-   * Empty visibleColumns means:
-   * all columns are visible.
-   * ======================================================================== */
-
-  const isColumnVisible = (key) => {
-    // Array format support
-    if (Array.isArray(visibleColumns)) {
-      return (
-        visibleColumns.length === 0 ||
-        visibleColumns.includes(key)
-      );
-    }
-
-    // Object / map format support
-    if (
-      visibleColumns &&
-      typeof visibleColumns === "object"
-    ) {
-      // Empty object = all columns visible
-      if (
-        Object.keys(
-          visibleColumns
-        ).length === 0
-      ) {
-        return true;
-      }
-
-      // Explicit false = hidden
-      return (
-        visibleColumns[key] !== false
-      );
-    }
-
-    // Safe fallback
-    return true;
   };
 
   return (
     <div
-      ref={menuRef}
+      ref={rootRef}
       className="
         relative
+        z-[500]
         border-b
         border-slate-200
         bg-white
       "
     >
-      {/* ====================================================================
-       * Main Toolbar
-       * ================================================================== */}
+      <div
+        className="
+          border-b
+          border-slate-100
+          px-3
+          py-2.5
+        "
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div
+              className="
+                flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
+                border
+                border-slate-200
+                bg-slate-900
+                text-white
+              "
+            >
+              <PriceIcon />
+            </div>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1
+                  className="
+                    truncate
+                    text-[15px]
+                    font-bold
+                    tracking-tight
+                    text-slate-900
+                  "
+                >
+                  {title}
+                </h1>
+
+                {hasChanges && (
+                  <span
+                    className="
+                      border
+                      border-amber-200
+                      bg-amber-50
+                      px-1.5
+                      py-0.5
+                      text-[8px]
+                      font-bold
+                      text-amber-700
+                    "
+                  >
+                    UNSAVED
+                  </span>
+                )}
+              </div>
+
+              <p className="mt-0.5 text-[9px] font-medium text-slate-400">
+                {subtitle}
+              </p>
+            </div>
+
+            <div className="hidden items-center gap-1.5 lg:flex">
+              <StatBadge
+                label="Products"
+                value={totalCount}
+              />
+
+              <StatBadge
+                label="Changed"
+                value={changedCount}
+                tone={
+                  changedCount ? "amber" : "slate"
+                }
+              />
+
+              {selectedCount > 0 && (
+                <StatBadge
+                  label="Selected"
+                  value={selectedCount}
+                  tone="blue"
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-1.5">
+            <div
+              className="
+                flex
+                h-[34px]
+                items-center
+                gap-1.5
+                border
+                border-slate-200
+                bg-slate-50
+                px-2
+              "
+            >
+              <CalendarIcon />
+
+              <div className="leading-none">
+                <div className="text-[7px] font-bold uppercase tracking-wide text-slate-400">
+                  Applicable From
+                </div>
+
+                <input
+                  type="date"
+                  value={dateValue}
+                  onChange={(e) =>
+                    onApplicableFromChange?.(
+                      e.target.value
+                    )
+                  }
+                  className="
+                    mt-0.5
+                    w-[105px]
+                    border-0
+                    bg-transparent
+                    p-0
+                    text-[10px]
+                    font-semibold
+                    text-slate-700
+                    outline-none
+                  "
+                />
+              </div>
+            </div>
+
+            <div
+              className="
+                flex
+                h-[34px]
+                w-[190px]
+                items-center
+                gap-1.5
+                border
+                border-slate-200
+                bg-white
+                px-2
+              "
+            >
+              <ReasonIcon />
+
+              <input
+                value={reason}
+                onChange={(e) =>
+                  onReasonChange?.(e.target.value)
+                }
+                placeholder="Reason for price change..."
+                className="
+                  min-w-0
+                  flex-1
+                  border-0
+                  bg-transparent
+                  p-0
+                  text-[10px]
+                  font-medium
+                  text-slate-700
+                  outline-none
+                  placeholder:text-slate-400
+                "
+              />
+            </div>
+
+            <div
+              className={`
+                flex
+                h-[34px]
+                items-center
+                gap-1.5
+                px-2
+                ${sync.bg}
+              `}
+            >
+              <span
+                className={`
+                  h-1.5
+                  w-1.5
+                  rounded-full
+                  ${sync.dot}
+                `}
+              />
+
+              <div className="leading-none">
+                <div
+                  className={`text-[9px] font-bold ${sync.text}`}
+                >
+                  {sync.label}
+                </div>
+
+                <div className="mt-0.5 text-[7px] font-medium text-slate-400">
+                  {updatedText}
+                </div>
+              </div>
+            </div>
+
+            <IconButton
+              title="Refresh"
+              disabled={saving}
+              onClick={onRefresh}
+            >
+              <RefreshIcon />
+            </IconButton>
+
+            <IconButton
+              title="Undo"
+              disabled={!canUndo || saving}
+              onClick={onUndo}
+            >
+              <UndoIcon />
+            </IconButton>
+
+            <IconButton
+              title="Redo"
+              disabled={!canRedo || saving}
+              onClick={onRedo}
+            >
+              <RedoIcon />
+            </IconButton>
+          </div>
+        </div>
+      </div>
 
       <div
         className="
+          relative
           flex
-          min-h-[52px]
+          min-h-[48px]
           items-center
-          gap-2
-          overflow-x-auto
+          gap-1.5
           px-3
-          scrollbar-thin
+          py-1.5
         "
       >
-        {/* ------------------------------------------------------------------
-         * Search
-         * ---------------------------------------------------------------- */}
-
-        <div className="relative min-w-[230px] max-w-[340px] flex-1">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            className="
-              pointer-events-none
-              absolute
-              left-3
-              top-1/2
-              h-4
-              w-4
-              -translate-y-1/2
-              text-slate-500
-            "
-          >
-            <circle
-              cx="11"
-              cy="11"
-              r="7"
-            />
-
-            <path d="m20 20-4-4" />
-          </svg>
+        <div className="relative w-[250px] shrink-0">
+          <SearchIcon />
 
           <input
             ref={searchInputRef}
             value={search}
-            onChange={(event) =>
-              onSearchChange?.(
-                event.target.value
-              )
+            onChange={(e) =>
+              onSearchChange?.(e.target.value)
             }
-            onKeyDown={
-              handleSearchKeyDown
-            }
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                onSearchChange?.("");
+                e.currentTarget.blur();
+              }
+            }}
             placeholder="Search products..."
             className="
-              h-[34px]
+              h-[32px]
               w-full
               border
               border-slate-300
-              bg-slate-50
-              pl-9
-              pr-16
-              text-[12px]
+              bg-white
+              pl-8
+              pr-12
+              text-[10px]
               font-medium
-              text-slate-800
-              placeholder:text-slate-400
+              text-slate-700
               outline-none
-              transition
-              focus:border-blue-400
-              focus:bg-white
+              focus:border-blue-500
+              focus:ring-1
+              focus:ring-blue-100
             "
           />
 
@@ -271,599 +410,186 @@ const PriceManagementToolbar = ({
             className="
               pointer-events-none
               absolute
-              right-2
+              right-1.5
               top-1/2
               -translate-y-1/2
               border
-              border-slate-300
-              bg-white
-              px-1.5
+              border-slate-200
+              bg-slate-50
+              px-1
               py-0.5
-              text-[9px]
+              text-[8px]
               font-semibold
-              text-slate-500
+              text-slate-400
             "
           >
             Ctrl K
           </span>
         </div>
 
-        {/* ------------------------------------------------------------------
-         * Filter
-         * ---------------------------------------------------------------- */}
+        <Menu
+          open={openMenu === "filter"}
+          onClick={() => toggleMenu("filter")}
+          icon={<FilterIcon />}
+          label="Filter"
+          chevron
+        >
+          <DropdownTitle>
+            Filter Products
+          </DropdownTitle>
 
-        <div className="relative shrink-0">
-          <button
-            type="button"
-            onClick={() =>
-              toggleMenu("filter")
-            }
-            className={`
-              flex
-              h-[34px]
-              items-center
-              gap-1.5
-              border
-              px-3
-              text-[11px]
-              font-semibold
-              transition
-              ${
-                openMenu === "filter"
-                  ? "border-blue-300 bg-blue-50 text-blue-800"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-              }
-            `}
-          >
-            <FilterIcon />
+          <Choice
+            active={quickFilter === "all"}
+            label={`All products (${totalCount})`}
+            onClick={() => {
+              onQuickFilterChange?.("all");
+              setOpenMenu(null);
+            }}
+          />
 
-            Filter
+          <Choice
+            active={quickFilter === "changed"}
+            label={`Changed only (${changedCount})`}
+            onClick={() => {
+              onQuickFilterChange?.("changed");
+              setOpenMenu(null);
+            }}
+          />
 
-            <ChevronIcon />
-          </button>
+          <Choice
+            active={quickFilter === "missing"}
+            label="No Sale Name"
+            onClick={() => {
+              onQuickFilterChange?.("missing");
+              setOpenMenu(null);
+            }}
+          />
+        </Menu>
 
-          {openMenu === "filter" && (
-            <div
-              className="
-                absolute
-                left-0
-                top-[40px]
-                z-50
-                w-[200px]
-                border
-                border-slate-300
-                bg-white
-                py-1
-                shadow-lg
-              "
-            >
-              <div className="border-b border-slate-200 px-3 py-2">
-                <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">
-                  Filter Products
-                </span>
-              </div>
-
-              <FilterOption
-                active={
-                  quickFilter ===
-                  "all"
-                }
-                label={`All products (${totalCount})`}
-                onClick={() => {
-                  onQuickFilterChange?.(
-                    "all"
-                  );
-
-                  setOpenMenu(null);
-                }}
-              />
-
-              <FilterOption
-                active={
-                  quickFilter ===
-                  "changed"
-                }
-                label={`Changed only (${changedCount})`}
-                onClick={() => {
-                  onQuickFilterChange?.(
-                    "changed"
-                  );
-
-                  setOpenMenu(null);
-                }}
-              />
-
-              <FilterOption
-                active={
-                  quickFilter ===
-                  "missing"
-                }
-                label="No Sale Name"
-                onClick={() => {
-                  onQuickFilterChange?.(
-                    "missing"
-                  );
-
-                  setOpenMenu(null);
-                }}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* ------------------------------------------------------------------
-         * Changed Only
-         * ---------------------------------------------------------------- */}
-
-        <button
-          type="button"
+        <ToolbarButton
+          active={quickFilter === "changed"}
           onClick={() =>
             onQuickFilterChange?.(
-              quickFilter ===
-                "changed"
+              quickFilter === "changed"
                 ? "all"
                 : "changed"
             )
           }
-          className={`
-            flex
-            h-[34px]
-            shrink-0
-            items-center
-            gap-1.5
-            border
-            px-3
-            text-[11px]
-            font-semibold
-            transition
-            ${
-              quickFilter ===
-              "changed"
-                ? "border-blue-300 bg-blue-50 text-blue-800"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-            }
-          `}
+          icon={<ChangedOnlyIcon />}
         >
-          Changed Only
-
+          Changed
           {changedCount > 0 && (
-            <span
-              className="
-                min-w-[18px]
-                bg-blue-100
-                px-1
-                py-0.5
-                text-center
-                text-[9px]
-                font-bold
-                text-blue-800
-              "
-            >
-              {changedCount}
-            </span>
+            <Badge>{changedCount}</Badge>
           )}
-        </button>
+        </ToolbarButton>
 
-        {/* ------------------------------------------------------------------
-         * No Sale Name
-         * ---------------------------------------------------------------- */}
-
-        <button
-          type="button"
+        <ToolbarButton
+          active={quickFilter === "missing"}
           onClick={() =>
             onQuickFilterChange?.(
-              quickFilter ===
-                "missing"
+              quickFilter === "missing"
                 ? "all"
                 : "missing"
             )
           }
-          className={`
-            flex
-            h-[34px]
-            shrink-0
-            items-center
-            border
-            px-3
-            text-[11px]
-            font-semibold
-            transition
-            ${
-              quickFilter ===
-              "missing"
-                ? "border-amber-300 bg-amber-50 text-amber-800"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-            }
-          `}
         >
           No Sale Name
-        </button>
+        </ToolbarButton>
 
-        <div className="mx-1 h-5 w-px shrink-0 bg-slate-200" />
-
-        {/* ------------------------------------------------------------------
-         * Columns
-         * ---------------------------------------------------------------- */}
-
-        <div className="relative shrink-0">
-          <button
-            type="button"
-            onClick={() =>
-              toggleMenu("columns")
-            }
-            className="
-              flex
-              h-[34px]
-              items-center
-              gap-1.5
-              border
-              border-slate-300
-              bg-white
-              px-3
-              text-[11px]
-              font-semibold
-              text-slate-700
-              transition
-              hover:bg-slate-50
-            "
-          >
-            <ColumnsIcon />
-
-            Columns
-
-            <ChevronIcon />
-          </button>
-
-          {openMenu ===
-            "columns" && (
-            <div
-              className="
-                absolute
-                right-0
-                top-[40px]
-                z-50
-                w-[200px]
-                border
-                border-slate-300
-                bg-white
-                py-1
-                shadow-lg
-              "
-            >
-              <div className="border-b border-slate-200 px-3 py-2">
-                <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">
-                  Visible Columns
-                </span>
-              </div>
-
-              {columns.map(
-                (column) => {
-                  const key =
-                    column.key;
-
-                  const checked =
-                    isColumnVisible(
-                      key
-                    );
-
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() =>
-                        onToggleColumn?.(
-                          key
-                        )
-                      }
-                      className="
-                        flex
-                        w-full
-                        items-center
-                        gap-2
-                        px-3
-                        py-2
-                        text-left
-                        text-[11px]
-                        font-medium
-                        text-slate-700
-                        hover:bg-slate-50
-                      "
-                    >
-                      <span
-                        className={`
-                          flex
-                          h-3.5
-                          w-3.5
-                          shrink-0
-                          items-center
-                          justify-center
-                          border
-                          text-[9px]
-                          font-bold
-                          ${
-                            checked
-                              ? "border-blue-600 bg-blue-600 text-white"
-                              : "border-slate-300 bg-white"
-                          }
-                        `}
-                      >
-                        {checked &&
-                          "✓"}
-                      </span>
-
-                      <span className="truncate">
-                        {
-                          column.label
-                        }
-                      </span>
-                    </button>
-                  );
-                }
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* ------------------------------------------------------------------
-         * EXPORT
-         *
-         * Direct visible button.
-         * Density removed completely.
-         * ---------------------------------------------------------------- */}
-
-        <button
-          type="button"
-          onClick={() => {
-            setOpenMenu(null);
-            onExport?.();
-          }}
-          className="
-            flex
-            h-[34px]
-            shrink-0
-            items-center
-            gap-1.5
-            border
-            border-emerald-300
-            bg-emerald-50
-            px-3
-            text-[11px]
-            font-bold
-            text-emerald-800
-            transition
-            hover:border-emerald-400
-            hover:bg-emerald-100
-            active:bg-emerald-200
-          "
-          title="Export all products category-wise to Excel"
+        <Menu
+          open={openMenu === "density"}
+          onClick={() => toggleMenu("density")}
+          icon={<DensityIcon />}
+          label="Density"
+          chevron
         >
-          <ExportIcon />
+          <DropdownTitle>
+            Row Density
+          </DropdownTitle>
 
+          {[
+            ["compact", "Compact"],
+            ["comfortable", "Comfortable"],
+            ["spacious", "Spacious"],
+          ].map(([value, label]) => (
+            <Choice
+              key={value}
+              active={density === value}
+              label={label}
+              onClick={() => {
+                onDensityChange?.(value);
+                setOpenMenu(null);
+              }}
+            />
+          ))}
+        </Menu>
+
+        <ToolbarButton
+          onClick={onImport}
+          icon={<ImportIcon />}
+          tone="blue"
+        >
+          Import
+        </ToolbarButton>
+
+        <ToolbarButton
+          onClick={onExport}
+          icon={<ExportIcon />}
+          tone="green"
+        >
           Export
-        </button>
+        </ToolbarButton>
 
-        {/* ------------------------------------------------------------------
-         * More
-         *
-         * Import + Bulk Edit remain here.
-         * ---------------------------------------------------------------- */}
+        <ToolbarButton
+          onClick={onBulkEdit}
+          icon={<BulkIcon />}
+          tone="purple"
+        >
+          Bulk Edit
 
-        <div className="relative shrink-0">
-          <button
-            type="button"
-            onClick={() =>
-              toggleMenu("more")
-            }
-            className="
-              flex
-              h-[34px]
-              w-[34px]
-              items-center
-              justify-center
-              border
-              border-slate-300
-              bg-white
-              text-slate-600
-              transition
-              hover:bg-slate-50
-              hover:text-slate-800
-            "
-            title="More actions"
-          >
-            <MoreIcon />
-          </button>
-
-          {openMenu ===
-            "more" && (
-            <div
-              className="
-                absolute
-                right-0
-                top-[40px]
-                z-50
-                w-[165px]
-                border
-                border-slate-300
-                bg-white
-                py-1
-                shadow-lg
-              "
-            >
-              <MenuButton
-                label="Import"
-                onClick={() => {
-                  setOpenMenu(
-                    null
-                  );
-
-                  onImport?.();
-                }}
-              />
-
-              <MenuButton
-                label="Bulk Edit"
-                onClick={() => {
-                  setOpenMenu(
-                    null
-                  );
-
-                  onBulkEdit?.();
-                }}
-              />
-            </div>
+          {selectedCount > 0 && (
+            <Badge>{selectedCount}</Badge>
           )}
-        </div>
+        </ToolbarButton>
 
         <div className="flex-1" />
 
-        {/* ------------------------------------------------------------------
-         * Undo
-         * ---------------------------------------------------------------- */}
-
-        <IconButton
-          title="Undo"
-          disabled={!canUndo}
-          onClick={onUndo}
-        >
-          <UndoIcon />
-        </IconButton>
-
-        {/* ------------------------------------------------------------------
-         * Redo
-         * ---------------------------------------------------------------- */}
-
-        <IconButton
-          title="Redo"
-          disabled={!canRedo}
-          onClick={onRedo}
-        >
-          <RedoIcon />
-        </IconButton>
-
-        {/* ------------------------------------------------------------------
-         * Refresh
-         * ---------------------------------------------------------------- */}
-
-        <IconButton
-          title="Refresh"
-          disabled={saving}
-          onClick={onRefresh}
-        >
-          <RefreshIcon />
-        </IconButton>
-
-        {/* ------------------------------------------------------------------
-         * Sync status
-         * ---------------------------------------------------------------- */}
-
-        <div
-          className="
-            hidden
-            shrink-0
-            items-center
-            gap-2
-            px-2
-            lg:flex
-          "
-        >
-          <span
-            className={`
-              h-1.5
-              w-1.5
-              ${
-                syncStatus ===
-                "saving"
-                  ? "bg-amber-500"
-                  : syncStatus ===
-                    "error"
-                  ? "bg-red-500"
-                  : "bg-emerald-500"
-              }
-            `}
-          />
-
-          <div className="leading-none">
-            <div className="text-[9px] font-bold uppercase tracking-wide text-slate-500">
-              {syncStatus ===
-              "saving"
-                ? "Saving"
-                : syncStatus ===
-                  "error"
-                ? "Sync Error"
-                : "Saved"}
-            </div>
-
-            <div className="mt-0.5 text-[9px] font-medium text-slate-500">
-              {formatUpdated()}
-            </div>
-          </div>
-        </div>
-
-        {/* ------------------------------------------------------------------
-         * Save
-         * ---------------------------------------------------------------- */}
-
         <button
           type="button"
-          disabled={
-            !hasChanges ||
-            saving
-          }
+          disabled={!hasChanges || saving}
           onClick={onSave}
           className="
             flex
-            h-[34px]
-            min-w-[108px]
+            h-[32px]
+            min-w-[145px]
             shrink-0
             items-center
             justify-center
-            gap-2
-            bg-blue-600
-            px-4
-            text-[11px]
+            gap-1.5
+            border
+            border-emerald-600
+            bg-emerald-600
+            px-3
+            text-[10px]
             font-bold
             text-white
-            transition
-            hover:bg-blue-700
-            active:bg-blue-800
+            hover:bg-emerald-700
             disabled:cursor-not-allowed
-            disabled:bg-slate-200
+            disabled:border-slate-200
+            disabled:bg-slate-100
             disabled:text-slate-400
           "
         >
-          {saving ? (
-            <>
-              <span
-                className="
-                  h-3
-                  w-3
-                  animate-spin
-                  border
-                  border-white/40
-                  border-t-white
-                "
-              />
+          {saving ? <Spinner /> : <SaveIcon />}
 
-              Saving...
-            </>
-          ) : (
-            <>
-              Save Changes
+          {saving
+            ? "Saving..."
+            : "Save Changes"}
 
-              {hasChanges && (
-                <span
-                  className="
-                    min-w-[16px]
-                    bg-white/15
-                    px-1
-                    py-0.5
-                    text-[9px]
-                  "
-                >
-                  {changedCount}
-                </span>
-              )}
-            </>
+          {hasChanges && !saving && (
+            <span className="bg-white/15 px-1.5 py-0.5 text-[8px]">
+              {changedCount}
+            </span>
           )}
         </button>
       </div>
@@ -871,35 +597,130 @@ const PriceManagementToolbar = ({
   );
 };
 
-/* ============================================================================
- * Small components
- * ========================================================================== */
-
-const MenuButton = ({
-  label,
+const Menu = ({
+  open,
   onClick,
+  icon,
+  label,
+  chevron,
+  children,
 }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="
-      w-full
-      px-3
-      py-2
-      text-left
-      text-[11px]
-      font-medium
-      text-slate-700
-      hover:bg-slate-50
-    "
-  >
-    {label}
-  </button>
+  <div className="relative z-[1000] shrink-0">
+    <button
+      type="button"
+      onClick={onClick}
+      className={`
+        flex
+        h-[32px]
+        items-center
+        gap-1.5
+        border
+        px-2.5
+        text-[10px]
+        font-semibold
+        ${
+          open
+            ? "border-blue-500 bg-blue-50 text-blue-700"
+            : "border-slate-300 bg-white text-slate-600 hover:border-blue-300 hover:bg-blue-50/40 hover:text-blue-700"
+        }
+      `}
+    >
+      {icon}
+
+      <span>{label}</span>
+
+      {chevron && <ChevronDown />}
+    </button>
+
+    {open && (
+      <div
+        className="
+          absolute
+          left-0
+          top-[35px]
+          z-[999999]
+          w-[205px]
+          overflow-hidden
+          border
+          border-slate-300
+          bg-white
+          py-0.5
+          shadow-[0_10px_28px_rgba(15,23,42,0.16)]
+        "
+      >
+        {children}
+      </div>
+    )}
+  </div>
 );
 
-const FilterOption = ({
-  label,
+const ToolbarButton = ({
+  children,
+  onClick,
+  icon,
+  active = false,
+  tone = "default",
+}) => {
+  const tones = {
+    default: active
+      ? "border-blue-500 bg-blue-50 text-blue-700"
+      : "border-slate-300 bg-white text-slate-600 hover:border-blue-300 hover:bg-blue-50/40",
+
+    blue:
+      "border-blue-200 bg-blue-50/50 text-blue-600 hover:bg-blue-50",
+
+    green:
+      "border-emerald-200 bg-emerald-50/50 text-emerald-600 hover:bg-emerald-50",
+
+    purple:
+      "border-violet-200 bg-violet-50/50 text-violet-700 hover:bg-violet-50",
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`
+        flex
+        h-[32px]
+        shrink-0
+        items-center
+        gap-1.5
+        border
+        px-2.5
+        text-[10px]
+        font-semibold
+        ${tones[tone]}
+      `}
+    >
+      {icon}
+      {children}
+    </button>
+  );
+};
+
+const DropdownTitle = ({ children }) => (
+  <div
+    className="
+      border-b
+      border-slate-200
+      bg-slate-50
+      px-2.5
+      py-1.5
+      text-[9px]
+      font-bold
+      uppercase
+      tracking-wide
+      text-slate-500
+    "
+  >
+    {children}
+  </div>
+);
+
+const Choice = ({
   active,
+  label,
   onClick,
 }) => (
   <button
@@ -910,23 +731,70 @@ const FilterOption = ({
       w-full
       items-center
       justify-between
-      px-3
-      py-2
+      px-2.5
+      py-1.5
       text-left
-      text-[11px]
+      text-[10px]
       ${
         active
-          ? "bg-blue-50 font-bold text-blue-800"
-          : "font-medium text-slate-700 hover:bg-slate-50"
+          ? "bg-blue-50 font-semibold text-blue-700"
+          : "text-slate-600 hover:bg-slate-50"
       }
     `}
   >
-    {label}
+    <span className="truncate">
+      {label}
+    </span>
 
     {active && (
-      <span>✓</span>
+      <span className="ml-2 shrink-0 text-blue-600">
+        ✓
+      </span>
     )}
   </button>
+);
+
+const StatBadge = ({
+  label,
+  value,
+  tone = "slate",
+}) => {
+  const styles = {
+    slate:
+      "bg-slate-50 text-slate-600 border-slate-200",
+    blue:
+      "bg-blue-50 text-blue-700 border-blue-100",
+    amber:
+      "bg-amber-50 text-amber-700 border-amber-100",
+  };
+
+  return (
+    <span
+      className={`
+        inline-flex
+        items-center
+        gap-1
+        border
+        px-1.5
+        py-0.5
+        text-[8px]
+        font-semibold
+        ${styles[tone]}
+      `}
+    >
+      <span className="opacity-60">
+        {label}
+      </span>
+
+      <span>{value}</span>
+    </span>
+  );
+};
+
+const Badge = ({ children }) => (
+  <span className="bg-blue-100 px-1.5 py-0.5 text-[8px] font-bold text-blue-700">
+    {children}
+  </span>
 );
 
 const IconButton = ({
@@ -942,28 +810,168 @@ const IconButton = ({
     onClick={onClick}
     className="
       flex
-      h-[32px]
-      w-[32px]
-      shrink-0
+      h-[30px]
+      w-[30px]
       items-center
       justify-center
-      text-slate-600
-      transition
-      hover:bg-slate-100
-      hover:text-slate-900
-      disabled:pointer-events-none
-      disabled:opacity-30
+      border
+      border-transparent
+      text-slate-400
+      hover:border-slate-200
+      hover:bg-slate-50
+      hover:text-slate-700
+      disabled:cursor-not-allowed
+      disabled:opacity-25
     "
   >
     {children}
   </button>
 );
 
-/* ============================================================================
- * Icons
- * ========================================================================== */
+const Icon = ({
+  children,
+  className = "h-3.5 w-3.5",
+}) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden="true"
+  >
+    {children}
+  </svg>
+);
 
-const ChevronIcon = () => (
+const SearchIcon = () => (
+  <Icon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400">
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+  </Icon>
+);
+
+const PriceIcon = () => (
+  <Icon className="h-4.5 w-4.5">
+    <path d="M4 7.5 12 3l8 4.5-8 4.5-8-4.5Z" />
+    <path d="M4 12.5 12 17l8-4.5" />
+    <path d="M4 17 12 21l8-4" />
+  </Icon>
+);
+
+const CalendarIcon = () => (
+  <Icon className="h-3.5 w-3.5 shrink-0 text-slate-400">
+    <rect
+      x="3"
+      y="5"
+      width="18"
+      height="16"
+      rx="2"
+    />
+    <path d="M16 3v4M8 3v4M3 10h18" />
+  </Icon>
+);
+
+const ReasonIcon = () => (
+  <Icon className="h-3.5 w-3.5 shrink-0 text-slate-400">
+    <path d="M4 5h16v14H4z" />
+    <path d="M8 9h8M8 13h6" />
+  </Icon>
+);
+
+const FilterIcon = () => (
+  <Icon>
+    <path d="M4 5h16M7 12h10M10 19h4" />
+  </Icon>
+);
+
+const DensityIcon = () => (
+  <Icon>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+  </Icon>
+);
+
+const ChangedOnlyIcon = () => (
+  <Icon>
+    <circle cx="12" cy="12" r="8" />
+    <path d="m9 12 2 2 4-5" />
+  </Icon>
+);
+
+const ImportIcon = () => (
+  <Icon>
+    <path d="M12 3v12" />
+    <path d="m7 10 5 5 5-5" />
+    <path d="M5 21h14" />
+  </Icon>
+);
+
+const ExportIcon = () => (
+  <Icon>
+    <path d="M12 21V9" />
+    <path d="m7 14 5-5 5 5" />
+    <path d="M5 3h14" />
+  </Icon>
+);
+
+const BulkIcon = () => (
+  <Icon>
+    <path d="M4 6h16M4 12h16M4 18h16" />
+    <circle
+      cx="8"
+      cy="6"
+      r="1"
+      fill="currentColor"
+    />
+    <circle
+      cx="14"
+      cy="12"
+      r="1"
+      fill="currentColor"
+    />
+    <circle
+      cx="10"
+      cy="18"
+      r="1"
+      fill="currentColor"
+    />
+  </Icon>
+);
+
+const SaveIcon = () => (
+  <Icon>
+    <path d="M5 4h12l2 2v14H5z" />
+    <path d="M8 4v6h8V4" />
+    <path d="M8 20v-6h8v6" />
+  </Icon>
+);
+
+const UndoIcon = () => (
+  <Icon>
+    <path d="M9 7 4 12l5 5" />
+    <path d="M5 12h9a5 5 0 0 1 5 5" />
+  </Icon>
+);
+
+const RedoIcon = () => (
+  <Icon>
+    <path d="m15 7 5 5-5 5" />
+    <path d="M19 12h-9a5 5 0 0 0-5 5" />
+  </Icon>
+);
+
+const RefreshIcon = () => (
+  <Icon>
+    <path d="M20 11a8 8 0 0 0-14.9-3.9L3 10" />
+    <path d="M3 5v5h5" />
+    <path d="M4 13a8 8 0 0 0 14.9 3.9L21 14" />
+    <path d="M21 19v-5h-5" />
+  </Icon>
+);
+
+const ChevronDown = () => (
   <svg
     viewBox="0 0 20 20"
     fill="none"
@@ -975,123 +983,18 @@ const ChevronIcon = () => (
   </svg>
 );
 
-const FilterIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.7"
-    className="h-3.5 w-3.5"
-  >
-    <path d="M4 5h16M7 12h10M10 19h4" />
-  </svg>
+const Spinner = () => (
+  <span
+    className="
+      h-3.5
+      w-3.5
+      animate-spin
+      rounded-full
+      border-2
+      border-white/40
+      border-t-white
+    "
+  />
 );
 
-const ColumnsIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.7"
-    className="h-3.5 w-3.5"
-  >
-    <rect
-      x="4"
-      y="4"
-      width="6"
-      height="16"
-    />
-
-    <rect
-      x="14"
-      y="4"
-      width="6"
-      height="16"
-    />
-  </svg>
-);
-
-const ExportIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    className="h-3.5 w-3.5"
-  >
-    <path d="M12 3v12" />
-    <path d="m7 10 5 5 5-5" />
-    <path d="M5 21h14" />
-  </svg>
-);
-
-const MoreIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className="h-4 w-4"
-  >
-    <circle
-      cx="5"
-      cy="12"
-      r="1.5"
-    />
-
-    <circle
-      cx="12"
-      cy="12"
-      r="1.5"
-    />
-
-    <circle
-      cx="19"
-      cy="12"
-      r="1.5"
-    />
-  </svg>
-);
-
-const UndoIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    className="h-4 w-4"
-  >
-    <path d="M9 7 4 12l5 5" />
-    <path d="M5 12h9a5 5 0 0 1 5 5" />
-  </svg>
-);
-
-const RedoIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    className="h-4 w-4"
-  >
-    <path d="m15 7 5 5-5 5" />
-    <path d="M19 12h-9a5 5 0 0 0-5 5" />
-  </svg>
-);
-
-const RefreshIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    className="h-4 w-4"
-  >
-    <path d="M20 11a8 8 0 0 0-14.9-3.9L3 10" />
-    <path d="M3 5v5h5" />
-    <path d="M4 13a8 8 0 0 0 14.9 3.9L21 14" />
-    <path d="M21 19v-5h-5" />
-  </svg>
-);
-
-export default memo(
-  PriceManagementToolbar
-);
+export default memo(PriceManagementToolbar);

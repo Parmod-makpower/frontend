@@ -16,6 +16,7 @@ import {
 } from "react-icons/fa";
 import makpower_image from "../assets/images/makpower_image.webp";
 import MobilePageHeader from "../components/MobilePageHeader";
+import BackButton from "../Layout/BackButton";
 
 export default function UserSchemesPage() {
   const { data: schemes = [], isLoading } = useSchemes();
@@ -38,7 +39,12 @@ const showMahotsavButton = mahotsavProduct?.moq === 1;
     <div className="p-2 pb-20">
       <MobilePageHeader title="Available Schemes" />
 
-     
+      <div className="hidden items-center gap-3 pb-3 pt-2 md:flex">
+    <BackButton fallback="/" />
+    <h1 className="text-sm font-semibold text-slate-700">
+      Available Schemes
+    </h1>
+  </div>
       <div className="pt-[60px] sm:pt-0">
         {schemes.length === 0 ? (
           <p className="text-gray-500 text-center">No schemes available.</p>

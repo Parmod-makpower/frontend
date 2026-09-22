@@ -71,19 +71,11 @@ const displayPrice = (value) => {
   return value;
 };
 
-const getPriceChangeType = (
-  oldValue,
-  newValue
-) => {
+const getPriceChangeType = (oldValue, newValue) => {
   if (
     oldValue === null ||
     oldValue === undefined ||
-    oldValue === ""
-  ) {
-    return "changed";
-  }
-
-  if (
+    oldValue === "" ||
     newValue === null ||
     newValue === undefined ||
     newValue === ""
@@ -98,13 +90,8 @@ const getPriceChangeType = (
     Number.isFinite(oldNumber) &&
     Number.isFinite(newNumber)
   ) {
-    if (newNumber > oldNumber) {
-      return "increase";
-    }
-
-    if (newNumber < oldNumber) {
-      return "decrease";
-    }
+    if (newNumber > oldNumber) return "increase";
+    if (newNumber < oldNumber) return "decrease";
   }
 
   return "changed";
@@ -117,33 +104,26 @@ const getPriceChangeType = (
 const PriceHistoryPage = () => {
   const navigate = useNavigate();
 
-  const [searchInput, setSearchInput] =
-    useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [productFilter, setProductFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const [search, setSearch] =
-    useState("");
-
-  const [productFilter, setProductFilter] =
-    useState("");
-
-  const [dateFilter, setDateFilter] =
-    useState("ALL");
-
-  const [currentPage, setCurrentPage] =
-    useState(1);
-
+  /*
+   * IMPORTANT:
+   * No search/product_id params here.
+   * History is fetched once and filtering happens locally.
+   */
   const {
     data: history = [],
     isLoading,
     isFetching,
     refetch,
-  } = usePriceHistory({
-    product_id: productFilter,
-    search,
-  });
+  } = usePriceHistory();
 
   /* =======================================================
-     DATE FILTER
+     FRONTEND SEARCH + PRODUCT + DATE FILTER
   ======================================================= */
 
   const filteredHistory = useMemo(() => {
@@ -151,54 +131,114 @@ const PriceHistoryPage = () => {
       return [];
     }
 
-    if (dateFilter === "ALL") {
-      return history;
-    }
+    const searchText = search
+      .trim()
+      .toLowerCase();
 
-    const now = new Date();
+    const productIdText = String(
+      productFilter ?? ""
+    ).trim();
 
     let startDate = null;
 
-    if (dateFilter === "TODAY") {
-      startDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate()
-      );
-    }
+    if (dateFilter !== "ALL") {
+      const now = new Date();
 
-    if (dateFilter === "7_DAYS") {
-      startDate = new Date(
-        now.getTime() -
-          7 * 24 * 60 * 60 * 1000
-      );
-    }
+      if (dateFilter === "TODAY") {
+        startDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        );
+      }
 
-    if (dateFilter === "30_DAYS") {
-      startDate = new Date(
-        now.getTime() -
-          30 * 24 * 60 * 60 * 1000
-      );
-    }
+      if (dateFilter === "7_DAYS") {
+        startDate = new Date(
+          now.getTime() -
+            7 * 24 * 60 * 60 * 1000
+        );
+      }
 
-    if (!startDate) {
-      return history;
+      if (dateFilter === "30_DAYS") {
+        startDate = new Date(
+          now.getTime() -
+            30 * 24 * 60 * 60 * 1000
+        );
+      }
     }
 
     return history.filter((item) => {
-      const value =
-        item?.changed_at ||
-        item?.applicable_from;
+      /* -----------------------------------------------
+         LOCAL SEARCH
+      ------------------------------------------------ */
 
-      if (!value) {
+      if (searchText) {
+        const searchableText = [
+          item?.product_id,
+          item?.product_name,
+          item?.changed_by_user_id,
+          item?.changed_by_name,
+          item?.changed_by_role,
+          item?.reason,
+        ]
+          .filter(
+            (value) =>
+              value !== null &&
+              value !== undefined
+          )
+          .join(" ")
+          .toLowerCase();
+
+        if (
+          !searchableText.includes(searchText)
+        ) {
+          return false;
+        }
+      }
+
+      /* -----------------------------------------------
+         LOCAL PRODUCT / SKU FILTER
+      ------------------------------------------------ */
+
+      if (
+        productIdText &&
+        String(item?.product_id ?? "") !==
+          productIdText
+      ) {
         return false;
       }
 
-      const date = new Date(value);
+      /* -----------------------------------------------
+         LOCAL DATE FILTER
+      ------------------------------------------------ */
 
-      return date >= startDate;
+      if (startDate) {
+        const value =
+          item?.changed_at ||
+          item?.applicable_from;
+
+        if (!value) {
+          return false;
+        }
+
+        const date = new Date(value);
+
+        if (
+          Number.isNaN(date.getTime()) ||
+          date < startDate
+        ) {
+          return false;
+        }
+      }
+
+      return true;
     });
-  }, [history, dateFilter]);
+  }, [
+    history,
+    search,
+    productFilter,
+    dateFilter,
+  ]);
 
   /* =======================================================
      PAGINATION
@@ -212,7 +252,10 @@ const PriceHistoryPage = () => {
   const safeCurrentPage =
     totalPages === 0
       ? 1
-      : Math.min(currentPage, totalPages);
+      : Math.min(
+          currentPage,
+          totalPages
+        );
 
   const paginatedHistory = useMemo(() => {
     const start =
@@ -280,54 +323,58 @@ const PriceHistoryPage = () => {
   ======================================================= */
 
   const stats = useMemo(() => {
-    const records =
-      Array.isArray(filteredHistory)
-        ? filteredHistory
-        : [];
+    const records = Array.isArray(
+      filteredHistory
+    )
+      ? filteredHistory
+      : [];
 
-    const uniqueProducts =
-      new Set(
-        records.map(
+    const uniqueProducts = new Set(
+      records.map(
+        (item) => item?.product_id
+      )
+    );
+
+    const uniqueUsers = new Set(
+      records
+        .map(
           (item) =>
-            item?.product_id
+            item?.changed_by_user_id
         )
-      );
+        .filter(Boolean)
+    );
 
-    const uniqueUsers =
-      new Set(
-        records
-          .map(
-            (item) =>
-              item?.changed_by_user_id
-          )
-          .filter(Boolean)
-      );
+    const increases = records.filter(
+      (item) =>
+        getPriceChangeType(
+          item?.old_price,
+          item?.new_price
+        ) === "increase" ||
+        getPriceChangeType(
+          item?.old_ds_price,
+          item?.new_ds_price
+        ) === "increase" ||
+        getPriceChangeType(
+          item?.old_dlr_price,
+          item?.new_dlr_price
+        ) === "increase"
+    ).length;
 
-    const increases =
-      records.filter(
-        (item) =>
-          getPriceChangeType(
-            item?.old_price,
-            item?.new_price
-          ) === "increase" ||
-          getPriceChangeType(
-            item?.old_ds_price,
-            item?.new_ds_price
-          ) === "increase"
-      ).length;
-
-    const decreases =
-      records.filter(
-        (item) =>
-          getPriceChangeType(
-            item?.old_price,
-            item?.new_price
-          ) === "decrease" ||
-          getPriceChangeType(
-            item?.old_ds_price,
-            item?.new_ds_price
-          ) === "decrease"
-      ).length;
+    const decreases = records.filter(
+      (item) =>
+        getPriceChangeType(
+          item?.old_price,
+          item?.new_price
+        ) === "decrease" ||
+        getPriceChangeType(
+          item?.old_ds_price,
+          item?.new_ds_price
+        ) === "decrease" ||
+        getPriceChangeType(
+          item?.old_dlr_price,
+          item?.new_dlr_price
+        ) === "decrease"
+    ).length;
 
     return {
       changes: records.length,
@@ -412,7 +459,8 @@ const PriceHistoryPage = () => {
 
           <div className="flex flex-col gap-2 xl:flex-row">
 
-            {/* Search */}
+            {/* SEARCH */}
+
             <form
               onSubmit={
                 handleSearchSubmit
@@ -458,7 +506,8 @@ const PriceHistoryPage = () => {
               </div>
             </form>
 
-            {/* Product ID */}
+            {/* PRODUCT ID */}
+
             <input
               type="number"
               value={productFilter}
@@ -469,7 +518,8 @@ const PriceHistoryPage = () => {
               className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-xs text-gray-700 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 xl:w-[170px]"
             />
 
-            {/* Date */}
+            {/* DATE */}
+
             <select
               value={dateFilter}
               onChange={
@@ -570,7 +620,7 @@ const PriceHistoryPage = () => {
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
-        {/* Sheet Header */}
+        {/* SHEET HEADER */}
 
         <div className="flex flex-col gap-1 border-b border-gray-200 bg-gray-50 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
 
@@ -593,7 +643,7 @@ const PriceHistoryPage = () => {
         </div>
 
         {/* ===================================================
-            LOADING
+            LOADING / EMPTY / TABLE
         ==================================================== */}
 
         {isLoading ? (
@@ -601,16 +651,16 @@ const PriceHistoryPage = () => {
         ) : filteredHistory.length === 0 ? (
           <EmptyHistory />
         ) : (
-          <div className="max-h-[calc(100vh-350px)] min-h-[400px] overflow-auto">
+          <div className=" overflow-auto">
 
-            <table className="w-full min-w-[1200px] border-collapse text-left text-xs">
+            <table className="w-full min-w-[1400px] border-collapse text-left text-xs">
 
               <thead className="sticky top-0 z-20">
 
                 <tr className="border-b border-gray-200 bg-gray-100">
 
                   <th className="w-[250px] px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-gray-500">
-                    Product / SKU
+                    Product
                   </th>
 
                   <th className="w-[190px] bg-blue-50 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-blue-700">
@@ -621,8 +671,12 @@ const PriceHistoryPage = () => {
                     DS Price
                   </th>
 
+                  <th className="w-[190px] bg-emerald-50 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+                    DLR Price
+                  </th>
+
                   <th className="w-[155px] px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-gray-500">
-                    Applicable From
+                     From
                   </th>
 
                   <th className="w-[175px] px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-gray-500">
@@ -645,6 +699,7 @@ const PriceHistoryPage = () => {
 
                 {paginatedHistory.map(
                   (item, index) => {
+
                     const ssChange =
                       getPriceChangeType(
                         item?.old_price,
@@ -655,6 +710,12 @@ const PriceHistoryPage = () => {
                       getPriceChangeType(
                         item?.old_ds_price,
                         item?.new_ds_price
+                      );
+
+                    const dlrChange =
+                      getPriceChangeType(
+                        item?.old_dlr_price,
+                        item?.new_dlr_price
                       );
 
                     return (
@@ -724,6 +785,20 @@ const PriceHistoryPage = () => {
                               item?.new_ds_price
                             }
                             type={dsChange}
+                          />
+                        </td>
+
+                        {/* DLR PRICE */}
+
+                        <td className="bg-emerald-50/30 px-3 py-2.5">
+                          <PriceChange
+                            oldValue={
+                              item?.old_dlr_price
+                            }
+                            newValue={
+                              item?.new_dlr_price
+                            }
+                            type={dlrChange}
                           />
                         </td>
 
@@ -1169,16 +1244,18 @@ const HistorySkeleton = () => {
     <div className="animate-pulse">
 
       <div className="space-y-0">
+
         {Array.from(
           { length: 8 },
           (_, index) => (
             <div
               key={index}
-              className="grid min-w-[1100px] grid-cols-7 gap-3 border-b border-gray-100 px-3 py-4"
+              className="grid min-w-[1400px] grid-cols-8 gap-3 border-b border-gray-100 px-3 py-4"
             >
               <div className="h-7 rounded bg-gray-100" />
               <div className="h-7 rounded bg-blue-50" />
               <div className="h-7 rounded bg-purple-50" />
+              <div className="h-7 rounded bg-emerald-50" />
               <div className="h-7 rounded bg-gray-100" />
               <div className="h-7 rounded bg-gray-100" />
               <div className="h-7 rounded bg-gray-100" />
@@ -1186,8 +1263,8 @@ const HistorySkeleton = () => {
             </div>
           )
         )}
-      </div>
 
+      </div>
     </div>
   );
 };

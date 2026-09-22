@@ -14,51 +14,88 @@ import {
 
 export const PRICE_HISTORY_QUERY_KEY = ["price-history"];
 export const SALE_NAME_QUERY_KEY = ["sale-names"];
+export const ALL_PRODUCTS_QUERY_KEY = ["all-products"];
 
-// =====================================================
-// UPDATE PRODUCT PRICES
-// =====================================================
+const normalizeProductEnvelope = (cache) => {
+  if (Array.isArray(cache)) {
+    return {
+      type: "array",
+      products: cache,
+      rebuild: (products) => products,
+    };
+  }
+
+  if (Array.isArray(cache?.results)) {
+    return {
+      type: "results",
+      products: cache.results,
+      rebuild: (products) => ({ ...cache, results: products }),
+    };
+  }
+
+  if (Array.isArray(cache?.products)) {
+    return {
+      type: "products",
+      products: cache.products,
+      rebuild: (products) => ({ ...cache, products }),
+    };
+  }
+
+  return {
+    type: "empty",
+    products: [],
+    rebuild: () => cache,
+  };
+};
 
 export const useUpdateProductPrices = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updateProductPrices,
-
     onSuccess: (response) => {
-      const updatedProducts =
-        response?.updated_products ?? [];
+      const updatedProducts = Array.isArray(response?.updated_products)
+        ? response.updated_products
+        : [];
 
-      if (updatedProducts.length > 0) {
+      if (updatedProducts.length) {
         queryClient.setQueryData(
-          ["all-products"],
-          (oldProducts) => {
-            if (!Array.isArray(oldProducts)) {
-              return oldProducts;
-            }
+          ALL_PRODUCTS_QUERY_KEY,
+          (oldCache) => {
+            const envelope = normalizeProductEnvelope(oldCache);
+            if (!envelope.products.length) return oldCache;
 
             const updatedMap = new Map(
               updatedProducts.map((item) => [
-                Number(item.product_id),
+                Number(item?.product_id),
                 item,
               ])
             );
 
-            return oldProducts.map((product) => {
-              const updated = updatedMap.get(
-                Number(product?.product_id)
-              );
+            return envelope.rebuild(
+              envelope.products.map((product) => {
+                const updated = updatedMap.get(
+                  Number(product?.product_id)
+                );
+                if (!updated) return product;
 
-              if (!updated) {
-                return product;
-              }
-
-              return {
-                ...product,
-                price: updated.new_price,
-                ds_price: updated.new_ds_price,
-              };
-            });
+                return {
+                  ...product,
+                  price:
+                    updated.new_price ??
+                    updated.price ??
+                    product.price,
+                  ds_price:
+                    updated.new_ds_price ??
+                    updated.ds_price ??
+                    product.ds_price,
+                  dlr_price:
+                    updated.new_dlr_price ??
+                    updated.dlr_price ??
+                    product.dlr_price,
+                };
+              })
+            );
           }
         );
       }
@@ -70,74 +107,34 @@ export const useUpdateProductPrices = () => {
   });
 };
 
-// =====================================================
-// PRICE HISTORY
-// =====================================================
-
 export const usePriceHistory = ({
   product_id = "",
   search = "",
-} = {}) => {
-  return useQuery({
-    queryKey: [
-      ...PRICE_HISTORY_QUERY_KEY,
-      product_id,
-      search,
-    ],
-
-    queryFn: () =>
-      getPriceHistory({
-        product_id,
-        search,
-      }),
-
+} = {}) =>
+  useQuery({
+    queryKey: [...PRICE_HISTORY_QUERY_KEY, product_id, search],
+    queryFn: () => getPriceHistory({ product_id, search }),
     staleTime: 1000 * 60,
     gcTime: 1000 * 60 * 10,
-
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    refetchOnMount: true,
-
     retry: 1,
   });
-};
 
-// =====================================================
-// SALE NAMES BY PRODUCT
-// IMPORTANT: PriceManagementPage.jsx imports this
-// =====================================================
-
-export const useSaleNamesByProduct = (
-  productId,
-  enabled = false
-) => {
-  return useQuery({
-    queryKey: [
-      ...SALE_NAME_QUERY_KEY,
-      Number(productId),
-    ],
-
-    queryFn: () =>
-      getSaleNamesByProduct(productId),
-
+export const useSaleNamesByProduct = (productId, enabled = false) =>
+  useQuery({
+    queryKey: [...SALE_NAME_QUERY_KEY, Number(productId)],
+    queryFn: () => getSaleNamesByProduct(productId),
     enabled:
       enabled &&
       productId !== undefined &&
       productId !== null,
-
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
-
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-
     retry: 1,
   });
-};
-
-// =====================================================
-// SAVE / EDIT SALE NAME
-// =====================================================
 
 export const useSaveSaleName = () => {
   const queryClient = useQueryClient();
@@ -149,16 +146,44 @@ export const useSaveSaleName = () => {
       sale_name_id,
       sale_name,
     }) => {
+      const cleanSaleName = String(
+        sale_name ?? ""
+      ).trim();
+
+      if (!cleanSaleName) {
+        throw new Error("Sale Name cannot be empty.");
+      }
+
       if (mode === "edit") {
+        if (
+          sale_name_id === undefined ||
+          sale_name_id === null ||
+          String(sale_name_id).trim() === ""
+        ) {
+          throw new Error(
+            "Sale Name ID is required for edit."
+          );
+        }
+
         return updateSaleName({
           sale_name_id,
-          sale_name,
+          sale_name: cleanSaleName,
         });
+      }
+
+      if (
+        product_id === undefined ||
+        product_id === null ||
+        String(product_id).trim() === ""
+      ) {
+        throw new Error(
+          "Product ID is required to add Sale Name."
+        );
       }
 
       return addSaleName({
         product_id,
-        sale_name,
+        sale_name: cleanSaleName,
       });
     },
 
@@ -174,116 +199,194 @@ export const useSaveSaleName = () => {
           ""
       ).trim();
 
-      if (!savedName) {
+      if (!productId || !savedName) {
         return;
       }
 
-      // =================================================
-      // 1. UPDATE ALL PRODUCTS CACHE
-      // =================================================
+      /*
+       * =====================================================
+       * 1. UPDATE ALL PRODUCTS CACHE
+       * =====================================================
+       */
 
       queryClient.setQueryData(
-        ["all-products"],
-        (oldProducts) => {
-          if (!Array.isArray(oldProducts)) {
-            return oldProducts;
+        ALL_PRODUCTS_QUERY_KEY,
+        (oldCache) => {
+          const envelope =
+            normalizeProductEnvelope(oldCache);
+
+          if (!envelope.products.length) {
+            return oldCache;
           }
 
-          return oldProducts.map((product) => {
-            if (
-              Number(product?.product_id) !== productId
-            ) {
-              return product;
-            }
+          return envelope.rebuild(
+            envelope.products.map((product) => {
+              if (
+                Number(product?.product_id) !==
+                productId
+              ) {
+                return product;
+              }
 
-            const existingSaleNames =
-              Array.isArray(product?.sale_names)
+              const existing = Array.isArray(
+                product?.sale_names
+              )
                 ? product.sale_names
                 : [];
 
-            // ---------------------------------------------
-            // EDIT
-            // ---------------------------------------------
+              /*
+               * -------------------------------
+               * EDIT
+               * -------------------------------
+               */
+              if (
+                variables?.mode === "edit"
+              ) {
+                const saleNameId =
+                  variables?.sale_name_id;
 
-            if (variables?.mode === "edit") {
-              if (existingSaleNames.length === 0) {
+                /*
+                 * Existing record found
+                 */
+                const updatedExisting =
+                  existing.map((item) => {
+                    if (
+                      typeof item === "string"
+                    ) {
+                      return item;
+                    }
+
+                    const itemId =
+                      item?.id ??
+                      item?.sale_name_id ??
+                      item?.pk;
+
+                    if (
+                      itemId !== undefined &&
+                      itemId !== null &&
+                      String(itemId) ===
+                        String(saleNameId)
+                    ) {
+                      return {
+                        ...item,
+                        id:
+                          item?.id ??
+                          saleNameId,
+                        sale_name:
+                          savedName,
+                      };
+                    }
+
+                    return item;
+                  });
+
+                /*
+                 * If matching ID was not found,
+                 * keep the product usable by
+                 * replacing the first sale-name
+                 * record.
+                 */
+                const found = existing.some(
+                  (item) => {
+                    if (
+                      typeof item ===
+                      "string"
+                    ) {
+                      return false;
+                    }
+
+                    const itemId =
+                      item?.id ??
+                      item?.sale_name_id ??
+                      item?.pk;
+
+                    return (
+                      itemId !== undefined &&
+                      itemId !== null &&
+                      String(itemId) ===
+                        String(saleNameId)
+                    );
+                  }
+                );
+
+                if (found) {
+                  return {
+                    ...product,
+                    sale_names:
+                      updatedExisting,
+                  };
+                }
+
                 return {
                   ...product,
-                  sale_names: [savedName],
+                  sale_names: [
+                    {
+                      id: saleNameId,
+                      sale_name: savedName,
+                    },
+                  ],
                 };
               }
 
-              const updatedSaleNames =
-                existingSaleNames.map((item) => {
-                  if (typeof item === "string") {
-                    return savedName;
-                  }
+              /*
+               * -------------------------------
+               * ADD
+               * -------------------------------
+               */
 
-                  const itemId =
-                    item?.id ??
-                    item?.sale_name_id;
+              const exists =
+                existing.some((item) => {
+                  const name =
+                    typeof item === "string"
+                      ? item.trim()
+                      : String(
+                          item?.sale_name ??
+                            item?.name ??
+                            ""
+                        ).trim();
 
-                  if (
-                    itemId !== undefined &&
-                    String(itemId) ===
-                      String(
-                        variables?.sale_name_id
-                      )
-                  ) {
-                    return {
-                      ...item,
-                      sale_name: savedName,
-                    };
-                  }
-
-                  return item;
+                  return (
+                    name.toLowerCase() ===
+                    savedName.toLowerCase()
+                  );
                 });
+
+              if (exists) {
+                return product;
+              }
+
+              const responseId =
+                response?.id ??
+                response?.sale_name_id ??
+                response?.pk;
 
               return {
                 ...product,
-                sale_names: updatedSaleNames,
+                sale_names: [
+                  ...existing,
+                  responseId
+                    ? {
+                        ...response,
+                        id: responseId,
+                        sale_name:
+                          savedName,
+                      }
+                    : {
+                        sale_name:
+                          savedName,
+                      },
+                ],
               };
-            }
-
-            // ---------------------------------------------
-            // ADD
-            // ---------------------------------------------
-
-            const alreadyExists =
-              existingSaleNames.some((item) => {
-                const name =
-                  typeof item === "string"
-                    ? item.trim()
-                    : String(
-                        item?.sale_name ??
-                          item?.name ??
-                          ""
-                      ).trim();
-
-                return (
-                  name.toLowerCase() ===
-                  savedName.toLowerCase()
-                );
-              });
-
-            if (alreadyExists) {
-              return product;
-            }
-
-            return {
-              ...product,
-              sale_names: [
-                ...existingSaleNames,
-                savedName,
-              ],
-            };
-          });
+            })
+          );
         }
       );
 
-      // =================================================
-      // 2. UPDATE SALE-NAMES QUERY CACHE
-      // =================================================
+      /*
+       * =====================================================
+       * 2. UPDATE SALE-NAME QUERY CACHE
+       * =====================================================
+       */
 
       queryClient.setQueryData(
         [
@@ -291,57 +394,84 @@ export const useSaveSaleName = () => {
           productId,
         ],
         (oldSaleNames) => {
-          const existing =
-            Array.isArray(oldSaleNames)
-              ? oldSaleNames
-              : [];
+          const existing = Array.isArray(
+            oldSaleNames
+          )
+            ? oldSaleNames
+            : [];
 
-          // ---------------------------------------------
-          // EDIT
-          // ---------------------------------------------
+          /*
+           * -------------------------------
+           * EDIT
+           * -------------------------------
+           */
+          if (
+            variables?.mode === "edit"
+          ) {
+            const saleNameId =
+              variables?.sale_name_id;
 
-          if (variables?.mode === "edit") {
-            if (existing.length === 0) {
-              return [
-                {
-                  id: variables?.sale_name_id,
-                  sale_name: savedName,
-                  product: productId,
-                },
-              ];
+            let found = false;
+
+            const updated = existing.map(
+              (item) => {
+                if (
+                  typeof item === "string"
+                ) {
+                  return item;
+                }
+
+                const itemId =
+                  item?.id ??
+                  item?.sale_name_id ??
+                  item?.pk;
+
+                if (
+                  itemId !== undefined &&
+                  itemId !== null &&
+                  String(itemId) ===
+                    String(saleNameId)
+                ) {
+                  found = true;
+
+                  return {
+                    ...item,
+                    id:
+                      item?.id ??
+                      saleNameId,
+                    sale_name:
+                      savedName,
+                    product:
+                      item?.product ??
+                      productId,
+                  };
+                }
+
+                return item;
+              }
+            );
+
+            if (found) {
+              return updated;
             }
 
-            return existing.map((item) => {
-              if (typeof item === "string") {
-                return savedName;
-              }
-
-              const itemId =
-                item?.id ??
-                item?.sale_name_id;
-
-              if (
-                itemId !== undefined &&
-                String(itemId) ===
-                  String(
-                    variables?.sale_name_id
-                  )
-              ) {
-                return {
-                  ...item,
-                  sale_name: savedName,
-                };
-              }
-
-              return item;
-            });
+            return [
+              ...existing,
+              {
+                id: saleNameId,
+                sale_name: savedName,
+                product: productId,
+              },
+            ];
           }
 
-          // ---------------------------------------------
-          // ADD
-          // ---------------------------------------------
+          /*
+           * -------------------------------
+           * ADD
+           * -------------------------------
+           */
 
-          const alreadyExists =
+          const exists =
             existing.some((item) => {
               const name =
                 typeof item === "string"
@@ -358,16 +488,24 @@ export const useSaveSaleName = () => {
               );
             });
 
-          if (alreadyExists) {
+          if (exists) {
             return existing;
           }
 
+          const responseId =
+            response?.id ??
+            response?.sale_name_id ??
+            response?.pk;
+
           return [
             ...existing,
-            response?.id
+            responseId
               ? {
                   ...response,
-                  sale_name: savedName,
+                  id: responseId,
+                  sale_name:
+                    savedName,
+                  product: productId,
                 }
               : {
                   sale_name: savedName,
@@ -377,9 +515,11 @@ export const useSaveSaleName = () => {
         }
       );
 
-      // =================================================
-      // 3. REFRESH SALE NAME DATA IN BACKGROUND
-      // =================================================
+      /*
+       * =====================================================
+       * 3. REFRESH SALE-NAME QUERY
+       * =====================================================
+       */
 
       await queryClient.invalidateQueries({
         queryKey: [
@@ -390,3 +530,9 @@ export const useSaveSaleName = () => {
     },
   });
 };
+
+export const useAddSaleName = () =>
+  useSaveSaleName();
+
+export const useUpdateSaleName = () =>
+  useSaveSaleName();

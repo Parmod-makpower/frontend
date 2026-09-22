@@ -1,47 +1,47 @@
 import * as XLSX from "xlsx-js-style";
 
 /* ============================================================================
- * BASIC HELPERS
- * ========================================================================== */
+   HELPERS
+============================================================================ */
 
-const getProductId = (product) =>
-  product?.product_id ??
-  product?.id ??
+const getProductId = (p) =>
+  p?.product_id ?? p?.id ?? "";
+
+const getCategory = (p) =>
+  String(p?.sub_category ?? p?.category ?? "UNCATEGORIZED").trim() ||
+  "UNCATEGORIZED";
+
+const getProductName = (p) =>
+  p?.product_name ?? p?.name ?? "";
+
+const getGuarantee = (p) =>
+  p?.guarantee ??
+  p?.guarantee_period ??
+  p?.warranty ??
+  p?.warranty_period ??
   "";
 
-const getCategory = (product) =>
-  String(
-    product?.sub_category ??
-      product?.category ??
-      "UNCATEGORIZED"
-  ).trim() || "UNCATEGORIZED";
-
-const getProductName = (product) =>
-  product?.product_name ??
-  product?.name ??
+const getCartonSize = (p) =>
+  p?.cartoon_size ??
+  p?.cartonSize ??
+  p?.carton ??
+  p?.carton_quantity ??
+  p?.carton_qty ??
   "";
 
-const getGuarantee = (product) =>
-  product?.guarantee ??
-  product?.guarantee_period ??
-  product?.warranty ??
-  product?.warranty_period ??
-  "";
+const normalizeCategory = (value) =>
+  String(value ?? "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toUpperCase();
 
 /* ============================================================================
- * SALE NAME
- *
- * Only ONE Sale Name:
- * Active + latest
- * ========================================================================== */
+   SALE NAME
+   Latest active Sale Name only
+============================================================================ */
 
 const getSaleNameText = (item) => {
-  if (
-    item === null ||
-    item === undefined
-  ) {
-    return "";
-  }
+  if (item == null) return "";
 
   if (typeof item === "string") {
     return item.trim();
@@ -59,29 +59,13 @@ const getSaleNameText = (item) => {
   return String(item).trim();
 };
 
-const getSaleNameId = (item) => {
-  if (
-    item &&
-    typeof item === "object"
-  ) {
-    return (
-      item?.id ??
-      item?.sale_name_id ??
-      item?.pk ??
-      null
-    );
-  }
-
-  return null;
-};
+const getSaleNameId = (item) =>
+  item && typeof item === "object"
+    ? item?.id ?? item?.sale_name_id ?? item?.pk ?? null
+    : null;
 
 const getSaleNameDate = (item) => {
-  if (
-    !item ||
-    typeof item !== "object"
-  ) {
-    return 0;
-  }
+  if (!item || typeof item !== "object") return 0;
 
   const value =
     item?.updated_at ??
@@ -92,168 +76,97 @@ const getSaleNameDate = (item) => {
     item?.timestamp ??
     "";
 
-  if (!value) {
-    return 0;
-  }
+  const time = value ? new Date(value).getTime() : 0;
 
-  const time =
-    new Date(value).getTime();
-
-  return Number.isFinite(time)
-    ? time
-    : 0;
+  return Number.isFinite(time) ? time : 0;
 };
 
-const getLatestActiveSaleName = (
-  product
-) => {
-  const saleNames =
-    product?.sale_names;
+const getLatestActiveSaleName = (product) => {
+  const saleNames = product?.sale_names;
 
-  if (!saleNames) {
-    return "";
-  }
+  if (!saleNames) return "";
 
   if (typeof saleNames === "string") {
     const names = saleNames
       .split(",")
-      .map((item) =>
-        item.trim()
-      )
+      .map((x) => x.trim())
       .filter(Boolean);
 
-    return names.length
-      ? names[names.length - 1]
-      : "";
+    return names.at(-1) || "";
   }
 
-  if (!Array.isArray(saleNames)) {
+  if (!Array.isArray(saleNames) || !saleNames.length) {
     return "";
   }
 
-  if (saleNames.length === 0) {
-    return "";
+  const active = saleNames.filter(
+    (item) =>
+      !item ||
+      typeof item !== "object" ||
+      (item?.is_active !== false &&
+        item?.active !== false)
+  );
+
+  const records = active.length ? active : saleNames;
+
+  const objects = records.filter(
+    (item) =>
+      item &&
+      typeof item === "object"
+  );
+
+  if (!objects.length) {
+    return (
+      records
+        .map(getSaleNameText)
+        .filter(Boolean)
+        .at(-1) || ""
+    );
   }
 
-  const activeRecords =
-    saleNames.filter((item) => {
+  return getSaleNameText(
+    [...objects].sort((a, b) => {
+      const dateDiff =
+        getSaleNameDate(b) -
+        getSaleNameDate(a);
+
+      if (dateDiff) return dateDiff;
+
+      const idA = Number(
+        getSaleNameId(a) ?? 0
+      );
+
+      const idB = Number(
+        getSaleNameId(b) ?? 0
+      );
+
       if (
-        !item ||
-        typeof item !== "object"
+        Number.isFinite(idA) &&
+        Number.isFinite(idB) &&
+        idA !== idB
       ) {
-        return true;
+        return idB - idA;
       }
 
       return (
-        item?.is_active !== false &&
-        item?.active !== false
+        saleNames.indexOf(b) -
+        saleNames.indexOf(a)
       );
-    });
-
-  const records =
-    activeRecords.length
-      ? activeRecords
-      : saleNames;
-
-  const objectRecords =
-    records.filter(
-      (item) =>
-        item &&
-        typeof item === "object"
-    );
-
-  if (
-    objectRecords.length === 0
-  ) {
-    const names = records
-      .map(getSaleNameText)
-      .filter(Boolean);
-
-    return names.length
-      ? names[names.length - 1]
-      : "";
-  }
-
-  const sortedRecords = [
-    ...objectRecords,
-  ].sort((a, b) => {
-    const dateA =
-      getSaleNameDate(a);
-
-    const dateB =
-      getSaleNameDate(b);
-
-    if (dateA !== dateB) {
-      return dateB - dateA;
-    }
-
-    const idA = Number(
-      getSaleNameId(a) ?? 0
-    );
-
-    const idB = Number(
-      getSaleNameId(b) ?? 0
-    );
-
-    if (
-      Number.isFinite(idA) &&
-      Number.isFinite(idB) &&
-      idA !== idB
-    ) {
-      return idB - idA;
-    }
-
-    return (
-      saleNames.indexOf(b) -
-      saleNames.indexOf(a)
-    );
-  });
-
-  return getSaleNameText(
-    sortedRecords[0]
+    })[0]
   );
 };
 
 /* ============================================================================
- * CATEGORY NORMALIZATION
- * ========================================================================== */
-
-const normalizeCategory = (
-  value
-) =>
-  String(
-    value ?? ""
-  )
-    .trim()
-    .replace(/\s+/g, " ")
-    .toUpperCase();
-
-/* ============================================================================
- * COMBINED CATEGORY GROUPS
- *
- * IMPORTANT:
- *
- * Actual backend category:
- *     LED TORCH
- *
- * Previous code had:
- *     TORCH
- *
- * That is why LED TORCH was creating a separate sheet.
- *
- * Ab aliases bhi diye gaye hain so future naming variation
- * se category separate sheet mein nahi niklegi.
- * ========================================================================== */
+   COMBINED CATEGORY GROUPS
+============================================================================ */
 
 const COMBINED_CATEGORY_GROUPS = [
   {
-    sheetName:
-      "P.B ,LED LIGHT & AUX CABLE",
+    sheetName: "P.B ,LED LIGHT & AUX CABLE",
 
     sections: [
       {
         title: "P.B",
-
         aliases: [
           "P.B",
           "PB",
@@ -261,47 +174,37 @@ const COMBINED_CATEGORY_GROUPS = [
           "P.B.",
         ],
       },
-
       {
         title: "LED LIGHT",
-
         aliases: [
           "LED LIGHT",
           "LED LIGHTS",
         ],
       },
-
       {
         title: "LED TORCH",
-
         aliases: [
           "LED TORCH",
           "TORCH",
           "LED TORCHES",
         ],
       },
-
       {
         title: "AUX CABLE",
-
         aliases: [
           "AUX CABLE",
           "AUX CABLES",
         ],
       },
-
       {
         title: "PORTABLE FAN",
-
         aliases: [
           "PORTABLE FAN",
           "PORTABLE FANS",
         ],
       },
-
       {
         title: "BT CELL",
-
         aliases: [
           "BT CELL",
           "BT CELLS",
@@ -312,33 +215,18 @@ const COMBINED_CATEGORY_GROUPS = [
   },
 ];
 
-/* ============================================================================
- * FIND SECTION FOR CATEGORY
- * ========================================================================== */
+const findCombinedSection = (category) => {
+  const normalized = normalizeCategory(category);
 
-const findCombinedSection = (
-  category
-) => {
-  const normalized =
-    normalizeCategory(
-      category
-    );
-
-  for (
-    const group of COMBINED_CATEGORY_GROUPS
-  ) {
-    for (
-      const section of group.sections
-    ) {
-      const found =
+  for (const group of COMBINED_CATEGORY_GROUPS) {
+    for (const section of group.sections) {
+      if (
         section.aliases.some(
           (alias) =>
-            normalizeCategory(
-              alias
-            ) === normalized
-        );
-
-      if (found) {
+            normalizeCategory(alias) ===
+            normalized
+        )
+      ) {
         return {
           group,
           section,
@@ -351,115 +239,74 @@ const findCombinedSection = (
 };
 
 /* ============================================================================
- * SAFE SHEET NAME
- * ========================================================================== */
+   SAFE SHEET NAME
+============================================================================ */
 
-const cleanSheetName = (
-  name,
-  usedNames
-) => {
+const cleanSheetName = (name, usedNames) => {
   let sheetName = String(
-    name ||
-      "UNCATEGORIZED"
+    name || "UNCATEGORIZED"
   )
-    .replace(
-      /[\\/?*[\]:]/g,
-      " "
-    )
-    .replace(
-      /\s+/g,
-      " "
-    )
-    .trim();
+    .replace(/[\\/?*[\]:]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .substring(0, 31);
 
   if (!sheetName) {
-    sheetName =
-      "UNCATEGORIZED";
+    sheetName = "UNCATEGORIZED";
   }
 
-  sheetName =
-    sheetName.substring(
-      0,
-      31
-    );
-
-  let finalName =
-    sheetName;
-
+  let finalName = sheetName;
   let counter = 1;
 
-  while (
-    usedNames.has(
-      finalName
-    )
-  ) {
-    const suffix =
-      ` (${counter})`;
+  while (usedNames.has(finalName)) {
+    const suffix = ` (${counter})`;
 
     finalName =
       sheetName.substring(
         0,
-        31 -
-          suffix.length
+        31 - suffix.length
       ) + suffix;
 
     counter++;
   }
 
-  usedNames.add(
-    finalName
-  );
+  usedNames.add(finalName);
 
   return finalName;
 };
 
 /* ============================================================================
- * EXCEL STYLES
- * ========================================================================== */
+   EXCEL STYLES
+============================================================================ */
 
 const BORDER = {
   top: {
     style: "thin",
-    color: {
-      rgb: "000000",
-    },
+    color: { rgb: "000000" },
   },
-
   bottom: {
     style: "thin",
-    color: {
-      rgb: "000000",
-    },
+    color: { rgb: "000000" },
   },
-
   left: {
     style: "thin",
-    color: {
-      rgb: "000000",
-    },
+    color: { rgb: "000000" },
   },
-
   right: {
     style: "thin",
-    color: {
-      rgb: "000000",
-    },
+    color: { rgb: "000000" },
   },
 };
 
 const CATEGORY_TITLE_STYLE = {
   font: {
     bold: true,
-    color: {
-      rgb: "FFFFFF",
-    },
+    color: { rgb: "FFFFFF" },
     sz: 16,
   },
 
   fill: {
-    fgColor: {
-      rgb: "FF0000",
-    },
+    fgColor: { rgb: "FF0000" },
   },
 
   alignment: {
@@ -473,16 +320,12 @@ const CATEGORY_TITLE_STYLE = {
 const HEADER_STYLE = {
   font: {
     bold: true,
-    color: {
-      rgb: "FF0000",
-    },
+    color: { rgb: "FF0000" },
     sz: 11,
   },
 
   fill: {
-    fgColor: {
-      rgb: "FFFFFF",
-    },
+    fgColor: { rgb: "FFFFFF" },
   },
 
   alignment: {
@@ -497,9 +340,7 @@ const HEADER_STYLE = {
 const DATA_STYLE = {
   font: {
     bold: true,
-    color: {
-      rgb: "000000",
-    },
+    color: { rgb: "000000" },
     sz: 10,
   },
 
@@ -521,8 +362,8 @@ const DATA_LEFT_STYLE = {
 };
 
 /* ============================================================================
- * ADD CATEGORY SECTION
- * ========================================================================== */
+   ADD CATEGORY SECTION
+============================================================================ */
 
 const addCategorySection = (
   worksheet,
@@ -531,43 +372,35 @@ const addCategorySection = (
   products
 ) => {
   /*
-   * Current export layout.
-   *
-   * SALE NAME is intentionally not made a separate column,
-   * because screenshot/reference catalogue layout uses:
-   *
-   * SL NO.
-   * PRODUCT ID
-   * MODEL
-   * GUARANTEE
-   * SS PRICE
-   * DS PRICE
-   */
+    Final Excel columns:
+
+    SL. NO.
+    MODEL
+    GUARANTEE
+    CARTON
+    SS PRICE
+    DS PRICE
+    DLR PRICE
+
+    Product ID and Sale Name are not exported.
+  */
 
   const columns = [
     "SL. NO.",
-    "PRODUCT ID",
     "MODEL",
     "GUARANTEE",
+    "CARTON",
     "SS PRICE",
     "DS PRICE",
+    "DLR PRICE",
   ];
 
-  const columnCount =
-    columns.length;
+  const titleRow = startRow;
+  const headerRow = startRow + 1;
+  const dataStartRow = startRow + 2;
+  const columnCount = columns.length;
 
-  const titleRow =
-    startRow;
-
-  const headerRow =
-    startRow + 1;
-
-  const dataStartRow =
-    startRow + 2;
-
-  /* ------------------------------------------------------------------------ */
-  /* RED CATEGORY TITLE                                                        */
-  /* ------------------------------------------------------------------------ */
+  /* CATEGORY TITLE */
 
   XLSX.utils.sheet_add_aoa(
     worksheet,
@@ -588,11 +421,9 @@ const addCategorySection = (
       r: titleRow,
       c: 0,
     },
-
     e: {
       r: titleRow,
-      c:
-        columnCount - 1,
+      c: columnCount - 1,
     },
   });
 
@@ -605,12 +436,7 @@ const addCategorySection = (
   worksheet[titleCell].s =
     CATEGORY_TITLE_STYLE;
 
-  worksheet[titleCell].v =
-    categoryTitle;
-
-  /* ------------------------------------------------------------------------ */
-  /* HEADER                                                                    */
-  /* ------------------------------------------------------------------------ */
+  /* HEADER */
 
   XLSX.utils.sheet_add_aoa(
     worksheet,
@@ -623,47 +449,30 @@ const addCategorySection = (
     }
   );
 
-  columns.forEach(
-    (_, columnIndex) => {
-      const cell =
-        XLSX.utils.encode_cell({
-          r: headerRow,
-          c: columnIndex,
-        });
+  columns.forEach((_, columnIndex) => {
+    const cell =
+      XLSX.utils.encode_cell({
+        r: headerRow,
+        c: columnIndex,
+      });
 
-      worksheet[cell].s =
-        HEADER_STYLE;
-    }
+    worksheet[cell].s =
+      HEADER_STYLE;
+  });
+
+  /* DATA */
+
+  const dataRows = products.map(
+    (product, index) => [
+      index + 1,
+      getProductName(product),
+      getGuarantee(product),
+      getCartonSize(product),
+      product?.price ?? "",
+      product?.ds_price ?? "",
+      product?.dlr_price ?? "",
+    ]
   );
-
-  /* ------------------------------------------------------------------------ */
-  /* DATA                                                                      */
-  /* ------------------------------------------------------------------------ */
-
-  const dataRows =
-    products.map(
-      (product, index) => [
-        index + 1,
-
-        getProductId(
-          product
-        ),
-
-        getProductName(
-          product
-        ),
-
-        getGuarantee(
-          product
-        ),
-
-        product?.price ??
-          "",
-
-        product?.ds_price ??
-          "",
-      ]
-    );
 
   if (dataRows.length) {
     XLSX.utils.sheet_add_aoa(
@@ -682,18 +491,15 @@ const addCategorySection = (
         row.forEach(
           (_, columnIndex) => {
             const cell =
-              XLSX.utils.encode_cell(
-                {
-                  r:
-                    dataStartRow +
-                    rowIndex,
-
-                  c: columnIndex,
-                }
-              );
+              XLSX.utils.encode_cell({
+                r:
+                  dataStartRow +
+                  rowIndex,
+                c: columnIndex,
+              });
 
             worksheet[cell].s =
-              columnIndex === 2
+              columnIndex === 1
                 ? DATA_LEFT_STYLE
                 : DATA_STYLE;
           }
@@ -702,22 +508,16 @@ const addCategorySection = (
     );
   }
 
-  /* ------------------------------------------------------------------------ */
-  /* ROW HEIGHTS                                                               */
-  /* ------------------------------------------------------------------------ */
+  /* ROW HEIGHTS */
 
   worksheet["!rows"] =
     worksheet["!rows"] || [];
 
-  worksheet["!rows"][
-    titleRow
-  ] = {
+  worksheet["!rows"][titleRow] = {
     hpt: 25,
   };
 
-  worksheet["!rows"][
-    headerRow
-  ] = {
+  worksheet["!rows"][headerRow] = {
     hpt: 32,
   };
 
@@ -733,19 +533,6 @@ const addCategorySection = (
     };
   }
 
-  /*
-   * One blank row between sections.
-   *
-   * This is what makes:
-   *
-   * TORCH
-   * AUX CABLE
-   * PORTABLE FAN
-   * BT CELL
-   *
-   * look like screenshot 3.
-   */
-
   return (
     dataStartRow +
     dataRows.length +
@@ -754,409 +541,276 @@ const addCategorySection = (
 };
 
 /* ============================================================================
- * CREATE COMBINED SHEET
- * ========================================================================== */
+   CREATE COMBINED SHEET
+============================================================================ */
 
-const createCombinedCategorySheet =
-  (
-    workbook,
-    group,
-    products
-  ) => {
-    const worksheet =
-      XLSX.utils.aoa_to_sheet(
-        []
-      );
+const createCombinedCategorySheet = (
+  workbook,
+  group,
+  products
+) => {
+  const worksheet =
+    XLSX.utils.aoa_to_sheet([]);
 
-    let currentRow = 0;
+  let currentRow = 0;
 
-    /*
-     * IMPORTANT:
-     * Section order is fixed from COMBINED_CATEGORY_GROUPS.
-     *
-     * It does NOT depend on alphabetical order.
-     */
+  group.sections.forEach(
+    (section) => {
+      const sectionProducts =
+        products.filter((product) =>
+          section.aliases.some(
+            (alias) =>
+              normalizeCategory(alias) ===
+              normalizeCategory(
+                getCategory(product)
+              )
+          )
+        );
 
-    group.sections.forEach(
-      (section) => {
-        const sectionProducts =
-          products.filter(
-            (product) => {
-              const category =
-                getCategory(
-                  product
-                );
-
-              return section.aliases.some(
-                (alias) =>
-                  normalizeCategory(
-                    alias
-                  ) ===
-                  normalizeCategory(
-                    category
-                  )
-              );
-            }
-          );
-
-        if (
-          sectionProducts.length ===
-          0
-        ) {
-          return;
-        }
-
-        currentRow =
-          addCategorySection(
-            worksheet,
-            currentRow,
-            section.title,
-            sectionProducts
-          );
+      if (!sectionProducts.length) {
+        return;
       }
+
+      currentRow =
+        addCategorySection(
+          worksheet,
+          currentRow,
+          section.title,
+          sectionProducts
+        );
+    }
+  );
+
+  worksheet["!cols"] = [
+    { wch: 10 }, // SL NO
+    { wch: 34 }, // MODEL
+    { wch: 20 }, // GUARANTEE
+    { wch: 14 }, // CARTON
+    { wch: 14 }, // SS PRICE
+    { wch: 14 }, // DS PRICE
+    { wch: 14 }, // DLR PRICE
+  ];
+
+  const sheetName =
+    cleanSheetName(
+      group.sheetName,
+      new Set(workbook.SheetNames)
     );
 
-    /* ---------------------------------------------------------------------- */
-    /* COLUMN WIDTHS                                                           */
-    /* ---------------------------------------------------------------------- */
-
-    worksheet["!cols"] = [
-      {
-        wch: 10,
-      },
-
-      {
-        wch: 14,
-      },
-
-      {
-        wch: 32,
-      },
-
-      {
-        wch: 20,
-      },
-
-      {
-        wch: 14,
-      },
-
-      {
-        wch: 14,
-      },
-    ];
-
-    const sheetName =
-      cleanSheetName(
-        group.sheetName,
-        new Set(
-          workbook.SheetNames
-        )
-      );
-
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      sheetName
-    );
-  };
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    sheetName
+  );
+};
 
 /* ============================================================================
- * CREATE NORMAL CATEGORY SHEET
- * ========================================================================== */
+   CREATE NORMAL CATEGORY SHEET
+============================================================================ */
 
-const createNormalCategorySheet =
-  (
-    workbook,
+const createNormalCategorySheet = (
+  workbook,
+  category,
+  products
+) => {
+  const worksheet =
+    XLSX.utils.aoa_to_sheet([]);
+
+  addCategorySection(
+    worksheet,
+    0,
     category,
     products
-  ) => {
-    const worksheet =
-      XLSX.utils.aoa_to_sheet(
-        []
-      );
+  );
 
-    addCategorySection(
-      worksheet,
-      0,
+  worksheet["!cols"] = [
+    { wch: 10 }, // SL NO
+    { wch: 34 }, // MODEL
+    { wch: 20 }, // GUARANTEE
+    { wch: 14 }, // CARTON
+    { wch: 14 }, // SS PRICE
+    { wch: 14 }, // DS PRICE
+    { wch: 14 }, // DLR PRICE
+  ];
+
+  const sheetName =
+    cleanSheetName(
       category,
-      products
+      new Set(workbook.SheetNames)
     );
 
-    worksheet["!cols"] = [
-      {
-        wch: 10,
-      },
-
-      {
-        wch: 14,
-      },
-
-      {
-        wch: 32,
-      },
-
-      {
-        wch: 20,
-      },
-
-      {
-        wch: 14,
-      },
-
-      {
-        wch: 14,
-      },
-    ];
-
-    const usedNames =
-      new Set(
-        workbook.SheetNames
-      );
-
-    const sheetName =
-      cleanSheetName(
-        category,
-        usedNames
-      );
-
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      sheetName
-    );
-  };
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    sheetName
+  );
+};
 
 /* ============================================================================
- * MAIN EXPORT
- *
- * Filename:
- * S.S PRICE 01-09-2026.xlsx
- * ========================================================================== */
+   MAIN EXPORT
+============================================================================ */
 
-export const exportPriceManagementExcel =
-  (
-    products = [],
-    effectiveDate = "2026-09-01"
-  ) => {
-    if (
-      !Array.isArray(
-        products
-      ) ||
-      products.length === 0
-    ) {
-      alert(
-        "No product data available to export."
-      );
-
-      return;
-    }
-
-    const workbook =
-      XLSX.utils.book_new();
-
-    /* ---------------------------------------------------------------------- */
-    /* GROUP PRODUCTS BY CATEGORY                                              */
-    /* ---------------------------------------------------------------------- */
-
-    const categoryMap =
-      products.reduce(
-        (groups, product) => {
-          const category =
-            getCategory(
-              product
-            );
-
-          const key =
-            normalizeCategory(
-              category
-            );
-
-          if (!groups[key]) {
-            groups[key] = {
-              category,
-              products: [],
-            };
-          }
-
-          groups[key].products.push(
-            product
-          );
-
-          return groups;
-        },
-        {}
-      );
-
-    /* ---------------------------------------------------------------------- */
-    /* TRACK CATEGORIES THAT ARE INSIDE COMBINED SHEET                         */
-    /* ---------------------------------------------------------------------- */
-
-    const combinedCategoryKeys =
-      new Set();
-
-    COMBINED_CATEGORY_GROUPS.forEach(
-      (group) => {
-        group.sections.forEach(
-          (section) => {
-            section.aliases.forEach(
-              (alias) => {
-                combinedCategoryKeys.add(
-                  normalizeCategory(
-                    alias
-                  )
-                );
-              }
-            );
-          }
-        );
-      }
+export const exportPriceManagementExcel = (
+  products = [],
+  effectiveDate = "2026-09-01"
+) => {
+  if (
+    !Array.isArray(products) ||
+    !products.length
+  ) {
+    alert(
+      "No product data available to export."
     );
+    return;
+  }
 
-    /* ---------------------------------------------------------------------- */
-    /* BUILD COMBINED SHEETS                                                  */
-    /* ---------------------------------------------------------------------- */
+  const workbook =
+    XLSX.utils.book_new();
 
-    COMBINED_CATEGORY_GROUPS.forEach(
-      (group) => {
-        const groupProducts =
-          [];
+  /* GROUP PRODUCTS BY CATEGORY */
 
-        group.sections.forEach(
-          (section) => {
-            section.aliases.forEach(
-              (alias) => {
-                const key =
-                  normalizeCategory(
-                    alias
-                  );
+  const categoryMap =
+    products.reduce(
+      (groups, product) => {
+        const category =
+          getCategory(product);
 
-                const categoryData =
-                  categoryMap[key];
+        const key =
+          normalizeCategory(category);
 
-                if (
-                  categoryData?.products
-                    ?.length
-                ) {
-                  groupProducts.push(
-                    ...categoryData.products
-                  );
-                }
-              }
-            );
-          }
-        );
-
-        if (
-          groupProducts.length ===
-          0
-        ) {
-          return;
+        if (!groups[key]) {
+          groups[key] = {
+            category,
+            products: [],
+          };
         }
 
-        /*
-         * Remove duplicate products in case
-         * aliases point to same normalized category.
-         */
-
-        const uniqueProducts =
-          Array.from(
-            new Map(
-              groupProducts.map(
-                (product, index) => [
-                  `${getProductId(product)}-${index}`,
-                  product,
-                ]
-              )
-            ).values()
-          );
-
-        createCombinedCategorySheet(
-          workbook,
-          group,
-          uniqueProducts
+        groups[key].products.push(
+          product
         );
-      }
+
+        return groups;
+      },
+      {}
     );
 
-    /* ---------------------------------------------------------------------- */
-    /* BUILD ALL OTHER NORMAL SHEETS                                           */
-    /* ---------------------------------------------------------------------- */
+  /* CATEGORIES INSIDE COMBINED SHEETS */
 
-    Object.entries(
-      categoryMap
-    )
-      .sort(
-        ([, a], [, b]) =>
-          a.category.localeCompare(
-            b.category,
-            undefined,
-            {
-              sensitivity:
-                "base",
-            }
+  const combinedCategoryKeys =
+    new Set();
+
+  COMBINED_CATEGORY_GROUPS.forEach(
+    (group) =>
+      group.sections.forEach(
+        (section) =>
+          section.aliases.forEach(
+            (alias) =>
+              combinedCategoryKeys.add(
+                normalizeCategory(alias)
+              )
           )
       )
-      .forEach(
-        ([key, data]) => {
-          /*
-           * IMPORTANT:
-           * Combined group ka koi bhi category
-           * dobara separate sheet nahi banayegi.
-           */
+  );
 
-          if (
-            combinedCategoryKeys.has(
-              key
-            )
-          ) {
-            return;
-          }
+  /* COMBINED SHEETS */
 
-          createNormalCategorySheet(
-            workbook,
-            data.category,
-            data.products
+  COMBINED_CATEGORY_GROUPS.forEach(
+    (group) => {
+      const groupProducts = [];
+
+      group.sections.forEach(
+        (section) => {
+          section.aliases.forEach(
+            (alias) => {
+              const data =
+                categoryMap[
+                  normalizeCategory(alias)
+                ];
+
+              if (
+                data?.products?.length
+              ) {
+                groupProducts.push(
+                  ...data.products
+                );
+              }
+            }
           );
         }
       );
 
-    /* ---------------------------------------------------------------------- */
-    /* FILE NAME                                                               */
-    /* ---------------------------------------------------------------------- */
+      if (!groupProducts.length) {
+        return;
+      }
 
-    let dateObject =
-      new Date(
-        `${effectiveDate}T00:00:00`
+      /* Remove duplicate references */
+
+      const uniqueProducts =
+        Array.from(
+          new Set(groupProducts)
+        );
+
+      createCombinedCategorySheet(
+        workbook,
+        group,
+        uniqueProducts
       );
-
-    if (
-      Number.isNaN(
-        dateObject.getTime()
-      )
-    ) {
-      dateObject =
-        new Date();
     }
+  );
 
-    const day =
-      String(
-        dateObject.getDate()
-      ).padStart(2, "0");
+  /* NORMAL CATEGORY SHEETS */
 
-    const month =
-      String(
-        dateObject.getMonth() + 1
-      ).padStart(2, "0");
+  Object.entries(categoryMap)
+    .sort(([, a], [, b]) =>
+      a.category.localeCompare(
+        b.category,
+        undefined,
+        {
+          sensitivity: "base",
+        }
+      )
+    )
+    .forEach(([key, data]) => {
+      if (
+        combinedCategoryKeys.has(key)
+      ) {
+        return;
+      }
 
-    const year =
-      dateObject.getFullYear();
+      createNormalCategorySheet(
+        workbook,
+        data.category,
+        data.products
+      );
+    });
 
-    const datePart =
-      `${day}-${month}-${year}`;
+  /* FILE NAME */
 
-    XLSX.writeFile(
-      workbook,
-      `S.S PRICE ${datePart}.xlsx`
-    );
-  };
+  let dateObject = new Date(
+    `${effectiveDate}T00:00:00`
+  );
+
+  if (
+    Number.isNaN(
+      dateObject.getTime()
+    )
+  ) {
+    dateObject = new Date();
+  }
+
+  const day = String(
+    dateObject.getDate()
+  ).padStart(2, "0");
+
+  const month = String(
+    dateObject.getMonth() + 1
+  ).padStart(2, "0");
+
+  const year =
+    dateObject.getFullYear();
+
+  XLSX.writeFile(
+    workbook,
+    `S.S PRICE ${day}-${month}-${year}.xlsx`
+  );
+};

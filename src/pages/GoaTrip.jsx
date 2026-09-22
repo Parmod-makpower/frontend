@@ -17,6 +17,7 @@ import {
 
 import MobilePageHeader from "../components/MobilePageHeader";
 import ProductCard from "../components/ProductCard";
+import BackButton from "../Layout/BackButton";
 
 export default function GoaTrip() {
   const { data: allProducts = [], isLoading } = useCachedProducts();
@@ -86,6 +87,18 @@ const products = useMemo(() => {
 
       {/* ================= HEADER ================= */}
       <div className="pt-[60px] sm:pt-0 px-2">
+         <div className="hidden md:flex items-center gap-3 pb-3">
+    <BackButton fallback="/" />
+
+    <div>
+      <h1 className="text-sm font-semibold text-slate-700">
+        Goa Couple Trip
+      </h1>
+      <p className="text-[10px] text-slate-400">
+        Mahotsav Scheme
+      </p>
+    </div>
+  </div>
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700 p-3 text-white shadow-lg ">
 
           <div className="absolute top-0 right-0 opacity-10 text-[100px]">
