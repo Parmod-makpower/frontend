@@ -3,11 +3,9 @@ import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
-// import { AuthProvider } from "./context/AuthContext";
 import NotFound from "./pages/NotFound";
 import NoPermission from "./pages/NoPermission";
 import DashboardLayout from "./Layout/DashboardLayout";
-import UserHierarchy from "./pages/UserHierarchy";
 import ProductPage from "./pages/ProductPage";
 import SchemePage from "./pages/SchemePage";
 import SchemeForm from "./pages/SchemeForm";
@@ -96,7 +94,6 @@ export default function App() {
   }, []);
 
   return (
-    // <AuthProvider>
     <BrowserRouter>
       <Toaster position="top-center" reverseOrder={false} />
 
@@ -141,7 +138,7 @@ export default function App() {
           <Route path="/goa-trip-data" element={<ProtectedRoute><GoaTripSheetPage /></ProtectedRoute>} />
           <Route path="/product-images-pdf" element={<ProtectedRoute><ProductImagesPDF /></ProtectedRoute>} />
 
-          <Route path="/users-all" element={<ProtectedRoute ><UserHierarchy /></ProtectedRoute>} />
+
           <Route path="/setting" element={<ProtectedRoute allowedRoles={['ADMIN']}><SettingsPage /></ProtectedRoute>} />
           <Route path="/products" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProductPage /></ProtectedRoute>} />
           <Route path="/sale-name" element={<ProtectedRoute allowedRoles={['ADMIN']}><SaleNamePage /></ProtectedRoute>} />
@@ -170,36 +167,9 @@ export default function App() {
           <Route path="/asm/ss/:ss_id" element={<ProtectedRoute allowedRoles={["ASM"]}> <ASMSSDetailPage /></ProtectedRoute>} />
           <Route path="/asm-assignment" element={<ProtectedRoute allowedRoles={["CRM", "ADMIN"]}> <ASMAssignmentPage /> </ProtectedRoute>} />
 
-          <Route
-  path="/price-management"
-  element={
-    <ProtectedRoute allowedRoles={["ADMIN", "CRM"]}>
-      <PriceManagementPage />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/price-management/history"
-  element={
-    <ProtectedRoute allowedRoles={["ADMIN", "CRM"]}>
-      <PriceHistoryPage />
-    </ProtectedRoute>
-  }
-/>
-
-
-
-
-<Route
-  path="/crm/new-order"
-  element={
-    <ProtectedRoute allowedRoles={["CRM"]}>
-      <CRMNewOrderPage />
-    </ProtectedRoute>
-  }
-/>
-
+          <Route path="/price-management" element={<ProtectedRoute allowedRoles={["ADMIN", "CRM"]}><PriceManagementPage /> </ProtectedRoute>} />
+          <Route path="/price-management/history" element={<ProtectedRoute allowedRoles={["ADMIN", "CRM"]}><PriceHistoryPage />  </ProtectedRoute>} />
+          <Route path="/crm/new-order" element={<ProtectedRoute allowedRoles={["CRM"]}> <CRMNewOrderPage /> </ProtectedRoute>} />
 
 
         </Route>
@@ -211,6 +181,5 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
-    // </AuthProvider>
   );
 }

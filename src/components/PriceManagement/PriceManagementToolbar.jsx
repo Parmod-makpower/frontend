@@ -194,7 +194,7 @@ const PriceManagementToolbar = ({
                 )}
               </div>
 
-              <p className="mt-0.5 text-[9px] font-medium text-slate-400">
+              <p className="mt-0.5 text-[9px] font-medium text-slate-800">
                 {subtitle}
               </p>
             </div>
@@ -239,7 +239,7 @@ const PriceManagementToolbar = ({
               <CalendarIcon />
 
               <div className="leading-none">
-                <div className="text-[7px] font-bold uppercase tracking-wide text-slate-400">
+                <div className="text-[7px] font-bold uppercase tracking-wide text-slate-800">
                   Applicable From
                 </div>
 
@@ -297,7 +297,7 @@ const PriceManagementToolbar = ({
                   font-medium
                   text-slate-700
                   outline-none
-                  placeholder:text-slate-400
+                  placeholder:text-slate-800
                 "
               />
             </div>
@@ -328,7 +328,7 @@ const PriceManagementToolbar = ({
                   {sync.label}
                 </div>
 
-                <div className="mt-0.5 text-[7px] font-medium text-slate-400">
+                <div className="mt-0.5 text-[7px] font-medium text-slate-800">
                   {updatedText}
                 </div>
               </div>
@@ -420,7 +420,7 @@ const PriceManagementToolbar = ({
               py-0.5
               text-[8px]
               font-semibold
-              text-slate-400
+              text-slate-800
             "
           >
             Ctrl K
@@ -577,7 +577,7 @@ const PriceManagementToolbar = ({
             disabled:cursor-not-allowed
             disabled:border-slate-200
             disabled:bg-slate-100
-            disabled:text-slate-400
+            disabled:text-slate-800
           "
         >
           {saving ? <Spinner /> : <SaveIcon />}
@@ -621,7 +621,7 @@ const Menu = ({
         ${
           open
             ? "border-blue-500 bg-blue-50 text-blue-700"
-            : "border-slate-300 bg-white text-slate-600 hover:border-blue-300 hover:bg-blue-50/40 hover:text-blue-700"
+            : "border-slate-300 bg-white 00 hover:border-blue-300 hover:bg-blue-50/40 hover:text-blue-700"
         }
       `}
     >
@@ -664,7 +664,7 @@ const ToolbarButton = ({
   const tones = {
     default: active
       ? "border-blue-500 bg-blue-50 text-blue-700"
-      : "border-slate-300 bg-white text-slate-600 hover:border-blue-300 hover:bg-blue-50/40",
+      : "border-slate-300 bg-white 00 hover:border-blue-300 hover:bg-blue-50/40",
 
     blue:
       "border-blue-200 bg-blue-50/50 text-blue-600 hover:bg-blue-50",
@@ -738,7 +738,7 @@ const Choice = ({
       ${
         active
           ? "bg-blue-50 font-semibold text-blue-700"
-          : "text-slate-600 hover:bg-slate-50"
+          : "00 hover:bg-slate-50"
       }
     `}
   >
@@ -761,7 +761,7 @@ const StatBadge = ({
 }) => {
   const styles = {
     slate:
-      "bg-slate-50 text-slate-600 border-slate-200",
+      "bg-slate-50 00 border-slate-200",
     blue:
       "bg-blue-50 text-blue-700 border-blue-100",
     amber:
@@ -816,7 +816,7 @@ const IconButton = ({
       justify-center
       border
       border-transparent
-      text-slate-400
+      text-slate-800
       hover:border-slate-200
       hover:bg-slate-50
       hover:text-slate-700
@@ -847,7 +847,7 @@ const Icon = ({
 );
 
 const SearchIcon = () => (
-  <Icon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400">
+  <Icon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-800">
     <circle cx="11" cy="11" r="7" />
     <path d="m20 20-3.5-3.5" />
   </Icon>
@@ -862,7 +862,7 @@ const PriceIcon = () => (
 );
 
 const CalendarIcon = () => (
-  <Icon className="h-3.5 w-3.5 shrink-0 text-slate-400">
+  <Icon className="h-3.5 w-3.5 shrink-0 text-slate-800">
     <rect
       x="3"
       y="5"
@@ -875,7 +875,7 @@ const CalendarIcon = () => (
 );
 
 const ReasonIcon = () => (
-  <Icon className="h-3.5 w-3.5 shrink-0 text-slate-400">
+  <Icon className="h-3.5 w-3.5 shrink-0 text-slate-800">
     <path d="M4 5h16v14H4z" />
     <path d="M8 9h8M8 13h6" />
   </Icon>

@@ -14,7 +14,7 @@ const PRICE_FIELDS = ["price", "ds_price", "dlr_price"];
 const COLUMN_DEFS = [
   { key: "sku", label: "ID", width: 62, align: "center" },
   { key: "category", label: "CATEGORY", width: 145, align: "center" },
-  { key: "product", label: "PRODUCT", width: 180, align: "center", autoWidth: true },
+  { key: "product", label: "PRODUCT", width: 160, align: "center", autoWidth: true },
   { key: "saleName", label: "SALE NAME", width: 190, align: "center", autoWidth: true },
   {
     key: "price",
@@ -105,17 +105,12 @@ const getSaleNames = (product) =>
 const getGuaranteeValue = (product) =>
   String(
     product?.guarantee ??
-      product?.guarantee_period ??
-      product?.warranty ??
-      product?.warranty_period ??
       ""
   ).trim();
 
 const getCartonValue = (product) =>
   String(
     product?.cartoon_size ??
-      product?.carton_size ??
-      product?.carton ??
       ""
   ).trim();
 
@@ -169,7 +164,7 @@ const categoryTone = (category) => {
   if (key.includes("CAR"))
     return "bg-orange-50 text-orange-700 border-orange-100";
 
-  return "bg-slate-50 text-slate-600 border-slate-200";
+  return "bg-slate-50 text-slate-600 border-slate-400";
 };
 
 export default function PriceManagementTable({
@@ -970,7 +965,7 @@ export default function PriceManagementTable({
       : null;
 
   return (
-    <div className="relative z-0 flex h-full min-h-0 w-full flex-col overflow-hidden border border-slate-300 bg-white">
+    <div className="relative z-0 flex h-full min-h-0 w-full flex-col overflow-hidden border border-slate-500 bg-white">
       <div
         ref={scrollRef}
         onScroll={handleTableScroll}
@@ -1024,7 +1019,7 @@ export default function PriceManagementTable({
               }}
               className="
                 border-b
-                border-slate-300
+                border-slate-500
                 bg-slate-50
               "
             >
@@ -1034,7 +1029,7 @@ export default function PriceManagementTable({
                   left-0
                   z-20
                   border-r
-                  border-slate-300
+                  border-slate-500
                   bg-slate-50
                   p-0
                   text-center
@@ -1052,7 +1047,7 @@ export default function PriceManagementTable({
                   left-[42px]
                   z-20
                   border-r
-                  border-slate-300
+                  border-slate-500
                   bg-slate-50
                   p-0
                   text-center
@@ -1243,7 +1238,7 @@ export default function PriceManagementTable({
                   justify-center
                   rounded-lg
                   border
-                  border-slate-200
+                  border-slate-400
                   bg-slate-50
                   text-slate-400
                 "
@@ -1296,7 +1291,7 @@ export default function PriceManagementTable({
               z-[100]
               rounded-full
               border
-              border-slate-200
+              border-slate-400
               bg-white
               px-3
               py-1.5
@@ -1469,7 +1464,7 @@ const SpreadsheetHeader = memo(
         className="
           relative
           border-r
-          border-slate-300
+          border-slate-500
           bg-slate-50
           p-0
           text-center
@@ -1623,7 +1618,7 @@ const PriceRow = memo(
     const cellBase = `
       border-r
       border-b
-      border-slate-200
+      border-slate-400
       px-2
       align-middle
       whitespace-nowrap
@@ -1991,7 +1986,7 @@ const PriceRow = memo(
                   rounded-md
                   border
                   border-dashed
-                  border-slate-300
+                  border-slate-500
                   text-center
                   text-[11px]
                   font-semibold
@@ -2115,7 +2110,7 @@ const PriceRow = memo(
             )}
             className={cellBase}
           >
-            <span className="block truncate text-center text-[13px] font-medium text-slate-600">
+            <span className="block truncate text-center text-[12px] font-medium ">
               {getGuaranteeValue(
                 product
               ) || "—"}
@@ -2192,7 +2187,7 @@ const PriceRow = memo(
                     ? "border-amber-100 bg-amber-50 text-amber-700"
                     : product.is_active ===
                         false
-                      ? "border-slate-200 bg-slate-50 text-slate-500"
+                      ? "border-slate-400 bg-slate-50 text-slate-500"
                       : "border-emerald-100 bg-emerald-50 text-emerald-700"
                 }
               `}
@@ -2488,7 +2483,7 @@ const PriceCell = memo(
         className="
           border-r
           border-b
-          border-slate-200
+          border-slate-400
           px-1
           align-middle
           text-center

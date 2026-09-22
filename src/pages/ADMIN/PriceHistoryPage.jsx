@@ -1,37 +1,80 @@
-import { useMemo, useState } from "react";
+import {
+  useMemo,
+  useState,
+} from "react";
+
 import {
   ArrowDown,
   ArrowLeft,
   ArrowUp,
   CalendarDays,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Download,
+  FileSpreadsheet,
+  Filter,
   History,
   RefreshCw,
   Search,
   User,
   X,
 } from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
 
 import {
   usePriceHistory,
 } from "../../hooks/usePriceManagement";
 
-const ITEMS_PER_PAGE = 30;
+import exportPriceHistoryExcel from "../../utils/ExportPriceHistoryExcel";
+
+import exportPriceHistoryPDF from "../../utils/ExportPriceHistoryPDF";
+
+
+/* =========================================================
+   CONSTANTS
+========================================================= */
+
+const ITEMS_PER_PAGE = 10;
+
 
 /* =========================================================
    HELPERS
 ========================================================= */
 
+const formatPrice = (value) => {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return "—";
+  }
+
+  const number = Number(value);
+
+  if (Number.isNaN(number)) {
+    return String(value);
+  }
+
+  return number.toLocaleString("en-IN", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+};
+
+
 const formatDate = (value) => {
-  if (!value) return "—";
+  if (!value) {
+    return "—";
+  }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return value;
+    return "—";
   }
 
   return date.toLocaleDateString("en-IN", {
@@ -41,13 +84,16 @@ const formatDate = (value) => {
   });
 };
 
+
 const formatDateTime = (value) => {
-  if (!value) return "—";
+  if (!value) {
+    return "—";
+  }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return value;
+    return "—";
   }
 
   return date.toLocaleString("en-IN", {
@@ -59,710 +105,2142 @@ const formatDateTime = (value) => {
   });
 };
 
-const displayPrice = (value) => {
-  if (
-    value === null ||
-    value === undefined ||
-    value === ""
-  ) {
-    return "—";
-  }
-
-  return value;
-};
-
-const getPriceChangeType = (oldValue, newValue) => {
-  if (
-    oldValue === null ||
-    oldValue === undefined ||
-    oldValue === "" ||
-    newValue === null ||
-    newValue === undefined ||
-    newValue === ""
-  ) {
-    return "changed";
-  }
-
-  const oldNumber = Number(oldValue);
-  const newNumber = Number(newValue);
-
-  if (
-    Number.isFinite(oldNumber) &&
-    Number.isFinite(newNumber)
-  ) {
-    if (newNumber > oldNumber) return "increase";
-    if (newNumber < oldNumber) return "decrease";
-  }
-
-  return "changed";
-};
 
 /* =========================================================
-   COMPONENT
+   PRICE FIELD HELPERS
 ========================================================= */
 
-const PriceHistoryPage = () => {
-  const navigate = useNavigate();
+const PRICE_FIELDS = {
+  SS: {
+    oldField: "old_price",
+    newField: "new_price",
+  },
 
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
-  const [productFilter, setProductFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("ALL");
-  const [currentPage, setCurrentPage] = useState(1);
+  DS: {
+    oldField: "old_ds_price",
+    newField: "new_ds_price",
+  },
 
-  /*
-   * IMPORTANT:
-   * No search/product_id params here.
-   * History is fetched once and filtering happens locally.
-   */
+  DLR: {
+    oldField: "old_dlr_price",
+    newField: "new_dlr_price",
+  },
+};
+
+
+const getPriceChangeDirection = (
+  item,
+  priceType
+) => {
+  const fields =
+    PRICE_FIELDS[priceType];
+
+  if (!fields) {
+    return "same";
+  }
+
+  const oldValue =
+    Number(item?.[fields.oldField]);
+
+  const newValue =
+    Number(item?.[fields.newField]);
+
+  if (
+    Number.isNaN(oldValue) ||
+    Number.isNaN(newValue)
+  ) {
+    return "same";
+  }
+
+  if (newValue > oldValue) {
+    return "up";
+  }
+
+  if (newValue < oldValue) {
+    return "down";
+  }
+
+  return "same";
+};
+
+
+const hasPriceChange = (
+  item,
+  priceType
+) => {
+  const fields =
+    PRICE_FIELDS[priceType];
+
+  if (!fields) {
+    return false;
+  }
+
+  const oldValue =
+    Number(item?.[fields.oldField]);
+
+  const newValue =
+    Number(item?.[fields.newField]);
+
+  if (
+    Number.isNaN(oldValue) ||
+    Number.isNaN(newValue)
+  ) {
+    return false;
+  }
+
+  return oldValue !== newValue;
+};
+
+
+/* =========================================================
+   PRICE CHANGE COMPONENT
+========================================================= */
+
+const PriceChange = ({
+  oldValue,
+  newValue,
+}) => {
+  const oldNumber =
+    Number(oldValue);
+
+  const newNumber =
+    Number(newValue);
+
+  const valid =
+    !Number.isNaN(oldNumber) &&
+    !Number.isNaN(newNumber);
+
+  let direction = "same";
+
+  if (valid) {
+    if (newNumber > oldNumber) {
+      direction = "up";
+    } else if (newNumber < oldNumber) {
+      direction = "down";
+    }
+  }
+
+  return (
+    <div className="flex min-w-0 items-center justify-end gap-1.5 whitespace-nowrap">
+
+      <span className="text-[10px] text-slate-400">
+        ₹{formatPrice(oldValue)}
+      </span>
+
+      <span className="text-slate-300">
+        →
+      </span>
+
+      <span
+        className={
+          direction === "up"
+            ? "font-semibold text-emerald-600"
+            : direction === "down"
+            ? "font-semibold text-red-600"
+            : "font-semibold text-slate-700"
+        }
+      >
+        ₹{formatPrice(newValue)}
+      </span>
+
+      {direction === "up" && (
+        <ArrowUp
+          size={12}
+          strokeWidth={2.5}
+          className="text-emerald-500"
+        />
+      )}
+
+      {direction === "down" && (
+        <ArrowDown
+          size={12}
+          strokeWidth={2.5}
+          className="text-red-500"
+        />
+      )}
+
+    </div>
+  );
+};
+
+
+/* =========================================================
+   SMALL FILTER SELECT
+========================================================= */
+
+const FilterSelect = ({
+  value,
+  onChange,
+  children,
+  className = "",
+}) => {
+  return (
+    <div
+      className={`
+        relative
+        h-9
+        min-w-[125px]
+        ${className}
+      `}
+    >
+
+      <select
+        value={value}
+        onChange={(event) =>
+          onChange(event.target.value)
+        }
+        className="
+          h-full
+          w-full
+          appearance-none
+          rounded-lg
+          border
+          border-slate-300
+          bg-white
+          px-3
+          pr-8
+          text-[11px]
+          font-semibold
+          text-slate-600
+          outline-none
+          transition-all
+          hover:border-slate-300
+          focus:border-blue-300
+          focus:ring-2
+          focus:ring-blue-50
+        "
+      >
+        {children}
+      </select>
+
+      <ChevronDown
+        size={13}
+        className="
+          pointer-events-none
+          absolute
+          right-2.5
+          top-1/2
+          -translate-y-1/2
+          text-slate-400
+        "
+      />
+
+    </div>
+  );
+};
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+export default function PriceHistoryPage() {
+  const navigate =
+    useNavigate();
+
   const {
-    data: history = [],
+    data,
     isLoading,
     isFetching,
     refetch,
-  } = usePriceHistory();
+  } = usePriceHistory({
+    product_id: "",
+    search: "",
+  });
+
 
   /* =======================================================
-     FRONTEND SEARCH + PRODUCT + DATE FILTER
+     STATE
   ======================================================= */
 
-  const filteredHistory = useMemo(() => {
-    if (!Array.isArray(history)) {
-      return [];
-    }
+  const [
+    search,
+    setSearch,
+  ] = useState("");
 
-    const searchText = search
-      .trim()
-      .toLowerCase();
+  const [
+    productFilter,
+    setProductFilter,
+  ] = useState("");
 
-    const productIdText = String(
-      productFilter ?? ""
-    ).trim();
+  const [
+    dateFilter,
+    setDateFilter,
+  ] = useState("ALL");
 
-    let startDate = null;
+  const [
+    priceFilter,
+    setPriceFilter,
+  ] = useState("ALL");
 
-    if (dateFilter !== "ALL") {
-      const now = new Date();
+  const [
+    changeFilter,
+    setChangeFilter,
+  ] = useState("ALL");
 
-      if (dateFilter === "TODAY") {
-        startDate = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate()
-        );
+  const [
+    sortField,
+    setSortField,
+  ] = useState("changed_at");
+
+  const [
+    sortDirection,
+    setSortDirection,
+  ] = useState("desc");
+
+  const [
+    currentPage,
+    setCurrentPage,
+  ] = useState(1);
+
+
+  /* =======================================================
+     EXPORT PRICE TYPE
+  ======================================================= */
+
+  const [
+    exportPriceType,
+    setExportPriceType,
+  ] = useState("SS");
+
+
+  /* =======================================================
+     NORMALIZE DATA
+  ======================================================= */
+
+  const history =
+    useMemo(() => {
+      if (Array.isArray(data)) {
+        return data;
       }
-
-      if (dateFilter === "7_DAYS") {
-        startDate = new Date(
-          now.getTime() -
-            7 * 24 * 60 * 60 * 1000
-        );
-      }
-
-      if (dateFilter === "30_DAYS") {
-        startDate = new Date(
-          now.getTime() -
-            30 * 24 * 60 * 60 * 1000
-        );
-      }
-    }
-
-    return history.filter((item) => {
-      /* -----------------------------------------------
-         LOCAL SEARCH
-      ------------------------------------------------ */
-
-      if (searchText) {
-        const searchableText = [
-          item?.product_id,
-          item?.product_name,
-          item?.changed_by_user_id,
-          item?.changed_by_name,
-          item?.changed_by_role,
-          item?.reason,
-        ]
-          .filter(
-            (value) =>
-              value !== null &&
-              value !== undefined
-          )
-          .join(" ")
-          .toLowerCase();
-
-        if (
-          !searchableText.includes(searchText)
-        ) {
-          return false;
-        }
-      }
-
-      /* -----------------------------------------------
-         LOCAL PRODUCT / SKU FILTER
-      ------------------------------------------------ */
 
       if (
-        productIdText &&
-        String(item?.product_id ?? "") !==
-          productIdText
+        Array.isArray(
+          data?.results
+        )
       ) {
-        return false;
+        return data.results;
       }
 
-      /* -----------------------------------------------
-         LOCAL DATE FILTER
-      ------------------------------------------------ */
-
-      if (startDate) {
-        const value =
-          item?.changed_at ||
-          item?.applicable_from;
-
-        if (!value) {
-          return false;
-        }
-
-        const date = new Date(value);
-
-        if (
-          Number.isNaN(date.getTime()) ||
-          date < startDate
-        ) {
-          return false;
-        }
+      if (
+        Array.isArray(
+          data?.data
+        )
+      ) {
+        return data.data;
       }
 
-      return true;
-    });
-  }, [
-    history,
-    search,
-    productFilter,
-    dateFilter,
-  ]);
+      return [];
+    }, [data]);
+
+
+  /* =======================================================
+     FILTER + SORT
+  ======================================================= */
+
+  const filteredHistory =
+    useMemo(() => {
+      const searchValue =
+        search
+          .trim()
+          .toLowerCase();
+
+      const productValue =
+        productFilter
+          .trim()
+          .toLowerCase();
+
+      let result =
+        history.filter(
+          (item) => {
+
+            /* ---------------------------------------------
+               GLOBAL SEARCH
+            --------------------------------------------- */
+
+            if (searchValue) {
+              const searchable = [
+                item?.product_id,
+                item?.product,
+                item?.product_name,
+                item?.name,
+                item?.changed_by_name,
+                item?.changed_by,
+                item?.changed_by_role,
+                item?.role,
+                item?.reason,
+              ]
+                .filter(
+                  (value) =>
+                    value !== null &&
+                    value !== undefined
+                )
+                .join(" ")
+                .toLowerCase();
+
+              if (
+                !searchable.includes(
+                  searchValue
+                )
+              ) {
+                return false;
+              }
+            }
+
+
+            /* ---------------------------------------------
+               PRODUCT FILTER
+            --------------------------------------------- */
+
+            if (productValue) {
+              const productId =
+                String(
+                  item?.product_id ??
+                    item?.product ??
+                    ""
+                ).toLowerCase();
+
+              const productName =
+                String(
+                  item?.product_name ??
+                    item?.name ??
+                    ""
+                ).toLowerCase();
+
+              if (
+                !productId.includes(
+                  productValue
+                ) &&
+                !productName.includes(
+                  productValue
+                )
+              ) {
+                return false;
+              }
+            }
+
+
+            /* ---------------------------------------------
+               PRICE TYPE FILTER
+            --------------------------------------------- */
+
+            if (
+              priceFilter !== "ALL"
+            ) {
+              if (
+                !hasPriceChange(
+                  item,
+                  priceFilter
+                )
+              ) {
+                return false;
+              }
+            }
+
+
+            /* ---------------------------------------------
+               CHANGE DIRECTION
+            --------------------------------------------- */
+
+            if (
+              changeFilter !== "ALL"
+            ) {
+              const direction =
+                getPriceChangeDirection(
+                  item,
+                  priceFilter === "ALL"
+                    ? "SS"
+                    : priceFilter
+                );
+
+              /*
+               * When price filter is ALL,
+               * check all 3 prices.
+               */
+              if (
+                priceFilter === "ALL"
+              ) {
+                const directions = [
+                  getPriceChangeDirection(
+                    item,
+                    "SS"
+                  ),
+                  getPriceChangeDirection(
+                    item,
+                    "DS"
+                  ),
+                  getPriceChangeDirection(
+                    item,
+                    "DLR"
+                  ),
+                ];
+
+                if (
+                  changeFilter ===
+                  "UP" &&
+                  !directions.includes(
+                    "up"
+                  )
+                ) {
+                  return false;
+                }
+
+                if (
+                  changeFilter ===
+                  "DOWN" &&
+                  !directions.includes(
+                    "down"
+                  )
+                ) {
+                  return false;
+                }
+              } else {
+                if (
+                  changeFilter === "UP" &&
+                  direction !== "up"
+                ) {
+                  return false;
+                }
+
+                if (
+                  changeFilter === "DOWN" &&
+                  direction !== "down"
+                ) {
+                  return false;
+                }
+              }
+            }
+
+
+            /* ---------------------------------------------
+               DATE FILTER
+            --------------------------------------------- */
+
+            if (
+              dateFilter !== "ALL"
+            ) {
+              const changedDate =
+                new Date(
+                  item?.changed_at
+                );
+
+              if (
+                Number.isNaN(
+                  changedDate.getTime()
+                )
+              ) {
+                return false;
+              }
+
+              const now =
+                new Date();
+
+              const todayStart =
+                new Date(
+                  now.getFullYear(),
+                  now.getMonth(),
+                  now.getDate()
+                );
+
+
+              if (
+                dateFilter ===
+                "TODAY"
+              ) {
+                const tomorrow =
+                  new Date(
+                    todayStart
+                  );
+
+                tomorrow.setDate(
+                  tomorrow.getDate() + 1
+                );
+
+                if (
+                  !(
+                    changedDate >=
+                      todayStart &&
+                    changedDate <
+                      tomorrow
+                  )
+                ) {
+                  return false;
+                }
+              }
+
+
+              if (
+                dateFilter ===
+                "7_DAYS"
+              ) {
+                const sevenDaysAgo =
+                  new Date(
+                    todayStart
+                  );
+
+                sevenDaysAgo.setDate(
+                  sevenDaysAgo.getDate() - 6
+                );
+
+                if (
+                  changedDate <
+                  sevenDaysAgo
+                ) {
+                  return false;
+                }
+              }
+
+
+              if (
+                dateFilter ===
+                "30_DAYS"
+              ) {
+                const thirtyDaysAgo =
+                  new Date(
+                    todayStart
+                  );
+
+                thirtyDaysAgo.setDate(
+                  thirtyDaysAgo.getDate() - 29
+                );
+
+                if (
+                  changedDate <
+                  thirtyDaysAgo
+                ) {
+                  return false;
+                }
+              }
+            }
+
+            return true;
+          }
+        );
+
+
+      /* =====================================================
+         SORT
+      ===================================================== */
+
+      result.sort(
+        (a, b) => {
+          let valueA;
+          let valueB;
+
+
+          if (
+            sortField ===
+            "product_id"
+          ) {
+            valueA =
+              Number(
+                a?.product_id ??
+                  a?.product ??
+                  0
+              );
+
+            valueB =
+              Number(
+                b?.product_id ??
+                  b?.product ??
+                  0
+              );
+          }
+
+
+          else if (
+            sortField ===
+            "product_name"
+          ) {
+            valueA =
+              String(
+                a?.product_name ??
+                  a?.name ??
+                  ""
+              ).toLowerCase();
+
+            valueB =
+              String(
+                b?.product_name ??
+                  b?.name ??
+                  ""
+              ).toLowerCase();
+          }
+
+
+          else {
+            valueA =
+              new Date(
+                a?.changed_at
+              ).getTime();
+
+            valueB =
+              new Date(
+                b?.changed_at
+              ).getTime();
+          }
+
+
+          if (
+            valueA < valueB
+          ) {
+            return sortDirection ===
+              "asc"
+              ? -1
+              : 1;
+          }
+
+
+          if (
+            valueA > valueB
+          ) {
+            return sortDirection ===
+              "asc"
+              ? 1
+              : -1;
+          }
+
+
+          return 0;
+        }
+      );
+
+
+      return result;
+    }, [
+      history,
+      search,
+      productFilter,
+      priceFilter,
+      changeFilter,
+      dateFilter,
+      sortField,
+      sortDirection,
+    ]);
+
 
   /* =======================================================
      PAGINATION
   ======================================================= */
 
-  const totalPages = Math.ceil(
-    filteredHistory.length /
-      ITEMS_PER_PAGE
-  );
+  const totalPages =
+    Math.max(
+      1,
+      Math.ceil(
+        filteredHistory.length /
+          ITEMS_PER_PAGE
+      )
+    );
+
 
   const safeCurrentPage =
-    totalPages === 0
-      ? 1
-      : Math.min(
-          currentPage,
-          totalPages
-        );
-
-  const paginatedHistory = useMemo(() => {
-    const start =
-      (safeCurrentPage - 1) *
-      ITEMS_PER_PAGE;
-
-    return filteredHistory.slice(
-      start,
-      start + ITEMS_PER_PAGE
+    Math.min(
+      currentPage,
+      totalPages
     );
-  }, [
-    filteredHistory,
-    safeCurrentPage,
-  ]);
+
+
+  const paginatedHistory =
+    useMemo(() => {
+      const start =
+        (safeCurrentPage - 1) *
+        ITEMS_PER_PAGE;
+
+      return filteredHistory.slice(
+        start,
+        start + ITEMS_PER_PAGE
+      );
+    }, [
+      filteredHistory,
+      safeCurrentPage,
+    ]);
+
 
   /* =======================================================
-     SEARCH
+     FILTER HANDLERS
   ======================================================= */
 
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
+  const handleSearchChange =
+    (value) => {
+      setSearch(value);
+      setCurrentPage(1);
+    };
 
-    setSearch(
-      searchInput.trim()
-    );
 
-    setCurrentPage(1);
-  };
+  const handleProductFilterChange =
+    (value) => {
+      setProductFilter(value);
+      setCurrentPage(1);
+    };
 
-  const clearSearch = () => {
-    setSearchInput("");
-    setSearch("");
-    setCurrentPage(1);
-  };
 
-  const handleProductFilter = (event) => {
-    setProductFilter(
-      event.target.value
-    );
+  const handlePriceFilterChange =
+    (value) => {
+      setPriceFilter(value);
+      setCurrentPage(1);
+    };
 
-    setCurrentPage(1);
-  };
 
-  const handleDateFilter = (event) => {
-    setDateFilter(
-      event.target.value
-    );
+  const handleChangeFilterChange =
+    (value) => {
+      setChangeFilter(value);
+      setCurrentPage(1);
+    };
 
-    setCurrentPage(1);
-  };
 
-  const handlePageChange = (page) => {
+  const handleDateFilterChange =
+    (value) => {
+      setDateFilter(value);
+      setCurrentPage(1);
+    };
+
+
+  /* =======================================================
+     SORT
+  ======================================================= */
+
+  const handleSort = (
+    field
+  ) => {
     if (
-      page < 1 ||
-      page > totalPages
+      sortField === field
     ) {
-      return;
+      setSortDirection(
+        (previous) =>
+          previous === "asc"
+            ? "desc"
+            : "asc"
+      );
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
     }
-
-    setCurrentPage(page);
   };
+
+
+  /* =======================================================
+     CLEAR FILTERS
+  ======================================================= */
+
+  const clearFilters =
+    () => {
+      setSearch("");
+      setProductFilter("");
+      setPriceFilter("ALL");
+      setChangeFilter("ALL");
+      setDateFilter("ALL");
+      setCurrentPage(1);
+    };
+
+
+  const hasFilters =
+    Boolean(
+      search.trim() ||
+        productFilter.trim() ||
+        priceFilter !== "ALL" ||
+        changeFilter !== "ALL" ||
+        dateFilter !== "ALL"
+    );
+
 
   /* =======================================================
      STATS
   ======================================================= */
 
-  const stats = useMemo(() => {
-    const records = Array.isArray(
-      filteredHistory
-    )
-      ? filteredHistory
-      : [];
+  const stats =
+    useMemo(() => {
+      const total =
+        filteredHistory.length;
 
-    const uniqueProducts = new Set(
-      records.map(
-        (item) => item?.product_id
-      )
-    );
-
-    const uniqueUsers = new Set(
-      records
-        .map(
+      const ssChanges =
+        filteredHistory.filter(
           (item) =>
-            item?.changed_by_user_id
-        )
-        .filter(Boolean)
-    );
+            hasPriceChange(
+              item,
+              "SS"
+            )
+        ).length;
 
-    const increases = records.filter(
-      (item) =>
-        getPriceChangeType(
-          item?.old_price,
-          item?.new_price
-        ) === "increase" ||
-        getPriceChangeType(
-          item?.old_ds_price,
-          item?.new_ds_price
-        ) === "increase" ||
-        getPriceChangeType(
-          item?.old_dlr_price,
-          item?.new_dlr_price
-        ) === "increase"
-    ).length;
+      const dsChanges =
+        filteredHistory.filter(
+          (item) =>
+            hasPriceChange(
+              item,
+              "DS"
+            )
+        ).length;
 
-    const decreases = records.filter(
-      (item) =>
-        getPriceChangeType(
-          item?.old_price,
-          item?.new_price
-        ) === "decrease" ||
-        getPriceChangeType(
-          item?.old_ds_price,
-          item?.new_ds_price
-        ) === "decrease" ||
-        getPriceChangeType(
-          item?.old_dlr_price,
-          item?.new_dlr_price
-        ) === "decrease"
-    ).length;
+      const dlrChanges =
+        filteredHistory.filter(
+          (item) =>
+            hasPriceChange(
+              item,
+              "DLR"
+            )
+        ).length;
 
-    return {
-      changes: records.length,
-      products: uniqueProducts.size,
-      users: uniqueUsers.size,
-      increases,
-      decreases,
-    };
-  }, [filteredHistory]);
+      return {
+        total,
+        ssChanges,
+        dsChanges,
+        dlrChanges,
+      };
+    }, [
+      filteredHistory,
+    ]);
+
 
   /* =======================================================
-     RENDER
+     EXPORT
+  ======================================================= */
+
+  const handleDownloadExcel =
+    () => {
+      exportPriceHistoryExcel(
+        filteredHistory,
+        exportPriceType
+      );
+    };
+
+
+  const handleDownloadPDF =
+    () => {
+      exportPriceHistoryPDF(
+        filteredHistory,
+        exportPriceType
+      );
+    };
+
+
+  /* =======================================================
+     LOADING
+  ======================================================= */
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center bg-gray-50">
+
+        <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+
+          <RefreshCw
+            size={16}
+            className="animate-spin"
+          />
+
+          Loading price history...
+
+        </div>
+
+      </div>
+    );
+  }
+
+
+  /* =======================================================
+     UI
   ======================================================= */
 
   return (
-    <div className="w-full min-w-0 p-3 sm:p-4">
+    <div className=" bg-gray-50">
 
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
+      {/* =================================================
+          MAIN HEADER CARD
+      ================================================= */}
 
-      <div className="mb-3 rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className=" overflow-hidden rounded border border-slate-300 bg-white mb-3 shadow-sm">
 
-        <div className="flex flex-col gap-3 p-3 lg:flex-row lg:items-center lg:justify-between">
+        {/* =================================================
+            TOP HEADER
+        ================================================= */}
 
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 px-3 py-3 lg:flex-row lg:items-center lg:justify-between">
+
+          {/* ---------------------------------------------
+              LEFT SIDE
+          --------------------------------------------- */}
+
+          <div className="flex min-w-0 items-center gap-2.5">
+
+            {/* BACK */}
 
             <button
               type="button"
               onClick={() =>
-                navigate(
-                  "/price-management"
-                )
+                navigate(-1)
               }
-              title="Back to Price Management"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition-all hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 active:scale-95"
+              title="Back"
+              className="
+                inline-flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
+                rounded-lg
+                border
+                border-slate-300
+                bg-white
+                text-slate-500
+                transition-all
+                hover:border-blue-200
+                hover:bg-blue-50
+                hover:text-blue-600
+                active:scale-[0.97]
+              "
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft
+                size={16}
+                strokeWidth={2}
+              />
             </button>
 
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-              <History size={17} />
+
+            {/* ICON */}
+
+            <div className="
+              flex
+              h-9
+              w-9
+              shrink-0
+              items-center
+              justify-center
+              rounded-lg
+              bg-blue-50
+              text-blue-600
+            ">
+              <History
+                size={17}
+                strokeWidth={2}
+              />
             </div>
 
-            <div>
-              <h1 className="text-sm font-bold text-gray-900">
+
+            {/* TITLE */}
+
+            <div className="min-w-0">
+
+              <h1 className="
+                truncate
+                text-sm
+                font-bold
+                leading-tight
+                text-slate-800
+                md:text-[15px]
+              ">
                 Price History
               </h1>
 
-              <p className="text-[10px] text-gray-500">
-                Complete SKU price change timeline
+              <p className="
+                mt-0.5
+                truncate
+                text-[9px]
+                font-medium
+                text-slate-400
+              ">
+                Track product price changes
               </p>
+
+            </div>
+
+
+            {/* -----------------------------------------
+                COMPACT STATS
+            ----------------------------------------- */}
+
+            <div className="
+              ml-1
+              hidden
+              items-center
+              gap-1.5
+              md:flex
+            ">
+
+              {/* TOTAL */}
+
+              <div className="
+                inline-flex
+                h-8
+                items-center
+                gap-1.5
+                rounded-md
+                bg-slate-50
+                px-2.5
+              ">
+
+                <span className="text-[9px] font-medium text-slate-400">
+                  Total
+                </span>
+
+                <span className="text-[11px] font-bold text-slate-700">
+                  {stats.total}
+                </span>
+
+              </div>
+
+
+              {/* SS */}
+
+              <div className="
+                inline-flex
+                h-8
+                items-center
+                gap-1.5
+                rounded-md
+                bg-emerald-50
+                px-2.5
+              ">
+
+                <span className="text-[9px] font-bold text-emerald-500">
+                  SS
+                </span>
+
+                <span className="text-[11px] font-bold text-emerald-700">
+                  {stats.ssChanges}
+                </span>
+
+              </div>
+
+
+              {/* DS */}
+
+              <div className="
+                inline-flex
+                h-8
+                items-center
+                gap-1.5
+                rounded-md
+                bg-purple-50
+                px-2.5
+              ">
+
+                <span className="text-[9px] font-bold text-purple-500">
+                  DS
+                </span>
+
+                <span className="text-[11px] font-bold text-purple-700">
+                  {stats.dsChanges}
+                </span>
+
+              </div>
+
+
+              {/* DLR */}
+
+              <div className="
+                inline-flex
+                h-8
+                items-center
+                gap-1.5
+                rounded-md
+                bg-orange-50
+                px-2.5
+              ">
+
+                <span className="text-[9px] font-bold text-orange-500">
+                  DLR
+                </span>
+
+                <span className="text-[11px] font-bold text-orange-700">
+                  {stats.dlrChanges}
+                </span>
+
+              </div>
+
             </div>
 
           </div>
 
-          <button
-            type="button"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="inline-flex h-9 items-center justify-center gap-2 self-start rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-600 transition-all hover:bg-gray-50 hover:text-blue-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 lg:self-auto"
-          >
-            <RefreshCw
-              size={14}
-              className={
-                isFetching
-                  ? "animate-spin"
-                  : ""
-              }
-            />
 
-            Refresh
-          </button>
+          {/* ---------------------------------------------
+              RIGHT ACTIONS
+          --------------------------------------------- */}
+
+          <div className="flex flex-wrap items-center gap-1.5">
+
+            {/* EXPORT TYPE */}
+
+            <div className="
+              flex
+              h-9
+              items-center
+              overflow-hidden
+              rounded-lg
+              border
+              border-slate-300
+              bg-white
+            ">
+
+              <span className="
+                hidden
+                px-2
+                text-[9px]
+                font-semibold
+                text-slate-400
+                sm:inline
+              ">
+                Export
+              </span>
+
+              <select
+                value={
+                  exportPriceType
+                }
+                onChange={(event) =>
+                  setExportPriceType(
+                    event.target.value
+                  )
+                }
+                className="
+                  h-full
+                  min-w-[112px]
+                  border-0
+                  bg-transparent
+                  px-2
+                  text-[11px]
+                  font-semibold
+                  text-slate-600
+                  outline-none
+                  focus:ring-0
+                "
+              >
+
+                <option value="SS">
+                  SS Price
+                </option>
+
+                <option value="DISTRIBUTER">
+                  Distributor Price
+                </option>
+
+                <option value="DEALER">
+                  Dealer Price
+                </option>
+
+              </select>
+
+            </div>
+
+
+            {/* EXCEL */}
+
+            <button
+              type="button"
+              onClick={
+                handleDownloadExcel
+              }
+              disabled={
+                filteredHistory.length === 0
+              }
+              title="Download Excel"
+              className="
+                inline-flex
+                h-9
+                items-center
+                justify-center
+                gap-1.5
+                rounded-lg
+                border
+                border-emerald-200
+                bg-emerald-50
+                px-2.5
+                text-[10px]
+                font-bold
+                text-emerald-700
+                transition-all
+                hover:bg-emerald-100
+                active:scale-[0.98]
+                disabled:cursor-not-allowed
+                disabled:opacity-40
+              "
+            >
+
+              <FileSpreadsheet
+                size={13}
+              />
+
+              <span className="hidden sm:inline">
+                Excel
+              </span>
+
+            </button>
+
+
+            {/* PDF */}
+
+            <button
+              type="button"
+              onClick={
+                handleDownloadPDF
+              }
+              disabled={
+                filteredHistory.length === 0
+              }
+              title="Download PDF"
+              className="
+                inline-flex
+                h-9
+                items-center
+                justify-center
+                gap-1.5
+                rounded-lg
+                border
+                border-red-200
+                bg-red-50
+                px-2.5
+                text-[10px]
+                font-bold
+                text-red-600
+                transition-all
+                hover:bg-red-100
+                active:scale-[0.98]
+                disabled:cursor-not-allowed
+                disabled:opacity-40
+              "
+            >
+
+              <Download
+                size={13}
+              />
+
+              <span className="hidden sm:inline">
+                PDF
+              </span>
+
+            </button>
+
+
+            {/* REFRESH */}
+
+            <button
+              type="button"
+              onClick={() =>
+                refetch()
+              }
+              disabled={isFetching}
+              title="Refresh"
+              className="
+                inline-flex
+                h-9
+                w-9
+                items-center
+                justify-center
+                rounded-lg
+                border
+                border-slate-300
+                bg-white
+                text-slate-500
+                transition-all
+                hover:border-blue-200
+                hover:bg-blue-50
+                hover:text-blue-600
+                active:scale-[0.98]
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+              "
+            >
+
+              <RefreshCw
+                size={14}
+                className={
+                  isFetching
+                    ? "animate-spin"
+                    : ""
+                }
+              />
+
+            </button>
+
+          </div>
 
         </div>
 
-        {/* ===================================================
-            SEARCH BAR
-        ==================================================== */}
 
-        <div className="border-t border-gray-100 p-3">
+        {/* =================================================
+            FILTER BAR
+        ================================================= */}
 
-          <div className="flex flex-col gap-2 xl:flex-row">
+        <div className="
+          border-t
+          border-slate-300
+          bg-slate-50/50
+          px-3
+          py-2.5
+        ">
+
+          <div className="
+            flex
+            flex-col
+            gap-2
+            xl:flex-row
+            xl:items-center
+          ">
+
+            {/* FILTER LABEL */}
+
+            <div className="
+              hidden
+              shrink-0
+              items-center
+              gap-1.5
+              text-[9px]
+              font-bold
+              uppercase
+              tracking-wide
+              text-slate-400
+              xl:flex
+            ">
+
+              <Filter
+                size={12}
+              />
+
+              Filters
+
+            </div>
+
 
             {/* SEARCH */}
 
-            <form
-              onSubmit={
-                handleSearchSubmit
-              }
-              className="min-w-0 flex-1"
-            >
-              <div className="relative">
+            <div className="
+              relative
+              min-w-0
+              flex-1
+            ">
 
-                <Search
-                  size={15}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                />
+              <Search
+                size={14}
+                className="
+                  pointer-events-none
+                  absolute
+                  left-3
+                  top-1/2
+                  -translate-y-1/2
+                  text-slate-400
+                "
+              />
 
-                <input
-                  type="text"
-                  value={searchInput}
-                  onChange={(event) =>
-                    setSearchInput(
-                      event.target.value
-                    )
-                  }
-                  placeholder="Search product, SKU, user name or user ID..."
-                  className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-20 text-xs text-gray-700 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
-                />
+              <input
+                type="text"
+                value={search}
+                onChange={(event) =>
+                  handleSearchChange(
+                    event.target.value
+                  )
+                }
+                placeholder="Search product, ID, user or reason..."
+                className="
+                  h-9
+                  w-full
+                  rounded-lg
+                  border
+                  border-slate-300
+                  bg-white
+                  pl-9
+                  pr-9
+                  text-[11px]
+                  font-medium
+                  text-slate-700
+                  outline-none
+                  transition-all
+                  placeholder:text-slate-400
+                  hover:border-slate-300
+                  focus:border-blue-300
+                  focus:ring-2
+                  focus:ring-blue-50
+                "
+              />
 
-                {searchInput && (
-                  <button
-                    type="button"
-                    onClick={clearSearch}
-                    className="absolute right-12 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-md p-1 text-gray-400 transition hover:bg-gray-200 hover:text-gray-700"
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-
+              {search && (
                 <button
-                  type="submit"
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md bg-blue-600 px-2.5 py-1.5 text-[10px] font-bold text-white transition hover:bg-blue-700 active:scale-95"
+                  type="button"
+                  onClick={() =>
+                    handleSearchChange("")
+                  }
+                  className="
+                    absolute
+                    right-2
+                    top-1/2
+                    flex
+                    h-6
+                    w-6
+                    -translate-y-1/2
+                    items-center
+                    justify-center
+                    rounded-md
+                    text-slate-400
+                    transition
+                    hover:bg-slate-100
+                    hover:text-slate-700
+                  "
                 >
-                  Search
+                  <X
+                    size={12}
+                  />
                 </button>
+              )}
 
-              </div>
-            </form>
+            </div>
 
-            {/* PRODUCT ID */}
 
-            <input
-              type="number"
-              value={productFilter}
+            {/* PRODUCT */}
+
+            <div className="
+              relative
+              w-full
+              xl:w-[165px]
+            ">
+
+              <input
+                type="text"
+                value={
+                  productFilter
+                }
+                onChange={(event) =>
+                  handleProductFilterChange(
+                    event.target.value
+                  )
+                }
+                placeholder="Product ID / Name"
+                className="
+                  h-9
+                  w-full
+                  rounded-lg
+                  border
+                  border-slate-300
+                  bg-white
+                  px-3
+                  text-[11px]
+                  font-medium
+                  text-slate-700
+                  outline-none
+                  transition-all
+                  placeholder:text-slate-400
+                  hover:border-slate-300
+                  focus:border-blue-300
+                  focus:ring-2
+                  focus:ring-blue-50
+                "
+              />
+
+            </div>
+
+
+            {/* PRICE FILTER */}
+
+            <FilterSelect
+              value={priceFilter}
               onChange={
-                handleProductFilter
+                handlePriceFilterChange
               }
-              placeholder="SKU / Product ID"
-              className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-xs text-gray-700 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 xl:w-[170px]"
-            />
+              className="w-full xl:w-[125px]"
+            >
+
+              <option value="ALL">
+                All Prices
+              </option>
+
+              <option value="SS">
+                SS Price
+              </option>
+
+              <option value="DS">
+                DS Price
+              </option>
+
+              <option value="DLR">
+                Dealer Price
+              </option>
+
+            </FilterSelect>
+
+
+            {/* CHANGE FILTER */}
+
+            <FilterSelect
+              value={changeFilter}
+              onChange={
+                handleChangeFilterChange
+              }
+              className="w-full xl:w-[125px]"
+            >
+
+              <option value="ALL">
+                All Changes
+              </option>
+
+              <option value="UP">
+                Price Increased
+              </option>
+
+              <option value="DOWN">
+                Price Decreased
+              </option>
+
+            </FilterSelect>
+
 
             {/* DATE */}
 
-            <select
-              value={dateFilter}
-              onChange={
-                handleDateFilter
-              }
-              className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-xs font-medium text-gray-700 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 xl:w-[160px]"
-            >
-              <option value="ALL">
-                All Time
-              </option>
+            <div className="
+              relative
+              w-full
+              xl:w-[135px]
+            ">
 
-              <option value="TODAY">
-                Today
-              </option>
+              <CalendarDays
+                size={13}
+                className="
+                  pointer-events-none
+                  absolute
+                  left-3
+                  top-1/2
+                  -translate-y-1/2
+                  text-slate-400
+                "
+              />
 
-              <option value="7_DAYS">
-                Last 7 Days
-              </option>
-
-              <option value="30_DAYS">
-                Last 30 Days
-              </option>
-            </select>
-
-          </div>
-
-          {search && (
-            <div className="mt-2 flex items-center gap-2 text-[10px] text-gray-500">
-
-              <span>
-                Search:
-              </span>
-
-              <span className="rounded-full bg-blue-50 px-2 py-1 font-semibold text-blue-700">
-                {search}
-              </span>
-
-              <button
-                type="button"
-                onClick={clearSearch}
-                className="font-semibold text-gray-500 hover:text-gray-800"
+              <select
+                value={dateFilter}
+                onChange={(event) =>
+                  handleDateFilterChange(
+                    event.target.value
+                  )
+                }
+                className="
+                  h-9
+                  w-full
+                  appearance-none
+                  rounded-lg
+                  border
+                  border-slate-300
+                  bg-white
+                  pl-8
+                  pr-8
+                  text-[11px]
+                  font-semibold
+                  text-slate-600
+                  outline-none
+                  transition-all
+                  hover:border-slate-300
+                  focus:border-blue-300
+                  focus:ring-2
+                  focus:ring-blue-50
+                "
               >
-                Clear
-              </button>
+
+                <option value="ALL">
+                  All Dates
+                </option>
+
+                <option value="TODAY">
+                  Today
+                </option>
+
+                <option value="7_DAYS">
+                  Last 7 Days
+                </option>
+
+                <option value="30_DAYS">
+                  Last 30 Days
+                </option>
+
+              </select>
+
+              <ChevronDown
+                size={12}
+                className="
+                  pointer-events-none
+                  absolute
+                  right-2.5
+                  top-1/2
+                  -translate-y-1/2
+                  text-slate-400
+                "
+              />
 
             </div>
-          )}
 
-        </div>
-      </div>
 
-      {/* =====================================================
-          QUICK STATS
-      ====================================================== */}
+            {/* CLEAR */}
 
-      <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={
+                  clearFilters
+                }
+                className="
+                  inline-flex
+                  h-9
+                  shrink-0
+                  items-center
+                  justify-center
+                  gap-1.5
+                  rounded-lg
+                  border
+                  border-slate-300
+                  bg-white
+                  px-3
+                  text-[10px]
+                  font-bold
+                  text-slate-500
+                  transition-all
+                  hover:border-red-200
+                  hover:bg-red-50
+                  hover:text-red-600
+                "
+              >
 
-        <StatBox
-          icon={<History size={14} />}
-          label="Changes"
-          value={stats.changes}
-          className="blue"
-        />
+                <X
+                  size={12}
+                />
 
-        <StatBox
-          icon={<CalendarDays size={14} />}
-          label="Products"
-          value={stats.products}
-          className="indigo"
-        />
+                Clear
 
-        <StatBox
-          icon={<User size={14} />}
-          label="Users"
-          value={stats.users}
-          className="slate"
-        />
+              </button>
+            )}
 
-        <StatBox
-          icon={<ArrowUp size={14} />}
-          label="Increases"
-          value={stats.increases}
-          className="rose"
-        />
-
-        <StatBox
-          icon={<ArrowDown size={14} />}
-          label="Decreases"
-          value={stats.decreases}
-          className="green"
-        />
-
-      </div>
-
-      {/* =====================================================
-          HISTORY SHEET
-      ====================================================== */}
-
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-
-        {/* SHEET HEADER */}
-
-        <div className="flex flex-col gap-1 border-b border-gray-200 bg-gray-50 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-
-          <div>
-            <p className="text-xs font-bold text-gray-700">
-              Change Timeline
-            </p>
-
-            <p className="text-[10px] text-gray-400">
-              Applicable date = business effective date
-              &nbsp;•&nbsp;
-              Changed At = actual update time
-            </p>
-          </div>
-
-          <div className="text-[10px] font-semibold text-gray-500">
-            {filteredHistory.length} records
           </div>
 
         </div>
 
-        {/* ===================================================
-            LOADING / EMPTY / TABLE
-        ==================================================== */}
+      </div>
 
-        {isLoading ? (
-          <HistorySkeleton />
-        ) : filteredHistory.length === 0 ? (
-          <EmptyHistory />
-        ) : (
-          <div className=" overflow-auto">
 
-            <table className="w-full min-w-[1400px] border-collapse text-left text-xs">
+      {/* =================================================
+          MOBILE STATS
+      ================================================= */}
 
-              <thead className="sticky top-0 z-20">
+      <div className="
+        mb-3
+        grid
+        grid-cols-4
+        gap-1.5
+        md:hidden
+      ">
 
-                <tr className="border-b border-gray-200 bg-gray-100">
+        <div className="
+          rounded-lg
+          border
+          border-slate-300
+          bg-white
+          px-2
+          py-2
+        ">
+          <div className="text-[8px] font-bold uppercase text-slate-400">
+            Total
+          </div>
+          <div className="mt-0.5 text-sm font-bold text-slate-700">
+            {stats.total}
+          </div>
+        </div>
 
-                  <th className="w-[250px] px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-gray-500">
+
+        <div className="
+          rounded-lg
+          border
+          border-emerald-100
+          bg-emerald-50
+          px-2
+          py-2
+        ">
+          <div className="text-[8px] font-bold uppercase text-emerald-500">
+            SS
+          </div>
+          <div className="mt-0.5 text-sm font-bold text-emerald-700">
+            {stats.ssChanges}
+          </div>
+        </div>
+
+
+        <div className="
+          rounded-lg
+          border
+          border-purple-100
+          bg-purple-50
+          px-2
+          py-2
+        ">
+          <div className="text-[8px] font-bold uppercase text-purple-500">
+            DS
+          </div>
+          <div className="mt-0.5 text-sm font-bold text-purple-700">
+            {stats.dsChanges}
+          </div>
+        </div>
+
+
+        <div className="
+          rounded-lg
+          border
+          border-orange-100
+          bg-orange-50
+          px-2
+          py-2
+        ">
+          <div className="text-[8px] font-bold uppercase text-orange-500">
+            DLR
+          </div>
+          <div className="mt-0.5 text-sm font-bold text-orange-700">
+            {stats.dlrChanges}
+          </div>
+        </div>
+
+      </div>
+
+
+      {/* =================================================
+          TABLE
+      ================================================= */}
+
+      <div className="
+        overflow-hidden
+        rounded
+        border
+        border-slate-300
+        bg-white
+        shadow-sm
+      ">
+
+        <div className="w-full overflow-x-auto">
+
+          <table className="
+            w-full
+            min-w-[1250px]
+            border-collapse
+            text-left
+          ">
+
+            <thead className="bg-slate-50">
+
+              <tr className="border-b border-slate-300">
+
+                <th className="
+                  border-r
+                  border-slate-300
+                  px-3
+                  py-2.5
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-wide
+                  text-slate-500
+                ">
+                  #
+                </th>
+
+
+                <th className="
+                  border-r
+                  border-slate-300
+                  px-3
+                  py-2.5
+                ">
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleSort(
+                        "product_id"
+                      )
+                    }
+                    className="
+                      flex
+                      items-center
+                      gap-1
+                      text-[10px]
+                      font-bold
+                      uppercase
+                      tracking-wide
+                      text-slate-500
+                      transition
+                      hover:text-blue-600
+                    "
+                  >
+
                     Product
-                  </th>
 
-                  <th className="w-[190px] bg-blue-50 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-blue-700">
-                    SS Price
-                  </th>
+                    {sortField ===
+                      "product_id" &&
+                      (
+                        sortDirection ===
+                        "asc"
+                          ? (
+                            <ArrowUp
+                              size={11}
+                            />
+                          )
+                          : (
+                            <ArrowDown
+                              size={11}
+                            />
+                          )
+                      )}
 
-                  <th className="w-[190px] bg-purple-50 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-purple-700">
-                    DS Price
-                  </th>
+                  </button>
 
-                  <th className="w-[190px] bg-emerald-50 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
-                    DLR Price
-                  </th>
+                </th>
 
-                  <th className="w-[155px] px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-gray-500">
-                     From
-                  </th>
 
-                  <th className="w-[175px] px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-gray-500">
-                    Changed At
-                  </th>
+                <th className="
+                  border-r
+                  border-slate-300
+                  px-3
+                  py-2.5
+                  text-right
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-wide
+                  text-slate-500
+                ">
+                  SS Price
+                </th>
 
-                  <th className="w-[190px] px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-gray-500">
-                    Changed By
-                  </th>
 
-                  <th className="min-w-[220px] px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-gray-500">
-                    Reason
-                  </th>
+                <th className="
+                  border-r
+                  border-slate-300
+                  px-3
+                  py-2.5
+                  text-right
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-wide
+                  text-slate-500
+                ">
+                  DS Price
+                </th>
+
+
+                <th className="
+                  border-r
+                  border-slate-300
+                  px-3
+                  py-2.5
+                  text-right
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-wide
+                  text-slate-500
+                ">
+                  DLR Price
+                </th>
+
+
+                <th className="
+                  border-r
+                  border-slate-300
+                  px-3
+                  py-2.5
+                  text-center
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-wide
+                  text-slate-500
+                ">
+                  Applicable From
+                </th>
+
+
+                <th className="
+                  border-r
+                  border-slate-300
+                  px-3
+                  py-2.5
+                  text-center
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-wide
+                  text-slate-500
+                ">
+                  Changed At
+                </th>
+
+
+                <th className="
+                  border-r
+                  border-slate-300
+                  px-3
+                  py-2.5
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-wide
+                  text-slate-500
+                ">
+                  Changed By
+                </th>
+
+
+                <th className="
+                  px-3
+                  py-2.5
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-wide
+                  text-slate-500
+                ">
+                  Reason
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody>
+
+              {paginatedHistory.length === 0 ? (
+                <tr>
+
+                  <td
+                    colSpan={9}
+                    className="px-4 py-16 text-center"
+                  >
+
+                    <div className="
+                      mx-auto
+                      flex
+                      max-w-xs
+                      flex-col
+                      items-center
+                    ">
+
+                      <div className="
+                        mb-3
+                        flex
+                        h-11
+                        w-11
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-slate-100
+                      ">
+
+                        <History
+                          size={20}
+                          className="text-slate-400"
+                        />
+
+                      </div>
+
+                      <p className="
+                        text-sm
+                        font-semibold
+                        text-slate-600
+                      ">
+                        No price history found
+                      </p>
+
+                      <p className="
+                        mt-1
+                        text-[11px]
+                        text-slate-400
+                      ">
+                        Try changing your search or filters.
+                      </p>
+
+                    </div>
+
+                  </td>
 
                 </tr>
+              ) : (
+                paginatedHistory.map(
+                  (
+                    item,
+                    index
+                  ) => {
 
-              </thead>
+                    const actualIndex =
+                      (safeCurrentPage - 1) *
+                        ITEMS_PER_PAGE +
+                      index +
+                      1;
 
-              <tbody>
-
-                {paginatedHistory.map(
-                  (item, index) => {
-
-                    const ssChange =
-                      getPriceChangeType(
-                        item?.old_price,
-                        item?.new_price
-                      );
-
-                    const dsChange =
-                      getPriceChangeType(
-                        item?.old_ds_price,
-                        item?.new_ds_price
-                      );
-
-                    const dlrChange =
-                      getPriceChangeType(
-                        item?.old_dlr_price,
-                        item?.new_dlr_price
-                      );
 
                     return (
                       <tr
                         key={
                           item?.id ??
-                          `${item?.product_id}-${index}`
+                          `${item?.product_id}-${item?.changed_at}-${index}`
                         }
-                        className="group border-b border-gray-100 transition-colors hover:bg-blue-50/30"
+                        className="
+                          border-b
+                          border-slate-300
+                          transition-colors
+                          hover:bg-slate-50
+                        "
                       >
+
+                        {/* # */}
+
+                        <td className="
+                          border-r
+                          border-slate-300
+                          px-3
+                          py-1
+                          text-[10px]
+                          font-medium
+                          text-slate-400
+                        ">
+                          {actualIndex}
+                        </td>
+
 
                         {/* PRODUCT */}
 
-                        <td className="px-3 py-2.5">
+                        <td className="
+                          border-r
+                          border-slate-300
+                          px-3
+                          py-1
+                        ">
 
-                          <div className="flex items-start gap-2">
+                          <div className="min-w-[190px]">
 
-                            <span className="mt-0.5 rounded-md bg-gray-100 px-1.5 py-0.5 text-[9px] font-bold text-gray-500">
-                              #{item?.product_id}
-                            </span>
+                            <div className="
+                              text-[11px]
+                              font-bold
+                              text-slate-700
+                            ">
+                              {item?.product_name ||
+                                item?.name ||
+                                "Unnamed Product"}
+                            </div>
 
-                            <div className="min-w-0">
-
-                              <div
-                                title={
-                                  item?.product_name ||
-                                  ""
-                                }
-                                className="max-w-[210px] truncate text-xs font-bold text-gray-800"
-                              >
-                                {item?.product_name ||
-                                  "Unnamed Product"}
-                              </div>
-
-                              <div className="mt-0.5 text-[9px] text-gray-400">
-                                Price record
-                              </div>
-
+                            <div className="
+                              mt-0.5
+                              text-[9px]
+                              font-medium
+                              text-slate-400
+                            ">
+                              ID:{" "}
+                              {item?.product_id ??
+                                item?.product ??
+                                "—"}
                             </div>
 
                           </div>
 
                         </td>
 
-                        {/* SS PRICE */}
 
-                        <td className="bg-blue-50/30 px-3 py-2.5">
+                        {/* SS */}
+
+                        <td className="
+                          border-r
+                          border-slate-300
+                          px-3
+                          py-1
+                        ">
+
                           <PriceChange
                             oldValue={
                               item?.old_price
@@ -770,13 +2248,20 @@ const PriceHistoryPage = () => {
                             newValue={
                               item?.new_price
                             }
-                            type={ssChange}
                           />
+
                         </td>
 
-                        {/* DS PRICE */}
 
-                        <td className="bg-purple-50/30 px-3 py-2.5">
+                        {/* DS */}
+
+                        <td className="
+                          border-r
+                          border-slate-300
+                          px-3
+                          py-1
+                        ">
+
                           <PriceChange
                             oldValue={
                               item?.old_ds_price
@@ -784,13 +2269,20 @@ const PriceHistoryPage = () => {
                             newValue={
                               item?.new_ds_price
                             }
-                            type={dsChange}
                           />
+
                         </td>
 
-                        {/* DLR PRICE */}
 
-                        <td className="bg-emerald-50/30 px-3 py-2.5">
+                        {/* DLR */}
+
+                        <td className="
+                          border-r
+                          border-slate-300
+                          px-3
+                          py-1
+                        ">
+
                           <PriceChange
                             oldValue={
                               item?.old_dlr_price
@@ -798,95 +2290,151 @@ const PriceHistoryPage = () => {
                             newValue={
                               item?.new_dlr_price
                             }
-                            type={dlrChange}
                           />
+
                         </td>
 
-                        {/* APPLICABLE DATE */}
 
-                        <td className="px-3 py-2.5">
+                        {/* APPLICABLE */}
 
-                          <div className="inline-flex items-center gap-1.5 rounded-md bg-blue-50 px-2 py-1.5 text-[10px] font-semibold text-blue-700">
+                        <td className="
+                          border-r
+                          border-slate-300
+                          px-3
+                          py-1
+                          text-center
+                          text-[10px]
+                          font-medium
+                          text-slate-600
+                        ">
+                          {formatDate(
+                            item?.applicable_from
+                          )}
+                        </td>
 
-                            <CalendarDays
-                              size={12}
+
+                        {/* CHANGED AT */}
+
+                        <td className="
+                          border-r
+                          border-slate-300
+                          px-3
+                          py-1
+                          text-center
+                        ">
+
+                          <div className="
+                            flex
+                            min-w-[130px]
+                            items-center
+                            justify-center
+                            gap-1.5
+                            text-[10px]
+                            font-medium
+                            text-slate-600
+                          ">
+
+                            <Clock3
+                              size={11}
+                              className="
+                                shrink-0
+                                text-slate-400
+                              "
                             />
 
-                            {formatDate(
-                              item?.applicable_from
+                            {formatDateTime(
+                              item?.changed_at
                             )}
 
                           </div>
 
                         </td>
 
-                        {/* CHANGED AT */}
 
-                        <td className="px-3 py-2.5">
+                        {/* CHANGED BY */}
 
-                          <div className="flex items-start gap-1.5 text-[10px] text-gray-600">
+                        <td className="
+                          border-r
+                          border-slate-300
+                          px-3
+                          py-1
+                        ">
 
-                            <Clock3
-                              size={12}
-                              className="mt-0.5 shrink-0 text-gray-400"
-                            />
+                          <div className="
+                            flex
+                            min-w-[130px]
+                            items-center
+                            gap-2
+                          ">
 
-                            <span className="whitespace-nowrap">
-                              {formatDateTime(
-                                item?.changed_at
-                              )}
-                            </span>
-
-                          </div>
-
-                        </td>
-
-                        {/* USER */}
-
-                        <td className="px-3 py-2.5">
-
-                          <div className="min-w-[150px]">
-
-                            <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700">
+                            <div className="
+                              flex
+                              h-6
+                              w-6
+                              shrink-0
+                              items-center
+                              justify-center
+                              rounded-full
+                              bg-blue-50
+                              text-blue-600
+                            ">
 
                               <User
-                                size={12}
-                                className="text-gray-400"
+                                size={11}
                               />
-
-                              {item?.changed_by_name ||
-                                "Unknown"}
 
                             </div>
 
-                            <div className="mt-0.5 text-[9px] text-gray-400">
 
-                              {item?.changed_by_role ||
-                                "—"}
+                            <div className="min-w-0">
 
-                              {item?.changed_by_user_id
-                                ? ` • ${item.changed_by_user_id}`
-                                : ""}
+                              <div className="
+                                truncate
+                                text-[10px]
+                                font-semibold
+                                text-slate-600
+                              ">
+                                {item?.changed_by_name ||
+                                  item?.changed_by ||
+                                  "Unknown"}
+                              </div>
+
+
+                              {(item?.changed_by_role ||
+                                item?.role) && (
+                                <div className="
+                                  text-[9px]
+                                  text-slate-400
+                                ">
+                                  {item?.changed_by_role ||
+                                    item?.role}
+                                </div>
+                              )}
 
                             </div>
 
                           </div>
 
                         </td>
+
 
                         {/* REASON */}
 
                         <td className="px-3 py-2.5">
 
                           <div
+                            className="
+                              max-w-[240px]
+                              truncate
+                              text-[10px]
+                              font-medium
+                              text-slate-500
+                            "
                             title={
-                              item?.reason ||
-                              ""
+                              item?.reason || ""
                             }
-                            className="max-w-[250px] truncate text-[10px] text-gray-500"
                           >
-                            {item?.reason ||
-                              "No reason provided"}
+                            {item?.reason || "—"}
                           </div>
 
                         </td>
@@ -894,407 +2442,179 @@ const PriceHistoryPage = () => {
                       </tr>
                     );
                   }
+                )
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+
+        {/* =================================================
+            PAGINATION
+        ================================================= */}
+
+        {filteredHistory.length > 0 && (
+          <div className="
+            flex
+            flex-col
+            gap-2
+            border-t
+            border-slate-300
+            bg-slate-50
+            px-3
+            py-2.5
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
+          ">
+
+            {/* RANGE */}
+
+            <div className="
+              text-[10px]
+              font-medium
+              text-slate-400
+            ">
+
+              Showing{" "}
+
+              <span className="font-semibold text-slate-600">
+                {(safeCurrentPage - 1) *
+                  ITEMS_PER_PAGE +
+                  1}
+              </span>
+
+              {" – "}
+
+              <span className="font-semibold text-slate-600">
+                {Math.min(
+                  safeCurrentPage *
+                    ITEMS_PER_PAGE,
+                  filteredHistory.length
                 )}
+              </span>
 
-              </tbody>
+              {" of "}
 
-            </table>
+              <span className="font-semibold text-slate-600">
+                {filteredHistory.length}
+              </span>
+
+            </div>
+
+
+            {/* PAGINATION */}
+
+            <div className="flex items-center gap-1">
+
+              {/* PREVIOUS */}
+
+              <button
+                type="button"
+                disabled={
+                  safeCurrentPage <= 1
+                }
+                onClick={() =>
+                  setCurrentPage(
+                    (page) =>
+                      Math.max(
+                        1,
+                        page - 1
+                      )
+                  )
+                }
+                className="
+                  inline-flex
+                  h-7
+                  w-7
+                  items-center
+                  justify-center
+                  rounded-md
+                  border
+                  border-slate-300
+                  bg-white
+                  text-slate-500
+                  transition
+                  hover:bg-slate-100
+                  disabled:cursor-not-allowed
+                  disabled:opacity-40
+                "
+              >
+
+                <ChevronLeft
+                  size={13}
+                />
+
+              </button>
+
+
+              {/* PAGE */}
+
+              <div className="
+                min-w-[58px]
+                px-2
+                text-center
+                text-[10px]
+                font-semibold
+                text-slate-500
+              ">
+                {safeCurrentPage}
+                {" / "}
+                {totalPages}
+              </div>
+
+
+              {/* NEXT */}
+
+              <button
+                type="button"
+                disabled={
+                  safeCurrentPage >=
+                  totalPages
+                }
+                onClick={() =>
+                  setCurrentPage(
+                    (page) =>
+                      Math.min(
+                        totalPages,
+                        page + 1
+                      )
+                  )
+                }
+                className="
+                  inline-flex
+                  h-7
+                  w-7
+                  items-center
+                  justify-center
+                  rounded-md
+                  border
+                  border-slate-300
+                  bg-white
+                  text-slate-500
+                  transition
+                  hover:bg-slate-100
+                  disabled:cursor-not-allowed
+                  disabled:opacity-40
+                "
+              >
+
+                <ChevronRight
+                  size={13}
+                />
+
+              </button>
+
+            </div>
 
           </div>
         )}
 
-        {/* ===================================================
-            PAGINATION FOOTER
-        ==================================================== */}
-
-        {!isLoading &&
-          filteredHistory.length > 0 && (
-            <div className="flex flex-col gap-2 border-t border-gray-200 bg-gray-50 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-
-              <div className="text-[10px] text-gray-500">
-
-                Showing{" "}
-                <b className="text-gray-700">
-                  {(safeCurrentPage - 1) *
-                    ITEMS_PER_PAGE +
-                    1}
-                </b>
-
-                {" — "}
-
-                <b className="text-gray-700">
-                  {Math.min(
-                    safeCurrentPage *
-                      ITEMS_PER_PAGE,
-                    filteredHistory.length
-                  )}
-                </b>
-
-                {" of "}
-
-                <b className="text-gray-700">
-                  {filteredHistory.length}
-                </b>
-
-              </div>
-
-              <div className="flex items-center gap-1">
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    handlePageChange(
-                      safeCurrentPage - 1
-                    )
-                  }
-                  disabled={
-                    safeCurrentPage === 1
-                  }
-                  className="flex h-7 items-center gap-1 rounded-md border border-gray-200 bg-white px-2.5 text-[10px] font-semibold text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <ChevronLeft size={13} />
-                  Prev
-                </button>
-
-                {Array.from(
-                  {
-                    length: totalPages,
-                  },
-                  (_, index) =>
-                    index + 1
-                )
-                  .filter((page) => {
-                    return (
-                      page === 1 ||
-                      page === totalPages ||
-                      Math.abs(
-                        page -
-                          safeCurrentPage
-                      ) <= 1
-                    );
-                  })
-                  .map(
-                    (
-                      page,
-                      index,
-                      pages
-                    ) => (
-                      <span
-                        key={page}
-                        className="flex items-center gap-1"
-                      >
-
-                        {index > 0 &&
-                          page -
-                            pages[
-                              index - 1
-                            ] >
-                            1 && (
-                            <span className="px-1 text-gray-400">
-                              …
-                            </span>
-                          )}
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handlePageChange(
-                              page
-                            )
-                          }
-                          className={`h-7 min-w-7 rounded-md px-2 text-[10px] font-bold transition ${
-                            safeCurrentPage ===
-                            page
-                              ? "bg-blue-600 text-white shadow-sm"
-                              : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100"
-                          }`}
-                        >
-                          {page}
-                        </button>
-
-                      </span>
-                    )
-                  )}
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    handlePageChange(
-                      safeCurrentPage + 1
-                    )
-                  }
-                  disabled={
-                    safeCurrentPage ===
-                    totalPages
-                  }
-                  className="flex h-7 items-center gap-1 rounded-md border border-gray-200 bg-white px-2.5 text-[10px] font-semibold text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Next
-                  <ChevronRight
-                    size={13}
-                  />
-                </button>
-
-              </div>
-
-            </div>
-          )}
-
-      </div>
-    </div>
-  );
-};
-
-/* =========================================================
-   STAT BOX
-========================================================= */
-
-const StatBox = ({
-  icon,
-  label,
-  value,
-  className,
-}) => {
-  const styles = {
-    blue: {
-      wrapper:
-        "border-blue-100 bg-blue-50/60",
-      icon:
-        "bg-blue-100 text-blue-600",
-      value:
-        "text-blue-800",
-    },
-
-    indigo: {
-      wrapper:
-        "border-indigo-100 bg-indigo-50/60",
-      icon:
-        "bg-indigo-100 text-indigo-600",
-      value:
-        "text-indigo-800",
-    },
-
-    slate: {
-      wrapper:
-        "border-gray-200 bg-gray-50/70",
-      icon:
-        "bg-gray-100 text-gray-500",
-      value:
-        "text-gray-800",
-    },
-
-    rose: {
-      wrapper:
-        "border-rose-100 bg-rose-50/60",
-      icon:
-        "bg-rose-100 text-rose-600",
-      value:
-        "text-rose-700",
-    },
-
-    green: {
-      wrapper:
-        "border-emerald-100 bg-emerald-50/60",
-      icon:
-        "bg-emerald-100 text-emerald-600",
-      value:
-        "text-emerald-700",
-    },
-  };
-
-  const style =
-    styles[className] ||
-    styles.slate;
-
-  return (
-    <div
-      className={`rounded-lg border p-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm ${style.wrapper}`}
-    >
-      <div className="flex items-center gap-2">
-
-        <div
-          className={`flex h-7 w-7 items-center justify-center rounded-md ${style.icon}`}
-        >
-          {icon}
-        </div>
-
-        <div className="min-w-0">
-
-          <p className="truncate text-[9px] font-bold uppercase tracking-wide text-gray-500">
-            {label}
-          </p>
-
-          <p
-            className={`text-base font-bold ${style.value}`}
-          >
-            {value}
-          </p>
-
-        </div>
-
-      </div>
-    </div>
-  );
-};
-
-/* =========================================================
-   PRICE CHANGE
-========================================================= */
-
-const PriceChange = ({
-  oldValue,
-  newValue,
-  type,
-}) => {
-  const hasOld =
-    oldValue !== null &&
-    oldValue !== undefined &&
-    oldValue !== "";
-
-  const hasNew =
-    newValue !== null &&
-    newValue !== undefined &&
-    newValue !== "";
-
-  if (
-    hasOld &&
-    hasNew &&
-    String(oldValue) ===
-      String(newValue)
-  ) {
-    return (
-      <span className="text-[10px] text-gray-400">
-        No change
-      </span>
-    );
-  }
-
-  const isIncrease =
-    type === "increase";
-
-  const isDecrease =
-    type === "decrease";
-
-  return (
-    <div className="flex items-center gap-2">
-
-      <div className="min-w-[42px]">
-        <span className="text-[10px] text-gray-400 line-through">
-          {displayPrice(oldValue)}
-        </span>
-      </div>
-
-      <span className="text-gray-300">
-        →
-      </span>
-
-      <div className="min-w-[48px]">
-        <span
-          className={`text-xs font-bold ${
-            isIncrease
-              ? "text-rose-600"
-              : isDecrease
-              ? "text-emerald-600"
-              : "text-blue-600"
-          }`}
-        >
-          {displayPrice(newValue)}
-        </span>
-      </div>
-
-      {hasNew && (
-        <span
-          title={
-            isIncrease
-              ? "Price increased"
-              : isDecrease
-              ? "Price decreased"
-              : "Price changed"
-          }
-          className={`flex h-5 w-5 items-center justify-center rounded-full ${
-            isIncrease
-              ? "bg-rose-50 text-rose-600"
-              : isDecrease
-              ? "bg-emerald-50 text-emerald-600"
-              : "bg-blue-50 text-blue-600"
-          }`}
-        >
-          {isIncrease ? (
-            <ArrowUp size={11} />
-          ) : isDecrease ? (
-            <ArrowDown size={11} />
-          ) : (
-            <span className="text-[9px] font-bold">
-              ↗
-            </span>
-          )}
-        </span>
-      )}
-
-    </div>
-  );
-};
-
-/* =========================================================
-   LOADING SKELETON
-========================================================= */
-
-const HistorySkeleton = () => {
-  return (
-    <div className="animate-pulse">
-
-      <div className="space-y-0">
-
-        {Array.from(
-          { length: 8 },
-          (_, index) => (
-            <div
-              key={index}
-              className="grid min-w-[1400px] grid-cols-8 gap-3 border-b border-gray-100 px-3 py-4"
-            >
-              <div className="h-7 rounded bg-gray-100" />
-              <div className="h-7 rounded bg-blue-50" />
-              <div className="h-7 rounded bg-purple-50" />
-              <div className="h-7 rounded bg-emerald-50" />
-              <div className="h-7 rounded bg-gray-100" />
-              <div className="h-7 rounded bg-gray-100" />
-              <div className="h-7 rounded bg-gray-100" />
-              <div className="h-7 rounded bg-gray-100" />
-            </div>
-          )
-        )}
-
-      </div>
-    </div>
-  );
-};
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-const EmptyHistory = () => {
-  return (
-    <div className="flex min-h-[400px] items-center justify-center px-6">
-
-      <div className="text-center">
-
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-400">
-          <History size={21} />
-        </div>
-
-        <p className="mt-3 text-sm font-bold text-gray-700">
-          No price history found
-        </p>
-
-        <p className="mt-1 text-[11px] text-gray-400">
-          Try another SKU, search term or date filter.
-        </p>
-
       </div>
 
     </div>
   );
-};
-
-export default PriceHistoryPage;
+}
