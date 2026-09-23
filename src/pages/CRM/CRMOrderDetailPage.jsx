@@ -472,7 +472,7 @@ export default function CRMOrderDetailPage() {
         {/* Desktop */}
           <div
             className="
-              fixed bottom-0 right-0 z-[90]
+              fixed bottom-0 right-0 z-[10]
               left-0 
               flex h-[64px] items-center justify-end
               border-t border-[#e7edf5]
