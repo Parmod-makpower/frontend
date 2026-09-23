@@ -530,19 +530,35 @@ const PriceManagementPage = () => {
   }, [allProductsData]);
 
   const products = useMemo(
-    () =>
-      allProducts.filter(
-        (product) =>
-          product?.is_active === true &&
-          !String(
-            product?.sub_category ?? ""
-          )
-            .trim()
-            .toUpperCase()
-            .startsWith("TEMPERED")
-      ),
-    [allProducts]
-  );
+  () =>
+    allProducts.filter((product) => {
+      if (product?.is_active !== true) {
+        return false;
+      }
+
+      const category = String(
+        product?.sub_category ?? ""
+      )
+        .trim()
+        .toUpperCase();
+
+      const hiddenCategories = new Set([
+        "TEMPERED BODYGUARD",
+        "TEMPERED SOLDIER",
+        "UV TEMPERED",
+        "NEW SOLDIER TEMPERED",
+        "GIFT ITEM",
+        "PROMOTIONAL ITEM",
+        "SPEAKER PCB",
+        "SPEAKER PACKING",
+        "SPEAKER HOUSING",
+        "",
+      ]);
+
+      return !hiddenCategories.has(category);
+    }),
+  [allProducts]
+);
 
   const productMap = useMemo(
     () =>
