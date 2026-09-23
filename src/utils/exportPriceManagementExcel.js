@@ -165,53 +165,30 @@ const COMBINED_CATEGORY_GROUPS = [
     sheetName: "P.B ,LED LIGHT & AUX CABLE",
 
     sections: [
-      {
-        title: "P.B",
-        aliases: [
-          "P.B",
-          "PB",
-          "P B",
-          "P.B.",
-        ],
-      },
-      {
-        title: "LED LIGHT",
-        aliases: [
-          "LED LIGHT",
-          "LED LIGHTS",
-        ],
-      },
-      {
-        title: "LED TORCH",
-        aliases: [
-          "LED TORCH",
-          "TORCH",
-          "LED TORCHES",
-        ],
-      },
-      {
-        title: "AUX CABLE",
-        aliases: [
-          "AUX CABLE",
-          "AUX CABLES",
-        ],
-      },
-      {
-        title: "PORTABLE FAN",
-        aliases: [
-          "PORTABLE FAN",
-          "PORTABLE FANS",
-        ],
-      },
-      {
-        title: "BT CELL",
-        aliases: [
-          "BT CELL",
-          "BT CELLS",
-          "BLUETOOTH CELL",
-        ],
-      },
-    ],
+      { title: "POWER BANK", aliases: [ "POWER BANK",] },
+      { title: "LED BULB",  aliases: [ "LED BULB",] },
+      { title: "LED TORCH", aliases: [ "LED TORCH",] },
+      { title: "AUX CABLE", aliases: [ "AUX CABLE",]},
+      { title: "FAN", aliases: [  "PORTABLE FAN"],},
+      { title: "BLUETOOTH CELL", aliases: [ "BLUETOOTH Cell" ] },
+          ],
+
+  },
+
+
+  {
+    sheetName: "DATA CABLES",
+
+    sections: [
+      { title: "DATA CABLE V8", aliases: [ "DATA CABLE V8",] },
+      { title: "DATA CABLE TYPE-C", aliases: [ "DATA CABLE TYPE-C",] },
+      { title: "DATA CABLE I PHONE", aliases: [ "DATA CABLE I PHONE",] },
+      { title: "DATA CABLE C TO C", aliases: [ "DATA CABLE C TO C",] },
+      { title: "DATA CABLE C TO I", aliases: [ "DATA CABLE C TO I",] },
+      { title: "DATA CABLE PB", aliases: [ "DATA CABLE PB",] },
+      { title: "DATA CABLE 3 IN 1", aliases: [ "DATA CABLE 3 IN 1",] },
+          ],
+
   },
 ];
 
@@ -462,17 +439,22 @@ const addCategorySection = (
 
   /* DATA */
 
-  const dataRows = products.map(
-    (product, index) => [
-      index + 1,
+ const dataRows = products.map(
+  (product, index) => [
+    index + 1,
+
+    // SALE NAME available hai to Sale Name,
+    // otherwise Product Name
+    getLatestActiveSaleName(product) ||
       getProductName(product),
-      getGuarantee(product),
-      getCartonSize(product),
-      product?.price ?? "",
-      product?.ds_price ?? "",
-      product?.dlr_price ?? "",
-    ]
-  );
+
+    getGuarantee(product),
+    getCartonSize(product),
+    product?.price ?? "",
+    product?.ds_price ?? "",
+    product?.dlr_price ?? "",
+  ]
+);
 
   if (dataRows.length) {
     XLSX.utils.sheet_add_aoa(
