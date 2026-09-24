@@ -76,7 +76,7 @@
 //     <div className="hidden sm:flex items-center gap-3 mb-3">
 //       <BackButton fallback="/" />
 
-//       <h2 className="text-sm font-semibold text-gray-700">
+//       <h2 className="text-sm font-semibold ">
 //         Orders ({results.length})
 //       </h2>
 //     </div>
@@ -593,7 +593,7 @@ export default function CRMVerifiedHistoryPage() {
               px-3
               text-xs
               font-semibold
-              text-gray-800
+              
               shadow-sm
               transition
               hover:bg-gray-100
@@ -639,7 +639,7 @@ export default function CRMVerifiedHistoryPage() {
                 px-2
                 text-[10px]
                 font-bold
-                text-gray-700
+                
               "
             >
               {results.length}
@@ -734,7 +734,7 @@ export default function CRMVerifiedHistoryPage() {
           <div className="flex items-center gap-2">
             <FaSearch className="text-[10px] text-gray-600" />
 
-            <span className="text-[11px] font-semibold text-gray-700">
+            <span className="text-[11px] font-semibold ">
               Verified Orders
             </span>
           </div>
@@ -771,35 +771,35 @@ export default function CRMVerifiedHistoryPage() {
 
             <thead className="sticky top-0 z-20 bg-gray-100">
               <tr>
-                <th className="w-[50px] border-b border-r border-gray-400 px-2 py-2.5 font-bold text-gray-700">
+                <th className="w-[50px] border-b border-r border-gray-400 px-2 py-2.5 font-bold ">
                   #
                 </th>
 
-                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold text-gray-700">
+                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold ">
                   Order ID
                 </th>
 
-                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold text-gray-700">
+                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold ">
                   Code
                 </th>
 
-                <th className="w-[210px] border-b border-r border-gray-400 px-2 py-1 font-bold text-gray-700">
+                <th className="w-[210px] border-b border-r border-gray-400 px-2 py-1 font-bold ">
                   Party
                 </th>
 
-                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold text-gray-700">
+                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold ">
                   CRM
                 </th>
 
-                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold text-gray-700">
+                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold ">
                   Order
                 </th>
 
-                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold text-gray-700">
+                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold ">
                   Verified
                 </th>
 
-                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold text-gray-700">
+                <th className="w-[110px] border-b border-r border-gray-400 px-2 py-1 font-bold ">
                   <label className="flex cursor-pointer items-center justify-center gap-1.5">
                     <input
                       type="checkbox"
@@ -823,11 +823,11 @@ export default function CRMVerifiedHistoryPage() {
                   </label>
                 </th>
 
-                <th className="w-[95px] border-b border-r border-gray-400 px-2 py-1 font-bold text-gray-700">
+                <th className="w-[95px] border-b border-r border-gray-400 px-2 py-1 font-bold ">
                   Open
                 </th>
 
-                <th className="w-[95px] border-b border-gray-400 px-2 py-1 font-bold text-gray-700">
+                <th className="w-[95px] border-b border-gray-400 px-2 py-1 font-bold ">
                   Track
                 </th>
               </tr>
@@ -934,7 +934,7 @@ export default function CRMVerifiedHistoryPage() {
                             px-2
                             py-1
                             font-semibold
-                            text-gray-800
+                            
                           "
                         >
                           <span className="block truncate">
@@ -953,7 +953,7 @@ export default function CRMVerifiedHistoryPage() {
                             py-1
                           "
                         >
-                          <span className="font-bold text-gray-800">
+                          <span className="font-bold ">
                             {orderCode}
                           </span>
                         </td>
@@ -973,8 +973,8 @@ export default function CRMVerifiedHistoryPage() {
                             className="
                               block
                               truncate
-                              font-semibold
-                              text-gray-800
+
+                              
                             "
                             title={
                               row.ss_party_name ||
@@ -997,7 +997,7 @@ export default function CRMVerifiedHistoryPage() {
                             py-1
                           "
                         >
-                          <span className="block truncate font-medium text-gray-700">
+                          <span className="block truncate ">
                             {row.crm_name || "--"}
                           </span>
                         </td>
@@ -1012,8 +1012,8 @@ export default function CRMVerifiedHistoryPage() {
                             px-2
                             py-1
                             text-[11px]
-                            font-medium
-                            text-gray-700
+                            
+                            
                           "
                         >
                           {formatDateTime(
@@ -1031,8 +1031,8 @@ export default function CRMVerifiedHistoryPage() {
                             px-2
                             py-1
                             text-[11px]
-                            font-medium
-                            text-gray-700
+                            
+                            
                           "
                         >
                           {formatDateTime(
@@ -1061,8 +1061,8 @@ export default function CRMVerifiedHistoryPage() {
                                 bg-green-50
                                 px-2
                                 py-1
-                                text-[10px]
-                                font-bold
+                                text-[12px]
+                                
                                 text-green-700
                               "
                             >
@@ -1121,8 +1121,8 @@ export default function CRMVerifiedHistoryPage() {
                               border-blue-300
                               bg-blue-50
                               px-2.5
-                              text-[10px]
-                              font-bold
+                              text-[12px]
+                              
                               text-blue-700
                               transition
                               hover:bg-blue-100
@@ -1164,9 +1164,9 @@ export default function CRMVerifiedHistoryPage() {
                               border-gray-400
                               bg-white
                               px-2.5
-                              text-[10px]
-                              font-bold
-                              text-gray-700
+                              text-[12px]
+                              
+                              
                               transition
                               hover:bg-gray-100
                               active:scale-[0.97]
