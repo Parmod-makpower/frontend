@@ -63,6 +63,7 @@ import ASMAssignmentPage from "./pages/CRM/ASMAssignmentPage";
 import PriceManagementPage from "./pages/ADMIN/PriceManagementPage";
 import PriceHistoryPage from "./pages/ADMIN/PriceHistoryPage";
 import CRMNewOrderPage from "./pages/CRM/CRMNewOrderPage";
+import OrderRecordsPage from "./pages/OrderRecords/OrderRecordsPage";
 
 
 export default function App() {
@@ -171,7 +172,8 @@ export default function App() {
           <Route path="/price-management/history" element={<ProtectedRoute allowedRoles={["ADMIN", "CRM"]}><PriceHistoryPage />  </ProtectedRoute>} />
           <Route path="/crm/new-order" element={<ProtectedRoute allowedRoles={["CRM"]}> <CRMNewOrderPage /> </ProtectedRoute>} />
 
-
+          <Route path="/order-records" element={<OrderRecordsPage />}/>
+          
         </Route>
 
 
