@@ -1,439 +1,18 @@
-// import { useState } from "react";
-
-// import {
-//   useDispatchOrdersList,
-//   uploadDispatchExcel,
-//   downloadDispatchExcel,
-// } from "../../hooks/useDispatchOrders";
-
-// import {
-//   useDeleteAllDispatchOrders,
-//   deleteSelectedDispatchOrders,
-// } from "../../hooks/useDispatchOrders";
-
-// import { useQueryClient } from "@tanstack/react-query";
-
-// export default function DispatchEntriesPage() {
-//   const [tempFrom, setTempFrom] = useState("");
-//   const [tempTo, setTempTo] = useState("");
-
-//   const [uploading, setUploading] = useState(false);
-
-//   const [appliedFilters, setAppliedFilters] = useState({
-//     from: undefined,
-//     to: undefined,
-//   });
-
-//   const [selectedIds, setSelectedIds] = useState([]);
-
-//   const {
-//     data,
-//     isLoading,
-//   } = useDispatchOrdersList(appliedFilters);
-
-//   const {
-//     mutate,
-//     isPending,
-//   } = useDeleteAllDispatchOrders();
-
-//   const queryClient = useQueryClient();
-
-//   const toggleRow = (id) => {
-//     setSelectedIds((prev) =>
-//       prev.includes(id)
-//         ? prev.filter((x) => x !== id)
-//         : [...prev, id]
-//     );
-//   };
-
-//   return (
-//     <div className="mx-auto p-5 text-sm">
-
-//       {/* FILTER + ACTIONS */}
-//       <div className="mb-4 flex flex-wrap items-end gap-3 rounded border bg-gray-50 p-3">
-
-//         <div>
-//           <label className="mb-1 block text-xs text-gray-600">
-//             From
-//           </label>
-
-//           <input
-//             type="date"
-//             value={tempFrom}
-//             onChange={(e) =>
-//               setTempFrom(e.target.value)
-//             }
-//             className="rounded border px-2 py-1 text-xs"
-//           />
-//         </div>
-
-//         <div>
-//           <label className="mb-1 block text-xs text-gray-600">
-//             To
-//           </label>
-
-//           <input
-//             type="date"
-//             value={tempTo}
-//             onChange={(e) =>
-//               setTempTo(e.target.value)
-//             }
-//             className="rounded border px-2 py-1 text-xs"
-//           />
-//         </div>
-
-//         <button
-//           onClick={() => {
-//             setAppliedFilters({
-//               from:
-//                 tempFrom || undefined,
-//               to:
-//                 tempTo || undefined,
-//             });
-//           }}
-//           className="rounded bg-gray-800 px-4 py-1.5 text-xs text-white hover:bg-black"
-//         >
-//           Apply
-//         </button>
-
-//         <div className="flex-1" />
-
-//         {/* DOWNLOAD */}
-//         <button
-//           onClick={downloadDispatchExcel}
-//           className="rounded bg-green-600 px-4 py-1.5 text-xs text-white"
-//         >
-//           Download
-//         </button>
-
-//         {/* =====================================================
-//             EXCEL UPLOAD
-//         ====================================================== */}
-//         <input
-//           type="file"
-//           accept=".xlsx"
-//           hidden
-//           id="excelUpload"
-//           onChange={async (e) => {
-//             const file =
-//               e.target.files?.[0];
-
-//             // Allow same file to be selected again
-//             e.target.value = "";
-
-//             if (!file) return;
-
-//             setUploading(true);
-
-//             try {
-//               const res =
-//                 await uploadDispatchExcel(
-//                   file
-//                 );
-
-//               const created = Number(
-//                 res?.created || 0
-//               );
-
-//               const failed = Number(
-//                 res?.failed || 0
-//               );
-
-//               const totalRows = Number(
-//                 res?.total_rows ||
-//                   created + failed
-//               );
-
-//               const blankRows = Number(
-//                 res?.blank_rows || 0
-//               );
-
-//               // ------------------------------------------------
-//               // SUCCESS MESSAGE
-//               // ------------------------------------------------
-//               let message =
-//                 `📦 DISPATCH EXCEL UPLOAD\n\n` +
-//                 `Total Rows: ${totalRows}\n` +
-//                 `✅ Uploaded: ${created}\n` +
-//                 `❌ Failed: ${failed}`;
-
-//               if (blankRows > 0) {
-//                 message +=
-//                   `\n⬜ Blank Rows: ${blankRows}`;
-//               }
-
-//               // ------------------------------------------------
-//               // FAILED ROWS
-//               // ------------------------------------------------
-//               if (
-//                 Array.isArray(
-//                   res?.errors
-//                 ) &&
-//                 res.errors.length
-//               ) {
-//                 message +=
-//                   `\n\n❌ ENTRIES NOT UPLOADED:\n\n`;
-
-//                 message +=
-//                   res.errors.join("\n");
-//               }
-
-//               alert(message);
-
-//               // ------------------------------------------------
-//               // REFRESH TABLE
-//               // ------------------------------------------------
-//               queryClient.invalidateQueries(
-//                 {
-//                   queryKey: [
-//                     "dispatchOrders",
-//                   ],
-//                 }
-//               );
-
-//             } catch (err) {
-//               console.error(
-//                 "Dispatch Excel Upload Error:",
-//                 err
-//               );
-
-//               const backendMessage =
-//                 err?.response?.data
-//                   ?.message ||
-//                 err?.response?.data
-//                   ?.error ||
-//                 err?.message ||
-//                 "Upload failed";
-
-//               alert(
-//                 `❌ Upload Failed\n\n${backendMessage}`
-//               );
-
-//             } finally {
-//               setUploading(false);
-//             }
-//           }}
-//         />
-
-//         {/* UPLOAD BUTTON */}
-//         <button
-//           disabled={uploading}
-//           onClick={() =>
-//             document
-//               .getElementById(
-//                 "excelUpload"
-//               )
-//               ?.click()
-//           }
-//           className="rounded bg-blue-600 px-4 py-1.5 text-xs text-white disabled:opacity-50"
-//         >
-//           {uploading
-//             ? "Uploading..."
-//             : "Upload"}
-//         </button>
-
-//         {/* DELETE SELECTED */}
-//         <button
-//           disabled={!selectedIds.length}
-//           onClick={async () => {
-//             if (
-//               window.confirm(
-//                 "Selected rows delete करें?"
-//               )
-//             ) {
-//               await deleteSelectedDispatchOrders(
-//                 selectedIds
-//               );
-
-//               setSelectedIds([]);
-
-//               queryClient.invalidateQueries(
-//                 {
-//                   queryKey: [
-//                     "dispatchOrders",
-//                   ],
-//                 }
-//               );
-//             }
-//           }}
-//           className="rounded bg-red-500 px-4 py-1.5 text-xs text-white disabled:opacity-50"
-//         >
-//           Delete Selected
-//         </button>
-
-//         {/* DELETE ALL */}
-//         <button
-//           disabled={isPending}
-//           onClick={() => {
-//             if (
-//               window.confirm(
-//                 "⚠️ ALL dispatch orders delete हो जाएंगे. Confirm?"
-//               )
-//             ) {
-//               mutate();
-//             }
-//           }}
-//           className="rounded bg-red-600 px-4 py-1.5 text-xs text-white disabled:opacity-50"
-//         >
-//           Delete All
-//         </button>
-//       </div>
-
-//       {/* =======================================================
-//           TABLE
-//       ======================================================== */}
-//       <div className="overflow-x-auto rounded border">
-//         <table className="min-w-full text-xs">
-
-//           <thead className="bg-gray-100 text-gray-700">
-//             <tr>
-
-//               <th className="border p-2">
-//                 <input
-//                   type="checkbox"
-//                   checked={
-//                     data?.length > 0 &&
-//                     selectedIds.length ===
-//                       data.length
-//                   }
-//                   onChange={(e) =>
-//                     setSelectedIds(
-//                       e.target.checked
-//                         ? data.map(
-//                             (d) => d.id
-//                           )
-//                         : []
-//                     )
-//                   }
-//                 />
-//               </th>
-
-//               <th className="border p-2">
-//                 Order ID
-//               </th>
-
-//               <th className="border p-2">
-//                 Product
-//               </th>
-
-//               <th className="border p-2">
-//                 Qty
-//               </th>
-
-//               <th className="border p-2">
-//                 Packed Time
-//               </th>
-
-//             </tr>
-//           </thead>
-
-//           <tbody>
-
-//             {isLoading ? (
-//               <tr>
-//                 <td
-//                   colSpan={5}
-//                   className="p-4 text-center"
-//                 >
-//                   Loading...
-//                 </td>
-//               </tr>
-
-//             ) : data?.length ? (
-
-//               data.map((row) => (
-//                 <tr
-//                   key={row.id}
-//                   className="hover:bg-gray-50"
-//                 >
-
-//                   <td className="border p-2 text-center">
-//                     <input
-//                       type="checkbox"
-//                       checked={selectedIds.includes(
-//                         row.id
-//                       )}
-//                       onChange={() =>
-//                         toggleRow(row.id)
-//                       }
-//                     />
-//                   </td>
-
-//                   <td className="border p-2">
-//                     {row.order_id}
-//                   </td>
-
-//                   <td className="border p-2">
-//                     {row.product}
-//                   </td>
-
-//                   <td className="border p-2 text-center">
-//                     {row.quantity}
-//                   </td>
-
-//                   <td className="border p-2 text-gray-500">
-//                     {row.order_packed_time
-//                       ? new Date(
-//                           row.order_packed_time
-//                         ).toLocaleString()
-//                       : "-"}
-//                   </td>
-
-//                 </tr>
-//               ))
-
-//             ) : (
-
-//               <tr>
-//                 <td
-//                   colSpan={5}
-//                   className="p-4 text-center text-gray-500"
-//                 >
-//                   No records found
-//                 </td>
-//               </tr>
-
-//             )}
-
-//           </tbody>
-
-//         </table>
-//       </div>
-
-//       {/* FOOTER */}
-//       <p className="mt-2 text-[11px] text-gray-400">
-//         {appliedFilters.from ||
-//         appliedFilters.to
-//           ? `Showing ${
-//               data?.length || 0
-//             } filtered records`
-//           : "Showing latest 10 records"}
-//       </p>
-
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-import { useRef, useState } from "react";
+import {
+  useRef,
+  useState,
+} from "react";
 
 import {
   useDispatchOrdersList,
   uploadDispatchExcel,
-  downloadDispatchExcel,
-  useDeleteAllDispatchOrders,
   deleteSelectedDispatchOrders,
+  deleteAllDispatchOrders,
 } from "../../hooks/useDispatchOrders";
 
 import { useQueryClient } from "@tanstack/react-query";
+
+import * as XLSX from "xlsx";
 
 
 /* =========================================================
@@ -448,7 +27,8 @@ function UploadResultModal({
     return null;
   }
 
-  const summary = result.summary || {};
+  const summary =
+    result.summary || {};
 
   const invalidRows =
     Array.isArray(result.invalid_rows)
@@ -456,21 +36,23 @@ function UploadResultModal({
       : [];
 
   const invalidCRMItems =
-    Array.isArray(result.invalid_crm_item_ids)
+    Array.isArray(
+      result.invalid_crm_item_ids
+    )
       ? result.invalid_crm_item_ids
       : [];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+
       <div className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
 
-        {/* =================================================
-            HEADER
-        ================================================= */}
+        {/* HEADER */}
 
         <div className="flex items-center justify-between border-b px-5 py-4">
 
           <div>
+
             <h2 className="text-base font-semibold text-gray-900">
               Dispatch Excel Upload
             </h2>
@@ -478,6 +60,7 @@ function UploadResultModal({
             <p className="mt-0.5 text-xs text-gray-500">
               Import completed successfully
             </p>
+
           </div>
 
           <button
@@ -491,13 +74,12 @@ function UploadResultModal({
         </div>
 
 
-        {/* =================================================
-            SUMMARY
-        ================================================= */}
+        {/* SUMMARY */}
 
         <div className="grid grid-cols-2 gap-3 p-5 sm:grid-cols-4">
 
           <div className="rounded-lg border bg-gray-50 p-3">
+
             <div className="text-[11px] text-gray-500">
               Excel Rows
             </div>
@@ -505,10 +87,12 @@ function UploadResultModal({
             <div className="mt-1 text-xl font-bold text-gray-900">
               {summary.total_excel_rows ?? 0}
             </div>
+
           </div>
 
 
           <div className="rounded-lg border bg-green-50 p-3">
+
             <div className="text-[11px] text-green-700">
               Created
             </div>
@@ -516,10 +100,12 @@ function UploadResultModal({
             <div className="mt-1 text-xl font-bold text-green-700">
               {summary.created ?? 0}
             </div>
+
           </div>
 
 
           <div className="rounded-lg border bg-blue-50 p-3">
+
             <div className="text-[11px] text-blue-700">
               Updated
             </div>
@@ -527,10 +113,12 @@ function UploadResultModal({
             <div className="mt-1 text-xl font-bold text-blue-700">
               {summary.updated ?? 0}
             </div>
+
           </div>
 
 
           <div className="rounded-lg border bg-orange-50 p-3">
+
             <div className="text-[11px] text-orange-700">
               Batches
             </div>
@@ -538,17 +126,18 @@ function UploadResultModal({
             <div className="mt-1 text-xl font-bold text-orange-700">
               {summary.processed_batches ?? 0}
             </div>
+
           </div>
 
         </div>
 
 
-        {/* =================================================
-            INVALID SUMMARY
-        ================================================= */}
+        {/* INVALID SUMMARY */}
 
-        {(summary.invalid_crm_items > 0 ||
-          summary.invalid_rows > 0) && (
+        {(
+          summary.invalid_crm_items > 0 ||
+          summary.invalid_rows > 0
+        ) && (
 
           <div className="mx-5 mb-4 rounded-lg border border-red-200 bg-red-50 p-3">
 
@@ -571,12 +160,11 @@ function UploadResultModal({
             </div>
 
           </div>
+
         )}
 
 
-        {/* =================================================
-            INVALID CRM ITEMS
-        ================================================= */}
+        {/* INVALID CRM ITEMS */}
 
         {invalidCRMItems.length > 0 && (
 
@@ -587,18 +175,15 @@ function UploadResultModal({
             </div>
 
             <div className="max-h-24 overflow-auto rounded-lg border bg-gray-50 p-3 text-xs text-gray-600">
-
               {invalidCRMItems.join(", ")}
-
             </div>
 
           </div>
+
         )}
 
 
-        {/* =================================================
-            INVALID ROWS
-        ================================================= */}
+        {/* INVALID ROWS */}
 
         {invalidRows.length > 0 && (
 
@@ -615,6 +200,7 @@ function UploadResultModal({
                 <thead className="sticky top-0 bg-gray-100">
 
                   <tr>
+
                     <th className="border-b px-3 py-2 text-left">
                       Excel Row
                     </th>
@@ -626,6 +212,7 @@ function UploadResultModal({
                     <th className="border-b px-3 py-2 text-left">
                       Reason
                     </th>
+
                   </tr>
 
                 </thead>
@@ -653,6 +240,7 @@ function UploadResultModal({
                         </td>
 
                       </tr>
+
                     )
                   )}
 
@@ -663,12 +251,11 @@ function UploadResultModal({
             </div>
 
           </div>
+
         )}
 
 
-        {/* =================================================
-            FOOTER
-        ================================================= */}
+        {/* FOOTER */}
 
         <div className="flex justify-end border-t bg-gray-50 px-5 py-3">
 
@@ -683,6 +270,7 @@ function UploadResultModal({
         </div>
 
       </div>
+
     </div>
   );
 }
@@ -694,21 +282,42 @@ function UploadResultModal({
 
 export default function DispatchEntriesPage() {
 
-  const fileInputRef = useRef(null);
+  const fileInputRef =
+    useRef(null);
 
-  const [tempFrom, setTempFrom] = useState("");
-  const [tempTo, setTempTo] = useState("");
 
-  const [uploading, setUploading] = useState(false);
+  const [tempFrom, setTempFrom] =
+    useState("");
 
-  const [uploadResult, setUploadResult] = useState(null);
+  const [tempTo, setTempTo] =
+    useState("");
 
-  const [appliedFilters, setAppliedFilters] = useState({
-    from: undefined,
-    to: undefined,
-  });
 
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [uploading, setUploading] =
+    useState(false);
+
+
+  const [uploadResult, setUploadResult] =
+    useState(null);
+
+
+  const [appliedFilters, setAppliedFilters] =
+    useState({
+      from: undefined,
+      to: undefined,
+    });
+
+
+  const [selectedIds, setSelectedIds] =
+    useState([]);
+
+
+  const [deleting, setDeleting] =
+    useState(false);
+
+
+  const queryClient =
+    useQueryClient();
 
 
   /* =======================================================
@@ -725,27 +334,21 @@ export default function DispatchEntriesPage() {
 
 
   /* =======================================================
-     DELETE ALL
+     NORMALIZE PAGINATED DATA
   ======================================================= */
 
-  const {
-    mutate,
-    isPending,
-  } = useDeleteAllDispatchOrders();
+  const rows =
+    Array.isArray(data)
+      ? data
+      : Array.isArray(data?.results)
+        ? data.results
+        : [];
 
 
-  const queryClient = useQueryClient();
-
-
-  /* =======================================================
-     NORMALIZE TABLE DATA
-  ======================================================= */
-
-  const rows = Array.isArray(data)
-    ? data
-    : Array.isArray(data?.results)
-      ? data.results
-      : [];
+  const totalCount =
+    typeof data?.count === "number"
+      ? data.count
+      : rows.length;
 
 
   /* =======================================================
@@ -761,25 +364,30 @@ export default function DispatchEntriesPage() {
         return prev.filter(
           (x) => x !== id
         );
+
       }
 
       return [
         ...prev,
         id,
       ];
+
     });
+
   };
 
 
   /* =======================================================
-     SELECT ALL
+     SELECT ALL CURRENT PAGE
   ======================================================= */
 
   const allSelected =
     rows.length > 0 &&
     rows.every(
       (row) =>
-        selectedIds.includes(row.id)
+        selectedIds.includes(
+          row.id
+        )
     );
 
 
@@ -797,6 +405,7 @@ export default function DispatchEntriesPage() {
         (row) => row.id
       )
     );
+
   };
 
 
@@ -811,6 +420,49 @@ export default function DispatchEntriesPage() {
     }
 
     fileInputRef.current?.click();
+
+  };
+
+
+  /* =======================================================
+     DOWNLOAD EMPTY EXCEL TEMPLATE
+  ======================================================= */
+
+  const downloadExcelTemplate = () => {
+
+    const worksheet =
+      XLSX.utils.aoa_to_sheet([
+        [
+          "CRM ID",
+          "Quantity",
+          "Order Packed Time",
+        ],
+      ]);
+
+
+    worksheet["!cols"] = [
+      { wch: 16 },
+      { wch: 14 },
+      { wch: 24 },
+    ];
+
+
+    const workbook =
+      XLSX.utils.book_new();
+
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Dispatch"
+    );
+
+
+    XLSX.writeFile(
+      workbook,
+      "dispatch_upload_template.xlsx"
+    );
+
   };
 
 
@@ -825,20 +477,18 @@ export default function DispatchEntriesPage() {
     const file =
       event.target.files?.[0];
 
-    // Allow same file to be selected again
+
     event.target.value = "";
+
 
     if (!file) {
       return;
     }
 
 
-    /* =====================================================
-       FILE VALIDATION
-    ===================================================== */
-
     const fileName =
       file.name.toLowerCase();
+
 
     if (
       !fileName.endsWith(".xlsx") &&
@@ -853,12 +503,7 @@ export default function DispatchEntriesPage() {
     }
 
 
-    /* =====================================================
-       START UPLOAD
-    ===================================================== */
-
     setUploading(true);
-
     setUploadResult(null);
 
 
@@ -870,16 +515,10 @@ export default function DispatchEntriesPage() {
         );
 
 
-      /* ===================================================
-         STORE RESULT
-      =================================================== */
+      setUploadResult(
+        result
+      );
 
-      setUploadResult(result);
-
-
-      /* ===================================================
-         REFRESH TABLE
-      =================================================== */
 
       await queryClient.invalidateQueries({
         queryKey: [
@@ -887,10 +526,6 @@ export default function DispatchEntriesPage() {
         ],
       });
 
-
-      /* ===================================================
-         CLEAR SELECTION
-      =================================================== */
 
       setSelectedIds([]);
 
@@ -914,10 +549,6 @@ export default function DispatchEntriesPage() {
         "Upload failed.";
 
 
-      /* ===================================================
-         DJANGO VALIDATION ERRORS
-      =================================================== */
-
       if (
         backendData?.invalid_rows?.length
       ) {
@@ -926,6 +557,7 @@ export default function DispatchEntriesPage() {
           `\n\nInvalid rows: ${
             backendData.invalid_rows.length
           }`;
+
       }
 
 
@@ -937,6 +569,7 @@ export default function DispatchEntriesPage() {
           `\nInvalid CRM Items: ${
             backendData.invalid_crm_item_ids.length
           }`;
+
       }
 
 
@@ -948,7 +581,9 @@ export default function DispatchEntriesPage() {
     } finally {
 
       setUploading(false);
+
     }
+
   };
 
 
@@ -959,14 +594,21 @@ export default function DispatchEntriesPage() {
   const handleDeleteSelected =
     async () => {
 
-      if (!selectedIds.length) {
+      if (
+        !selectedIds.length ||
+        deleting
+      ) {
         return;
       }
 
 
       const confirmed =
         window.confirm(
-          "Selected dispatch rows delete करें?"
+          `Selected ${selectedIds.length} dispatch ${
+            selectedIds.length === 1
+              ? "row"
+              : "rows"
+          } delete करें?`
         );
 
 
@@ -975,11 +617,15 @@ export default function DispatchEntriesPage() {
       }
 
 
+      setDeleting(true);
+
+
       try {
 
         await deleteSelectedDispatchOrders(
           selectedIds
         );
+
 
         setSelectedIds([]);
 
@@ -1004,7 +650,14 @@ export default function DispatchEntriesPage() {
           error?.message ||
           "Delete failed."
         );
+
+
+      } finally {
+
+        setDeleting(false);
+
       }
+
     };
 
 
@@ -1012,18 +665,104 @@ export default function DispatchEntriesPage() {
      DELETE ALL
   ======================================================= */
 
-  const handleDeleteAll = () => {
+  const handleDeleteAll =
+    async () => {
 
-    const confirmed =
-      window.confirm(
-        "⚠️ ALL dispatch orders delete हो जाएंगे. Confirm?"
-      );
+      if (deleting) {
+        return;
+      }
 
-    if (!confirmed) {
-      return;
-    }
 
-    mutate();
+      const confirmed =
+        window.confirm(
+          "⚠️ ALL dispatch records permanently delete ho jayenge. Confirm?"
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      setDeleting(true);
+
+
+      try {
+
+        await deleteAllDispatchOrders();
+
+
+        setSelectedIds([]);
+
+
+        await queryClient.invalidateQueries({
+          queryKey: [
+            "dispatchOrders",
+          ],
+        });
+
+
+      } catch (error) {
+
+        console.error(
+          "Delete All Error:",
+          error
+        );
+
+
+        alert(
+          error?.response?.data?.message ||
+          error?.message ||
+          "Delete failed."
+        );
+
+
+      } finally {
+
+        setDeleting(false);
+
+      }
+
+    };
+
+
+  /* =======================================================
+     APPLY FILTER
+  ======================================================= */
+
+  const applyFilters = () => {
+
+    setSelectedIds([]);
+
+    setAppliedFilters({
+      from:
+        tempFrom ||
+        undefined,
+
+      to:
+        tempTo ||
+        undefined,
+    });
+
+  };
+
+
+  /* =======================================================
+     CLEAR FILTER
+  ======================================================= */
+
+  const clearFilters = () => {
+
+    setTempFrom("");
+    setTempTo("");
+
+    setSelectedIds([]);
+
+    setAppliedFilters({
+      from: undefined,
+      to: undefined,
+    });
+
   };
 
 
@@ -1032,6 +771,7 @@ export default function DispatchEntriesPage() {
   ======================================================= */
 
   return (
+
     <div className="mx-auto p-5 text-sm">
 
       {/* =================================================
@@ -1040,9 +780,7 @@ export default function DispatchEntriesPage() {
 
       <div className="mb-4 flex flex-wrap items-end gap-3 rounded-xl border bg-gray-50 p-3">
 
-        {/* -----------------------------------------------
-            FROM
-        ------------------------------------------------ */}
+        {/* FROM */}
 
         <div>
 
@@ -1064,9 +802,7 @@ export default function DispatchEntriesPage() {
         </div>
 
 
-        {/* -----------------------------------------------
-            TO
-        ------------------------------------------------ */}
+        {/* TO */}
 
         <div>
 
@@ -1088,50 +824,53 @@ export default function DispatchEntriesPage() {
         </div>
 
 
-        {/* -----------------------------------------------
-            APPLY
-        ------------------------------------------------ */}
+        {/* APPLY */}
 
         <button
           type="button"
-          onClick={() => {
-
-            setAppliedFilters({
-              from:
-                tempFrom ||
-                undefined,
-
-              to:
-                tempTo ||
-                undefined,
-            });
-
-          }}
+          onClick={applyFilters}
           className="rounded-lg bg-gray-800 px-4 py-1.5 text-xs font-medium text-white hover:bg-black"
         >
           Apply
         </button>
 
 
+        {/* CLEAR */}
+
+        {(tempFrom || tempTo) && (
+
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="rounded-lg border bg-white px-4 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+          >
+            Clear
+          </button>
+
+        )}
+
+
         <div className="flex-1" />
 
 
-        {/* -----------------------------------------------
-            DOWNLOAD
-        ------------------------------------------------ */}
+        {/* =================================================
+            DOWNLOAD TEMPLATE
+        ================================================= */}
 
         <button
           type="button"
-          onClick={downloadDispatchExcel}
-          className="rounded-lg bg-green-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+          onClick={
+            downloadExcelTemplate
+          }
+          className="rounded-lg bg-gray-700 px-4 py-1.5 text-xs font-medium text-white hover:bg-gray-800"
         >
-          Download
+          Excel Template
         </button>
 
 
-        {/* -----------------------------------------------
+        {/* =================================================
             HIDDEN FILE INPUT
-        ------------------------------------------------ */}
+        ================================================= */}
 
         <input
           ref={fileInputRef}
@@ -1144,14 +883,14 @@ export default function DispatchEntriesPage() {
         />
 
 
-        {/* -----------------------------------------------
-            UPLOAD
-        ------------------------------------------------ */}
+        {/* UPLOAD */}
 
         <button
           type="button"
           disabled={uploading}
-          onClick={openFileSelector}
+          onClick={
+            openFileSelector
+          }
           className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
 
@@ -1162,39 +901,46 @@ export default function DispatchEntriesPage() {
         </button>
 
 
-        {/* -----------------------------------------------
-            DELETE SELECTED
-        ------------------------------------------------ */}
+        {/* DELETE SELECTED */}
 
         <button
           type="button"
           disabled={
-            !selectedIds.length
+            !selectedIds.length ||
+            deleting
           }
           onClick={
             handleDeleteSelected
           }
           className="rounded-lg bg-red-500 px-4 py-1.5 text-xs font-medium text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Delete Selected
+
+          {deleting
+            ? "Deleting..."
+            : `Delete Selected${
+                selectedIds.length
+                  ? ` (${selectedIds.length})`
+                  : ""
+              }`}
+
         </button>
 
 
-        {/* -----------------------------------------------
-            DELETE ALL
-        ------------------------------------------------ */}
+        {/* DELETE ALL */}
 
         <button
           type="button"
-          disabled={isPending}
+          disabled={deleting}
           onClick={
             handleDeleteAll
           }
           className="rounded-lg bg-red-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isPending
+
+          {deleting
             ? "Deleting..."
             : "Delete All"}
+
         </button>
 
       </div>
@@ -1246,6 +992,11 @@ export default function DispatchEntriesPage() {
                 Packed Time
               </th>
 
+
+              <th className="border-b p-2 text-left">
+                Location
+              </th>
+
             </tr>
 
           </thead>
@@ -1253,16 +1004,14 @@ export default function DispatchEntriesPage() {
 
           <tbody>
 
-            {/* -------------------------------------------
-                LOADING
-            -------------------------------------------- */}
+            {/* LOADING */}
 
             {isLoading ? (
 
               <tr>
 
                 <td
-                  colSpan={5}
+                  colSpan={6}
                   className="p-8 text-center text-gray-500"
                 >
                   Loading...
@@ -1271,10 +1020,6 @@ export default function DispatchEntriesPage() {
               </tr>
 
             ) : rows.length ? (
-
-              /* -----------------------------------------
-                 DATA
-              ------------------------------------------ */
 
               rows.map(
                 (row) => (
@@ -1288,9 +1033,11 @@ export default function DispatchEntriesPage() {
 
                       <input
                         type="checkbox"
-                        checked={selectedIds.includes(
-                          row.id
-                        )}
+                        checked={
+                          selectedIds.includes(
+                            row.id
+                          )
+                        }
                         onChange={() =>
                           toggleRow(
                             row.id
@@ -1301,18 +1048,27 @@ export default function DispatchEntriesPage() {
                     </td>
 
 
-                    <td className="border-b p-2">
-                      {row.order_id ?? "-"}
+                    <td className="border-b p-2 font-medium">
+
+                      {row.order_id ??
+                        "-"}
+
                     </td>
 
 
                     <td className="border-b p-2">
-                      {row.product ?? "-"}
+
+                      {row.product ??
+                        "-"}
+
                     </td>
 
 
                     <td className="border-b p-2 text-center font-medium">
-                      {row.quantity ?? "-"}
+
+                      {row.quantity ??
+                        "-"}
+
                     </td>
 
 
@@ -1326,6 +1082,14 @@ export default function DispatchEntriesPage() {
 
                     </td>
 
+
+                    <td className="border-b p-2 text-gray-500">
+
+                      {row.dispatch_location ??
+                        "-"}
+
+                    </td>
+
                   </tr>
 
                 )
@@ -1333,14 +1097,10 @@ export default function DispatchEntriesPage() {
 
             ) : (
 
-              /* -----------------------------------------
-                 EMPTY
-              ------------------------------------------ */
-
               <tr>
 
                 <td
-                  colSpan={5}
+                  colSpan={6}
                   className="p-8 text-center text-gray-500"
                 >
                   No records found
@@ -1368,21 +1128,112 @@ export default function DispatchEntriesPage() {
           {appliedFilters.from ||
           appliedFilters.to
 
-            ? `Showing ${rows.length} filtered records`
+            ? `Showing ${rows.length} of ${totalCount} filtered records`
 
-            : `Showing ${rows.length} records`}
+            : `Showing ${rows.length} of ${totalCount} records`}
 
         </span>
 
 
         {isFetching &&
           !isLoading && (
+
             <span>
               Updating...
             </span>
+
           )}
 
       </div>
+
+
+      {/* =================================================
+          PAGINATION
+      ================================================= */}
+
+      {data?.count > 20 && (
+
+        <div className="mt-4 flex items-center justify-center gap-3">
+
+          <button
+            type="button"
+            disabled={!data?.previous}
+            onClick={() => {
+              if (!data?.previous) {
+                return;
+              }
+
+              const url =
+                new URL(
+                  data.previous
+                );
+
+              const page =
+                url.searchParams.get(
+                  "page"
+                );
+
+              const nextFilters = {
+                ...appliedFilters,
+                page:
+                  page || 1,
+              };
+
+              queryClient.invalidateQueries({
+                queryKey: [
+                  "dispatchOrders",
+                  nextFilters,
+                ],
+              });
+            }}
+            className="rounded-lg border bg-white px-3 py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Previous
+          </button>
+
+          <span className="text-xs text-gray-500">
+            Total: {data.count}
+          </span>
+
+          <button
+            type="button"
+            disabled={!data?.next}
+            onClick={() => {
+              if (!data?.next) {
+                return;
+              }
+
+              const url =
+                new URL(
+                  data.next
+                );
+
+              const page =
+                url.searchParams.get(
+                  "page"
+                );
+
+              const nextFilters = {
+                ...appliedFilters,
+                page:
+                  page || 1,
+              };
+
+              queryClient.invalidateQueries({
+                queryKey: [
+                  "dispatchOrders",
+                  nextFilters,
+                ],
+              });
+            }}
+            className="rounded-lg border bg-white px-3 py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Next
+          </button>
+
+        </div>
+
+      )}
 
 
       {/* =================================================

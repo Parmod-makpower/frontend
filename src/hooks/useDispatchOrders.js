@@ -1,90 +1,9 @@
-// import { useQuery } from "@tanstack/react-query";
-// import API from "../api/axios";
-
-// export const useDispatchOrdersList = (filters) => {
-//   return useQuery({
-//     queryKey: ["dispatchOrders", filters],
-//     queryFn: async () => {
-//       const { data } = await API.get("/dispatch-orders/", {
-//         params: filters,
-//       });
-//       return data;
-//     },
-//     staleTime: 1000 * 30,
-//   });
-// };
-
-// import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-
-// // 🔥 Delete ALL dispatch orders
-// const deleteAllDispatchOrders = async () => {
-//   const res = await API.delete("/dispatch-orders/delete-all/");
-//   return res.data;
-// };
-
-// export const useDeleteAllDispatchOrders = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationFn: deleteAllDispatchOrders,
-
-//     onSuccess: () => {
-//       // ✅ related cache clear / refetch
-//       queryClient.invalidateQueries(["dispatchOrders"]);
-//       queryClient.invalidateQueries(["crmOrders"]);
-//     },
-//   });
-// };
-
-// export const deleteSelectedDispatchOrders = async (ids) => {
-//   const res = await API.post(
-//     "/dispatch-orders/delete-selected/",
-//     { ids }
-//   );
-//   return res.data;
-// };
-
-
-
-// export const downloadDispatchExcel = async () => {
-//   const response = await API.get(
-//     "/dispatch-orders/excel/download/",
-//     { responseType: "blob" }
-//   );
-
-//   const url = window.URL.createObjectURL(new Blob([response.data]));
-//   const link = document.createElement("a");
-//   link.href = url;
-//   link.setAttribute("download", "dispatch_orders.xlsx");
-//   document.body.appendChild(link);
-//   link.click();
-//   link.remove();
-// };
-
-
-// export const uploadDispatchExcel = async (file) => {
-//   const formData = new FormData();
-//   formData.append("file", file);
-
-//   const { data } = await API.post(
-//     "/dispatch-orders/excel/upload/",
-//     formData,
-//     { headers: { "Content-Type": "multipart/form-data" } }
-//   );
-
-//   return data;
-// };
-
-
-
-
-
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import API from "../api/axios";
 
+
 /* =========================================================
-   DISPATCH LIST
+   DISPATCH RECORD LIST
 ========================================================= */
 
 export const useDispatchOrdersList = (filters = {}) => {
@@ -93,7 +12,7 @@ export const useDispatchOrdersList = (filters = {}) => {
 
     queryFn: async () => {
       const { data } = await API.get(
-        "/dispatch-orders/",
+        "/dispatch/records/",
         {
           params: filters,
         }
@@ -103,22 +22,30 @@ export const useDispatchOrdersList = (filters = {}) => {
     },
 
     staleTime: 1000 * 30,
+
+    placeholderData: (previousData) => previousData,
   });
 };
 
 
 /* =========================================================
-   NEW DISPATCH EXCEL UPLOAD
+   DISPATCH EXCEL UPLOAD
+   KEEP THIS FLOW
 ========================================================= */
 
 export const uploadDispatchExcel = async (file) => {
   if (!file) {
-    throw new Error("Please select an Excel file.");
+    throw new Error(
+      "Please select an Excel file."
+    );
   }
 
   const formData = new FormData();
 
-  formData.append("file", file);
+  formData.append(
+    "file",
+    file
+  );
 
   const { data } = await API.post(
     "/dispatch/upload-excel/",
@@ -128,7 +55,6 @@ export const uploadDispatchExcel = async (file) => {
         "Content-Type": "multipart/form-data",
       },
 
-      // Useful for large Excel uploads
       timeout: 0,
     }
   );
@@ -138,44 +64,14 @@ export const uploadDispatchExcel = async (file) => {
 
 
 /* =========================================================
-   DELETE ALL
-========================================================= */
-
-const deleteAllDispatchOrders = async () => {
-  const response = await API.delete(
-    "/dispatch-orders/delete-all/"
-  );
-
-  return response.data;
-};
-
-
-export const useDeleteAllDispatchOrders = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: deleteAllDispatchOrders,
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["dispatchOrders"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["crmOrders"],
-      });
-    },
-  });
-};
-
-
-/* =========================================================
    DELETE SELECTED
 ========================================================= */
 
-export const deleteSelectedDispatchOrders = async (ids) => {
+export const deleteSelectedDispatchOrders = async (
+  ids
+) => {
   const response = await API.post(
-    "/dispatch-orders/delete-selected/",
+    "/dispatch/records/delete-selected/",
     {
       ids,
     }
@@ -186,35 +82,41 @@ export const deleteSelectedDispatchOrders = async (ids) => {
 
 
 /* =========================================================
-   OLD DISPATCH EXCEL DOWNLOAD
+   DELETE ALL
 ========================================================= */
 
-export const downloadDispatchExcel = async () => {
-  const response = await API.get(
-    "/dispatch-orders/excel/download/",
-    {
-      responseType: "blob",
-    }
+export const deleteAllDispatchOrders = async () => {
+  const response = await API.delete(
+    "/dispatch/records/delete-all/"
   );
 
-  const url = window.URL.createObjectURL(
-    new Blob([response.data])
+  return response.data;
+};
+
+
+/* =========================================================
+   DELETE SINGLE
+========================================================= */
+
+export const deleteDispatchRecord = async (
+  id
+) => {
+  const response = await API.delete(
+    `/dispatch/records/${id}/`
   );
 
-  const link = document.createElement("a");
+  return response.data;
+};
 
-  link.href = url;
 
-  link.setAttribute(
-    "download",
-    "dispatch_orders.xlsx"
-  );
+/* =========================================================
+   INVALIDATE DISPATCH CACHE
+========================================================= */
 
-  document.body.appendChild(link);
-
-  link.click();
-
-  link.remove();
-
-  window.URL.revokeObjectURL(url);
+export const invalidateDispatchQueries = (
+  queryClient
+) => {
+  queryClient.invalidateQueries({
+    queryKey: ["dispatchOrders"],
+  });
 };
