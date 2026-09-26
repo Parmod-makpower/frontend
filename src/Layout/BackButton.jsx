@@ -30,13 +30,13 @@ export default function BackButton({
         items-center
         gap-2
         border
-        border-slate-200
+        border-slate-400
         bg-white
         px-3
         text-[11px]
         font-semibold
         text-slate-600
-        shadow-sm
+        rounded-lg cursor-pointer
         transition-all
         duration-150
         hover:border-blue-200

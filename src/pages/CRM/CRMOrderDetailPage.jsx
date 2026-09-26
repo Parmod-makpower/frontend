@@ -188,7 +188,7 @@ export default function CRMOrderDetailPage() {
       {
         product: product.product_id,
         product_name: product.product_name,
-        quantity: 1,
+        quantity: "",
         original_quantity: "Added",
         price: product.price ?? 0,
         ss_virtual_stock: product.virtual_stock ?? 0,
@@ -393,7 +393,7 @@ export default function CRMOrderDetailPage() {
     );
 
   return (
-    <div className="p-4 rounded pb-20 sm:p-0 sm:pb-25">
+    <div className="p-4 rounded pb-20 sm:p-0 ">
       {/* Header */}
       <MobilePageHeader title={order.order_id} />
       <div className="pb-4 flex flex-col flex-row items-center justify-between pt-[65px] sm:p-0 mb-2 bg-gray-200 border rounded">
@@ -474,11 +474,11 @@ export default function CRMOrderDetailPage() {
             className="
               fixed bottom-0 right-0 z-[10]
               left-0 
-              flex h-[64px] items-center justify-end
+              flex h-[60px] items-center justify-end
               border-t border-[#e7edf5]
-              bg-white/95 px-4 md:px-6
+              bg-white px-4 md:px-6
               shadow-[0_-4px_16px_rgba(15,23,42,0.08)]
-              backdrop-blur-sm
+              backdrop-blur-sm 
             "
           >
             <button
@@ -487,7 +487,7 @@ export default function CRMOrderDetailPage() {
               disabled={loadingApprove}
               className={`
                 flex items-center justify-center gap-2
-                rounded cursor-pointer px-7 py-2.5
+                rounded cursor-pointer px-7 py-2
                 text-sm font-semibold text-white
                 shadow-sm transition-all duration-200
                 ${

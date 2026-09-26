@@ -16,7 +16,7 @@ export default function CRMVerifiedTable({
    <div className="">
 
   {/* ✅ SCROLL CONTAINER */}
-  <div className="max-h-[70vh] overflow-y-auto scroll-smooth">
+  <div className="max-h-[64vh] overflow-y-auto scroll-smooth">
 
     <table className="min-w-full border-collapse text-sm">
 
