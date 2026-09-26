@@ -2175,15 +2175,15 @@ const OrderDetailDrawer = memo(
                                     )}
                                   </td>
 
-                                  {/* <td className="px-4 py-3 text-sm font-bold ">
+                                  <td className="px-4 py-3 text-sm font-bold ">
                                     {item.dispatch_quantity ??
                                       0}
-                                  </td> */}
+                                  </td>
 
-                                  <td className="px-4 py-3 text-xs font-semibold ">
+                                  {/* <td className="px-4 py-3 text-xs font-semibold ">
                                     {item.dispatch_location ||
                                       "-"}
-                                  </td>
+                                  </td> */}
 
                                   <td className="px-4 py-3 text-xs ">
                                     {formatDate(
