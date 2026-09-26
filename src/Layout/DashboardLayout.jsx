@@ -38,55 +38,7 @@ export default function DashboardLayout() {
               : "ml-[220px]"
           }`}
         >
-          <div className="min-h-[calc(100vh-64px)] p-4 lg:p-5">
-
-            {/* =================================================
-                GLOBAL BACK BUTTON
-                Desktop Only
-            ================================================== */}
-            {/* <div className="mb-3">
-              <button
-                type="button"
-                onClick={handleBack}
-                className="
-                  group
-                  inline-flex
-                  items-center
-                  gap-2
-                  rounded-xl
-                  border border-[#e2e8f0]
-                  bg-white
-                  px-3.5
-                  py-2
-                  text-xs
-                  font-semibold
-                  text-[#475569]
-                  shadow-sm
-                  transition-all
-                  duration-200
-                  hover:-translate-x-0.5
-                  hover:border-blue-200
-                  hover:bg-blue-50
-                  hover:text-[#1769ff]
-                  active:scale-[0.98]
-                  cursor-pointer
-                "
-                title="Go back"
-              >
-                <ArrowLeft
-                  size={16}
-                  strokeWidth={2.2}
-                  className="
-                    transition-transform
-                    duration-200
-                    group-hover:-translate-x-0.5
-                  "
-                />
-
-                <span>Back</span>
-              </button>
-            </div> */}
-
+          <div className="min-h-[calc(100vh-64px)] p-4 lg:p-5 bg-gray-100">
             {/* PAGE */}
             <Outlet />
 

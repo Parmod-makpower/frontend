@@ -763,7 +763,7 @@
 //             border-slate-200
 //             bg-white
 
-//             text-slate-800
+//             
 
 //             shadow-[0_5px_20px_rgba(15,23,42,0.14)]
 
@@ -838,7 +838,7 @@
 //                   flex
 //                   items-center
 //                   overflow-hidden
-//                   rounded-xl
+//                   rounded
 //                   transition-all
 //                   duration-200
 
@@ -978,7 +978,7 @@
 //               className="
 //                 h-10
 //                 w-full
-//                 rounded-xl
+//                 rounded
 //                 border
 //                 border-slate-200
 //                 bg-slate-50
@@ -1036,7 +1036,7 @@
 //                   z-[200]
 //                   max-h-[420px]
 //                   overflow-y-auto
-//                   rounded-2xl
+//                   rounded
 //                   border
 //                   border-slate-200
 //                   bg-white
@@ -1105,7 +1105,7 @@
 //                             className="min-w-0 flex-1 text-left"
 //                           >
 //                             <div className="flex items-center gap-2">
-//                               <span className="truncate text-xs font-bold text-slate-800">
+//                               <span className="truncate text-xs font-bold ">
 //                                 {product._displayName}
 //                               </span>
 
@@ -1255,7 +1255,7 @@
 //                                     w-8
 //                                     items-center
 //                                     justify-center
-//                                     rounded-xl
+//                                     rounded
 //                                     bg-blue-50
 //                                     text-[#1769ff]
 //                                     transition-all
@@ -1298,7 +1298,7 @@
 //                 w-10
 //                 items-center
 //                 justify-center
-//                 rounded-xl
+//                 rounded
 //                 text-slate-500
 //                 transition-all
 //                 duration-200
@@ -1345,7 +1345,7 @@
 //               w-10
 //               items-center
 //               justify-center
-//               rounded-xl
+//               rounded
 //               text-slate-500
 //               transition-all
 //               duration-200
@@ -1387,7 +1387,7 @@
 //                 flex
 //                 items-center
 //                 gap-2
-//                 rounded-xl
+//                 rounded
 //                 px-2
 //                 py-1.5
 //                 transition-all
@@ -1398,7 +1398,7 @@
 //               <FaUserCircle className="text-[29px] text-slate-500" />
 
 //               <div className="hidden text-left lg:block">
-//                 <p className="max-w-[130px] truncate text-[11px] font-bold text-slate-800">
+//                 <p className="max-w-[130px] truncate text-[11px] font-bold ">
 //                   {user?.name}
 //                 </p>
 
@@ -1417,7 +1417,7 @@
 //                   z-[200]
 //                   w-56
 //                   overflow-hidden
-//                   rounded-2xl
+//                   rounded
 //                   border
 //                   border-slate-200
 //                   bg-white
@@ -1426,7 +1426,7 @@
 //                 "
 //               >
 //                 <div className="border-b border-slate-100 bg-slate-50 px-4 py-4">
-//                   <p className="text-[11px] font-extrabold text-slate-800">
+//                   <p className="text-[11px] font-extrabold ">
 //                     {user?.name}
 //                   </p>
 
@@ -1456,7 +1456,7 @@
 //                       text-left
 //                       text-[10px]
 //                       font-semibold
-//                       text-slate-600
+//                       
 //                       transition-colors
 //                       hover:bg-slate-50
 //                     "
@@ -1501,11 +1501,11 @@
 //               w-9
 //               items-center
 //               justify-center
-//               rounded-xl
+//               rounded
 //               text-slate-400
 //               transition-all
 //               hover:bg-slate-50
-//               hover:text-slate-600
+//               hover:
 //             "
 //           >
 //             <MoreVertical size={16} />
@@ -2121,6 +2121,11 @@ export default function Navbar({
           path: "/all/orders-history",
           icon: <FaHistory />,
         },
+         {
+          label: "Track Orders",
+          path: "/order-records",
+          icon: <FaRoute />,
+        },
         {
           label: "Not In Stock",
           path: "/not-in-stock-reports",
@@ -2458,7 +2463,7 @@ export default function Navbar({
                     flex
                     items-center
                     overflow-hidden
-                    rounded-xl
+                    rounded
 
                     transition-[background-color,color,transform]
                     duration-150
@@ -2533,11 +2538,9 @@ export default function Navbar({
           h-[64px]
           items-center
 
-          border-b
-          border-slate-200/80
-
-          bg-white/95
-          backdrop-blur-xl
+          shadow
+          bg-white
+          
 
           md:flex
 
@@ -2601,7 +2604,7 @@ export default function Navbar({
               className="
                 h-10
                 w-full
-                rounded
+                rounded-lg
 
                 border
                 border-slate-400
@@ -2673,7 +2676,7 @@ export default function Navbar({
                   max-h-[420px]
                   overflow-y-auto
 
-                  rounded-2xl
+                  rounded
 
                   border
                   border-slate-200
@@ -2758,7 +2761,7 @@ export default function Navbar({
                             "
                           >
                             <div className="flex items-center gap-2">
-                              <span className="truncate text-xs font-bold text-slate-800">
+                              <span className="truncate text-xs font-bold ">
                                 {product._displayName}
                               </span>
 
@@ -2925,7 +2928,7 @@ export default function Navbar({
                                     items-center
                                     justify-center
 
-                                    rounded-xl
+                                    rounded
 
                                     bg-blue-50
                                     text-[#1769ff]
@@ -2972,7 +2975,7 @@ export default function Navbar({
                 items-center
                 justify-center
 
-                rounded-xl
+                rounded
 
                 text-slate-500
 
@@ -3029,7 +3032,7 @@ export default function Navbar({
               items-center
               justify-center
 
-              rounded-xl
+              rounded
 
               text-slate-500
 
@@ -3079,7 +3082,7 @@ export default function Navbar({
                 items-center
                 gap-2
 
-                rounded-xl
+                rounded
 
                 px-2
                 py-1.5
@@ -3093,7 +3096,7 @@ export default function Navbar({
               <FaUserCircle className="text-[29px] text-slate-500" />
 
               <div className="hidden text-left lg:block">
-                <p className="max-w-[130px] truncate text-[11px] font-bold text-slate-800">
+                <p className="max-w-[130px] truncate text-[11px] font-bold ">
                   {user?.name}
                 </p>
 
@@ -3115,7 +3118,7 @@ export default function Navbar({
 
                   overflow-hidden
 
-                  rounded-2xl
+                  rounded
 
                   border
                   border-slate-200
@@ -3128,7 +3131,7 @@ export default function Navbar({
                 "
               >
                 <div className="border-b border-slate-100 bg-slate-50 px-4 py-4">
-                  <p className="text-[11px] font-extrabold text-slate-800">
+                  <p className="text-[11px] font-extrabold ">
                     {user?.name}
                   </p>
 
@@ -3163,7 +3166,7 @@ export default function Navbar({
 
                       text-[10px]
                       font-semibold
-                      text-slate-600
+                      
 
                       transition-colors
                       duration-150
@@ -3221,7 +3224,7 @@ export default function Navbar({
               items-center
               justify-center
 
-              rounded-xl
+              rounded
 
               text-slate-400
 
@@ -3229,7 +3232,7 @@ export default function Navbar({
               duration-150
 
               hover:bg-slate-50
-              hover:text-slate-600
+              hover:
             "
           >
             <MoreVertical size={16} />

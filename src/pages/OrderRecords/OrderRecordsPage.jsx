@@ -154,7 +154,7 @@ const StatusBadge = memo(({ value }) => {
   ).toUpperCase();
 
   let className =
-    "bg-gray-100 text-gray-600";
+    "bg-gray-100 ";
 
   if (
     status === "APPROVED" ||
@@ -288,7 +288,7 @@ const DispatchBadge = memo(({ value }) => {
           py-1
           text-[10px]
           font-extrabold
-          text-gray-600
+          
           whitespace-nowrap
         "
       >
@@ -312,7 +312,7 @@ const DispatchBadge = memo(({ value }) => {
           py-1
           text-[10px]
           font-extrabold
-          text-gray-600
+          
           whitespace-nowrap
         "
       >
@@ -332,7 +332,7 @@ const DispatchBadge = memo(({ value }) => {
         py-1
         text-[10px]
         font-extrabold
-        text-gray-500
+        
       "
     >
       -
@@ -354,7 +354,7 @@ const LoadingRows = memo(() => {
         (_, rowIndex) => (
           <tr
             key={rowIndex}
-            className="border-b border-gray-100"
+            className="border-b border-gray-500"
           >
             {Array.from({
               length: 10,
@@ -407,9 +407,9 @@ const EmptyState = memo(() => {
           w-12
           items-center
           justify-center
-          rounded-2xl
+          rounded
           bg-gray-100
-          text-gray-400
+          text-gray-500
         "
       >
         <FaClipboardList className="text-xl" />
@@ -420,7 +420,7 @@ const EmptyState = memo(() => {
           mt-4
           text-sm
           font-extrabold
-          text-gray-700
+          
         "
       >
         No orders found
@@ -432,7 +432,7 @@ const EmptyState = memo(() => {
           max-w-xs
           text-xs
           leading-5
-          text-gray-400
+          text-gray-500
         "
       >
         Try changing your search or filters.
@@ -458,7 +458,7 @@ const MobileOrderCard = memo(
           block
           w-full
           border-b
-          border-gray-100
+          border-gray-500
           bg-white
           px-4
           py-4
@@ -477,7 +477,7 @@ const MobileOrderCard = memo(
                   truncate
                   text-[13px]
                   font-extrabold
-                  text-gray-900
+                  
                 "
               >
                 {order.order_id || "-"}
@@ -488,7 +488,7 @@ const MobileOrderCard = memo(
                   shrink-0
                   text-[9px]
                   font-semibold
-                  text-gray-400
+                  text-gray-500
                 "
               >
                 #{order.id}
@@ -501,7 +501,7 @@ const MobileOrderCard = memo(
                 truncate
                 text-[11px]
                 font-semibold
-                text-gray-500
+                
               "
             >
               {order.ss_party_name ||
@@ -527,7 +527,7 @@ const MobileOrderCard = memo(
                 font-bold
                 uppercase
                 tracking-wide
-                text-gray-400
+                text-gray-500
               "
             >
               Amount
@@ -538,7 +538,7 @@ const MobileOrderCard = memo(
                 mt-0.5
                 text-base
                 font-extrabold
-                text-gray-900
+                
               "
             >
               ₹
@@ -555,7 +555,7 @@ const MobileOrderCard = memo(
                 font-bold
                 uppercase
                 tracking-wide
-                text-gray-400
+                text-gray-500
               "
             >
               CRM
@@ -568,7 +568,7 @@ const MobileOrderCard = memo(
                 truncate
                 text-[11px]
                 font-bold
-                text-gray-700
+                
               "
             >
               {order.crm_name || "-"}
@@ -598,7 +598,7 @@ const MobileOrderCard = memo(
               py-1
               text-[9px]
               font-bold
-              text-gray-500
+              
             "
           >
             <FaBoxOpen className="text-[8px]" />
@@ -616,7 +616,7 @@ const MobileOrderCard = memo(
               py-1
               text-[9px]
               font-bold
-              text-gray-500
+              
             "
           >
             {order.verified_items_count ??
@@ -635,7 +635,7 @@ const MobileOrderCard = memo(
               py-1
               text-[9px]
               font-bold
-              text-gray-500
+              
             "
           >
             {order.dispatched_quantity ??
@@ -673,7 +673,7 @@ const MobileOrderCard = memo(
                     truncate
                     text-[9px]
                     font-semibold
-                    text-gray-400
+                    text-gray-500
                   "
                 >
                   {order.punched
@@ -686,7 +686,7 @@ const MobileOrderCard = memo(
                 className="
                   text-[10px]
                   font-semibold
-                  text-gray-400
+                  text-gray-500
                 "
               >
                 Not verified
@@ -702,7 +702,7 @@ const MobileOrderCard = memo(
               gap-1
               text-[9px]
               font-semibold
-              text-gray-400
+              text-gray-500
             "
           >
             <FaCalendarAlt className="text-[8px]" />
@@ -752,9 +752,9 @@ const TrackingTimeline = memo(
       <div
         className="
           overflow-hidden
-          rounded-2xl
+          rounded
           border
-          border-gray-200
+          border-gray-400
           bg-white
         "
       >
@@ -763,7 +763,7 @@ const TrackingTimeline = memo(
         <div
           className="
             border-b
-            border-gray-200
+            border-gray-400
             bg-gray-50
             px-4
             py-4
@@ -779,10 +779,10 @@ const TrackingTimeline = memo(
                   gap-2
                   text-sm
                   font-extrabold
-                  text-gray-900
+                  
                 "
               >
-                <FaRoute className="text-gray-500" />
+                <FaRoute className="" />
 
                 Order Tracking
               </div>
@@ -792,7 +792,7 @@ const TrackingTimeline = memo(
                   mt-1
                   text-[10px]
                   font-medium
-                  text-gray-400
+                  text-gray-500
                 "
               >
                 Complete order journey
@@ -902,9 +902,9 @@ const TrackingTimeline = memo(
           <div
             className="
               mt-5
-              rounded-xl
+              rounded
               border
-              border-gray-100
+              border-gray-500
               bg-gray-50
               px-3.5
               py-3
@@ -923,7 +923,7 @@ const TrackingTimeline = memo(
                   justify-center
                   rounded-lg
                   bg-white
-                  text-gray-500
+                  
                   shadow-sm
                 "
               >
@@ -945,7 +945,7 @@ const TrackingTimeline = memo(
                     font-extrabold
                     uppercase
                     tracking-wide
-                    text-gray-400
+                    text-gray-500
                   "
                 >
                   Current Stage
@@ -956,7 +956,7 @@ const TrackingTimeline = memo(
                     mt-0.5
                     text-xs
                     font-bold
-                    text-gray-800
+                    
                   "
                 >
                   {dispatched
@@ -1049,7 +1049,7 @@ const TrackingStep = memo(
                 ? "bg-blue-500 text-white"
                 : active
                 ? "bg-gray-700 text-white"
-                : "bg-gray-100 text-gray-400"
+                : "bg-gray-100 text-gray-500"
             }
           `}
         >
@@ -1063,8 +1063,8 @@ const TrackingStep = memo(
             font-extrabold
             ${
               active
-                ? "text-gray-800"
-                : "text-gray-400"
+                ? ""
+                : "text-gray-500"
             }
           `}
         >
@@ -1078,7 +1078,7 @@ const TrackingStep = memo(
             text-[8px]
             font-semibold
             leading-3
-            text-gray-400
+            text-gray-500
           "
         >
           {date
@@ -1107,13 +1107,13 @@ const TrackingDateCard = memo(
     return (
       <div
         className={`
-          rounded-xl
+          rounded
           border
           p-3
           ${
             muted
-              ? "border-gray-100 bg-gray-50"
-              : "border-gray-200 bg-white"
+              ? "border-gray-500 bg-gray-50"
+              : "border-gray-400 bg-white"
           }
         `}
       >
@@ -1126,7 +1126,7 @@ const TrackingDateCard = memo(
             font-bold
             uppercase
             tracking-wide
-            text-gray-400
+            text-gray-500
           "
         >
           {icon}
@@ -1142,7 +1142,7 @@ const TrackingDateCard = memo(
             ${
               muted
                 ? "text-gray-300"
-                : "text-gray-700"
+                : ""
             }
           `}
         >
@@ -1222,10 +1222,10 @@ const OrderDetailDrawer = memo(
               items-center
               justify-between
               border-b
-              border-gray-200
+              border-gray-400
               bg-white
               px-4
-              py-3.5
+              py-1
               sm:px-5
             "
           >
@@ -1236,7 +1236,7 @@ const OrderDetailDrawer = memo(
                   font-bold
                   uppercase
                   tracking-[0.14em]
-                  text-gray-400
+                  text-gray-500
                 "
               >
                 Order Details
@@ -1250,7 +1250,7 @@ const OrderDetailDrawer = memo(
                   gap-2
                   text-base
                   font-extrabold
-                  text-gray-900
+                  
                   sm:text-lg
                 "
               >
@@ -1266,7 +1266,7 @@ const OrderDetailDrawer = memo(
                         shrink-0
                         animate-spin
                         text-[10px]
-                        text-gray-400
+                        text-gray-500
                       "
                     />
                   )}
@@ -1284,12 +1284,12 @@ const OrderDetailDrawer = memo(
                 shrink-0
                 items-center
                 justify-center
-                rounded-xl
+                rounded
                 bg-gray-50
-                text-gray-500
+                
                 transition
                 hover:bg-gray-100
-                hover:text-gray-900
+                hover:
               "
             >
               <FaTimes />
@@ -1313,7 +1313,7 @@ const OrderDetailDrawer = memo(
                   items-center
                   justify-center
                   text-sm
-                  text-gray-500
+                  
                 "
               >
                 Loading order...
@@ -1372,9 +1372,9 @@ const OrderDetailDrawer = memo(
 
                     <div
                       className="
-                        rounded-xl
+                        rounded
                         border
-                        border-gray-200
+                        border-gray-400
                         bg-white
                         p-3.5
                         sm:p-4
@@ -1386,7 +1386,7 @@ const OrderDetailDrawer = memo(
                           font-bold
                           uppercase
                           tracking-wide
-                          text-gray-400
+                          text-gray-500
                         "
                       >
                         Amount
@@ -1397,7 +1397,7 @@ const OrderDetailDrawer = memo(
                           mt-1
                           text-base
                           font-extrabold
-                          text-gray-900
+                          
                           sm:text-lg
                         "
                       >
@@ -1412,9 +1412,9 @@ const OrderDetailDrawer = memo(
 
                     <div
                       className="
-                        rounded-xl
+                        rounded
                         border
-                        border-gray-200
+                        border-gray-400
                         bg-white
                         p-3.5
                         sm:p-4
@@ -1426,7 +1426,7 @@ const OrderDetailDrawer = memo(
                           font-bold
                           uppercase
                           tracking-wide
-                          text-gray-400
+                          text-gray-500
                         "
                       >
                         Status
@@ -1445,9 +1445,9 @@ const OrderDetailDrawer = memo(
 
                     <div
                       className="
-                        rounded-xl
+                        rounded
                         border
-                        border-gray-200
+                        border-gray-400
                         bg-white
                         p-3.5
                         sm:p-4
@@ -1459,7 +1459,7 @@ const OrderDetailDrawer = memo(
                           font-bold
                           uppercase
                           tracking-wide
-                          text-gray-400
+                          text-gray-500
                         "
                       >
                         Dispatch
@@ -1479,9 +1479,9 @@ const OrderDetailDrawer = memo(
 
                     <div
                       className="
-                        rounded-xl
+                        rounded
                         border
-                        border-gray-200
+                        border-gray-400
                         bg-white
                         p-3.5
                         sm:p-4
@@ -1493,7 +1493,7 @@ const OrderDetailDrawer = memo(
                           font-bold
                           uppercase
                           tracking-wide
-                          text-gray-400
+                          text-gray-500
                         "
                       >
                         Dispatch Qty
@@ -1504,7 +1504,7 @@ const OrderDetailDrawer = memo(
                           mt-1
                           text-base
                           font-extrabold
-                          text-gray-900
+                          
                           sm:text-lg
                         "
                       >
@@ -1533,15 +1533,15 @@ const OrderDetailDrawer = memo(
 
                     <div
                       className="
-                        rounded-xl
+                        rounded
                         border
-                        border-gray-200
+                        border-gray-400
                         bg-white
                         p-4
                       "
                     >
                       <div className="flex items-center gap-2">
-                        <FaUser className="text-[10px] text-gray-400" />
+                        <FaUser className="text-[10px] text-gray-500" />
 
                         <div
                           className="
@@ -1549,7 +1549,7 @@ const OrderDetailDrawer = memo(
                             font-bold
                             uppercase
                             tracking-wide
-                            text-gray-400
+                            text-gray-500
                           "
                         >
                           Super Stockist
@@ -1561,7 +1561,7 @@ const OrderDetailDrawer = memo(
                           mt-2
                           text-sm
                           font-bold
-                          text-gray-900
+                          
                         "
                       >
                         {data.ss_user
@@ -1577,7 +1577,7 @@ const OrderDetailDrawer = memo(
                             className="
                               mt-1
                               text-xs
-                              text-gray-500
+                              
                             "
                           >
                             {data.ss_user.name}
@@ -1590,7 +1590,7 @@ const OrderDetailDrawer = memo(
                           className="
                             mt-1
                             text-xs
-                            text-gray-500
+                            
                           "
                         >
                           {data.ss_user.mobile}
@@ -1602,15 +1602,15 @@ const OrderDetailDrawer = memo(
 
                     <div
                       className="
-                        rounded-xl
+                        rounded
                         border
-                        border-gray-200
+                        border-gray-400
                         bg-white
                         p-4
                       "
                     >
                       <div className="flex items-center gap-2">
-                        <FaUser className="text-[10px] text-gray-400" />
+                        <FaUser className="text-[10px] text-gray-500" />
 
                         <div
                           className="
@@ -1618,7 +1618,7 @@ const OrderDetailDrawer = memo(
                             font-bold
                             uppercase
                             tracking-wide
-                            text-gray-400
+                            text-gray-500
                           "
                         >
                           Assigned CRM
@@ -1630,7 +1630,7 @@ const OrderDetailDrawer = memo(
                           mt-2
                           text-sm
                           font-bold
-                          text-gray-900
+                          
                         "
                       >
                         {data.crm_user
@@ -1643,7 +1643,7 @@ const OrderDetailDrawer = memo(
                           className="
                             mt-1
                             text-xs
-                            text-gray-500
+                            
                           "
                         >
                           {
@@ -1662,9 +1662,9 @@ const OrderDetailDrawer = memo(
                   <div
                     className="
                       mt-3
-                      rounded-xl
+                      rounded
                       border
-                      border-gray-200
+                      border-gray-400
                       bg-white
                       p-4
                       sm:mt-4
@@ -1677,7 +1677,7 @@ const OrderDetailDrawer = memo(
                         gap-2
                         text-sm
                         font-extrabold
-                        text-gray-900
+                        
                       "
                     >
                       <FaCheckCircle className="text-emerald-500" />
@@ -1699,7 +1699,7 @@ const OrderDetailDrawer = memo(
                         {/* STATUS */}
 
                         <div>
-                          <div className="text-[10px] text-gray-400">
+                          <div className="text-[10px] text-gray-500">
                             Status
                           </div>
 
@@ -1717,7 +1717,7 @@ const OrderDetailDrawer = memo(
                         {/* PUNCHED */}
 
                         <div>
-                          <div className="text-[10px] text-gray-400">
+                          <div className="text-[10px] text-gray-500">
                             Punched
                           </div>
 
@@ -1726,7 +1726,7 @@ const OrderDetailDrawer = memo(
                               mt-1
                               text-sm
                               font-bold
-                              text-gray-800
+                              
                             "
                           >
                             {data
@@ -1740,7 +1740,7 @@ const OrderDetailDrawer = memo(
                         {/* VERIFIED BY */}
 
                         <div>
-                          <div className="text-[10px] text-gray-400">
+                          <div className="text-[10px] text-gray-500">
                             Verified By
                           </div>
 
@@ -1750,7 +1750,7 @@ const OrderDetailDrawer = memo(
                               truncate
                               text-sm
                               font-bold
-                              text-gray-800
+                              
                             "
                           >
                             {data
@@ -1763,7 +1763,7 @@ const OrderDetailDrawer = memo(
                         {/* VERIFIED AT */}
 
                         <div>
-                          <div className="text-[10px] text-gray-400">
+                          <div className="text-[10px] text-gray-500">
                             Verified At
                           </div>
 
@@ -1772,7 +1772,7 @@ const OrderDetailDrawer = memo(
                               mt-1
                               text-xs
                               font-semibold
-                              text-gray-700
+                              
                             "
                           >
                             {formatDate(
@@ -1795,7 +1795,7 @@ const OrderDetailDrawer = memo(
                                 items-center
                                 gap-1.5
                                 text-[10px]
-                                text-gray-400
+                                text-gray-500
                               "
                             >
                               <FaMapMarkerAlt className="text-[8px]" />
@@ -1808,7 +1808,7 @@ const OrderDetailDrawer = memo(
                                 mt-1
                                 text-sm
                                 font-bold
-                                text-gray-800
+                                
                               "
                             >
                               {
@@ -1825,7 +1825,7 @@ const OrderDetailDrawer = memo(
                         className="
                           mt-3
                           text-xs
-                          text-gray-400
+                          text-gray-500
                         "
                       >
                         This order has not
@@ -1842,9 +1842,9 @@ const OrderDetailDrawer = memo(
                     className="
                       mt-3
                       overflow-hidden
-                      rounded-xl
+                      rounded
                       border
-                      border-gray-200
+                      border-gray-400
                       bg-white
                       sm:mt-4
                     "
@@ -1856,7 +1856,7 @@ const OrderDetailDrawer = memo(
                         justify-between
                         gap-3
                         border-b
-                        border-gray-200
+                        border-gray-400
                         bg-gray-50
                         px-4
                         py-3
@@ -1869,7 +1869,7 @@ const OrderDetailDrawer = memo(
                           gap-2
                           text-sm
                           font-extrabold
-                          text-gray-900
+                          
                         "
                       >
                         <FaBoxOpen />
@@ -1882,7 +1882,7 @@ const OrderDetailDrawer = memo(
                           shrink-0
                           text-[10px]
                           font-semibold
-                          text-gray-500
+                          
                         "
                       >
                         {data.items?.length ||
@@ -1920,7 +1920,7 @@ const OrderDetailDrawer = memo(
                                     className="
                                       text-sm
                                       font-bold
-                                      text-gray-800
+                                      
                                     "
                                   >
                                     {item.product_name ||
@@ -1932,7 +1932,7 @@ const OrderDetailDrawer = memo(
                                       className="
                                         mt-0.5
                                         text-[9px]
-                                        text-gray-400
+                                        text-gray-500
                                       "
                                     >
                                       CRM Item #
@@ -1970,7 +1970,7 @@ const OrderDetailDrawer = memo(
                                 "
                               >
                                 <div className="rounded-lg bg-gray-50 p-2.5">
-                                  <div className="text-[9px] text-gray-400">
+                                  <div className="text-[9px] text-gray-500">
                                     Ordered
                                   </div>
 
@@ -1979,7 +1979,7 @@ const OrderDetailDrawer = memo(
                                       mt-0.5
                                       text-sm
                                       font-bold
-                                      text-gray-800
+                                      
                                     "
                                   >
                                     {item.ordered_quantity ??
@@ -1988,7 +1988,7 @@ const OrderDetailDrawer = memo(
                                 </div>
 
                                 <div className="rounded-lg bg-gray-50 p-2.5">
-                                  <div className="text-[9px] text-gray-400">
+                                  <div className="text-[9px] text-gray-500">
                                     Verified
                                   </div>
 
@@ -1997,7 +1997,7 @@ const OrderDetailDrawer = memo(
                                       mt-0.5
                                       text-sm
                                       font-bold
-                                      text-gray-800
+                                      
                                     "
                                   >
                                     {item.verified_quantity ??
@@ -2006,7 +2006,7 @@ const OrderDetailDrawer = memo(
                                 </div>
 
                                 <div className="rounded-lg bg-gray-50 p-2.5">
-                                  <div className="text-[9px] text-gray-400">
+                                  <div className="text-[9px] text-gray-500">
                                     Dispatch
                                   </div>
 
@@ -2015,7 +2015,7 @@ const OrderDetailDrawer = memo(
                                       mt-0.5
                                       text-sm
                                       font-bold
-                                      text-gray-800
+                                      
                                     "
                                   >
                                     {item.dispatch_quantity ??
@@ -2024,7 +2024,7 @@ const OrderDetailDrawer = memo(
                                 </div>
 
                                 <div className="rounded-lg bg-gray-50 p-2.5">
-                                  <div className="text-[9px] text-gray-400">
+                                  <div className="text-[9px] text-gray-500">
                                     Location
                                   </div>
 
@@ -2034,7 +2034,7 @@ const OrderDetailDrawer = memo(
                                       truncate
                                       text-sm
                                       font-bold
-                                      text-gray-800
+                                      
                                     "
                                   >
                                     {item.dispatch_location ||
@@ -2050,7 +2050,7 @@ const OrderDetailDrawer = memo(
                                   items-center
                                   justify-between
                                   text-[9px]
-                                  text-gray-400
+                                  text-gray-500
                                 "
                               >
                                 <span>
@@ -2076,7 +2076,7 @@ const OrderDetailDrawer = memo(
                             py-10
                             text-center
                             text-xs
-                            text-gray-400
+                            text-gray-500
                           "
                         >
                           No items found.
@@ -2091,36 +2091,36 @@ const OrderDetailDrawer = memo(
                         <thead
                           className="
                             border-b
-                            border-gray-200
+                            border-gray-400
                             bg-white
                           "
                         >
                           <tr>
-                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-500">
                               Product
                             </th>
 
-                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-500">
                               Ordered
                             </th>
 
-                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-500">
                               Verified
                             </th>
 
-                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-500">
                               Rejected
                             </th>
 
-                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-500">
                               Dispatch
                             </th>
 
-                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                            {/* <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-500">
                               Location
-                            </th>
+                            </th> */}
 
-                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                            <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-gray-500">
                               Packed
                             </th>
                           </tr>
@@ -2140,32 +2140,25 @@ const OrderDetailDrawer = memo(
                                   }
                                   className="
                                     border-b
-                                    border-gray-100
+                                    border-gray-500
                                     last:border-0
                                   "
                                 >
                                   <td className="px-4 py-3">
-                                    <div className="text-sm font-bold text-gray-800">
+                                    <div className="text-sm font-bold ">
                                       {item.product_name ||
                                         "-"}
                                     </div>
 
-                                    {item.crm_item_id && (
-                                      <div className="mt-0.5 text-[9px] text-gray-400">
-                                        CRM Item #
-                                        {
-                                          item.crm_item_id
-                                        }
-                                      </div>
-                                    )}
+                                   
                                   </td>
 
-                                  <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                                  <td className="px-4 py-3 text-sm font-semibold ">
                                     {item.ordered_quantity ??
                                       "-"}
                                   </td>
 
-                                  <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                                  <td className="px-4 py-3 text-sm font-semibold ">
                                     {item.verified_quantity ??
                                       "-"}
                                   </td>
@@ -2176,23 +2169,23 @@ const OrderDetailDrawer = memo(
                                         Yes
                                       </span>
                                     ) : (
-                                      <span className="text-xs font-semibold text-gray-400">
+                                      <span className="text-xs font-semibold text-gray-500">
                                         No
                                       </span>
                                     )}
                                   </td>
 
-                                  <td className="px-4 py-3 text-sm font-bold text-gray-800">
+                                  {/* <td className="px-4 py-3 text-sm font-bold ">
                                     {item.dispatch_quantity ??
                                       0}
-                                  </td>
+                                  </td> */}
 
-                                  <td className="px-4 py-3 text-xs font-semibold text-gray-600">
+                                  <td className="px-4 py-3 text-xs font-semibold ">
                                     {item.dispatch_location ||
                                       "-"}
                                   </td>
 
-                                  <td className="px-4 py-3 text-xs text-gray-500">
+                                  <td className="px-4 py-3 text-xs ">
                                     {formatDate(
                                       item.order_packed_time
                                     )}
@@ -2209,7 +2202,7 @@ const OrderDetailDrawer = memo(
                                   py-10
                                   text-center
                                   text-xs
-                                  text-gray-400
+                                  text-gray-500
                                 "
                               >
                                 No items found.
@@ -2230,9 +2223,9 @@ const OrderDetailDrawer = memo(
                     <div
                       className="
                         mt-3
-                        rounded-xl
+                        rounded
                         border
-                        border-gray-200
+                        border-gray-400
                         bg-white
                         p-4
                         sm:mt-4
@@ -2247,7 +2240,7 @@ const OrderDetailDrawer = memo(
                           font-bold
                           uppercase
                           tracking-wide
-                          text-gray-400
+                          text-gray-500
                         "
                       >
                         <FaFileAlt />
@@ -2261,7 +2254,7 @@ const OrderDetailDrawer = memo(
                           whitespace-pre-wrap
                           text-sm
                           leading-6
-                          text-gray-700
+                          
                         "
                       >
                         {data.note ||
@@ -2279,7 +2272,7 @@ const OrderDetailDrawer = memo(
                       items-center
                       justify-between
                       text-[10px]
-                      text-gray-400
+                      text-gray-500
                     "
                   >
                     <span>
@@ -2344,14 +2337,14 @@ const FilterPanel = memo(
           className="
             h-10
             w-full
-            rounded-xl
+            rounded
             border
-            border-gray-200
+            border-gray-400
             bg-white
             px-3
             text-xs
             font-semibold
-            text-gray-600
+            
             outline-none
             transition
             focus:border-gray-400
@@ -2399,14 +2392,14 @@ const FilterPanel = memo(
           className="
             h-10
             w-full
-            rounded-xl
+            rounded
             border
-            border-gray-200
+            border-gray-400
             bg-white
             px-3
             text-xs
             font-semibold
-            text-gray-600
+            
             outline-none
             transition
             focus:border-gray-400
@@ -2437,14 +2430,14 @@ const FilterPanel = memo(
           className="
             h-10
             w-full
-            rounded-xl
+            rounded
             border
-            border-gray-200
+            border-gray-400
             bg-white
             px-3
             text-xs
             font-semibold
-            text-gray-600
+            
             outline-none
             transition
             focus:border-gray-400
@@ -2486,7 +2479,7 @@ const FilterPanel = memo(
               top-1/2
               -translate-y-1/2
               text-[10px]
-              text-gray-400
+              text-gray-500
             "
           />
 
@@ -2501,15 +2494,15 @@ const FilterPanel = memo(
             className="
               h-10
               w-full
-              rounded-xl
+              rounded
               border
-              border-gray-200
+              border-gray-400
               bg-white
               pl-8
               pr-3
               text-xs
               font-semibold
-              text-gray-600
+              
               outline-none
               focus:border-gray-400
             "
@@ -2527,7 +2520,7 @@ const FilterPanel = memo(
               top-1/2
               -translate-y-1/2
               text-[10px]
-              text-gray-400
+              text-gray-500
             "
           />
 
@@ -2542,15 +2535,15 @@ const FilterPanel = memo(
             className="
               h-10
               w-full
-              rounded-xl
+              rounded
               border
-              border-gray-200
+              border-gray-400
               bg-white
               pl-8
               pr-3
               text-xs
               font-semibold
-              text-gray-600
+              
               outline-none
               focus:border-gray-400
             "
@@ -2636,7 +2629,7 @@ const MobileFilterDrawer = memo(
               items-center
               justify-between
               border-b
-              border-gray-200
+              border-gray-400
               px-4
               py-4
             "
@@ -2649,10 +2642,10 @@ const MobileFilterDrawer = memo(
                   gap-2
                   text-sm
                   font-extrabold
-                  text-gray-900
+                  
                 "
               >
-                <FaFilter className="text-gray-500" />
+                <FaFilter className="" />
 
                 Filters
               </div>
@@ -2661,7 +2654,7 @@ const MobileFilterDrawer = memo(
                 className="
                   mt-0.5
                   text-[10px]
-                  text-gray-400
+                  text-gray-500
                 "
               >
                 Refine order records
@@ -2677,9 +2670,9 @@ const MobileFilterDrawer = memo(
                 w-9
                 items-center
                 justify-center
-                rounded-xl
+                rounded
                 bg-gray-50
-                text-gray-500
+                
               "
             >
               <FaTimes />
@@ -2716,7 +2709,7 @@ const MobileFilterDrawer = memo(
             className="
               shrink-0
               border-t
-              border-gray-200
+              border-gray-400
               bg-white
               p-3
             "
@@ -2736,7 +2729,7 @@ const MobileFilterDrawer = memo(
                     items-center
                     justify-center
                     gap-1.5
-                    rounded-xl
+                    rounded
                     bg-red-50
                     text-[10px]
                     font-extrabold
@@ -2758,7 +2751,7 @@ const MobileFilterDrawer = memo(
                   flex-1
                   items-center
                   justify-center
-                  rounded-xl
+                  rounded
                   bg-gray-900
                   text-[10px]
                   font-extrabold
@@ -3008,7 +3001,7 @@ export default function OrderRecordsPage() {
         className="
           shrink-0
           border-b
-          border-gray-200
+          border-gray-400
           bg-white
         "
       >
@@ -3047,7 +3040,7 @@ export default function OrderRecordsPage() {
                   shrink-0
                   items-center
                   justify-center
-                  rounded-xl
+                  rounded
                   bg-gray-900
                   text-white
                   shadow-sm
@@ -3062,7 +3055,7 @@ export default function OrderRecordsPage() {
                     truncate
                     text-base
                     font-extrabold
-                    text-gray-900
+                    
                     sm:text-lg
                   "
                 >
@@ -3075,7 +3068,7 @@ export default function OrderRecordsPage() {
                     truncate
                     text-[10px]
                     font-medium
-                    text-gray-400
+                    text-gray-500
                     sm:text-[11px]
                   "
                 >
@@ -3105,7 +3098,7 @@ export default function OrderRecordsPage() {
                     top-1/2
                     -translate-y-1/2
                     text-[11px]
-                    text-gray-400
+                    text-gray-500
                   "
                 />
 
@@ -3120,18 +3113,18 @@ export default function OrderRecordsPage() {
                   className="
                     h-10
                     w-full
-                    rounded-xl
+                    rounded
                     border
-                    border-gray-200
+                    border-gray-400
                     bg-gray-50
                     pl-9
                     pr-9
                     text-xs
                     font-medium
-                    text-gray-700
+                    
                     outline-none
                     transition
-                    placeholder:text-gray-400
+                    placeholder:text-gray-500
                     focus:border-gray-300
                     focus:bg-white
                   "
@@ -3155,9 +3148,9 @@ export default function OrderRecordsPage() {
                       items-center
                       justify-center
                       rounded-md
-                      text-gray-400
+                      text-gray-500
                       hover:bg-gray-100
-                      hover:text-gray-700
+                      hover:
                     "
                   >
                     <FaTimes className="text-[10px]" />
@@ -3180,16 +3173,16 @@ export default function OrderRecordsPage() {
                   h-10
                   w-40
                   shrink-0
-                  rounded-xl
+                  rounded
                   border
-                  border-gray-200
+                  border-gray-400
                   bg-gray-50
                   px-3
                   text-xs
                   font-medium
-                  text-gray-700
+                  
                   outline-none
-                  placeholder:text-gray-400
+                  placeholder:text-gray-500
                   focus:border-gray-300
                   focus:bg-white
                   sm:block
@@ -3212,16 +3205,16 @@ export default function OrderRecordsPage() {
               className="
                 h-9
                 w-full
-                rounded-xl
+                rounded
                 border
-                border-gray-200
+                border-gray-400
                 bg-gray-50
                 px-3
                 text-xs
                 font-medium
-                text-gray-700
+                
                 outline-none
-                placeholder:text-gray-400
+                placeholder:text-gray-500
                 focus:border-gray-300
                 focus:bg-white
               "
@@ -3257,7 +3250,7 @@ export default function OrderRecordsPage() {
                       h-10
                       items-center
                       gap-1.5
-                      rounded-xl
+                      rounded
                       px-3
                       text-[10px]
                       font-extrabold
@@ -3283,14 +3276,14 @@ export default function OrderRecordsPage() {
                     h-10
                     items-center
                     gap-1.5
-                    rounded-xl
+                    rounded
                     border
-                    border-gray-200
+                    border-gray-400
                     bg-white
                     px-3
                     text-[10px]
                     font-extrabold
-                    text-gray-600
+                    
                     transition
                     hover:bg-gray-50
                     disabled:cursor-not-allowed
@@ -3334,14 +3327,14 @@ export default function OrderRecordsPage() {
                 h-9
                 items-center
                 gap-2
-                rounded-xl
+                rounded
                 border
-                border-gray-200
+                border-gray-400
                 bg-white
                 px-3
                 text-[10px]
                 font-extrabold
-                text-gray-600
+                
                 shadow-sm
               "
             >
@@ -3378,7 +3371,7 @@ export default function OrderRecordsPage() {
                     truncate
                     text-[9px]
                     font-semibold
-                    text-gray-400
+                    text-gray-500
                   "
                 >
                   Filters applied
@@ -3397,14 +3390,14 @@ export default function OrderRecordsPage() {
                 h-9
                 items-center
                 gap-1.5
-                rounded-xl
+                rounded
                 border
-                border-gray-200
+                border-gray-400
                 bg-white
                 px-3
                 text-[10px]
                 font-extrabold
-                text-gray-600
+                
                 shadow-sm
                 disabled:opacity-50
               "
@@ -3427,28 +3420,20 @@ export default function OrderRecordsPage() {
           CONTENT
       ===================================================================== */}
 
-      <div
-        className="
-          min-h-0
-          flex-1
-          p-2.5
-          sm:p-3
-          lg:p-4
-        "
-      >
+     
         <div
           className="
             mx-auto
             flex
             h-full
-            min-h-0
+            max-h-[68vh]
             w-full
             max-w-[1800px]
             flex-col
             overflow-hidden
-            rounded-2xl
+            rounded
             border
-            border-gray-200
+            border-gray-400
             bg-white
             shadow-sm
           "
@@ -3463,7 +3448,7 @@ export default function OrderRecordsPage() {
               justify-between
               gap-3
               border-b
-              border-gray-200
+              border-gray-400
               bg-white
               px-4
               py-3
@@ -3475,7 +3460,7 @@ export default function OrderRecordsPage() {
                 className="
                   text-xs
                   font-extrabold
-                  text-gray-600
+                  
                 "
               >
                 {isFetching &&
@@ -3493,7 +3478,7 @@ export default function OrderRecordsPage() {
                       mt-0.5
                       text-[9px]
                       font-medium
-                      text-gray-400
+                      text-gray-500
                     "
                   >
                     Filtered results
@@ -3545,48 +3530,48 @@ export default function OrderRecordsPage() {
                   top-0
                   z-10
                   border-b
-                  border-gray-200
+                  border-gray-400
                   bg-gray-50
                 "
               >
                 <tr>
-                  <th className="w-[15%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-400">
+                  <th className="w-[15%]  px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-500">
                     Order
                   </th>
 
-                  <th className="w-[21%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-400">
+                  <th className="w-[21%]  px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-500">
                     Party
                   </th>
 
-                  <th className="w-[10%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-400">
+                  <th className="w-[10%]  px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-500">
                     CRM
                   </th>
 
-                  <th className="w-[9%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-400">
+                  <th className="w-[9%]  px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-500">
                     Amount
                   </th>
 
-                  <th className="w-[9%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-400">
+                  <th className="w-[9%]  px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-500">
                     Status
                   </th>
 
-                  <th className="w-[10%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-400">
+                  {/* <th className="w-[10%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-500">
                     Verified
-                  </th>
+                  </th> */}
 
-                  <th className="w-[9%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-400">
+                  {/* <th className="w-[9%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-500">
                     Items
-                  </th>
+                  </th> */}
 
-                  <th className="w-[7%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-400">
+                  <th className="w-[7%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-500">
                     Dispatch
                   </th>
 
-                  <th className="w-[10%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-400">
+                  <th className="w-[10%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-500">
                     Delivery
                   </th>
 
-                  <th className="w-[10%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-400">
+                  <th className="w-[10%] px-4 py-3 text-[9px] font-extrabold uppercase tracking-wide text-gray-500">
                     Created
                   </th>
                 </tr>
@@ -3615,19 +3600,19 @@ export default function OrderRecordsPage() {
                         className="
                           cursor-pointer
                           border-b
-                          border-gray-100
+                          border-gray-500
                           transition
                           hover:bg-gray-50
                         "
                       >
                         {/* ORDER */}
 
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-1">
                           <div
                             className="
                               text-[12px]
                               font-extrabold
-                              text-gray-900
+                              
                             "
                           >
                             {order.order_id ||
@@ -3639,7 +3624,7 @@ export default function OrderRecordsPage() {
                               mt-0.5
                               text-[9px]
                               font-semibold
-                              text-gray-400
+                              text-gray-500
                             "
                           >
                             #{order.id}
@@ -3648,14 +3633,14 @@ export default function OrderRecordsPage() {
 
                         {/* PARTY */}
 
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-1">
                           <div
                             className="
                               max-w-[240px]
                               text-[12px]
                               font-extrabold
                               leading-5
-                              text-gray-800
+                              
                             "
                           >
                             {order.ss_party_name ||
@@ -3663,33 +3648,17 @@ export default function OrderRecordsPage() {
                               "-"}
                           </div>
 
-                          {order.ss_party_name &&
-                            order.ss_user_name && (
-                              <div
-                                className="
-                                  mt-0.5
-                                  max-w-[240px]
-                                  truncate
-                                  text-[9px]
-                                  font-medium
-                                  text-gray-400
-                                "
-                              >
-                                {
-                                  order.ss_user_name
-                                }
-                              </div>
-                            )}
+                         
                         </td>
 
                         {/* CRM */}
 
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-1">
                           <div
                             className="
                               text-[11px]
                               font-bold
-                              text-gray-700
+                              
                             "
                           >
                             {order.crm_name ||
@@ -3699,12 +3668,12 @@ export default function OrderRecordsPage() {
 
                         {/* AMOUNT */}
 
-                        <td className="whitespace-nowrap px-4 py-3.5">
+                        <td className="whitespace-nowrap px-4 py-1">
                           <div
                             className="
                               text-[12px]
                               font-extrabold
-                              text-gray-900
+                              
                             "
                           >
                             ₹
@@ -3716,7 +3685,7 @@ export default function OrderRecordsPage() {
 
                         {/* STATUS */}
 
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-1">
                           <StatusBadge
                             value={
                               order.status
@@ -3726,7 +3695,7 @@ export default function OrderRecordsPage() {
 
                         {/* VERIFIED */}
 
-                        <td className="px-4 py-3.5">
+                        {/* <td className="px-4 py-1">
                           {order.verification_status ? (
                             <div>
                               <StatusBadge
@@ -3740,7 +3709,7 @@ export default function OrderRecordsPage() {
                                   mt-1
                                   text-[9px]
                                   font-semibold
-                                  text-gray-400
+                                  text-gray-500
                                 "
                               >
                                 {order.punched
@@ -3753,23 +3722,23 @@ export default function OrderRecordsPage() {
                               className="
                                 text-[10px]
                                 font-semibold
-                                text-gray-400
+                                text-gray-500
                               "
                             >
                               Not verified
                             </span>
                           )}
-                        </td>
+                        </td> */}
 
                         {/* ITEMS */}
 
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-1">
                           <div className="flex items-center gap-1.5">
                             <span
                               className="
                                 text-[12px]
                                 font-extrabold
-                                text-gray-800
+                                
                               "
                             >
                               {order.items_count ??
@@ -3780,7 +3749,7 @@ export default function OrderRecordsPage() {
                               className="
                                 text-[9px]
                                 font-semibold
-                                text-gray-400
+                                text-gray-500
                               "
                             >
                               /
@@ -3796,7 +3765,7 @@ export default function OrderRecordsPage() {
                                 mt-0.5
                                 text-[9px]
                                 font-semibold
-                                text-gray-400
+                                text-gray-500
                               "
                             >
                               {
@@ -3809,22 +3778,22 @@ export default function OrderRecordsPage() {
 
                         {/* DISPATCH QTY */}
 
-                        <td className="px-4 py-3.5">
+                        {/* <td className="px-4 py-1">
                           <div
                             className="
                               text-[12px]
                               font-extrabold
-                              text-gray-800
+                              
                             "
                           >
                             {order.dispatched_quantity ??
                               0}
                           </div>
-                        </td>
+                        </td> */}
 
                         {/* DELIVERY */}
 
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-1">
                           <DispatchBadge
                             value={
                               order.dispatch_status
@@ -3834,12 +3803,12 @@ export default function OrderRecordsPage() {
 
                         {/* CREATED */}
 
-                        <td className="whitespace-nowrap px-4 py-3.5">
+                        <td className="whitespace-nowrap px-4 py-1">
                           <div
                             className="
                               text-[10px]
                               font-semibold
-                              text-gray-500
+                              
                             "
                           >
                             {formatDate(
@@ -3878,7 +3847,7 @@ export default function OrderRecordsPage() {
                       className="
                         h-[175px]
                         animate-pulse
-                        rounded-xl
+                        rounded
                         bg-white
                       "
                     />
@@ -3916,7 +3885,7 @@ export default function OrderRecordsPage() {
               items-center
               justify-between
               border-t
-              border-gray-200
+              border-gray-400
               bg-white
               px-4
               py-2.5
@@ -3928,7 +3897,7 @@ export default function OrderRecordsPage() {
               className="
                 text-[10px]
                 font-bold
-                text-gray-400
+                text-gray-500
               "
             >
               Page {page}
@@ -3952,9 +3921,9 @@ export default function OrderRecordsPage() {
                   justify-center
                   rounded-lg
                   border
-                  border-gray-200
+                  border-gray-400
                   bg-white
-                  text-gray-600
+                  
                   transition
                   hover:bg-gray-50
                   disabled:cursor-not-allowed
@@ -3997,9 +3966,9 @@ export default function OrderRecordsPage() {
                   justify-center
                   rounded-lg
                   border
-                  border-gray-200
+                  border-gray-400
                   bg-white
-                  text-gray-600
+                  
                   transition
                   hover:bg-gray-50
                   disabled:cursor-not-allowed
@@ -4011,7 +3980,7 @@ export default function OrderRecordsPage() {
             </div>
           </div>
         </div>
-      </div>
+      
 
       {/* =====================================================================
           MOBILE FILTER OFFCANVAS
