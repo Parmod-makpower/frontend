@@ -790,14 +790,11 @@ export default function SearchBarPage() {
             rounded-lg
             border
             border-transparent
-            bg-gray-50
+            
             px-2
             transition-all
             duration-200
-            focus-within:border-[#fc250c]/30
-            focus-within:bg-white
-            focus-within:ring-2
-            focus-within:ring-[#fc250c]/10
+           
           "
         >
           <input
@@ -806,7 +803,7 @@ export default function SearchBarPage() {
             value={searchTerm}
             onChange={handleSearchChange}
             maxLength={25}
-            placeholder="Search by product, sale name, or category..."
+            placeholder="Search by product, category..."
             className="
               h-9
               w-full
@@ -934,3 +931,377 @@ export default function SearchBarPage() {
     </div>
   );
 }
+
+// 📁 src/pages/SearchBarPage.jsx
+
+// import {
+//   useEffect,
+//   useState,
+//   useRef,
+//   useMemo,
+//   useCallback,
+// } from "react";
+
+// import { IoChevronBack } from "react-icons/io5";
+// import { FaPlus, FaGift } from "react-icons/fa";
+
+// import { useCachedProducts } from "../hooks/useCachedProducts";
+// import { useSchemes } from "../hooks/useSchemes";
+// import { FixedSizeList as List } from "react-window";
+// import useFuseSearch from "../hooks/useFuseSearch";
+// import { useNavigate } from "react-router-dom";
+// import { useAuth } from "../context/AuthContext";
+// import { useSelectedProducts } from "../hooks/useSelectedProducts";
+// import { useStock } from "../context/StockContext";
+
+// function Loader() {
+//   return (
+//     <div className="flex items-center justify-center py-10">
+//       <div className="h-6 w-6 animate-spin rounded-full border-4 border-dashed border-blue-500"></div>
+//     </div>
+//   );
+// }
+
+// const normalizeProduct = (product) => ({
+//   ...product,
+//   id: product.id ?? product.product_id,
+// });
+
+// export default function SearchBarPage() {
+//   const { user } = useAuth();
+
+//   const {
+//     selectedProducts,
+//     addProduct,
+//     updateQuantity,
+//     updateCartoon,
+//     cartoonSelection,
+//   } = useSelectedProducts();
+
+//   const [searchTerm, setSearchTerm] = useState("");
+
+//   const searchRef = useRef();
+//   const navigate = useNavigate();
+//   const { getStockValue } = useStock();
+
+//   const {
+//     data: allProductsRaw = [],
+//     isLoading,
+//   } = useCachedProducts();
+
+//   const { data: schemes = [] } = useSchemes();
+
+//   // Auto focus searchbox
+//   useEffect(() => {
+//     searchRef.current?.focus();
+//   }, []);
+
+  
+//   const excludedCategories = useMemo(
+//     () => new Set(["speaker packing", "speaker pcb", "speaker housing"]),
+//     []
+//   );
+
+//   const allProducts = useMemo(() => {
+//     return allProductsRaw
+//       .map(normalizeProduct)
+//       .filter((product) => product.is_active === true)
+//       .filter((product) => {
+//         const category = String(product.sub_category || "")
+//           .trim()
+//           .toLowerCase();
+
+//         return !excludedCategories.has(category);
+//       });
+//   }, [allProductsRaw, excludedCategories]);
+
+//   // Fuse search
+//   const fuseResults = useFuseSearch(allProducts, searchTerm, {
+//     keys: ["sub_category", "product_name", "sale_names"],
+//     threshold: 0.3,
+//   });
+
+//   // Remove duplicates and prepare search results
+//   const searchResults = useMemo(() => {
+//     const unique = new Map();
+//     const lower = searchTerm.trim().toLowerCase();
+
+//     fuseResults.forEach((product) => {
+      
+//       const category = String(product.sub_category || "")
+//         .trim()
+//         .toLowerCase();
+
+//       if (excludedCategories.has(category)) {
+//         return;
+//       }
+
+//       const matchedSale = Array.isArray(product.sale_names)
+//         ? product.sale_names.find((name) =>
+//             String(name).toLowerCase().includes(lower)
+//           )
+//         : null;
+
+//       const productName = String(
+//         product.product_name || ""
+//       ).toLowerCase();
+
+//       const subCategory = String(
+//         product.sub_category || ""
+//       ).toLowerCase();
+
+//       const match =
+//         productName.includes(lower) ||
+//         subCategory.includes(lower) ||
+//         Boolean(matchedSale);
+
+//       if (match) {
+//         unique.set(product.id, {
+//           ...product,
+//           _displayName:
+//             matchedSale || product.product_name,
+//         });
+//       }
+//     });
+
+//     return Array.from(unique.values());
+//   }, [fuseResults, searchTerm, excludedCategories]);
+
+//   const hasScheme = (productId) =>
+//     schemes.some(
+//       (scheme) =>
+//         Array.isArray(scheme.conditions) &&
+//         scheme.conditions.some(
+//           (condition) => condition.product === productId
+//         )
+//     );
+
+//   const isAdded = (id) =>
+//     selectedProducts.some((product) => product.id === id);
+
+//   const handleAddProduct = (product) => {
+//     if (!isAdded(product.id)) {
+//       const isDS = user?.role === "DS";
+//       const moq = product.moq || 1;
+
+//       const initialQty = isDS
+//         ? 1
+//         : product.cartoon_size && product.cartoon_size > 1
+//           ? product.cartoon_size
+//           : moq;
+
+//       addProduct({
+//         ...product,
+//         quantity: initialQty,
+//       });
+//     }
+//   };
+
+//   const Row = useCallback(
+//     ({ index, style }) => {
+//       const product = normalizeProduct(searchResults[index]);
+
+//       const selectedItem = selectedProducts.find(
+//         (item) => item.id === product.id
+//       );
+
+//       const currentStock = getStockValue(product);
+//       const outOfStock =
+//         currentStock <= (product.moq || 1);
+
+//       const [localQty, setLocalQty] = useState(
+//         selectedItem?.quantity ?? ""
+//       );
+
+//       const isDS = user?.role === "DS";
+
+//       const hasCartoon =
+//         selectedItem?.quantity_type === "CARTOON" && !isDS;
+
+//       // Sync global quantity to local quantity
+//       useEffect(() => {
+//         setLocalQty(selectedItem?.quantity ?? "");
+//       }, [selectedItem?.quantity]);
+
+//       return (
+//         <div
+//           key={product.id}
+//           style={style}
+//           className="flex items-center justify-between rounded-md border-b border-gray-300 px-3 py-2 transition-all hover:bg-gray-100"
+//         >
+//           {/* LEFT SIDE */}
+//           <div
+//             onClick={() =>
+//               navigate(`/product/${product.id}`)
+//             }
+//             className="flex min-w-0 flex-grow cursor-pointer flex-col gap-1 text-xs text-gray-700 sm:text-sm"
+//           >
+//             <div className="flex min-w-0 items-center gap-2 font-medium text-gray-800">
+//               <span className="truncate">
+//                 {product._displayName}
+//               </span>
+
+             
+//                 <div className="shrink-0">
+//                   {!outOfStock ? (
+//                     <span className="rounded bg-blue-100 px-1 py-[1px] text-[10px] text-blue-600">
+//                       In Stock
+//                     </span>
+//                   ) : (
+//                     <span className="rounded bg-red-100 px-1 py-[1px] text-[10px] text-red-600">
+//                       Out of Stock
+//                     </span>
+//                   )}
+//                 </div>
+             
+
+//               {hasScheme(product.id) && (
+//                 <FaGift className="shrink-0 text-xs text-pink-500 animate-pulse" />
+//               )}
+//             </div>
+
+//             <div className="truncate text-[11px] text-gray-500 sm:text-xs">
+//               Product: {product.product_name}
+//             </div>
+
+//             <div className="truncate text-[11px] text-gray-400 sm:text-xs">
+//               {product.sub_category}
+//             </div>
+//           </div>
+
+//           {/* RIGHT SIDE */}
+//           {(user?.role === "SS" ||
+//             user?.role === "DS" ||
+//             user?.role === "ASM") && (
+//             <div className="ml-3 shrink-0">
+//               {selectedItem ? (
+//                 hasCartoon ? (
+//                   <select
+//                     value={
+//                       cartoonSelection[selectedItem.id] || 1
+//                     }
+//                     onChange={(e) =>
+//                       updateCartoon(
+//                         selectedItem.id,
+//                         parseInt(e.target.value)
+//                       )
+//                     }
+//                     className="rounded border px-2 py-1 text-sm"
+//                   >
+//                     {Array.from(
+//                       { length: 100 },
+//                       (_, i) => i + 1
+//                     ).map((number) => (
+//                       <option
+//                         key={number}
+//                         value={number}
+//                       >
+//                         {number} CTN
+//                       </option>
+//                     ))}
+//                   </select>
+//                 ) : (
+//                   <input
+//                     type="number"
+//                     min={1}
+//                     value={localQty}
+//                     onChange={(e) =>
+//                       setLocalQty(e.target.value)
+//                     }
+//                     onBlur={() => {
+//                       const parsed = parseInt(localQty);
+
+//                       // DS: no MOQ auto-fix
+//                       if (isDS) {
+//                         if (!isNaN(parsed)) {
+//                           updateQuantity(product.id, parsed);
+//                         }
+
+//                         return;
+//                       }
+
+//                       // SS / ASM: MOQ strict
+//                       const moq = selectedItem.moq || 1;
+
+//                       if (isNaN(parsed) || parsed < moq) {
+//                         updateQuantity(product.id, moq);
+//                         setLocalQty(moq);
+//                       } else {
+//                         updateQuantity(product.id, parsed);
+//                       }
+//                     }}
+//                     className="w-20 rounded border px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-blue-400"
+//                   />
+//                 )
+//               ) : (
+//                 <button
+//                   onClick={() => handleAddProduct(product)}
+//                   className="rounded-full bg-blue-100 p-3 text-blue-600 transition-all hover:bg-blue-200"
+//                 >
+//                   <FaPlus className="text-sm" />
+//                 </button>
+//               )}
+//             </div>
+//           )}
+//         </div>
+//       );
+//     },
+//     [
+//       searchResults,
+//       selectedProducts,
+//       cartoonSelection,
+//       user,
+//       getStockValue,
+//       navigate,
+//     ]
+//   );
+
+//   return (
+//     <div className="flex h-screen max-h-screen flex-col bg-white">
+//       {/* TOP BAR */}
+//       <div className="fixed left-0 right-0 top-0 z-50 flex items-center gap-2 overflow-hidden border-b border-gray-300 bg-white p-3 shadow">
+//         <button
+//           onClick={() => window.history.back()}
+//           className="px-1 text-2xl font-bold text-gray-700 transition-transform hover:scale-105 hover:text-blue-600"
+//         >
+//           <IoChevronBack />
+//         </button>
+
+//         <input
+//           ref={searchRef}
+//           type="text"
+//           value={searchTerm}
+//           onChange={(e) => setSearchTerm(e.target.value)}
+//           maxLength={25}
+//           placeholder="Search by product, sale name, or category..."
+//           className="w-full min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-gray-400"
+//         />
+//       </div>
+
+//       {/* LIST */}
+//       <div className="flex-1 overflow-y-auto px-1 pt-[60px] sm:px-2">
+//         {isLoading ? (
+//           <Loader />
+//         ) : searchTerm.trim().length === 0 ? (
+//           <p className="py-10 text-center text-gray-500">
+//             Search to see results
+//           </p>
+//         ) : searchResults.length === 0 ? (
+//           <p className="py-10 text-center text-gray-500">
+//             No matching products found.
+//           </p>
+//         ) : (
+//           <List
+//             height={window.innerHeight - 100}
+//             itemCount={searchResults.length}
+//             itemSize={90}
+//             width="100%"
+//             itemKey={(index) => searchResults[index].id}
+//           >
+//             {Row}
+//           </List>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
