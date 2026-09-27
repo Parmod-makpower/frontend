@@ -131,7 +131,7 @@ const showMahotsavButton = mahotsavProduct?.moq === 1;
                                 className={`w-full mt-2 flex items-center justify-center gap-2 
                                 ${isInCart ? "bg-gray-600" : "bg-gradient-to-r from-orange-500 via-red-500 to-pink-600"}
                                 hover:opacity-90 text-white text-[11px] md:text-sm font-semibold 
-                                py-1 md:py-2 rounded-xl shadow-lg transition-all duration-300
+                                py-1 md:py-2 rounded shadow-lg transition-all duration-300
                                 cursor-pointer
                               `}
                               >

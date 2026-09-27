@@ -82,7 +82,7 @@ export default function SlidingProductsCards({ trendingIds = [], title }) {
 
       {/* 🔥 Mobile: horizontal scroll (scrollbar hidden) | Desktop: Grid */}
       <div className="overflow-x-auto md:overflow-visible -mx-2 px-2 scrollbar-hide">
-        <div className="flex md:grid md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="fle grid grid-cols-2 lg:grid-cols-6 gap-4">
           {trendingProducts.map((prod) => {
             const prodId = prod.id ?? prod.product_id;
 
