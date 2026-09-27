@@ -1439,7 +1439,7 @@ export default function OrderItemsTable({
                   </td>
 
                   {/* SS ORDER */}
-                  <td className="whitespace-nowrap border-x border-b border-gray-400 p-1">
+                  <td className="whitespace-nowrap border-x border-b border-gray-400 p-1 bg-slate-100">
                     {item.original_quantity}
                   </td>
 
@@ -1570,8 +1570,7 @@ export default function OrderItemsTable({
                         bg-transparent
                         px-2
                         text-center
-                        text-xs
-                        text-slate-700
+                        font-medium
                         outline-none
                         focus:border-blue-500
                         focus:ring-1
