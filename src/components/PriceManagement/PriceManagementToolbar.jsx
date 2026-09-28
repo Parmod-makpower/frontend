@@ -28,6 +28,9 @@ const PriceManagementToolbar = ({
 
   onImport,
   onExport,
+    pdfType = "SS",
+  onPdfTypeChange,
+  onPdfDownload,
   onBulkEdit,
   onRefresh,
   onUndo,
@@ -524,13 +527,13 @@ const PriceManagementToolbar = ({
           ))}
         </Menu>
 
-        <ToolbarButton
+        {/* <ToolbarButton
           onClick={onImport}
           icon={<ImportIcon />}
           tone="blue"
         >
           Import
-        </ToolbarButton>
+        </ToolbarButton> */}
 
         <ToolbarButton
           onClick={onExport}
@@ -539,6 +542,62 @@ const PriceManagementToolbar = ({
         >
           Export
         </ToolbarButton>
+        {/* =====================================================
+    PDF PRICE EXPORT
+===================================================== */}
+
+<Menu
+  open={openMenu === "pdf"}
+  onClick={() => toggleMenu("pdf")}
+  icon={<PdfIcon />}
+  label={
+    pdfType === "SS"
+      ? "SS PDF"
+      : pdfType === "DS"
+      ? "Distributor PDF"
+      : "Dealer PDF"
+  }
+  chevron
+>
+  <DropdownTitle>
+    PDF Price Type
+  </DropdownTitle>
+
+  <Choice
+    active={pdfType === "SS"}
+    label="SS Price"
+    onClick={() => {
+      onPdfTypeChange?.("SS");
+      setOpenMenu(null);
+    }}
+  />
+
+  <Choice
+    active={pdfType === "DS"}
+    label="Distributor Price"
+    onClick={() => {
+      onPdfTypeChange?.("DS");
+      setOpenMenu(null);
+    }}
+  />
+
+  <Choice
+    active={pdfType === "DLR"}
+    label="Dealer Price"
+    onClick={() => {
+      onPdfTypeChange?.("DLR");
+      setOpenMenu(null);
+    }}
+  />
+</Menu>
+
+<ToolbarButton
+  onClick={onPdfDownload}
+  icon={<PdfDownloadIcon />}
+  tone="red"
+>
+  PDF
+</ToolbarButton>
 
         <ToolbarButton
           onClick={onBulkEdit}
@@ -674,6 +733,9 @@ const ToolbarButton = ({
 
     purple:
       "border-violet-200 bg-violet-50/50 text-violet-700 hover:bg-violet-50",
+
+    red:
+    "border-red-200 bg-red-50/60 text-red-600 hover:bg-red-50",  
   };
 
   return (
@@ -981,6 +1043,23 @@ const ChevronDown = () => (
   >
     <path d="m5 7 5 5 5-5" />
   </svg>
+);
+const PdfIcon = () => (
+  <Icon>
+    <path d="M6 3h9l3 3v15H6z" />
+    <path d="M14 3v4h4" />
+    <path d="M8.5 13h2.5a1.5 1.5 0 0 0 0-3H8.5v6" />
+    <path d="M13 10h1.5a2.5 2.5 0 0 1 0 5H13z" />
+  </Icon>
+);
+
+const PdfDownloadIcon = () => (
+  <Icon>
+    <path d="M6 3h9l3 3v15H6z" />
+    <path d="M14 3v4h4" />
+    <path d="M12 10v7" />
+    <path d="m9.5 14.5 2.5 2.5 2.5-2.5" />
+  </Icon>
 );
 
 const Spinner = () => (

@@ -19,12 +19,142 @@ import PriceManagementToolbar from "../../components/PriceManagement/PriceManage
 import PriceManagementTable from "../../components/PriceManagement/PriceManagementTable";
 import PriceManagementCategoryTabs from "../../components/PriceManagement/PriceManagementCategoryTabs";
 import { exportPriceManagementExcel } from "../../utils/exportPriceManagementExcel";
+import { exportPriceManagementPDF } from "../../utils/exportPriceManagementPDF";
 
 const PRICE_FIELDS = [
   "price",
   "ds_price",
   "dlr_price",
 ];
+const COMBINED_CATEGORY_GROUPS = [
+  {
+    sheetName: "ECO SERIES",
+    sections: [
+      { title: "ECO SERIES", aliases: ["ECO BATTERY"] },
+      { title: "POUCH BATTERY", aliases: ["POUCH BATTERY"] },
+    ],
+  },
+  {
+    sheetName: "Polymer Battery",
+    sections: [
+      { title: "POLYMER MI", aliases: ["POLYMER MI BATTERY"] },
+      { title: "POLYMER OPPO", aliases: ["POLYMER OPPO BATTERY"] },
+      { title: "POLYMER VIVO", aliases: ["POLYMER VIVO BATTERY"] },
+      { title: "POLYMER SAMSUNG", aliases: ["POLYMER SAMSUNG BATTERY"] },
+      { title: "POLYMER ASUS", aliases: ["POLYMER ASUS BATTERY"] },
+      { title: "POLYMER HONOR", aliases: ["POLYMER HONOR BATTERY"] },
+      { title: "POLYMER INFINIX", aliases: ["POLYMER INFINIX BATTERY"] },
+      { title: "POLYMER IPHONE", aliases: ["POLYMER IPHONE BATTERY"] },
+      { title: "POLYMER LAVA", aliases: ["POLYMER LAVA BATTERY"] },
+      { title: "POLYMER LENOVO", aliases: ["POLYMER LENOVO BATTERY"] },
+      { title: "POLYMER MICROMAX", aliases: ["POLYMER MICROMAX BATTERY"] },
+      { title: "POLYMER MOTOROLA", aliases: ["POLYMER MOTOROLA BATTERY"] },
+      { title: "POLYMER NOKIA", aliases: ["POLYMER NOKIA BATTERY"] },
+      { title: "POLYMER ONEPLUS", aliases: ["POLYMER ONEPLUS BATTERY"] },
+      { title: "POLYMER NOTHING BATTERY", aliases: ["POLYMER NOTHING BATTERY"] },
+      { title: "POLYMER REALME", aliases: ["POLYMER REALME BATTERY"] },
+      { title: "POLYMER TECNO", aliases: ["POLYMER TECNO BATTERY"] },
+      { title: "POLYMER ITEL BATTERY", aliases: ["POLYMER ITEL BATTERY"] },
+      { title: "Polymer Hologram", aliases: ["Polymer Hologram"] },
+    ],
+  },
+  {
+    sheetName: "CHARGER",
+    sections: [
+      { title: "CHARGER", aliases: ["CHARGER"] },
+      { title: "CAR CHARGER", aliases: ["CAR ADAPTER"] },
+    ],
+  },
+  {
+    sheetName: "DATA CABLES 1",
+    sections: [
+      { title: "V8 DATA CABLES", aliases: ["DATA CABLE V8"] },
+      { title: "TYPE-C DATA CABLES", aliases: ["DATA CABLE TYPE-C"] },
+    ],
+  },
+  {
+    sheetName: "DATA CABLES 2",
+    sections: [
+      { title: "I PHONE DATA CABLES", aliases: ["DATA CABLE I PHONE"] },
+      { title: "3 IN 1 DATA CABLES", aliases: ["DATA CABLE 3 IN 1"] },
+      { title: "POWER BANK CABLES", aliases: ["DATA CABLE PB"] },
+      { title: "DATA CABLE C TO C", aliases: ["DATA CABLE C TO C"] },
+      { title: "DATA CABLE C TO I", aliases: ["DATA CABLE C TO I"] },
+    ],
+  },
+  {
+    sheetName: "TWS BT",
+    sections: [
+      { title: "TWS EARBUDS", aliases: ["TWS"] },
+      { title: "MEMORY CARD", aliases: ["MEMORY CARD"] },
+      { title: "PENDRIVE", aliases: ["PENDRIVE"] },
+    ],
+  },
+  {
+    sheetName: "P.B ,LED LIGHT & AUX CABLE",
+    sections: [
+      { title: "POWER BANK", aliases: ["POWER BANK"] },
+      { title: "LED BULB", aliases: ["LED BULB"] },
+      { title: "LED TORCH", aliases: ["LED TORCH"] },
+      { title: "AUX CABLE", aliases: ["AUX CABLE"] },
+      { title: "PORTABLE FAN", aliases: ["FAN"] },
+      { title: "BLUETOOTH & SP CELL", aliases: ["BLUETOOTH Cell"] },
+    ],
+  },
+  {
+    sheetName: "C.R, OTG, CONNECTORS",
+    sections: [
+      { title: "CAR BLUETOOTH", aliases: ["CAR BLUETOOTH"] },
+      { title: "CARD READER", aliases: ["CARD READER"] },
+      { title: "OTG", aliases: ["O.T.G"] },
+      { title: "CONNECTORS", aliases: ["CONNECTOR"] },
+      { title: "TEMPERED GLASS", aliases: [] },
+      { title: "CLEANING GEL", aliases: ["GLASS CLEANER"] },
+    ],
+  },
+  {
+    sheetName: "MOBILE HOLDERS",
+    sections: [
+      { title: "MOBILE HOLDERS", aliases: ["MOBILE HOLDER"] },
+      { title: "AUDIO CONNECTOR", aliases: ["AUDIO"] },
+      { title: "USB HUB", aliases: ["USB HUB"] },
+    ],
+  },
+  {
+    sheetName: "HEADPHONES",
+    sections: [
+      { title: "HEADPHONES", aliases: ["HEADPHONE"] },
+      { title: "LAMINATION", aliases: ["LAMINATION"] },
+    ],
+  },
+];
+
+const normalizeCategory = (value) =>
+  String(value ?? "").trim().toUpperCase();
+
+const CATEGORY_GROUP_LOOKUP = new Map();
+
+COMBINED_CATEGORY_GROUPS.forEach(({ sheetName, sections }) => {
+  sections.forEach(({ title, aliases = [] }) => {
+    [title, ...aliases].forEach((value) => {
+      const key = normalizeCategory(value);
+
+      if (key) {
+        CATEGORY_GROUP_LOOKUP.set(key, sheetName);
+      }
+    });
+  });
+});
+
+const getCategoryGroupKey = (category) => {
+  const value = String(category ?? "").trim();
+
+  if (!value) return "UNCATEGORIZED";
+
+  return (
+    CATEGORY_GROUP_LOOKUP.get(normalizeCategory(value)) || value
+  );
+};
 
 const today = () =>
   new Date().toISOString().slice(0, 10);
@@ -570,42 +700,41 @@ const PriceManagementPage = () => {
       ),
     [products]
   );
+const categories = useMemo(() => {
+  const availableGroups = new Set();
 
-  const categories = useMemo(() => {
-    const set = new Set();
-
-    products.forEach((product) => {
-      set.add(
-        String(
-          product?.sub_category ?? ""
-        ).trim() ||
-          "UNCATEGORIZED"
-      );
-    });
-
-    return [...set].sort((a, b) =>
-      a.localeCompare(b)
+  products.forEach((product) => {
+    availableGroups.add(
+      getCategoryGroupKey(product.sub_category)
     );
-  }, [products]);
+  });
 
-  const categoryCounts = useMemo(() => {
-    const counts = {
-      ALL: products.length,
-    };
+  const configuredCategories = COMBINED_CATEGORY_GROUPS
+    .map((group) => group.sheetName)
+    .filter((sheetName) => availableGroups.has(sheetName));
 
-    products.forEach((product) => {
-      const category =
-        String(
-          product?.sub_category ?? ""
-        ).trim() ||
-        "UNCATEGORIZED";
+  const configuredSet = new Set(configuredCategories);
 
-      counts[category] =
-        (counts[category] ?? 0) + 1;
-    });
+  const otherCategories = [...availableGroups]
+    .filter((category) => !configuredSet.has(category))
+    .sort((a, b) => a.localeCompare(b));
 
-    return counts;
-  }, [products]);
+  return [...configuredCategories, ...otherCategories];
+}, [products]);
+
+const categoryCounts = useMemo(() => {
+  const counts = {};
+
+  products.forEach((product) => {
+    const groupKey = getCategoryGroupKey(
+      product.sub_category
+    );
+
+    counts[groupKey] = (counts[groupKey] || 0) + 1;
+  });
+
+  return counts;
+}, [products]);
 
   const filteredProducts = useMemo(() => {
     const query =
@@ -641,22 +770,14 @@ const PriceManagementPage = () => {
         }
       }
 
-      if (
-        selectedCategory !== "ALL"
-      ) {
-        const category =
-          String(
-            product?.sub_category ?? ""
-          ).trim() ||
-          "UNCATEGORIZED";
-
-        if (
-          category !==
-          selectedCategory
-        ) {
-          return false;
-        }
-      }
+     if (
+  selectedCategory !== "ALL" &&
+  getCategoryGroupKey(
+    product?.sub_category
+  ) !== selectedCategory
+) {
+  return false;
+}
 
       if (
         quickFilter === "changed" &&
@@ -805,7 +926,21 @@ const PriceManagementPage = () => {
     focusedCell,
     productMap,
   ]);
+const [pdfType, setPdfType] = useState("SS");
+const handlePdfDownload = useCallback(() => {
+  if (!sortedProducts?.length) {
+    return;
+  }
 
+  exportPriceManagementPDF(
+    sortedProducts,
+    pdfType,
+    COMBINED_CATEGORY_GROUPS
+  );
+}, [
+  sortedProducts,
+  pdfType,
+]);
   const changedItems = useMemo(
     () =>
       Object.entries(drafts).map(
@@ -1914,6 +2049,9 @@ const PriceManagementPage = () => {
           onBulkEdit={() =>
             setBulkOpen(true)
           }
+            pdfType={pdfType}
+  onPdfTypeChange={setPdfType}
+  onPdfDownload={handlePdfDownload}
           selectedCount={
             selectedRows.length
           }

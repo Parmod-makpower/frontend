@@ -50,9 +50,9 @@ const getSaleNameText = (item) => {
   if (typeof item === "object") {
     return String(
       item?.sale_name ??
-        item?.name ??
-        item?.title ??
-        ""
+      item?.name ??
+      item?.title ??
+      ""
     ).trim();
   }
 
@@ -162,34 +162,142 @@ const getLatestActiveSaleName = (product) => {
 
 const COMBINED_CATEGORY_GROUPS = [
   {
+    sheetName: "ECO SERIES",
+
+    sections: [
+      { title: "ECO SERIES", aliases: ["ECO BATTERY",] },
+      { title: "POUCH BATTERY", aliases: ["POUCH BATTERY",] },
+    ],
+
+  },
+  {
+    sheetName: "Polymer Battery",
+
+    sections: [
+
+      { title: "POLYMER MI", aliases: ["POLYMER MI BATTERY"] },
+
+      { title: "POLYMER OPPO", aliases: ["POLYMER OPPO BATTERY"] },
+
+      { title: "POLYMER VIVO", aliases: ["POLYMER VIVO BATTERY"] },
+
+      { title: "POLYMER SAMSUNG", aliases: ["POLYMER SAMSUNG BATTERY"] },
+
+      { title: "POLYMER ASUS", aliases: ["POLYMER ASUS BATTERY"] },
+
+      { title: "POLYMER HONOR", aliases: ["POLYMER HONOR BATTERY"] },
+
+      { title: "POLYMER INFINIX", aliases: ["POLYMER INFINIX BATTERY"] },
+
+      { title: "POLYMER IPHONE", aliases: ["POLYMER IPHONE BATTERY"] },
+
+      { title: "POLYMER LAVA", aliases: ["POLYMER LAVA BATTERY"] },
+
+      { title: "POLYMER LENOVO", aliases: ["POLYMER LENOVO BATTERY"] },
+
+      { title: "POLYMER MICROMAX", aliases: ["POLYMER MICROMAX BATTERY"] },
+
+      { title: "POLYMER MOTOROLA", aliases: ["POLYMER MOTOROLA BATTERY"] },
+
+      { title: "POLYMER NOKIA", aliases: ["POLYMER NOKIA BATTERY"] },
+
+      { title: "POLYMER ONEPLUS", aliases: ["POLYMER ONEPLUS BATTERY"] },
+
+      { title: "POLYMER NOTHING BATTERY", aliases: ["POLYMER NOTHING BATTERY"] },
+      { title: "POLYMER REALME", aliases: ["POLYMER REALME BATTERY"] },
+
+      { title: "POLYMER TECNO", aliases: ["POLYMER TECNO BATTERY"] },
+      { title: "POLYMER ITEL BATTERY", aliases: ["POLYMER ITEL BATTERY"] },
+      { title: "Polymer Hologram ", aliases: ["Polymer Hologram"] },
+    ],
+
+  },
+  {
+    sheetName: "CHARGER",
+
+    sections: [
+      { title: "CHARGER", aliases: ["CHARGER",] },
+      { title: "CAR CHARGER", aliases: ["CAR ADAPTER",] },
+      { title: "", aliases: ["",] },
+
+    ],
+  },
+  {
+    sheetName: "DATA CABLES 1",
+
+    sections: [
+      { title: "V8 DATA CABLES", aliases: ["DATA CABLE V8",] },
+      { title: "TYPE-C DATA CABLES", aliases: ["DATA CABLE TYPE-C",] },
+
+    ],
+
+  },
+  {
+    sheetName: "DATA CABLES 2",
+
+    sections: [
+      { title: "I PHONE DATA CABLES", aliases: ["DATA CABLE I PHONE",] },
+      { title: "3 IN 1 DATA CABLES", aliases: ["DATA CABLE 3 IN 1",] },
+      { title: "POWER BANK CABLES", aliases: ["DATA CABLE PB",] },
+      { title: "DATA CABLE C TO C", aliases: ["DATA CABLE C TO C",] },
+      { title: "DATA CABLE C TO I", aliases: ["DATA CABLE C TO I",] },
+    ],
+
+  },
+  {
+    sheetName: "TWS BT",
+
+    sections: [
+      { title: "TWS EARBUDS", aliases: ["TWS",] },
+      { title: "MEMORY CARD", aliases: ["MEMORY CARD",] },
+      { title: "PENDRIVE", aliases: ["PENDRIVE",] },
+
+    ],
+  },
+  {
     sheetName: "P.B ,LED LIGHT & AUX CABLE",
 
     sections: [
-      { title: "POWER BANK", aliases: [ "POWER BANK",] },
-      { title: "LED BULB",  aliases: [ "LED BULB",] },
-      { title: "LED TORCH", aliases: [ "LED TORCH",] },
-      { title: "AUX CABLE", aliases: [ "AUX CABLE",]},
-      { title: "FAN", aliases: [  "PORTABLE FAN"],},
-      { title: "BLUETOOTH CELL", aliases: [ "BLUETOOTH Cell" ] },
-          ],
+      { title: "POWER BANK", aliases: ["POWER BANK",] },
+      { title: "LED BULB", aliases: ["LED BULB",] },
+      { title: "LED TORCH", aliases: ["LED TORCH",] },
+      { title: "AUX CABLE", aliases: ["AUX CABLE",] },
+      { title: "PORTABLE FAN", aliases: ["FAN"], },
+      { title: "BLUETOOTH & SP CELL", aliases: ["BLUETOOTH Cell"] },
+    ],
 
   },
-
-
   {
-    sheetName: "DATA CABLES",
+    sheetName: "C.R, OTG, CONNECTORS",
 
     sections: [
-      { title: "DATA CABLE V8", aliases: [ "DATA CABLE V8",] },
-      { title: "DATA CABLE TYPE-C", aliases: [ "DATA CABLE TYPE-C",] },
-      { title: "DATA CABLE I PHONE", aliases: [ "DATA CABLE I PHONE",] },
-      { title: "DATA CABLE C TO C", aliases: [ "DATA CABLE C TO C",] },
-      { title: "DATA CABLE C TO I", aliases: [ "DATA CABLE C TO I",] },
-      { title: "DATA CABLE PB", aliases: [ "DATA CABLE PB",] },
-      { title: "DATA CABLE 3 IN 1", aliases: [ "DATA CABLE 3 IN 1",] },
-          ],
+      { title: "CAR BLUETOOTH", aliases: ["CAR BLUETOOTH",] },
+      { title: "CARD READER", aliases: ["CARD READER",] },
+      { title: "OTG", aliases: ["O.T.G",] },
+      { title: "CONNECTORS", aliases: ["CONNECTOR",] },
+      { title: "TEMPERED GLASS", aliases: ["",] },
+      { title: "CLEANING GEL", aliases: ["GLASS CLEANER",] },
 
+    ],
   },
+  {
+    sheetName: "MOBILE HOLDERS",
+
+    sections: [
+      { title: "MOBILE HOLDERS", aliases: ["MOBILE HOLDER",] },
+      { title: "AUDIO CONNECTOR", aliases: ["AUDIO",] },
+      { title: "USB HUB", aliases: ["USB HUB",] },
+    ],
+  },
+  {
+    sheetName: "HEADPHONES",
+
+    sections: [
+      { title: "HEADPHONES", aliases: ["HEADPHONE",] },
+      { title: "LAMINATION", aliases: ["LAMINATION",] },
+    ],
+  },
+
 ];
 
 const findCombinedSection = (category) => {
@@ -346,7 +454,8 @@ const addCategorySection = (
   worksheet,
   startRow,
   categoryTitle,
-  products
+  products,
+  useMah = false
 ) => {
   /*
     Final Excel columns:
@@ -363,14 +472,14 @@ const addCategorySection = (
   */
 
   const columns = [
-    "SL. NO.",
-    "MODEL",
-    "GUARANTEE",
-    "CARTON",
-    "SS PRICE",
-    "DS PRICE",
-    "DLR PRICE",
-  ];
+  "SL. NO.",
+  "MODEL",
+  useMah ? "MAH" : "CARTON",
+  "GUARANTEE",
+  "SS PRICE",
+  "DS PRICE",
+  "DLR PRICE",
+];
 
   const titleRow = startRow;
   const headerRow = startRow + 1;
@@ -443,13 +552,13 @@ const addCategorySection = (
   (product, index) => [
     index + 1,
 
-    // SALE NAME available hai to Sale Name,
-    // otherwise Product Name
     getLatestActiveSaleName(product) ||
-      getProductName(product),
+    getProductName(product),
 
+    useMah
+      ? product?.mah ?? ""
+      : getCartonSize(product),
     getGuarantee(product),
-    getCartonSize(product),
     product?.price ?? "",
     product?.ds_price ?? "",
     product?.dlr_price ?? "",
@@ -553,13 +662,18 @@ const createCombinedCategorySheet = (
         return;
       }
 
-      currentRow =
-        addCategorySection(
-          worksheet,
-          currentRow,
-          section.title,
-          sectionProducts
-        );
+      const useMah =
+  group.sheetName === "ECO SERIES" ||
+  group.sheetName === "Polymer Battery";
+
+currentRow =
+  addCategorySection(
+    worksheet,
+    currentRow,
+    section.title,
+    sectionProducts,
+    useMah
+  );
     }
   );
 
@@ -706,7 +820,7 @@ export const exportPriceManagementExcel = (
             (alias) => {
               const data =
                 categoryMap[
-                  normalizeCategory(alias)
+                normalizeCategory(alias)
                 ];
 
               if (
