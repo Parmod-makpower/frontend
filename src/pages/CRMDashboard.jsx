@@ -1,106 +1,523 @@
-import { FaUsers, FaLayerGroup, FaChartLine, FaCubes, FaBoxOpen, FaHistory, FaSearch, FaBell } from "react-icons/fa";
+// import { FaUsers, FaLayerGroup, FaChartLine, FaCubes, FaBoxOpen, FaHistory, FaSearch, FaBell } from "react-icons/fa";
+// import { useNavigate } from "react-router-dom";
+// import { useState } from "react";
+// import logo from "../assets/images/logo.png";
+
+// export default function CRMDashboard() {
+//   const navigate = useNavigate();
+//    const [searchText, setSearchText] = useState("");
+  
+//     const handleRedirect = () => {
+//       navigate(`/search?search=${encodeURIComponent(searchText.trim())}`);
+//     };
+  
+
+//   const cards = [
+//     {
+//       title: "Super Stockist",
+//       desc: "Add user, manage their team.",
+//       icon: <FaUsers className="text-3xl text-blue-500" />,
+//       url: "/all-users/list",
+//     },
+    
+//     {
+//       title: "New Orders",
+//       desc: "Check and verify incoming orders.",
+//       icon: <FaBoxOpen className="text-3xl text-teal-500" />,
+//       url: "/crm/orders",
+//     },
+//     {
+//       title: "History",
+//       desc: "View verified, rejected & dispatched orders.",
+//       icon: <FaHistory className="text-3xl text-gray-500" />,
+//       url: "/all/orders-history",
+//     },
+//     {
+//       title: "Not-In-Stock",
+//       desc: "Track live stock updates.",
+//       icon: <FaChartLine className="text-3xl text-cyan-600" />,
+//       url: "/not-in-stock-reports",
+//     },
+//     {
+//       title: "Category",
+//       desc: "Add, edit or delete categories.",
+//       icon: <FaLayerGroup className="text-3xl text-lime-600" />,
+//       url: "/all-categories",
+//     },
+//     {
+//       title: "Scheme",
+//       desc: "Manage discount & combo schemes.",
+//       icon: <FaCubes className="text-3xl text-pink-500" />,
+//       url: "/user-schemes",
+//     },
+//   ];
+
+//   return (
+//     <div className="p-4 mb-25">
+//        <div className="md:hidden flex justify-between items-center mb-4">
+//               <img
+//                 src={logo}
+//                 className="w-40"
+//                 alt="MakPower Logo"
+//               />
+//               <div className="block sm:hidden text-xl text-[var(--primary-color)]">
+//                 <FaBell />
+//               </div>
+//             </div>
+      
+//             {/* 🔍 Search */}
+//             <div className="md:hidden relative mb-6 ">
+//               <input
+//                 type="text"
+//                 value={searchText}
+//                 onChange={(e) => setSearchText(e.target.value)}
+//                 onClick={handleRedirect}
+//                 placeholder="Search for products..."
+//                 className="w-full p-2.5 sm:p-3 pl-4 pr-10 rounded-full border text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+//               />
+//               <button
+//                 onClick={handleRedirect}
+//                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--primary-color)] hover:text-blue-800"
+//               >
+//                 <FaSearch />
+//               </button>
+//             </div>
+//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+//         {cards.map((card, idx) => (
+//           <div
+//             key={idx}
+//             onClick={() => navigate(card.url)} 
+//             className="p-6 sm:py-12 border rounded hover:bg-gray-200 transition bg-white flex flex-col items-center text-center cursor-pointer"
+//           >
+//             {card.icon}
+//             <h2 className="text-lg font-semibold mt-4">{card.title}</h2>
+//             <p className="text-sm text-gray-500 mt-1">{card.desc}</p>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+import React, {
+  memo,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  FaHome,
+  FaGift,
+  FaTags,
+  FaUsers,
+  FaUserTie,
+  FaShoppingCart,
+  FaCommentDots,
+  FaHistory,
+  FaRoute,
+  FaChartLine,
+  FaUmbrellaBeach,
+  FaBookOpen,
+  FaTools,
+  FaLayerGroup,
+  FaSearch,
+} from "react-icons/fa";
+
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+
 import logo from "../assets/images/logo.png";
+
+/* =========================================================
+   DASHBOARD CARD
+========================================================= */
+
+const DashboardCard = memo(
+  ({
+    title,
+    desc,
+    icon,
+    url,
+    accent = "red",
+  }) => {
+    const navigate = useNavigate();
+
+    const accentStyle =
+      accent === "orange"
+        ? {
+            icon:
+              "bg-orange-50 text-orange-600 group-hover:bg-orange-500 group-hover:text-white",
+            border:
+              "hover:border-orange-200",
+            arrow:
+              "group-hover:text-orange-500",
+          }
+        : {
+            icon:
+              "bg-red-50 text-red-600 group-hover:bg-red-600 group-hover:text-white",
+            border:
+              "hover:border-red-200",
+            arrow:
+              "group-hover:text-red-600",
+          };
+
+    return (
+      <button
+        type="button"
+        onClick={() => navigate(url)}
+        className={`
+          group
+          relative
+          w-full
+          min-h-[145px]
+          overflow-hidden
+          rounded-2xl
+          border
+          border-slate-200
+          bg-white
+          p-4
+          text-left
+          shadow-[0_2px_8px_rgba(15,23,42,0.035)]
+          transition-all
+          duration-200
+          hover:-translate-y-[2px]
+          hover:shadow-[0_8px_22px_rgba(15,23,42,0.07)]
+          ${accentStyle.border}
+          focus:outline-none
+          focus:ring-2
+          focus:ring-red-100 cursor-pointer
+        `}
+      >
+        {/* Small accent line */}
+        <span
+          className={`
+            absolute
+            left-0
+            top-0
+            h-full
+            w-[3px]
+            ${
+              accent === "orange"
+                ? "bg-orange-400"
+                : "bg-red-500"
+            }
+          `}
+        />
+
+        <div className="flex items-start justify-between gap-3">
+          {/* Icon */}
+          <div
+            className={`
+              flex
+              h-10
+              w-10
+              shrink-0
+              items-center
+              justify-center
+              rounded-xl
+              text-[17px]
+              transition-colors
+              duration-200
+              ${accentStyle.icon}
+            `}
+          >
+            {icon}
+          </div>
+
+          {/* Arrow */}
+          <span
+            className={`
+              mt-0.5
+              text-lg
+              font-medium
+              text-slate-300
+              transition-colors
+              duration-200
+              ${accentStyle.arrow}
+            `}
+          >
+            →
+          </span>
+        </div>
+
+        {/* Content */}
+        <div className="mt-4">
+          <h2 className="text-[14px] font-bold leading-tight text-slate-900">
+            {title}
+          </h2>
+
+          <p className="mt-1.5 line-clamp-2 text-[11.5px] leading-[18px] text-slate-500">
+            {desc}
+          </p>
+        </div>
+      </button>
+    );
+  }
+);
+
+DashboardCard.displayName = "DashboardCard";
+
+/* =========================================================
+   CRM DASHBOARD
+========================================================= */
 
 export default function CRMDashboard() {
   const navigate = useNavigate();
-   const [searchText, setSearchText] = useState("");
-  
-    const handleRedirect = () => {
-      navigate(`/search?search=${encodeURIComponent(searchText.trim())}`);
-    };
-  
 
-  const cards = [
-    {
-      title: "Super Stockist",
-      desc: "Add user, manage their team.",
-      icon: <FaUsers className="text-3xl text-blue-500" />,
-      url: "/all-users/list",
-    },
-    
-    {
-      title: "New Orders",
-      desc: "Check and verify incoming orders.",
-      icon: <FaBoxOpen className="text-3xl text-teal-500" />,
-      url: "/crm/orders",
-    },
-    {
-      title: "History",
-      desc: "View verified, rejected & dispatched orders.",
-      icon: <FaHistory className="text-3xl text-gray-500" />,
-      url: "/all/orders-history",
-    },
-    {
-      title: "Not-In-Stock",
-      desc: "Track live stock updates.",
-      icon: <FaChartLine className="text-3xl text-cyan-600" />,
-      url: "/not-in-stock-reports",
-    },
-    {
-      title: "Category",
-      desc: "Add, edit or delete categories.",
-      icon: <FaLayerGroup className="text-3xl text-lime-600" />,
-      url: "/all-categories",
-    },
-    {
-      title: "Scheme",
-      desc: "Manage discount & combo schemes.",
-      icon: <FaCubes className="text-3xl text-pink-500" />,
-      url: "/user-schemes",
-    },
-  ];
+  const [searchText, setSearchText] =
+    useState("");
+
+  /* =======================================================
+     SEARCH
+  ======================================================= */
+
+  const handleRedirect = useCallback(() => {
+    const query = searchText.trim();
+
+    if (!query) {
+      navigate("/search");
+      return;
+    }
+
+    navigate(
+      `/search?search=${encodeURIComponent(query)}`
+    );
+  }, [navigate, searchText]);
+
+  const handleSearchKeyDown =
+    useCallback(
+      (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          handleRedirect();
+        }
+      },
+      [handleRedirect]
+    );
+
+  /* =======================================================
+     CRM OPTIONS
+  ======================================================= */
+
+  const cards = useMemo(
+    () => [
+      {
+        title: "Dashboard",
+        desc: "View CRM dashboard and quick actions.",
+        icon: <FaHome />,
+        url: "/",
+        accent: "red",
+      },
+
+      {
+        title: "Schemes",
+        desc: "View and manage available schemes.",
+        icon: <FaGift />,
+        url: "/user-schemes",
+        accent: "orange",
+      },
+
+      {
+        title: "Price Management",
+        desc: "Manage SS, distributor and dealer prices.",
+        icon: <FaTags />,
+        url: "/price-management",
+        accent: "red",
+      },
+
+      {
+        title: "Users",
+        desc: "View users and manage user information.",
+        icon: <FaUsers />,
+        url: "/all-users/list",
+        accent: "orange",
+      },
+
+      {
+        title: "ASM Management",
+        desc: "Manage ASM assignments and teams.",
+        icon: <FaUserTie />,
+        url: "/asm-assignment",
+        accent: "red",
+      },
+
+      {
+        title: "New Orders",
+        desc: "Check and verify incoming orders.",
+        icon: <FaShoppingCart />,
+        url: "/crm/orders",
+        accent: "orange",
+      },
+
+      {
+        title: "Remarks",
+        desc: "View and manage order remarks.",
+        icon: <FaCommentDots />,
+        url: "/remarks",
+        accent: "red",
+      },
+
+      {
+        title: "History",
+        desc: "View verified, rejected and dispatched orders.",
+        icon: <FaHistory />,
+        url: "/all/orders-history",
+        accent: "orange",
+      },
+
+      {
+        title: "Track Orders",
+        desc: "Track order progress and dispatch status.",
+        icon: <FaRoute />,
+        url: "/order-records",
+        accent: "red",
+      },
+
+      {
+        title: "Not In Stock",
+        desc: "Track products currently unavailable.",
+        icon: <FaChartLine />,
+        url: "/not-in-stock-reports",
+        accent: "orange",
+      },
+
+      {
+        title: "Goa Trip",
+        desc: "View Goa couple trip scheme progress.",
+        icon: <FaUmbrellaBeach />,
+        url: "/goa-couple-trip-schemes",
+        accent: "red",
+      },
+
+      {
+        title: "Catalogue",
+        desc: "Open product catalogue and PDFs.",
+        icon: <FaBookOpen />,
+        url: "/product-images-pdf",
+        accent: "orange",
+      },
+
+      {
+        title: "Spare Parts",
+        desc: "Browse spare parts and categories.",
+        icon: <FaTools />,
+        url: "/category/Spare%20parts/subcategories",
+        accent: "red",
+      },
+
+      {
+        title: "Category",
+        desc: "Browse product categories and subcategories.",
+        icon: <FaLayerGroup />,
+        url: "/all-categories",
+        accent: "orange",
+      },
+    ],
+    []
+  );
 
   return (
-    <div className="p-4 mb-25">
-       <div className="md:hidden flex justify-between items-center mb-4">
-              <img
-                src={logo}
-                className="w-40"
-                alt="MakPower Logo"
-              />
-              <div className="block sm:hidden text-xl text-[var(--primary-color)]">
-                <FaBell />
-              </div>
-            </div>
-      
-            {/* 🔍 Search */}
-            <div className="md:hidden relative mb-6 ">
-              <input
-                type="text"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                onClick={handleRedirect}
-                placeholder="Search for products..."
-                className="w-full p-2.5 sm:p-3 pl-4 pr-10 rounded-full border text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <button
-                onClick={handleRedirect}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--primary-color)] hover:text-blue-800"
-              >
-                <FaSearch />
-              </button>
-            </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {cards.map((card, idx) => (
-          <div
-            key={idx}
-            onClick={() => navigate(card.url)} 
-            className="p-6 sm:py-12 border rounded hover:bg-gray-200 transition bg-white flex flex-col items-center text-center cursor-pointer"
-          >
-            {card.icon}
-            <h2 className="text-lg font-semibold mt-4">{card.title}</h2>
-            <p className="text-sm text-gray-500 mt-1">{card.desc}</p>
+    <div
+      className="
+        min-h-full
+        
+        px-3
+        pb-24
+        pt-3
+        sm:px-5
+        sm:pt-5
+        lg:px-6
+      "
+    >
+      <div className="mx-auto w-full max-w-[1500px]">
+
+        {/* =================================================
+            SEARCH BAR
+        ================================================= */}
+
+        {/* =================================================
+            QUICK ACCESS TITLE
+        ================================================= */}
+
+        <div
+          className="
+            mb-3
+            flex
+            items-center
+            justify-between
+          "
+        >
+          <div>
+            <h1
+              className="
+                text-[16px]
+                font-bold
+                tracking-tight
+                text-slate-900
+              "
+            >
+              Quick Access
+            </h1>
+
+            <p
+              className="
+                mt-0.5
+                text-[11px]
+                text-slate-500
+              "
+            >
+              CRM tools & management
+            </p>
           </div>
-        ))}
+
+          <span
+            className="
+              rounded-full
+              border
+              border-red-100
+              bg-red-50
+              px-2.5
+              py-1
+              text-[10px]
+              font-bold
+              text-red-600
+            "
+          >
+            {cards.length} OPTIONS
+          </span>
+        </div>
+
+        {/* =================================================
+            CARDS
+        ================================================= */}
+
+        <div
+          className="
+            grid
+            grid-cols-2
+            gap-3
+            sm:grid-cols-2
+            sm:gap-4
+            lg:grid-cols-3
+            xl:grid-cols-4
+          "
+        >
+          {cards.map((card) => (
+            <DashboardCard
+              key={card.title}
+              title={card.title}
+              desc={card.desc}
+              icon={card.icon}
+              url={card.url}
+              accent={card.accent}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
 }
-
-
-
 
 // import {
 //   FaUsers,
