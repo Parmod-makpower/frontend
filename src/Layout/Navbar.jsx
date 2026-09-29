@@ -2097,11 +2097,6 @@ export default function Navbar({
           icon: <FaGift />,
         },
         {
-          label: "Price Management",
-          path: "/price-management",
-          icon: <Tags />,
-        },
-        {
           label: "Users",
           path: "/all-users/list",
           icon: <FaUsers />,

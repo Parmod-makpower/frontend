@@ -168,7 +168,7 @@ export default function AllCategoriesPage() {
           className="
             grid
             grid-cols-3
-            gap-x-2
+            gap-x-8
             gap-y-5
             pt-[60px]
 
@@ -179,8 +179,8 @@ export default function AllCategoriesPage() {
 
             md:grid-cols-5
 
-            lg:grid-cols-6
-            lg:gap-x-4
+            lg:grid-cols-8
+            lg:gap-x-10
             lg:gap-y-7
           "
         >

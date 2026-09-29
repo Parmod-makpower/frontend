@@ -108,7 +108,6 @@ import React, {
 } from "react";
 
 import {
-  FaHome,
   FaGift,
   FaTags,
   FaUsers,
@@ -117,17 +116,14 @@ import {
   FaCommentDots,
   FaHistory,
   FaRoute,
-  FaChartLine,
   FaUmbrellaBeach,
   FaBookOpen,
   FaTools,
   FaLayerGroup,
-  FaSearch,
 } from "react-icons/fa";
 
 import { useNavigate } from "react-router-dom";
 
-import logo from "../assets/images/logo.png";
 
 /* =========================================================
    DASHBOARD CARD
@@ -172,7 +168,7 @@ const DashboardCard = memo(
           w-full
           min-h-[145px]
           overflow-hidden
-          rounded-2xl
+          rounded-xl
           border
           border-slate-200
           bg-white
@@ -303,28 +299,20 @@ export default function CRMDashboard() {
   const cards = useMemo(
     () => [
       {
-        title: "Dashboard",
-        desc: "View CRM dashboard and quick actions.",
-        icon: <FaHome />,
-        url: "/",
-        accent: "red",
-      },
-
-      {
         title: "Schemes",
         desc: "View and manage available schemes.",
         icon: <FaGift />,
         url: "/user-schemes",
         accent: "orange",
       },
-
-      {
-        title: "Price Management",
-        desc: "Manage SS, distributor and dealer prices.",
-        icon: <FaTags />,
-        url: "/price-management",
+  {
+        title: "Category",
+        desc: "Browse product categories and subcategories.",
+        icon: <FaLayerGroup />,
+        url: "/all-categories",
         accent: "red",
       },
+     
 
       {
         title: "Users",
@@ -374,20 +362,13 @@ export default function CRMDashboard() {
         accent: "red",
       },
 
-      {
-        title: "Not In Stock",
-        desc: "Track products currently unavailable.",
-        icon: <FaChartLine />,
-        url: "/not-in-stock-reports",
-        accent: "orange",
-      },
 
       {
         title: "Goa Trip",
         desc: "View Goa couple trip scheme progress.",
         icon: <FaUmbrellaBeach />,
         url: "/goa-couple-trip-schemes",
-        accent: "red",
+        accent: "orange",
       },
 
       {
@@ -395,7 +376,7 @@ export default function CRMDashboard() {
         desc: "Open product catalogue and PDFs.",
         icon: <FaBookOpen />,
         url: "/product-images-pdf",
-        accent: "orange",
+        accent: "red",
       },
 
       {
@@ -403,16 +384,17 @@ export default function CRMDashboard() {
         desc: "Browse spare parts and categories.",
         icon: <FaTools />,
         url: "/category/Spare%20parts/subcategories",
+        accent: "orange",
+      },
+       {
+        title: "Price Management",
+        desc: "Manage SS, distributor and dealer prices.",
+        icon: <FaTags />,
+        url: "/price-management",
         accent: "red",
       },
 
-      {
-        title: "Category",
-        desc: "Browse product categories and subcategories.",
-        icon: <FaLayerGroup />,
-        url: "/all-categories",
-        accent: "orange",
-      },
+    
     ],
     []
   );
@@ -423,7 +405,7 @@ export default function CRMDashboard() {
         min-h-full
         
         px-3
-        pb-24
+        pb-15
         pt-3
         sm:px-5
         sm:pt-5
@@ -432,17 +414,9 @@ export default function CRMDashboard() {
     >
       <div className="mx-auto w-full max-w-[1500px]">
 
-        {/* =================================================
-            SEARCH BAR
-        ================================================= */}
-
-        {/* =================================================
-            QUICK ACCESS TITLE
-        ================================================= */}
-
         <div
           className="
-            mb-3
+            mb-3 
             flex
             items-center
             justify-between
