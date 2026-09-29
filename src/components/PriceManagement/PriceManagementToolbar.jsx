@@ -135,7 +135,7 @@ const PriceManagementToolbar = ({
         z-[500]
         border-b
         border-slate-200
-        bg-white
+        bg-red-200
       "
     >
       <div
@@ -143,7 +143,7 @@ const PriceManagementToolbar = ({
           border-b
           border-slate-100
           px-3
-          py-2.5
+          py-2
         "
       >
         <div className="flex items-center justify-between gap-4">
@@ -197,7 +197,7 @@ const PriceManagementToolbar = ({
                 )}
               </div>
 
-              <p className="mt-0.5 text-[9px] font-medium text-slate-800">
+              <p className="mt-0.5 text-[9px] font-medium text-black">
                 {subtitle}
               </p>
             </div>
@@ -242,7 +242,7 @@ const PriceManagementToolbar = ({
               <CalendarIcon />
 
               <div className="leading-none">
-                <div className="text-[7px] font-bold uppercase tracking-wide text-slate-800">
+                <div className="text-[7px] font-bold uppercase tracking-wide text-black">
                   Applicable From
                 </div>
 
@@ -300,7 +300,7 @@ const PriceManagementToolbar = ({
                   font-medium
                   text-slate-700
                   outline-none
-                  placeholder:text-slate-800
+                  placeholder:text-black
                 "
               />
             </div>
@@ -331,7 +331,7 @@ const PriceManagementToolbar = ({
                   {sync.label}
                 </div>
 
-                <div className="mt-0.5 text-[7px] font-medium text-slate-800">
+                <div className="mt-0.5 text-[7px] font-medium text-black">
                   {updatedText}
                 </div>
               </div>
@@ -395,7 +395,7 @@ const PriceManagementToolbar = ({
               h-[32px]
               w-full
               border
-              border-slate-300
+              border-slate-500 rounded-sm
               bg-white
               pl-8
               pr-12
@@ -423,7 +423,7 @@ const PriceManagementToolbar = ({
               py-0.5
               text-[8px]
               font-semibold
-              text-slate-800
+              text-black
             "
           >
             Ctrl K
@@ -632,11 +632,11 @@ const PriceManagementToolbar = ({
             text-[10px]
             font-bold
             text-white
-            hover:bg-emerald-700
+            hover:bg-red-800
             disabled:cursor-not-allowed
             disabled:border-slate-200
             disabled:bg-slate-100
-            disabled:text-slate-800
+            disabled:text-black
           "
         >
           {saving ? <Spinner /> : <SaveIcon />}
@@ -680,7 +680,7 @@ const Menu = ({
         ${
           open
             ? "border-blue-500 bg-blue-50 text-blue-700"
-            : "border-slate-300 bg-white 00 hover:border-blue-300 hover:bg-blue-50/40 hover:text-blue-700"
+            : "border-slate-500 rounded-sm bg-white 00 hover:border-blue-300 hover:bg-blue-100 hover:text-blue-700"
         }
       `}
     >
@@ -701,7 +701,7 @@ const Menu = ({
           w-[205px]
           overflow-hidden
           border
-          border-slate-300
+          border-slate-500 rounded-sm
           bg-white
           py-0.5
           shadow-[0_10px_28px_rgba(15,23,42,0.16)]
@@ -723,19 +723,19 @@ const ToolbarButton = ({
   const tones = {
     default: active
       ? "border-blue-500 bg-blue-50 text-blue-700"
-      : "border-slate-300 bg-white 00 hover:border-blue-300 hover:bg-blue-50/40",
+      : "border-slate-500 rounded-sm bg-white hover:border-blue-300 hover:bg-blue-100",
 
     blue:
-      "border-blue-200 bg-blue-50/50 text-blue-600 hover:bg-blue-50",
+      "border-blue-500 rounded bg-white text-blue-600 hover:bg-blue-100",
 
     green:
-      "border-emerald-200 bg-emerald-50/50 text-emerald-600 hover:bg-emerald-50",
+      "border-emerald-500 rounded bg-emerald-100 text-emerald-600 hover:bg-emerald-300",
 
     purple:
-      "border-violet-200 bg-violet-50/50 text-violet-700 hover:bg-violet-50",
+      "border-violet-500 rounded bg-violet-100 text-violet-700 hover:bg-violet-300",
 
     red:
-    "border-red-200 bg-red-50/60 text-red-600 hover:bg-red-50",  
+    "border-gray-500 rounded bg-white text-black-600 hover:bg-gray-200",  
   };
 
   return (
@@ -825,7 +825,7 @@ const StatBadge = ({
     slate:
       "bg-slate-50 00 border-slate-200",
     blue:
-      "bg-blue-50 text-blue-700 border-blue-100",
+      "bg-blue-50 text-blue-700 border-blue-500 rounded-sm",
     amber:
       "bg-amber-50 text-amber-700 border-amber-100",
   };
@@ -878,7 +878,7 @@ const IconButton = ({
       justify-center
       border
       border-transparent
-      text-slate-800
+      text-black
       hover:border-slate-200
       hover:bg-slate-50
       hover:text-slate-700
@@ -909,7 +909,7 @@ const Icon = ({
 );
 
 const SearchIcon = () => (
-  <Icon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-800">
+  <Icon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black">
     <circle cx="11" cy="11" r="7" />
     <path d="m20 20-3.5-3.5" />
   </Icon>
@@ -924,7 +924,7 @@ const PriceIcon = () => (
 );
 
 const CalendarIcon = () => (
-  <Icon className="h-3.5 w-3.5 shrink-0 text-slate-800">
+  <Icon className="h-3.5 w-3.5 shrink-0 text-black">
     <rect
       x="3"
       y="5"
@@ -937,7 +937,7 @@ const CalendarIcon = () => (
 );
 
 const ReasonIcon = () => (
-  <Icon className="h-3.5 w-3.5 shrink-0 text-slate-800">
+  <Icon className="h-3.5 w-3.5 shrink-0 text-black">
     <path d="M4 5h16v14H4z" />
     <path d="M8 9h8M8 13h6" />
   </Icon>

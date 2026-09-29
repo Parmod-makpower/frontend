@@ -39,6 +39,10 @@ const getMah = (product) =>
   product?.mAh ??
   "";
 
+/* =========================================================
+   SALE NAME
+========================================================= */
+
 const getSaleNameValue = (sale) => {
   if (typeof sale === "string") {
     return sale.trim();
@@ -289,7 +293,6 @@ const getCategoryGroupKey = (
 };
 
 /* =========================================================
-   IMPORTANT
    SAME MAH LOGIC AS EXCEL
 ========================================================= */
 
@@ -325,7 +328,6 @@ const getDateText = () => {
 
 /* =========================================================
    COLORS
-   SAME CLEAN MAKPOWER STYLE
 ========================================================= */
 
 const COLORS = {
@@ -340,7 +342,7 @@ const COLORS = {
 
 /* =========================================================
    PAGE HEADER
-   A4 PORTRAIT
+   COMPACT A4 PORTRAIT
 ========================================================= */
 
 const drawPageHeader = (
@@ -351,6 +353,11 @@ const drawPageHeader = (
   const pageWidth =
     doc.internal.pageSize.getWidth();
 
+  /*
+   * Compact header:
+   * Old: 18mm
+   * New: 13mm
+   */
   doc.setFillColor(
     ...COLORS.dark
   );
@@ -359,40 +366,44 @@ const drawPageHeader = (
     0,
     0,
     pageWidth,
-    18,
+    13,
     "F"
   );
-
-  doc.setFont(
-    "helvetica",
-    "bold"
-  );
-
-  doc.setFontSize(12);
 
   doc.setTextColor(
     ...COLORS.white
   );
 
-  doc.text(
-    "MAKPOWER",
-    8,
-    8
-  );
-
-  doc.setFontSize(7.5);
-
+  /*
+   * Brand
+   */
   doc.setFont(
     "helvetica",
     "bold"
   );
 
+  doc.setFontSize(9.5);
+
   doc.text(
-    pageTitle,
-    8,
-    14
+    "MAKPOWER",
+    7,
+    6
   );
 
+  /*
+   * Price list title
+   */
+  doc.setFontSize(6);
+
+  doc.text(
+    pageTitle,
+    7,
+    10.5
+  );
+
+  /*
+   * Type
+   */
   const typeLabel =
     priceType === "SS"
       ? "SS"
@@ -400,26 +411,31 @@ const drawPageHeader = (
       ? "DISTRIBUTOR"
       : "DEALER";
 
-  doc.setFontSize(7);
+  doc.setFontSize(5.8);
 
   doc.text(
     typeLabel,
-    pageWidth - 8,
-    8,
+    pageWidth - 7,
+    5.8,
     {
       align: "right",
     }
   );
 
+  /*
+   * Date
+   */
   doc.setFont(
     "helvetica",
     "normal"
   );
 
+  doc.setFontSize(5.5);
+
   doc.text(
     getDateText(),
-    pageWidth - 8,
-    14,
+    pageWidth - 7,
+    10.5,
     {
       align: "right",
     }
@@ -452,7 +468,7 @@ const drawFooter = (doc) => {
       "bold"
     );
 
-    doc.setFontSize(6.5);
+    doc.setFontSize(5.2);
 
     doc.setTextColor(
       ...COLORS.slate
@@ -460,14 +476,14 @@ const drawFooter = (doc) => {
 
     doc.text(
       "MAKPOWER PRICE LIST",
-      8,
-      pageHeight - 6
+      7,
+      pageHeight - 4
     );
 
     doc.text(
       `Page ${page} of ${pageCount}`,
-      pageWidth - 8,
-      pageHeight - 6,
+      pageWidth - 7,
+      pageHeight - 4,
       {
         align: "right",
       }
@@ -495,7 +511,7 @@ const addCategorySection = ({
     doc.internal.pageSize.getWidth();
 
   const tableWidth =
-    pageWidth - 16;
+    pageWidth - 14;
 
   const priceField =
     getPriceField(priceType);
@@ -523,16 +539,17 @@ const addCategorySection = ({
   let y = startY;
 
   /*
-   * Keep enough space for section title.
+   * Only create a new page when
+   * there is genuinely not enough
+   * space for the section.
    */
-
-  if (y > 270) {
+  if (y > 276) {
     doc.addPage();
-    y = 24;
+    y = 16;
   }
 
   /* =======================================================
-     CATEGORY TITLE
+     COMPACT CATEGORY TITLE
   ======================================================= */
 
   doc.setFillColor(
@@ -543,13 +560,16 @@ const addCategorySection = ({
     ...COLORS.border
   );
 
-  doc.setLineWidth(0.25);
+  doc.setLineWidth(0.2);
 
+  /*
+   * Compact title height.
+   */
   doc.rect(
-    8,
+    7,
     y,
     tableWidth,
-    7,
+    5.5,
     "FD"
   );
 
@@ -558,7 +578,7 @@ const addCategorySection = ({
     "bold"
   );
 
-  doc.setFontSize(9);
+  doc.setFontSize(7.5);
 
   doc.setTextColor(
     ...COLORS.dark
@@ -566,14 +586,14 @@ const addCategorySection = ({
 
   doc.text(
     title || "CATEGORY",
-    11,
-    y + 4.7
+    9,
+    y + 3.7
   );
 
-  y += 8;
+  y += 6;
 
   /* =======================================================
-     TABLE
+     COMPACT TABLE
   ======================================================= */
 
   autoTable(doc, {
@@ -594,10 +614,10 @@ const addCategorySection = ({
     theme: "grid",
 
     margin: {
-      top: 23,
-      right: 8,
-      bottom: 12,
-      left: 8,
+      top: 16,
+      right: 7,
+      bottom: 8,
+      left: 7,
     },
 
     tableWidth,
@@ -606,21 +626,32 @@ const addCategorySection = ({
 
     showHead: "everyPage",
 
+    /*
+     * Prevent unnecessary large
+     * empty spaces.
+     */
+    rowPageBreak: "avoid",
+
     styles: {
       font: "helvetica",
+
       fontStyle: "bold",
 
       /*
-       * Increased from 7.2
-       * to make PDF text clearer.
+       * Slightly smaller than the
+       * previous 8px, but still
+       * clearly readable.
        */
-      fontSize: 8,
+      fontSize: 7,
 
+      /*
+       * Main page-count reduction.
+       */
       cellPadding: {
-        top: 2.5,
-        right: 2,
-        bottom: 2.5,
-        left: 2,
+        top: 1.25,
+        right: 1.5,
+        bottom: 1.25,
+        left: 1.5,
       },
 
       textColor:
@@ -629,15 +660,16 @@ const addCategorySection = ({
       lineColor:
         COLORS.border,
 
-      lineWidth: 0.25,
+      lineWidth: 0.2,
 
       valign: "middle",
 
       /*
-       * ALL TABLE BODY TEXT
-       * CENTER HORIZONTALLY
+       * ALL BODY TEXT CENTER
        */
       halign: "center",
+
+      overflow: "linebreak",
     },
 
     headStyles: {
@@ -653,23 +685,17 @@ const addCategorySection = ({
       fontStyle:
         "bold",
 
-      /*
-       * Slightly bigger header.
-       */
-      fontSize: 8,
+      fontSize: 7,
 
-      /*
-       * ALL HEADER TEXT CENTER
-       */
       halign: "center",
 
       valign: "middle",
 
       cellPadding: {
-        top: 2.7,
-        right: 2,
-        bottom: 2.7,
-        left: 2,
+        top: 1.5,
+        right: 1.5,
+        bottom: 1.5,
+        left: 1.5,
       },
     },
 
@@ -680,10 +706,6 @@ const addCategorySection = ({
       fontStyle:
         "bold",
 
-      /*
-       * Explicitly center all
-       * body text horizontally.
-       */
       halign: "center",
 
       valign: "middle",
@@ -695,38 +717,44 @@ const addCategorySection = ({
     },
 
     columnStyles: {
+      /*
+       * SL NO.
+       */
       0: {
-        cellWidth: 16,
+        cellWidth: 14,
         halign: "center",
       },
 
+      /*
+       * MODEL
+       */
       1: {
-        cellWidth: 76,
-
-        /*
-         * MODEL ALSO CENTER
-         */
+        cellWidth: 82,
         halign: "center",
-
         fontStyle: "bold",
       },
 
+      /*
+       * MAH / CARTON
+       */
       2: {
-        cellWidth: 32,
+        cellWidth: 29,
         halign: "center",
       },
 
+      /*
+       * GUARANTEE
+       */
       3: {
-        cellWidth: 34,
+        cellWidth: 33,
         halign: "center",
       },
 
+      /*
+       * PRICE
+       */
       4: {
         cellWidth: 36,
-
-        /*
-         * PRICE ALSO CENTER
-         */
         halign: "center",
       },
     },
@@ -742,8 +770,14 @@ const addCategorySection = ({
     },
   });
 
+  /*
+   * Small gap between sections.
+   * This is intentionally compact
+   * so multiple sections can fit
+   * on one page.
+   */
   return (
-    doc.lastAutoTable.finalY + 5
+    doc.lastAutoTable.finalY + 2.5
   );
 };
 
@@ -761,32 +795,18 @@ const addCombinedGroup = ({
 }) => {
   let y = startY;
 
+  /*
+   * SAME EXCEL LOGIC:
+   *
+   * ECO SERIES
+   * Polymer Battery
+   *
+   * all sections use MAH.
+   */
   const useMah =
     isMahGroup(
       group.sheetName
     );
-
-  /*
-   * IMPORTANT:
-   *
-   * useMah is based on the SHEET,
-   * exactly like Excel.
-   *
-   * Therefore:
-   *
-   * ECO SERIES
-   * POUCH BATTERY
-   *
-   * AND ALL:
-   *
-   * POLYMER MI
-   * POLYMER OPPO
-   * POLYMER VIVO
-   * POLYMER SAMSUNG
-   * etc.
-   *
-   * get MAH.
-   */
 
   const sections =
     group.sections || [];
@@ -850,10 +870,8 @@ const addCombinedGroup = ({
   );
 
   /*
-   * Keep unexpected products from
-   * getting lost.
+   * Keep unexpected products.
    */
-
   const remaining =
     products.filter(
       (product) =>
@@ -868,9 +886,14 @@ const addCombinedGroup = ({
     y = addCategorySection({
       doc,
       startY: y,
+
       title: "OTHER",
-      products: remaining,
+
+      products:
+        remaining,
+
       priceType,
+
       useMah,
     });
   }
@@ -894,9 +917,9 @@ export const exportPriceManagementPDF = (
     return;
   }
 
-  /*
-   * PORTRAIT / VERTICAL A4
-   */
+  /* =======================================================
+     A4 PORTRAIT
+  ======================================================= */
 
   const doc = new jsPDF({
     orientation: "portrait",
@@ -905,15 +928,18 @@ export const exportPriceManagementPDF = (
     compress: true,
   });
 
+  /* =======================================================
+     CATEGORY LOOKUP
+  ======================================================= */
+
   const categoryLookup =
     createCategoryLookup(
       combinedCategoryGroups
     );
 
-  /*
-   * Group products exactly like
-   * Price Management Excel.
-   */
+  /* =======================================================
+     GROUP PRODUCTS
+  ======================================================= */
 
   const grouped =
     new Map();
@@ -941,6 +967,10 @@ export const exportPriceManagementPDF = (
         .push(product);
     }
   );
+
+  /* =======================================================
+     CONFIGURED SHEETS
+  ======================================================= */
 
   const configuredSheetNames =
     new Set(
@@ -972,6 +1002,12 @@ export const exportPriceManagementPDF = (
         return;
       }
 
+      /*
+       * Start combined group on
+       * a new page, but sections
+       * INSIDE the group use all
+       * remaining available space.
+       */
       if (!firstGroup) {
         doc.addPage();
       }
@@ -986,11 +1022,20 @@ export const exportPriceManagementPDF = (
 
       addCombinedGroup({
         doc,
-        startY: 24,
+
+        /*
+         * Compact header ends at
+         * approximately 13mm.
+         */
+        startY: 16,
+
         group,
+
         products:
           groupProducts,
+
         categoryLookup,
+
         priceType,
       });
     }
@@ -1018,6 +1063,9 @@ export const exportPriceManagementPDF = (
 
   normalGroups.forEach(
     ([category, categoryProducts]) => {
+      /*
+       * Keep category flow compact.
+       */
       if (!firstGroup) {
         doc.addPage();
       }
@@ -1032,11 +1080,16 @@ export const exportPriceManagementPDF = (
 
       addCategorySection({
         doc,
-        startY: 24,
+
+        startY: 16,
+
         title: category,
+
         products:
           categoryProducts,
+
         priceType,
+
         useMah: false,
       });
     }
