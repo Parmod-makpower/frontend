@@ -342,7 +342,7 @@ const COLORS = {
 
 /* =========================================================
    PAGE HEADER
-   COMPACT A4 PORTRAIT
+   A4 PORTRAIT
 ========================================================= */
 
 const drawPageHeader = (
@@ -354,9 +354,7 @@ const drawPageHeader = (
     doc.internal.pageSize.getWidth();
 
   /*
-   * Compact header:
-   * Old: 18mm
-   * New: 13mm
+   * Compact header
    */
   doc.setFillColor(
     ...COLORS.dark
@@ -375,14 +373,15 @@ const drawPageHeader = (
   );
 
   /*
-   * Brand
+   * BRAND
    */
+
   doc.setFont(
     "helvetica",
     "bold"
   );
 
-  doc.setFontSize(9.5);
+  doc.setFontSize(10.5);
 
   doc.text(
     "MAKPOWER",
@@ -391,9 +390,10 @@ const drawPageHeader = (
   );
 
   /*
-   * Price list title
+   * PRICE LIST TITLE
    */
-  doc.setFontSize(6);
+
+  doc.setFontSize(6.5);
 
   doc.text(
     pageTitle,
@@ -402,8 +402,9 @@ const drawPageHeader = (
   );
 
   /*
-   * Type
+   * TYPE
    */
+
   const typeLabel =
     priceType === "SS"
       ? "SS"
@@ -411,7 +412,7 @@ const drawPageHeader = (
       ? "DISTRIBUTOR"
       : "DEALER";
 
-  doc.setFontSize(5.8);
+  doc.setFontSize(6.2);
 
   doc.text(
     typeLabel,
@@ -423,14 +424,15 @@ const drawPageHeader = (
   );
 
   /*
-   * Date
+   * DATE
    */
+
   doc.setFont(
     "helvetica",
     "normal"
   );
 
-  doc.setFontSize(5.5);
+  doc.setFontSize(5.8);
 
   doc.text(
     getDateText(),
@@ -468,7 +470,7 @@ const drawFooter = (doc) => {
       "bold"
     );
 
-    doc.setFontSize(5.2);
+    doc.setFontSize(5.5);
 
     doc.setTextColor(
       ...COLORS.slate
@@ -543,13 +545,14 @@ const addCategorySection = ({
    * there is genuinely not enough
    * space for the section.
    */
+
   if (y > 276) {
     doc.addPage();
     y = 16;
   }
 
   /* =======================================================
-     COMPACT CATEGORY TITLE
+     CATEGORY TITLE
   ======================================================= */
 
   doc.setFillColor(
@@ -562,9 +565,6 @@ const addCategorySection = ({
 
   doc.setLineWidth(0.2);
 
-  /*
-   * Compact title height.
-   */
   doc.rect(
     7,
     y,
@@ -578,7 +578,11 @@ const addCategorySection = ({
     "bold"
   );
 
-  doc.setFontSize(7.5);
+  /*
+   * Increased from 7.5 -> 8
+   */
+
+  doc.setFontSize(8);
 
   doc.setTextColor(
     ...COLORS.dark
@@ -593,7 +597,7 @@ const addCategorySection = ({
   y += 6;
 
   /* =======================================================
-     COMPACT TABLE
+     TABLE
   ======================================================= */
 
   autoTable(doc, {
@@ -626,11 +630,11 @@ const addCategorySection = ({
 
     showHead: "everyPage",
 
-    /*
-     * Prevent unnecessary large
-     * empty spaces.
-     */
     rowPageBreak: "avoid",
+
+    /* =====================================================
+       TABLE STYLES
+    ===================================================== */
 
     styles: {
       font: "helvetica",
@@ -638,15 +642,12 @@ const addCategorySection = ({
       fontStyle: "bold",
 
       /*
-       * Slightly smaller than the
-       * previous 8px, but still
-       * clearly readable.
+       * INCREASED
+       * 7 -> 8
        */
-      fontSize: 7,
 
-      /*
-       * Main page-count reduction.
-       */
+      fontSize: 8,
+
       cellPadding: {
         top: 1.25,
         right: 1.5,
@@ -667,10 +668,15 @@ const addCategorySection = ({
       /*
        * ALL BODY TEXT CENTER
        */
+
       halign: "center",
 
       overflow: "linebreak",
     },
+
+    /* =====================================================
+       TABLE HEADER
+    ===================================================== */
 
     headStyles: {
       fillColor:
@@ -685,7 +691,12 @@ const addCategorySection = ({
       fontStyle:
         "bold",
 
-      fontSize: 7,
+      /*
+       * INCREASED
+       * 7 -> 8
+       */
+
+      fontSize: 8,
 
       halign: "center",
 
@@ -698,6 +709,10 @@ const addCategorySection = ({
         left: 1.5,
       },
     },
+
+    /* =====================================================
+       BODY
+    ===================================================== */
 
     bodyStyles: {
       fillColor:
@@ -716,10 +731,15 @@ const addCategorySection = ({
         COLORS.row,
     },
 
+    /* =====================================================
+       COLUMN WIDTHS
+    ===================================================== */
+
     columnStyles: {
       /*
        * SL NO.
        */
+
       0: {
         cellWidth: 14,
         halign: "center",
@@ -728,6 +748,7 @@ const addCategorySection = ({
       /*
        * MODEL
        */
+
       1: {
         cellWidth: 82,
         halign: "center",
@@ -737,6 +758,7 @@ const addCategorySection = ({
       /*
        * MAH / CARTON
        */
+
       2: {
         cellWidth: 29,
         halign: "center",
@@ -745,6 +767,7 @@ const addCategorySection = ({
       /*
        * GUARANTEE
        */
+
       3: {
         cellWidth: 33,
         halign: "center",
@@ -753,6 +776,7 @@ const addCategorySection = ({
       /*
        * PRICE
        */
+
       4: {
         cellWidth: 36,
         halign: "center",
@@ -772,10 +796,8 @@ const addCategorySection = ({
 
   /*
    * Small gap between sections.
-   * This is intentionally compact
-   * so multiple sections can fit
-   * on one page.
    */
+
   return (
     doc.lastAutoTable.finalY + 2.5
   );
@@ -803,6 +825,7 @@ const addCombinedGroup = ({
    *
    * all sections use MAH.
    */
+
   const useMah =
     isMahGroup(
       group.sheetName
@@ -872,6 +895,7 @@ const addCombinedGroup = ({
   /*
    * Keep unexpected products.
    */
+
   const remaining =
     products.filter(
       (product) =>
@@ -1005,9 +1029,10 @@ export const exportPriceManagementPDF = (
       /*
        * Start combined group on
        * a new page, but sections
-       * INSIDE the group use all
+       * inside the group use all
        * remaining available space.
        */
+
       if (!firstGroup) {
         doc.addPage();
       }
@@ -1027,6 +1052,7 @@ export const exportPriceManagementPDF = (
          * Compact header ends at
          * approximately 13mm.
          */
+
         startY: 16,
 
         group,
@@ -1066,6 +1092,7 @@ export const exportPriceManagementPDF = (
       /*
        * Keep category flow compact.
        */
+
       if (!firstGroup) {
         doc.addPage();
       }

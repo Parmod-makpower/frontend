@@ -352,32 +352,6 @@ export const exportPriceHistoryPDF = (
     );
 
     /* -------------------------------------------------------
-       SUBTITLE
-    ------------------------------------------------------- */
-
-    doc.setFont(
-      "helvetica",
-      "normal"
-    );
-
-    doc.setFontSize(9);
-
-    doc.setTextColor(
-      MUTED_TEXT[0],
-      MUTED_TEXT[1],
-      MUTED_TEXT[2]
-    );
-
-    doc.text(
-      "Price changes recorded during the last 7 days",
-      centerX,
-      21,
-      {
-        align: "center",
-      }
-    );
-
-    /* -------------------------------------------------------
        REPORT INFO BADGE
     ------------------------------------------------------- */
 
@@ -395,7 +369,7 @@ export const exportPriceHistoryPDF = (
     const infoX =
       centerX - infoWidth / 2;
 
-    const infoY = 24;
+    const infoY = 20;
 
     doc.setFillColor(
       SOFT_RED[0],
@@ -448,7 +422,7 @@ export const exportPriceHistoryPDF = (
     ------------------------------------------------------- */
 
     autoTable(doc, {
-      startY: 36,
+      startY: 32,
 
       head: [
         [
@@ -469,12 +443,14 @@ export const exportPriceHistoryPDF = (
       styles: {
         font: "helvetica",
 
-        fontSize: 8,
+        /* INCREASED TABLE FONT */
+
+        fontSize: 9,
 
         cellPadding: {
-          top: 3,
+          top: 3.2,
           right: 2.5,
-          bottom: 3,
+          bottom: 3.2,
           left: 2.5,
         },
 
@@ -498,7 +474,7 @@ export const exportPriceHistoryPDF = (
 
         fontStyle: "bold",
 
-        fontSize: 8,
+        fontSize: 9,
 
         textColor: WHITE,
 
@@ -521,7 +497,7 @@ export const exportPriceHistoryPDF = (
       },
 
       bodyStyles: {
-        fontSize: 8,
+        fontSize: 9,
 
         textColor: DARK_TEXT,
 
@@ -629,7 +605,7 @@ export const exportPriceHistoryPDF = (
       margin: {
         left: 12,
         right: 12,
-        top: 36,
+        top: 32,
         bottom: 18,
       },
 
