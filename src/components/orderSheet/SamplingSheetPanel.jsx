@@ -66,7 +66,7 @@ export default function SamplingSheetPanel({ partyName }) {
         </h3>
 
         {/* ✅ TOGGLE BUTTONS */}
-        <div className="flex border rounded overflow-hidden text-[10px]">
+        {/* <div className="flex border rounded overflow-hidden text-[10px]">
 
           <button
             onClick={() => setSelectedType("sampling")}
@@ -90,7 +90,7 @@ export default function SamplingSheetPanel({ partyName }) {
             60 Days
           </button>
 
-        </div>
+        </div> */}
       </div>
 
       {/* SEARCH */}
