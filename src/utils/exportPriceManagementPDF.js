@@ -459,18 +459,18 @@ const drawPageHeader = (
 
   doc.setFontSize(10.5);
 
-  doc.text(
-    "MAKPOWER",
-    7,
-    6
-  );
+  // doc.text(
+  //   "MAKPOWER",
+  //   7,
+  //   6
+  // );
 
   doc.setFontSize(6.5);
 
   doc.text(
     pageTitle,
-    7,
-    10.5
+    5,
+    7
   );
 
   const typeLabel =
@@ -541,7 +541,7 @@ const drawFooter = (doc) => {
     );
 
     doc.text(
-      "MAKPOWER PRICE LIST",
+      "PRICE LIST",
       7,
       pageHeight - 4
     );
