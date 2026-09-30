@@ -155,7 +155,7 @@
      
 //   {/* Updating indicator */}
 //   {isFetching && (
-//     <p className="text-center text-[11px] text-gray-500 mt-1 animate-pulse">
+//     <p className="text-center text-[13px] text-gray-500 mt-1 animate-pulse">
 //       Updating orders...
 //     </p>
 //   )}
@@ -368,7 +368,7 @@ const SectionLabel = memo(({ title, count }) => (
   <div className="mb-2 mt-5 flex items-center gap-2 px-1 first:mt-0">
     <span className="h-4 w-[3px] rounded-full bg-red-500" />
 
-    <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-slate-700">
+    <p className="text-[13px] font-extrabold uppercase tracking-[0.08em] text-slate-700">
       {title}
     </p>
 
@@ -472,7 +472,7 @@ const OrderCard = memo(({ order, onClick }) => {
                 border
                 px-2
                 py-1
-                text-[8px]
+                text-[10px]
                 font-bold
                 ${badge.className}
               `}
@@ -485,7 +485,7 @@ const OrderCard = memo(({ order, onClick }) => {
             </span>
           </div>
 
-          <p className="mt-2 truncate text-[11px] font-semibold text-slate-600">
+          <p className="mt-2 truncate text-[13px] font-semibold text-slate-600">
             {order.ss_party_name}
           </p>
         </div>
@@ -523,8 +523,8 @@ const OrderCard = memo(({ order, onClick }) => {
           <span>{formattedDate}</span>
         </div>
 
-        <span className="flex items-center gap-1 text-[8px] font-semibold text-slate-300 transition-colors group-hover:text-red-400">
-          <FaClock className="text-[8px]" />
+        <span className="flex items-center gap-1 text-[10px] font-semibold text-slate-300 transition-colors group-hover:text-red-400">
+          <FaClock className="text-[10px]" />
           Order
         </span>
       </div>
@@ -634,7 +634,7 @@ const StatusFilter = memo(({ filterStatus, setFilterStatus }) => {
 
         <FaChevronDown
           className={`
-            text-[8px]
+            text-[10px]
             text-slate-400
             transition-transform
             duration-150
@@ -661,7 +661,7 @@ const StatusFilter = memo(({ filterStatus, setFilterStatus }) => {
           "
         >
           <div className="px-2.5 pb-1.5 pt-2">
-            <p className="text-[8px] font-extrabold uppercase tracking-wider text-slate-400">
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
               Order Status
             </p>
           </div>
@@ -693,7 +693,7 @@ const StatusFilter = memo(({ filterStatus, setFilterStatus }) => {
                 `}
               >
                 <span className="flex items-center gap-2">
-                  <span className="w-4 text-center text-[11px]">
+                  <span className="w-4 text-center text-[13px]">
                     {option.icon}
                   </span>
 
@@ -703,7 +703,7 @@ const StatusFilter = memo(({ filterStatus, setFilterStatus }) => {
                 </span>
 
                 {active && (
-                  <FaCheck className="text-[8px] text-red-500" />
+                  <FaCheck className="text-[10px] text-red-500" />
                 )}
               </button>
             );
@@ -1011,7 +1011,7 @@ const SimpleOrderCreateModal = memo(
                   bg-slate-50
                   pl-9
                   pr-3
-                  text-[11px]
+                  text-[13px]
                   font-medium
                   text-slate-700
                   outline-none
@@ -1141,7 +1141,7 @@ const SimpleOrderCreateModal = memo(
                 </span>
 
                 <div className="min-w-0">
-                  <p className="text-[8px] font-bold uppercase tracking-wider text-emerald-500">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">
                     Selected Party
                   </p>
 
@@ -1376,7 +1376,7 @@ export default function CRMOrderListPage() {
             />
           </div>
 
-          <p className="text-[11px] font-semibold text-slate-500">
+          <p className="text-[13px] font-semibold text-slate-500">
             Loading orders...
           </p>
         </div>
@@ -1524,7 +1524,7 @@ export default function CRMOrderListPage() {
                       bg-red-50
                       px-2
                       py-0.5
-                      text-[8px]
+                      text-[10px]
                       font-bold
                       text-red-500
                     "
@@ -1736,7 +1736,7 @@ export default function CRMOrderListPage() {
                 >
                   <FaSyncAlt
                     className={`
-                      text-[11px]
+                      text-[13px]
                       ${
                         isFetching
                           ? "animate-spin"
