@@ -1,104 +1,3 @@
-// import { FaUsers, FaLayerGroup, FaChartLine, FaCubes, FaBoxOpen, FaHistory, FaSearch, FaBell } from "react-icons/fa";
-// import { useNavigate } from "react-router-dom";
-// import { useState } from "react";
-// import logo from "../assets/images/logo.png";
-
-// export default function CRMDashboard() {
-//   const navigate = useNavigate();
-//    const [searchText, setSearchText] = useState("");
-  
-//     const handleRedirect = () => {
-//       navigate(`/search?search=${encodeURIComponent(searchText.trim())}`);
-//     };
-  
-
-//   const cards = [
-//     {
-//       title: "Super Stockist",
-//       desc: "Add user, manage their team.",
-//       icon: <FaUsers className="text-3xl text-blue-500" />,
-//       url: "/all-users/list",
-//     },
-    
-//     {
-//       title: "New Orders",
-//       desc: "Check and verify incoming orders.",
-//       icon: <FaBoxOpen className="text-3xl text-teal-500" />,
-//       url: "/crm/orders",
-//     },
-//     {
-//       title: "History",
-//       desc: "View verified, rejected & dispatched orders.",
-//       icon: <FaHistory className="text-3xl text-gray-500" />,
-//       url: "/all/orders-history",
-//     },
-//     {
-//       title: "Not-In-Stock",
-//       desc: "Track live stock updates.",
-//       icon: <FaChartLine className="text-3xl text-cyan-600" />,
-//       url: "/not-in-stock-reports",
-//     },
-//     {
-//       title: "Category",
-//       desc: "Add, edit or delete categories.",
-//       icon: <FaLayerGroup className="text-3xl text-lime-600" />,
-//       url: "/all-categories",
-//     },
-//     {
-//       title: "Scheme",
-//       desc: "Manage discount & combo schemes.",
-//       icon: <FaCubes className="text-3xl text-pink-500" />,
-//       url: "/user-schemes",
-//     },
-//   ];
-
-//   return (
-//     <div className="p-4 mb-25">
-//        <div className="md:hidden flex justify-between items-center mb-4">
-//               <img
-//                 src={logo}
-//                 className="w-40"
-//                 alt="MakPower Logo"
-//               />
-//               <div className="block sm:hidden text-xl text-[var(--primary-color)]">
-//                 <FaBell />
-//               </div>
-//             </div>
-      
-//             {/* 🔍 Search */}
-//             <div className="md:hidden relative mb-6 ">
-//               <input
-//                 type="text"
-//                 value={searchText}
-//                 onChange={(e) => setSearchText(e.target.value)}
-//                 onClick={handleRedirect}
-//                 placeholder="Search for products..."
-//                 className="w-full p-2.5 sm:p-3 pl-4 pr-10 rounded-full border text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-//               />
-//               <button
-//                 onClick={handleRedirect}
-//                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--primary-color)] hover:text-blue-800"
-//               >
-//                 <FaSearch />
-//               </button>
-//             </div>
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-//         {cards.map((card, idx) => (
-//           <div
-//             key={idx}
-//             onClick={() => navigate(card.url)} 
-//             className="p-6 sm:py-12 border rounded hover:bg-gray-200 transition bg-white flex flex-col items-center text-center cursor-pointer"
-//           >
-//             {card.icon}
-//             <h2 className="text-lg font-semibold mt-4">{card.title}</h2>
-//             <p className="text-sm text-gray-500 mt-1">{card.desc}</p>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
-
 import React, {
   memo,
   useCallback,
@@ -119,18 +18,30 @@ import {
   FaBookOpen,
   FaTools,
   FaLayerGroup,
+
+  /* ADMIN ICONS */
+  FaBoxOpen,
+  FaBan,
+  FaTag,
+  FaClipboardList,
+  FaTruck,
+  FaChartLine,
 } from "react-icons/fa";
 
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 /* =========================================================
    PRICE MANAGEMENT ACCESS
+
+   ONLY:
+   AD0001
+   CRM0001
 ========================================================= */
 
 const PRICE_MANAGEMENT_ALLOWED_USERS = new Set([
-  "CRM0002",
   "AD0001",
+  "CRM0002",
 ]);
 
 /* =========================================================
@@ -494,21 +405,39 @@ export default function CRMDashboard() {
     useState("");
 
   /* =======================================================
+     ROLE
+  ======================================================= */
+
+  const userRole = useMemo(() => {
+    return String(user?.role ?? "")
+      .trim()
+      .toUpperCase();
+  }, [user?.role]);
+
+  /* =======================================================
+     USER ID
+  ======================================================= */
+
+  const userId = useMemo(() => {
+    return String(user?.user_id ?? "")
+      .trim()
+      .toUpperCase();
+  }, [user?.user_id]);
+
+  /* =======================================================
      PRICE MANAGEMENT ACCESS
+
+     ONLY:
+     AD0001
+     CRM0001
   ======================================================= */
 
   const canAccessPriceManagement =
     useMemo(() => {
-      const userId = String(
-        user?.user_id ?? ""
-      )
-        .trim()
-        .toUpperCase();
-
       return PRICE_MANAGEMENT_ALLOWED_USERS.has(
         userId
       );
-    }, [user?.user_id]);
+    }, [userId]);
 
   /* =======================================================
      SEARCH
@@ -546,120 +475,266 @@ export default function CRMDashboard() {
 
   /* =======================================================
      CRM OPTIONS
+
+     EXACT SAME CRM UI / OPTIONS
   ======================================================= */
 
-  const cards = useMemo(
-    () => [
-      {
-        title: "Schemes",
-        desc: "View and manage available schemes.",
-        icon: <FaGift />,
-        url: "/user-schemes",
-        accent: "orange",
-      },
+  const crmCards = useMemo(
+    () => {
+      const baseCards = [
+        {
+          title: "Schemes",
+          desc: "View and manage available schemes.",
+          icon: <FaGift />,
+          url: "/user-schemes",
+          accent: "orange",
+        },
 
-      {
-        title: "Category",
-        desc: "Browse product categories and subcategories.",
-        icon: <FaLayerGroup />,
-        url: "/all-categories",
-        accent: "red",
-      },
+        {
+          title: "Category",
+          desc: "Browse product categories and subcategories.",
+          icon: <FaLayerGroup />,
+          url: "/all-categories",
+          accent: "red",
+        },
 
-      {
-        title: "Users",
-        desc: "View users and manage user information.",
-        icon: <FaUsers />,
-        url: "/all-users/list",
-        accent: "orange",
-      },
+        {
+          title: "Users",
+          desc: "View users and manage user information.",
+          icon: <FaUsers />,
+          url: "/all-users/list",
+          accent: "orange",
+        },
 
-      {
-        title: "ASM Management",
-        desc: "Manage ASM assignments and teams.",
-        icon: <FaUserTie />,
-        url: "/asm-assignment",
-        accent: "red",
-      },
+        {
+          title: "ASM Management",
+          desc: "Manage ASM assignments and teams.",
+          icon: <FaUserTie />,
+          url: "/asm-assignment",
+          accent: "red",
+        },
 
-      {
-        title: "New Orders",
-        desc: "Check and verify incoming orders.",
-        icon: <FaShoppingCart />,
-        url: "/crm/orders",
-        accent: "orange",
-      },
+        {
+          title: "New Orders",
+          desc: "Check and verify incoming orders.",
+          icon: <FaShoppingCart />,
+          url: "/crm/orders",
+          accent: "orange",
+        },
 
-      {
-        title: "Remarks",
-        desc: "View and manage order remarks.",
-        icon: <FaCommentDots />,
-        url: "/remarks",
-        accent: "red",
-      },
+        {
+          title: "Remarks",
+          desc: "View and manage order remarks.",
+          icon: <FaCommentDots />,
+          url: "/remarks",
+          accent: "red",
+        },
 
-      {
-        title: "History",
-        desc: "View verified, rejected and dispatched orders.",
-        icon: <FaHistory />,
-        url: "/all/orders-history",
-        accent: "orange",
-      },
+        {
+          title: "History",
+          desc: "View verified, rejected and dispatched orders.",
+          icon: <FaHistory />,
+          url: "/all/orders-history",
+          accent: "orange",
+        },
 
-      {
-        title: "Track Orders",
-        desc: "Track order progress and dispatch status.",
-        icon: <FaRoute />,
-        url: "/order-records",
-        accent: "red",
-      },
+        {
+          title: "Track Orders",
+          desc: "Track order progress and dispatch status.",
+          icon: <FaRoute />,
+          url: "/order-records",
+          accent: "red",
+        },
 
-      {
-        title: "Goa Trip",
-        desc: "View Goa couple trip scheme progress.",
-        icon: <FaUmbrellaBeach />,
-        url: "/goa-couple-trip-schemes",
-        accent: "orange",
-      },
+        {
+          title: "Goa Trip",
+          desc: "View Goa couple trip scheme progress.",
+          icon: <FaUmbrellaBeach />,
+          url: "/goa-couple-trip-schemes",
+          accent: "orange",
+        },
 
-      {
-        title: "Catalogue",
-        desc: "Open product catalogue and PDFs.",
-        icon: <FaBookOpen />,
-        url: "/product-images-pdf",
-        accent: "red",
-      },
+        {
+          title: "Catalogue",
+          desc: "Open product catalogue and PDFs.",
+          icon: <FaBookOpen />,
+          url: "/product-images-pdf",
+          accent: "red",
+        },
 
-      {
-        title: "Spare Parts",
-        desc: "Browse spare parts and categories.",
-        icon: <FaTools />,
-        url: "/category/Spare%20parts/subcategories",
-        accent: "orange",
-      },
+        {
+          title: "Spare Parts",
+          desc: "Browse spare parts and categories.",
+          icon: <FaTools />,
+          url: "/category/Spare%20parts/subcategories",
+          accent: "orange",
+        },
+      ];
 
-      {
-        title: "Price Management",
-        desc: "Manage SS, distributor and dealer prices.",
-        icon: <FaTags />,
-        url: "/price-management",
-        accent: "red",
+      /*
+       * Price Management is added ONLY
+       * for AD0001 and CRM0001.
+       */
 
-        /*
-         * ONLY:
-         *
-         * CRM0002
-         * AD0001
-         * CRM0004
-         *
-         * can access Price Management.
-         */
-        disabled:
-          !canAccessPriceManagement,
-      },
-    ],
+      if (canAccessPriceManagement) {
+        baseCards.push({
+          title: "Price Management",
+          desc: "Manage SS, distributor and dealer prices.",
+          icon: <FaTags />,
+          url: "/price-management",
+          accent: "red",
+        });
+      }
+
+      return baseCards;
+    },
     [canAccessPriceManagement]
   );
+
+  /* =======================================================
+     ADMIN OPTIONS
+
+     SAME LINKS AS ADMIN NAVBAR
+     
+     Dashboard itself is not added because this
+     component IS the dashboard.
+  ======================================================= */
+
+  const adminCards = useMemo(
+    () => {
+      const baseCards = [
+        {
+          title: "Products",
+          desc: "Manage products and product information.",
+          icon: <FaBoxOpen />,
+          url: "/products",
+          accent: "orange",
+        },
+
+        {
+          title: "Inactive",
+          desc: "View and manage inactive products.",
+          icon: <FaBan />,
+          url: "/inactive",
+          accent: "red",
+        },
+
+        {
+          title: "Sale Name",
+          desc: "Manage product sale names.",
+          icon: <FaTag />,
+          url: "/sale-name",
+          accent: "orange",
+        },
+
+        {
+          title: "Schemes",
+          desc: "View and manage product schemes.",
+          icon: <FaGift />,
+          url: "/schemes",
+          accent: "red",
+        },
+
+        {
+          title: "Users",
+          desc: "View users and manage user information.",
+          icon: <FaUsers />,
+          url: "/all-users/list",
+          accent: "orange",
+        },
+
+        {
+          title: "All Orders",
+          desc: "View verified, rejected and dispatched orders.",
+          icon: <FaClipboardList />,
+          url: "/all/orders-history",
+          accent: "red",
+        },
+
+        {
+          title: "Dispatch",
+          desc: "Manage dispatch entries and dispatch data.",
+          icon: <FaTruck />,
+          url: "/dispatch-entries",
+          accent: "orange",
+        },
+
+        {
+          title: "Not In Stock",
+          desc: "View products and orders reported as not in stock.",
+          icon: <FaChartLine />,
+          url: "/not-in-stock-reports",
+          accent: "red",
+        },
+
+        {
+          title: "Track Orders",
+          desc: "Track order progress and dispatch status.",
+          icon: <FaRoute />,
+          url: "/orders-tracking",
+          accent: "orange",
+        },
+
+        {
+          title: "Goa Trip",
+          desc: "View Goa couple trip scheme progress.",
+          icon: <FaUmbrellaBeach />,
+          url: "/goa-couple-trip-schemes",
+          accent: "red",
+        },
+
+        {
+          title: "Catalogue",
+          desc: "Open product catalogue and PDFs.",
+          icon: <FaBookOpen />,
+          url: "/product-images-pdf",
+          accent: "orange",
+        },
+      ];
+
+      /*
+       * Price Management:
+       *
+       * ONLY AD0001
+       * AND CRM0001
+       *
+       * can see this card.
+       */
+
+      if (canAccessPriceManagement) {
+        baseCards.splice(1, 0, {
+          title: "Price Management",
+          desc: "Manage SS, distributor and dealer prices.",
+          icon: <FaTags />,
+          url: "/price-management",
+          accent: "red",
+        });
+      }
+
+      return baseCards;
+    },
+    [canAccessPriceManagement]
+  );
+
+  /* =======================================================
+     FINAL CARDS BASED ON ROLE
+  ======================================================= */
+
+  const cards = useMemo(() => {
+    if (userRole === "ADMIN") {
+      return adminCards;
+    }
+
+    if (userRole === "CRM") {
+      return crmCards;
+    }
+
+    return [];
+  }, [
+    userRole,
+    adminCards,
+    crmCards,
+  ]);
 
   /* =======================================================
      RENDER
@@ -710,7 +785,9 @@ export default function CRMDashboard() {
                 text-slate-500
               "
             >
-              CRM tools & management
+              {userRole === "ADMIN"
+                ? "Admin tools & management"
+                : "CRM tools & management"}
             </p>
           </div>
 

@@ -12,9 +12,9 @@ export default function HomeRedirector() {
   const role = user.role?.toLowerCase();
 
   if (role === "admin") {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/dashboard" replace />;
   } else if (role === "crm") {
-    return <Navigate to="/CRMDashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
   } else if (role === "ss") {
     return <Navigate to="/home" replace />;
   } else if (role === "ds") {
