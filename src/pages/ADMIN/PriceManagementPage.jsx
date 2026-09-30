@@ -11,6 +11,7 @@ import { getSaleNamesByProduct } from "../../api/priceManagementApi";
 
 import { useAdminAllProducts } from "../../hooks/useAdminAllProducts";
 import {
+  usePriceHistory,
   useSaveSaleName,
   useUpdateProductPrices,
 } from "../../hooks/usePriceManagement";
@@ -642,7 +643,22 @@ const PriceManagementPage = () => {
   const importRef = useRef(null);
   const historyEditKeyRef =
     useRef(null);
+  const { data: priceHistoryData } = usePriceHistory();
+  const priceHistory = useMemo(() => {
+  if (Array.isArray(priceHistoryData)) {
+    return priceHistoryData;
+  }
 
+  if (Array.isArray(priceHistoryData?.results)) {
+    return priceHistoryData.results;
+  }
+
+  if (Array.isArray(priceHistoryData?.history)) {
+    return priceHistoryData.history;
+  }
+
+  return [];
+}, [priceHistoryData]);
   const allProducts = useMemo(() => {
     if (Array.isArray(allProductsData)) {
       return allProductsData;
@@ -933,10 +949,11 @@ const handlePdfDownload = useCallback(() => {
   }
 
   exportPriceManagementPDF(
-    sortedProducts,
-    pdfType,
-    COMBINED_CATEGORY_GROUPS
-  );
+  sortedProducts,
+  pdfType,
+  COMBINED_CATEGORY_GROUPS,
+  priceHistory
+);
 }, [
   sortedProducts,
   pdfType,

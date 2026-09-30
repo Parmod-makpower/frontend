@@ -6,10 +6,14 @@ import autoTable from "jspdf-autotable";
 ========================================================= */
 
 const normalize = (value) =>
-  String(value ?? "").trim().toUpperCase();
+  String(value ?? "")
+    .trim()
+    .toUpperCase();
 
 const getProductId = (product) =>
-  product?.product_id ?? product?.id ?? "";
+  product?.product_id ??
+  product?.id ??
+  "";
 
 const getCategory = (product) =>
   String(product?.sub_category ?? "").trim() ||
@@ -173,35 +177,11 @@ const calculateGuarantee = (
   value,
   priceType
 ) => {
-  const original =
-    formatGuarantee(value);
+  const original = formatGuarantee(value);
 
   if (!original) {
     return original;
   }
-
-  /*
-   * Only numeric month guarantees
-   * are modified.
-   *
-   * SS:
-   * 12 -> 12
-   * 6  -> 6
-   *
-   * DS:
-   * 12 -> 9
-   * 6  -> 3
-   * 3  -> 3
-   *
-   * DLR:
-   * 12 -> 6
-   * 6  -> 3
-   * 3  -> 3
-   *
-   * Counter / No Guarantee /
-   * Lifetime / other text:
-   * unchanged
-   */
 
   const match = original.match(
     /^\s*(\d+(?:\.\d+)?)\s*(months?|month|m)\s*$/i
@@ -248,16 +228,12 @@ const createCategoryLookup = (
   combinedCategoryGroups.forEach(
     ({ sheetName, sections = [] }) => {
       sections.forEach(
-        ({
-          title,
-          aliases = [],
-        }) => {
+        ({ title, aliases = [] }) => {
           [
             title,
             ...aliases,
           ].forEach((value) => {
-            const key =
-              normalize(value);
+            const key = normalize(value);
 
             if (key) {
               lookup.set(
@@ -278,8 +254,9 @@ const getCategoryGroupKey = (
   category,
   lookup
 ) => {
-  const value =
-    String(category ?? "").trim();
+  const value = String(
+    category ?? ""
+  ).trim();
 
   if (!value) {
     return "UNCATEGORIZED";
@@ -293,7 +270,7 @@ const getCategoryGroupKey = (
 };
 
 /* =========================================================
-   SAME MAH LOGIC AS EXCEL
+   MAH GROUP
 ========================================================= */
 
 const isMahGroup = (sheetName) => {
@@ -303,6 +280,30 @@ const isMahGroup = (sheetName) => {
     normalize(sheetName) ===
       "POLYMER BATTERY"
   );
+};
+
+/* =========================================================
+   POLYMER CATEGORY DISPLAY
+   Removes only trailing "BATTERY"
+========================================================= */
+
+const getPolymerCategoryLabel = (
+  category
+) => {
+  const value = String(
+    category ?? ""
+  ).trim();
+
+  if (!value) {
+    return "";
+  }
+
+  return value
+    .replace(
+      /\s+BATTERY\s*$/i,
+      ""
+    )
+    .trim();
 };
 
 /* =========================================================
@@ -320,8 +321,7 @@ const getDateText = () => {
     date.getMonth() + 1
   ).padStart(2, "0");
 
-  const year =
-    date.getFullYear();
+  const year = date.getFullYear();
 
   return `${day}-${month}-${year}`;
 };
@@ -332,17 +332,66 @@ const getDateText = () => {
 
 const COLORS = {
   red: [252, 37, 12],
+
   dark: [15, 23, 42],
+
   slate: [71, 85, 105],
+
   light: [248, 250, 252],
+
   border: [203, 213, 225],
+
   white: [255, 255, 255],
+
   row: [250, 250, 250],
+
+  /* CATEGORY BAR */
+  categoryYellow: [
+    254,
+    249,
+    195,
+  ],
+
+  categoryYellowBorder: [
+    234,
+    179,
+    8,
+  ],
+
+  categoryText: [
+    51,
+    65,
+    85,
+  ],
+
+  /* PRICE CHANGE */
+  priceUpText: [
+    22,
+    163,
+    74,
+  ],
+
+  priceUpFill: [
+    240,
+    253,
+    244,
+  ],
+
+  priceDownText: [
+    220,
+    38,
+    38,
+  ],
+
+  priceDownFill: [
+    254,
+    242,
+    242,
+  ],
 };
 
 /* =========================================================
    PAGE HEADER
-   A4 PORTRAIT
 ========================================================= */
 
 const drawPageHeader = (
@@ -353,9 +402,6 @@ const drawPageHeader = (
   const pageWidth =
     doc.internal.pageSize.getWidth();
 
-  /*
-   * Compact header
-   */
   doc.setFillColor(
     ...COLORS.dark
   );
@@ -372,10 +418,6 @@ const drawPageHeader = (
     ...COLORS.white
   );
 
-  /*
-   * BRAND
-   */
-
   doc.setFont(
     "helvetica",
     "bold"
@@ -389,10 +431,6 @@ const drawPageHeader = (
     6
   );
 
-  /*
-   * PRICE LIST TITLE
-   */
-
   doc.setFontSize(6.5);
 
   doc.text(
@@ -401,16 +439,12 @@ const drawPageHeader = (
     10.5
   );
 
-  /*
-   * TYPE
-   */
-
   const typeLabel =
     priceType === "SS"
       ? "SS"
       : priceType === "DS"
-      ? "DISTRIBUTOR"
-      : "DEALER";
+        ? "DISTRIBUTOR"
+        : "DEALER";
 
   doc.setFontSize(6.2);
 
@@ -422,10 +456,6 @@ const drawPageHeader = (
       align: "right",
     }
   );
-
-  /*
-   * DATE
-   */
 
   doc.setFont(
     "helvetica",
@@ -494,7 +524,301 @@ const drawFooter = (doc) => {
 };
 
 /* =========================================================
-   CATEGORY SECTION
+   PAGE / HEADER CONTROLLER
+========================================================= */
+
+const createPageController = (
+  doc,
+  priceType,
+  pageTitle
+) => {
+  const renderedHeaders =
+    new Set();
+
+  const drawHeaderOnce = () => {
+    const pageNumber =
+      doc.internal.getCurrentPageInfo()
+        .pageNumber;
+
+    if (
+      renderedHeaders.has(
+        pageNumber
+      )
+    ) {
+      return;
+    }
+
+    drawPageHeader(
+      doc,
+      priceType,
+      pageTitle
+    );
+
+    renderedHeaders.add(
+      pageNumber
+    );
+  };
+
+  const addPage = () => {
+    doc.addPage();
+    drawHeaderOnce();
+  };
+
+  return {
+    drawHeaderOnce,
+    addPage,
+  };
+};
+
+/* =========================================================
+   CATEGORY SECTION BAR
+   ALL CATEGORIES USE THIS BAR
+========================================================= */
+
+const drawCategoryTitle = (
+  doc,
+  y,
+  title,
+  tableWidth,
+  options = {}
+) => {
+  const {
+    centered = true,
+  } = options;
+
+  const x = 7;
+  const height = 7;
+
+  doc.setFillColor(
+    ...COLORS.categoryYellow
+  );
+
+  doc.setDrawColor(
+    ...COLORS.categoryYellowBorder
+  );
+
+  doc.setLineWidth(0.25);
+
+  doc.rect(
+    x,
+    y,
+    tableWidth,
+    height,
+    "FD"
+  );
+
+  doc.setFont(
+    "helvetica",
+    "bold"
+  );
+
+  doc.setFontSize(7.5);
+
+  doc.setTextColor(
+    ...COLORS.categoryText
+  );
+
+  if (centered) {
+    doc.text(
+      String(title || "CATEGORY"),
+      x + tableWidth / 2,
+      y + 4.7,
+      {
+        align: "center",
+      }
+    );
+  } else {
+    doc.text(
+      String(title || "CATEGORY"),
+      x + 2,
+      y + 4.7
+    );
+  }
+
+  return y + height;
+};
+
+/* =========================================================
+   TABLE HEIGHT ESTIMATION
+   Used only to decide whether a small category
+   should move to the next page.
+========================================================= */
+
+const estimateSectionHeight = (
+  rowCount,
+  rowHeight = 6.1
+) => {
+  const titleHeight = 7;
+  const tableHeaderHeight = 7;
+  const bottomGap = 3;
+
+  return (
+    titleHeight +
+    tableHeaderHeight +
+    rowCount * rowHeight +
+    bottomGap
+  );
+};
+
+const getAvailableHeight = (
+  doc,
+  currentY
+) => {
+  const pageHeight =
+    doc.internal.pageSize.getHeight();
+
+  const footerReserve = 9;
+
+  return (
+    pageHeight -
+    footerReserve -
+    currentY
+  );
+};
+
+const shouldMoveSectionToNextPage = ({
+  doc,
+  currentY,
+  rowCount,
+}) => {
+  const available =
+    getAvailableHeight(
+      doc,
+      currentY
+    );
+
+  const minimumRequired =
+    estimateSectionHeight(
+      1,
+      6
+    );
+
+  if (
+    available <
+    minimumRequired
+  ) {
+    return true;
+  }
+
+  /*
+    If the complete table is small enough
+    and cannot fit, move the whole category.
+
+    Large tables are allowed to start here
+    and AutoTable will split them naturally.
+  */
+
+  const estimated =
+    estimateSectionHeight(
+      rowCount
+    );
+
+  return (
+    rowCount <= 28 &&
+    estimated > available
+  );
+};
+
+/* =========================================================
+   PRICE HISTORY FIELDS
+========================================================= */
+
+const PRICE_HISTORY_FIELDS = {
+  SS: {
+    oldField: "old_price",
+    newField: "new_price",
+  },
+
+  DS: {
+    oldField: "old_ds_price",
+    newField: "new_ds_price",
+  },
+
+  DLR: {
+    oldField: "old_dlr_price",
+    newField: "new_dlr_price",
+  },
+};
+
+/* =========================================================
+   APPLY PRICE HISTORY STYLE
+========================================================= */
+
+const applyPriceHistoryStyle = (
+  data,
+  products,
+  priceType,
+  priceHistoryMap
+) => {
+  if (
+    data.section !== "body" ||
+    data.column.index !==
+      data.table.columns.length - 1 ||
+    !priceHistoryMap
+  ) {
+    return;
+  }
+
+  const product =
+    products[data.row.index];
+
+  if (!product) {
+    return;
+  }
+
+  const productId = String(
+    getProductId(product)
+  );
+
+  const history =
+    priceHistoryMap.get(
+      productId
+    );
+
+  if (!history) {
+    return;
+  }
+
+  const fields =
+    PRICE_HISTORY_FIELDS[
+      priceType
+    ] ||
+    PRICE_HISTORY_FIELDS.SS;
+
+  const oldValue = Number(
+    history?.[fields.oldField]
+  );
+
+  const newValue = Number(
+    history?.[fields.newField]
+  );
+
+  if (
+    !Number.isFinite(oldValue) ||
+    !Number.isFinite(newValue)
+  ) {
+    return;
+  }
+
+  if (newValue > oldValue) {
+    data.cell.styles.textColor =
+      COLORS.priceUpText;
+
+    data.cell.styles.fillColor =
+      COLORS.priceUpFill;
+  }
+
+  if (newValue < oldValue) {
+    data.cell.styles.textColor =
+      COLORS.priceDownText;
+
+    data.cell.styles.fillColor =
+      COLORS.priceDownFill;
+  }
+};
+
+/* =========================================================
+   NORMAL CATEGORY SECTION
 ========================================================= */
 
 const addCategorySection = ({
@@ -504,6 +828,8 @@ const addCategorySection = ({
   products,
   priceType,
   useMah = false,
+  priceHistoryMap,
+  pageController,
 }) => {
   if (!products.length) {
     return startY;
@@ -517,6 +843,25 @@ const addCategorySection = ({
 
   const priceField =
     getPriceField(priceType);
+
+  let y = startY;
+
+  /*
+    Prevent unnecessary blank space.
+    Only move if this category genuinely
+    cannot start in the remaining area.
+  */
+
+  if (
+    shouldMoveSectionToNextPage({
+      doc,
+      currentY: y,
+      rowCount: products.length,
+    })
+  ) {
+    pageController.addPage();
+    y = 16;
+  }
 
   const rows = products.map(
     (product, index) => {
@@ -538,80 +883,32 @@ const addCategorySection = ({
     }
   );
 
-  let y = startY;
-
-  /*
-   * Only create a new page when
-   * there is genuinely not enough
-   * space for the section.
-   */
-
-  if (y > 276) {
-    doc.addPage();
-    y = 16;
-  }
-
-  /* =======================================================
-     CATEGORY TITLE
-  ======================================================= */
-
-  doc.setFillColor(
-    ...COLORS.light
-  );
-
-  doc.setDrawColor(
-    ...COLORS.border
-  );
-
-  doc.setLineWidth(0.2);
-
-  doc.rect(
-    7,
+  y = drawCategoryTitle(
+    doc,
     y,
-    tableWidth,
-    5.5,
-    "FD"
-  );
-
-  doc.setFont(
-    "helvetica",
-    "bold"
-  );
-
-  /*
-   * Increased from 7.5 -> 8
-   */
-
-  doc.setFontSize(8);
-
-  doc.setTextColor(
-    ...COLORS.dark
-  );
-
-  doc.text(
     title || "CATEGORY",
-    9,
-    y + 3.7
+    tableWidth,
+    {
+      centered: true,
+    }
   );
 
-  y += 6;
-
-  /* =======================================================
-     TABLE
-  ======================================================= */
+  y += 1;
 
   autoTable(doc, {
     startY: y,
 
-    head: [[
-      "SL. NO.",
-      "MODEL",
-      useMah
-        ? "MAH"
-        : "CARTON",
-      "GUARANTEE",
-      "PRICE",
-    ]],
+    head: [
+      [
+        "SL. NO.",
+        "MODEL",
+        useMah
+          ? "MAH"
+          : "CARTON",
+        "GUARANTEE",
+        "PRICE",
+      ],
+    ],
 
     body: rows,
 
@@ -632,19 +929,10 @@ const addCategorySection = ({
 
     rowPageBreak: "avoid",
 
-    /* =====================================================
-       TABLE STYLES
-    ===================================================== */
-
     styles: {
       font: "helvetica",
 
       fontStyle: "bold",
-
-      /*
-       * INCREASED
-       * 7 -> 8
-       */
 
       fontSize: 8,
 
@@ -665,18 +953,10 @@ const addCategorySection = ({
 
       valign: "middle",
 
-      /*
-       * ALL BODY TEXT CENTER
-       */
-
       halign: "center",
 
       overflow: "linebreak",
     },
-
-    /* =====================================================
-       TABLE HEADER
-    ===================================================== */
 
     headStyles: {
       fillColor:
@@ -691,11 +971,6 @@ const addCategorySection = ({
       fontStyle:
         "bold",
 
-      /*
-       * INCREASED
-       * 7 -> 8
-       */
-
       fontSize: 8,
 
       halign: "center",
@@ -709,10 +984,6 @@ const addCategorySection = ({
         left: 1.5,
       },
     },
-
-    /* =====================================================
-       BODY
-    ===================================================== */
 
     bodyStyles: {
       fillColor:
@@ -731,23 +1002,11 @@ const addCategorySection = ({
         COLORS.row,
     },
 
-    /* =====================================================
-       COLUMN WIDTHS
-    ===================================================== */
-
     columnStyles: {
-      /*
-       * SL NO.
-       */
-
       0: {
         cellWidth: 14,
         halign: "center",
       },
-
-      /*
-       * MODEL
-       */
 
       1: {
         cellWidth: 82,
@@ -755,27 +1014,15 @@ const addCategorySection = ({
         fontStyle: "bold",
       },
 
-      /*
-       * MAH / CARTON
-       */
-
       2: {
         cellWidth: 29,
         halign: "center",
       },
 
-      /*
-       * GUARANTEE
-       */
-
       3: {
         cellWidth: 33,
         halign: "center",
       },
-
-      /*
-       * PRICE
-       */
 
       4: {
         cellWidth: 36,
@@ -783,23 +1030,427 @@ const addCategorySection = ({
       },
     },
 
-    didDrawPage: () => {
-      drawPageHeader(
-        doc,
+    didParseCell: (data) => {
+      if (
+        data.section !==
+          "body" ||
+        data.column.index !== 4
+      ) {
+        return;
+      }
+
+      applyPriceHistoryStyle(
+        data,
+        products,
         priceType,
-        `${getPriceLabel(
-          priceType
-        )} - PRICE LIST`
+        priceHistoryMap
       );
+    },
+
+    didDrawPage: () => {
+      pageController.drawHeaderOnce();
     },
   });
 
+  return (
+    doc.lastAutoTable.finalY +
+    3
+  );
+};
+
+/* =========================================================
+   POLYMER BATTERY
+   ONE HEADING
+   ONE TABLE
+   CATEGORY COLUMN
+   CONTINUOUS SERIAL NUMBER
+========================================================= */
+
+const addPolymerBatterySection = ({
+  doc,
+  startY,
+  group,
+  products,
+  priceType,
+  priceHistoryMap,
+  pageController,
+}) => {
+  if (!products.length) {
+    return startY;
+  }
+
+  const pageWidth =
+    doc.internal.pageSize.getWidth();
+
+  const tableWidth =
+    pageWidth - 14;
+
+  let y = startY;
+
   /*
-   * Small gap between sections.
-   */
+    Polymer is intentionally kept as one
+    continuous table so serial numbers never reset.
+  */
+
+  if (
+    shouldMoveSectionToNextPage({
+      doc,
+      currentY: y,
+      rowCount: products.length,
+    }) &&
+    getAvailableHeight(
+      doc,
+      y
+    ) <
+      estimateSectionHeight(
+        1,
+        6
+      )
+  ) {
+    pageController.addPage();
+    y = 16;
+  }
+
+  /*
+    Top Polymer heading.
+    BATTERY word is not repeated in
+    subcategory labels.
+  */
+
+  y = drawCategoryTitle(
+    doc,
+    y,
+    "POLYMER BATTERY",
+    tableWidth,
+    {
+      centered: true,
+    }
+  );
+
+  y += 1;
+
+  const rows = [];
+
+  let serial = 1;
+
+  const sections =
+    group.sections || [];
+
+  const usedProductIds =
+    new Set();
+
+  sections.forEach(
+    (section) => {
+      const aliases = [
+        section.title,
+        ...(section.aliases || []),
+      ];
+
+      const sectionProducts =
+        products.filter(
+          (product) => {
+            const productCategory =
+              normalize(
+                getCategory(product)
+              );
+
+            return aliases.some(
+              (alias) =>
+                normalize(alias) ===
+                productCategory
+            );
+          }
+        );
+
+      sectionProducts.forEach(
+        (product) => {
+          const productId =
+            String(
+              getProductId(product)
+            );
+
+          /*
+            Avoid accidental duplicate rows
+            if aliases overlap.
+          */
+
+          if (
+            usedProductIds.has(
+              productId
+            )
+          ) {
+            return;
+          }
+
+          usedProductIds.add(
+            productId
+          );
+
+          rows.push([
+            serial,
+            getPolymerCategoryLabel(
+              getCategory(product)
+            ),
+            getModel(product),
+            getMah(product),
+            calculateGuarantee(
+              getGuarantee(product),
+              priceType
+            ),
+            product?.[
+              getPriceField(
+                priceType
+              )
+            ] ?? "",
+          ]);
+
+          serial += 1;
+        }
+      );
+    }
+  );
+
+  /*
+    Any Polymer product not matched
+    by configured sections is still included.
+  */
+
+  products.forEach(
+    (product) => {
+      const productId =
+        String(
+          getProductId(product)
+        );
+
+      if (
+        usedProductIds.has(
+          productId
+        )
+      ) {
+        return;
+      }
+
+      rows.push([
+        serial,
+        getPolymerCategoryLabel(
+          getCategory(product)
+        ),
+        getModel(product),
+        getMah(product),
+        calculateGuarantee(
+          getGuarantee(product),
+          priceType
+        ),
+        product?.[
+          getPriceField(
+            priceType
+          )
+        ] ?? "",
+      ]);
+
+      usedProductIds.add(
+        productId
+      );
+
+      serial += 1;
+    }
+  );
+
+  autoTable(doc, {
+    startY: y,
+
+    head: [
+      [
+        "SL. NO.",
+        "CATEGORY",
+        "MODEL",
+        "MAH",
+        "GUARANTEE",
+        "PRICE",
+      ],
+    ],
+
+    body: rows,
+
+    theme: "grid",
+
+    margin: {
+      top: 16,
+      right: 7,
+      bottom: 8,
+      left: 7,
+    },
+
+    tableWidth,
+
+    pageBreak: "auto",
+
+    showHead: "everyPage",
+
+    rowPageBreak: "avoid",
+
+    styles: {
+      font: "helvetica",
+
+      fontStyle: "bold",
+
+      fontSize: 8,
+
+      cellPadding: {
+        top: 1.25,
+        right: 1.5,
+        bottom: 1.25,
+        left: 1.5,
+      },
+
+      textColor:
+        COLORS.dark,
+
+      lineColor:
+        COLORS.border,
+
+      lineWidth: 0.2,
+
+      valign: "middle",
+
+      halign: "center",
+
+      overflow: "linebreak",
+    },
+
+    headStyles: {
+      fillColor:
+        COLORS.red,
+
+      textColor:
+        COLORS.white,
+
+      font:
+        "helvetica",
+
+      fontStyle:
+        "bold",
+
+      fontSize: 8,
+
+      halign: "center",
+
+      valign: "middle",
+
+      cellPadding: {
+        top: 1.5,
+        right: 1.5,
+        bottom: 1.5,
+        left: 1.5,
+      },
+    },
+
+    bodyStyles: {
+      fillColor:
+        COLORS.white,
+
+      fontStyle:
+        "bold",
+
+      halign: "center",
+
+      valign: "middle",
+    },
+
+    alternateRowStyles: {
+      fillColor:
+        COLORS.row,
+    },
+
+    columnStyles: {
+      /*
+        Slightly wider CATEGORY column
+        so names like POLYMER MOTOROLA
+        remain clean.
+      */
+
+      0: {
+        cellWidth: 13,
+        halign: "center",
+      },
+
+      1: {
+        cellWidth: 44,
+        halign: "center",
+        fontStyle: "bold",
+      },
+
+      2: {
+        cellWidth: 60,
+        halign: "center",
+        fontStyle: "bold",
+      },
+
+      3: {
+        cellWidth: 25,
+        halign: "center",
+      },
+
+      4: {
+        cellWidth: 27,
+        halign: "center",
+      },
+
+      5: {
+        cellWidth: 27,
+        halign: "center",
+      },
+    },
+
+    didParseCell: (data) => {
+      /*
+        PRICE is always the final
+        column in Polymer table.
+      */
+
+      if (
+        data.section !==
+          "body" ||
+        data.column.index !== 5
+      ) {
+        return;
+      }
+
+      const product =
+        products[data.row.index];
+
+      if (!product) {
+        return;
+      }
+
+      applyPriceHistoryStyle(
+        {
+          ...data,
+          table: {
+            columns: [
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+            ],
+          },
+        },
+        products,
+        priceType,
+        priceHistoryMap
+      );
+    },
+
+    didDrawPage: () => {
+      pageController.drawHeaderOnce();
+    },
+  });
 
   return (
-    doc.lastAutoTable.finalY + 2.5
+    doc.lastAutoTable.finalY +
+    3
   );
 };
 
@@ -814,17 +1465,30 @@ const addCombinedGroup = ({
   products,
   categoryLookup,
   priceType,
+  priceHistoryMap,
+  pageController,
 }) => {
   let y = startY;
 
   /*
-   * SAME EXCEL LOGIC:
-   *
-   * ECO SERIES
-   * Polymer Battery
-   *
-   * all sections use MAH.
-   */
+    Polymer Battery gets its own special
+    continuous layout.
+  */
+
+  if (
+    normalize(group.sheetName) ===
+    "POLYMER BATTERY"
+  ) {
+    return addPolymerBatterySection({
+      doc,
+      startY: y,
+      group,
+      products,
+      priceType,
+      priceHistoryMap,
+      pageController,
+    });
+  }
 
   const useMah =
     isMahGroup(
@@ -875,26 +1539,25 @@ const addCombinedGroup = ({
       y = addCategorySection({
         doc,
         startY: y,
-
         title:
           section.title ||
           getCategory(
             sectionProducts[0]
           ),
-
         products:
           sectionProducts,
-
         priceType,
-
         useMah,
+        priceHistoryMap,
+        pageController,
       });
     }
   );
 
   /*
-   * Keep unexpected products.
-   */
+    Any category not matched by configured
+    sections still appears under OTHER.
+  */
 
   const remaining =
     products.filter(
@@ -910,15 +1573,12 @@ const addCombinedGroup = ({
     y = addCategorySection({
       doc,
       startY: y,
-
       title: "OTHER",
-
-      products:
-        remaining,
-
+      products: remaining,
       priceType,
-
       useMah,
+      priceHistoryMap,
+      pageController,
     });
   }
 
@@ -932,7 +1592,8 @@ const addCombinedGroup = ({
 export const exportPriceManagementPDF = (
   products = [],
   priceType = "SS",
-  combinedCategoryGroups = []
+  combinedCategoryGroups = [],
+  priceHistory = []
 ) => {
   if (
     !Array.isArray(products) ||
@@ -941,10 +1602,6 @@ export const exportPriceManagementPDF = (
     return;
   }
 
-  /* =======================================================
-     A4 PORTRAIT
-  ======================================================= */
-
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
@@ -952,15 +1609,158 @@ export const exportPriceManagementPDF = (
     compress: true,
   });
 
-  /* =======================================================
-     CATEGORY LOOKUP
-  ======================================================= */
-
   const categoryLookup =
     createCategoryLookup(
       combinedCategoryGroups
     );
 
+  /* =======================================================
+     PRICE HISTORY MAP
+  ======================================================= */
+
+  /* =======================================================
+   PRICE HISTORY MAP
+   ONLY LAST 30 DAYS PRICE CHANGES ARE HIGHLIGHTED
+======================================================= */
+
+const selectedFields =
+  PRICE_HISTORY_FIELDS[
+    priceType
+  ] ||
+  PRICE_HISTORY_FIELDS.SS;
+
+const historyMap =
+  new Map();
+
+/*
+  Only price changes from the last
+  30 days are considered.
+
+  Anything older than 30 days
+  will NOT be highlighted.
+*/
+const now = Date.now();
+
+const ONE_MONTH_MS =
+  30 * 24 * 60 * 60 * 1000;
+
+const lastMonthTimestamp =
+  now - ONE_MONTH_MS;
+
+if (
+  Array.isArray(priceHistory)
+) {
+  priceHistory.forEach(
+    (item) => {
+      const productId =
+        String(
+          item?.product_id ??
+            ""
+        );
+
+      if (!productId) {
+        return;
+      }
+
+      const oldValue =
+        Number(
+          item?.[
+            selectedFields.oldField
+          ]
+        );
+
+      const newValue =
+        Number(
+          item?.[
+            selectedFields.newField
+          ]
+        );
+
+      /*
+        No actual price change
+        = no highlight.
+      */
+      if (
+        !Number.isFinite(
+          oldValue
+        ) ||
+        !Number.isFinite(
+          newValue
+        ) ||
+        oldValue === newValue
+      ) {
+        return;
+      }
+
+      /*
+        changed_at is preferred.
+
+        If changed_at is not available,
+        applicable_from is used.
+      */
+      const timestamp =
+        new Date(
+          item?.changed_at ??
+            item?.applicable_from ??
+            0
+        ).getTime() || 0;
+
+      /*
+        Ignore invalid dates.
+      */
+      if (!timestamp) {
+        return;
+      }
+
+      /*
+        IMPORTANT:
+        Ignore every price change older
+        than the last 30 days.
+      */
+      if (
+        timestamp < lastMonthTimestamp
+      ) {
+        return;
+      }
+
+      /*
+        Ignore future-dated records.
+      */
+      if (timestamp > now) {
+        return;
+      }
+
+      const existing =
+        historyMap.get(
+          productId
+        );
+
+      const existingTimestamp =
+        existing?.__timestamp ??
+        -1;
+
+      /*
+        If multiple price changes happened
+        within the last 30 days, only the
+        latest one is used.
+      */
+      if (
+        !existing ||
+        timestamp >=
+          existingTimestamp
+      ) {
+        historyMap.set(
+          productId,
+          {
+            ...item,
+            __timestamp:
+              timestamp,
+          }
+        );
+      }
+    }
+  );
+}
   /* =======================================================
      GROUP PRODUCTS
   ======================================================= */
@@ -979,7 +1779,11 @@ export const exportPriceManagementPDF = (
           categoryLookup
         );
 
-      if (!grouped.has(groupKey)) {
+      if (
+        !grouped.has(
+          groupKey
+        )
+      ) {
         grouped.set(
           groupKey,
           []
@@ -993,7 +1797,7 @@ export const exportPriceManagementPDF = (
   );
 
   /* =======================================================
-     CONFIGURED SHEETS
+     CONFIGURED GROUPS
   ======================================================= */
 
   const configuredSheetNames =
@@ -1009,10 +1813,24 @@ export const exportPriceManagementPDF = (
       priceType
     )} - PRICE LIST`;
 
-  let firstGroup = true;
+  const pageController =
+    createPageController(
+      doc,
+      priceType,
+      pageTitle
+    );
+
+  /*
+    First page starts immediately.
+  */
+
+  pageController.drawHeaderOnce();
+
+  let currentY = 16;
 
   /* =======================================================
-     COMBINED GROUPS
+     COMBINED CATEGORY GROUPS
+     Continuous page flow
   ======================================================= */
 
   combinedCategoryGroups.forEach(
@@ -1022,53 +1840,31 @@ export const exportPriceManagementPDF = (
           group.sheetName
         ) || [];
 
-      if (!groupProducts.length) {
+      if (
+        !groupProducts.length
+      ) {
         return;
       }
 
-      /*
-       * Start combined group on
-       * a new page, but sections
-       * inside the group use all
-       * remaining available space.
-       */
-
-      if (!firstGroup) {
-        doc.addPage();
-      }
-
-      firstGroup = false;
-
-      drawPageHeader(
-        doc,
-        priceType,
-        pageTitle
-      );
-
-      addCombinedGroup({
-        doc,
-
-        /*
-         * Compact header ends at
-         * approximately 13mm.
-         */
-
-        startY: 16,
-
-        group,
-
-        products:
-          groupProducts,
-
-        categoryLookup,
-
-        priceType,
-      });
+      currentY =
+        addCombinedGroup({
+          doc,
+          startY: currentY,
+          group,
+          products:
+            groupProducts,
+          categoryLookup,
+          priceType,
+          priceHistoryMap:
+            historyMap,
+          pageController,
+        });
     }
   );
 
   /* =======================================================
-     NORMAL CATEGORIES
+     NORMAL GROUPS
+     Continuous page flow
   ======================================================= */
 
   const normalGroups = [
@@ -1089,36 +1885,25 @@ export const exportPriceManagementPDF = (
 
   normalGroups.forEach(
     ([category, categoryProducts]) => {
-      /*
-       * Keep category flow compact.
-       */
-
-      if (!firstGroup) {
-        doc.addPage();
+      if (
+        !categoryProducts.length
+      ) {
+        return;
       }
 
-      firstGroup = false;
-
-      drawPageHeader(
-        doc,
-        priceType,
-        pageTitle
-      );
-
-      addCategorySection({
-        doc,
-
-        startY: 16,
-
-        title: category,
-
-        products:
-          categoryProducts,
-
-        priceType,
-
-        useMah: false,
-      });
+      currentY =
+        addCategorySection({
+          doc,
+          startY: currentY,
+          title: category,
+          products:
+            categoryProducts,
+          priceType,
+          useMah: false,
+          priceHistoryMap:
+            historyMap,
+          pageController,
+        });
     }
   );
 
@@ -1136,8 +1921,8 @@ export const exportPriceManagementPDF = (
     priceType === "SS"
       ? "SS PRICE"
       : priceType === "DS"
-      ? "DISTRIBUTOR PRICE"
-      : "DEALER PRICE";
+        ? "DISTRIBUTOR PRICE"
+        : "DEALER PRICE";
 
   doc.save(
     `${filePrefix} ${getDateText()}.pdf`
