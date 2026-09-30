@@ -162,10 +162,18 @@ export const exportPriceHistoryPDF = (
   priceType = "SS"
 ) => {
   try {
-    if (!Array.isArray(history) || !history.length) {
+    /* -------------------------------------------------------
+       VALIDATION
+    ------------------------------------------------------- */
+
+    if (
+      !Array.isArray(history) ||
+      !history.length
+    ) {
       window.alert(
         "No price history available for export."
       );
+
       return;
     }
 
@@ -176,14 +184,16 @@ export const exportPriceHistoryPDF = (
     } = getPriceFields(priceType);
 
     /* -------------------------------------------------------
-       STEP 1: LAST 7 DAYS + LATEST RECORD
+       STEP 1:
+       LAST 7 DAYS + LATEST RECORD PER PRODUCT
     ------------------------------------------------------- */
 
     const latestHistory =
       getLatestHistoryPerProduct(history);
 
     /* -------------------------------------------------------
-       STEP 2: REMOVE PRODUCTS WHERE SELECTED PRICE
+       STEP 2:
+       REMOVE PRODUCTS WHERE SELECTED PRICE
        DID NOT CHANGE
     ------------------------------------------------------- */
 
@@ -215,11 +225,13 @@ export const exportPriceHistoryPDF = (
       window.alert(
         `No ${label} price changes found for the last 7 days.`
       );
+
       return;
     }
 
     /* -------------------------------------------------------
-       STEP 3: PREPARE TABLE DATA
+       STEP 3:
+       PREPARE TABLE DATA
     ------------------------------------------------------- */
 
     const tableRows = changedHistory.map(
@@ -251,39 +263,184 @@ export const exportPriceHistoryPDF = (
     );
 
     /* -------------------------------------------------------
-       STEP 4: CREATE PDF
+       STEP 4:
+       CREATE PORTRAIT PDF
     ------------------------------------------------------- */
 
     const doc = new jsPDF({
-      orientation: "landscape",
+      orientation: "portrait",
       unit: "mm",
       format: "a4",
     });
 
     /* -------------------------------------------------------
+       PAGE DIMENSIONS
+    ------------------------------------------------------- */
+
+    const pageWidth =
+      doc.internal.pageSize.getWidth();
+
+    const pageHeight =
+      doc.internal.pageSize.getHeight();
+
+    const centerX = pageWidth / 2;
+
+    /* -------------------------------------------------------
+       BRAND COLORS
+    ------------------------------------------------------- */
+
+    const RED = [239, 68, 68];
+
+    const DARK_RED = [185, 28, 28];
+
+    const ORANGE = [249, 115, 22];
+
+    const DARK_TEXT = [30, 41, 59];
+
+    const MUTED_TEXT = [100, 116, 139];
+
+    const LIGHT_BORDER = [226, 232, 240];
+
+    const SOFT_RED = [254, 242, 242];
+
+    const SOFT_ORANGE = [255, 247, 237];
+
+    const WHITE = [255, 255, 255];
+
+    /* -------------------------------------------------------
+       TOP BRAND LINE
+    ------------------------------------------------------- */
+
+    doc.setFillColor(
+      RED[0],
+      RED[1],
+      RED[2]
+    );
+
+    doc.rect(
+      0,
+      0,
+      pageWidth,
+      2.5,
+      "F"
+    );
+
+    /* -------------------------------------------------------
        TITLE
     ------------------------------------------------------- */
 
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
+    doc.setFont(
+      "helvetica",
+      "bold"
+    );
+
+    doc.setFontSize(15);
+
+    doc.setTextColor(
+      DARK_TEXT[0],
+      DARK_TEXT[1],
+      DARK_TEXT[2]
+    );
 
     doc.text(
-      `${label} PRICE DIFFERENCE REPORT`,
-      14,
-      15
+      `${label.toUpperCase()} PRICE DIFFERENCE REPORT`,
+      centerX,
+      15,
+      {
+        align: "center",
+      }
     );
 
     /* -------------------------------------------------------
        SUBTITLE
     ------------------------------------------------------- */
 
+    doc.setFont(
+      "helvetica",
+      "normal"
+    );
+
     doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
+
+    doc.setTextColor(
+      MUTED_TEXT[0],
+      MUTED_TEXT[1],
+      MUTED_TEXT[2]
+    );
 
     doc.text(
-      "Last 7 Days",
-      14,
-      21
+      "Price changes recorded during the last 7 days",
+      centerX,
+      21,
+      {
+        align: "center",
+      }
+    );
+
+    /* -------------------------------------------------------
+       REPORT INFO BADGE
+    ------------------------------------------------------- */
+
+    const infoText =
+      `${changedHistory.length} ${
+        changedHistory.length === 1
+          ? "Product"
+          : "Products"
+      }`;
+
+    const infoWidth = 34;
+
+    const infoHeight = 7;
+
+    const infoX =
+      centerX - infoWidth / 2;
+
+    const infoY = 24;
+
+    doc.setFillColor(
+      SOFT_RED[0],
+      SOFT_RED[1],
+      SOFT_RED[2]
+    );
+
+    doc.setDrawColor(
+      RED[0],
+      RED[1],
+      RED[2]
+    );
+
+    doc.setLineWidth(0.25);
+
+    doc.roundedRect(
+      infoX,
+      infoY,
+      infoWidth,
+      infoHeight,
+      3,
+      3,
+      "FD"
+    );
+
+    doc.setFont(
+      "helvetica",
+      "bold"
+    );
+
+    doc.setFontSize(7);
+
+    doc.setTextColor(
+      DARK_RED[0],
+      DARK_RED[1],
+      DARK_RED[2]
+    );
+
+    doc.text(
+      infoText,
+      centerX,
+      infoY + 4.7,
+      {
+        align: "center",
+      }
     );
 
     /* -------------------------------------------------------
@@ -291,7 +448,7 @@ export const exportPriceHistoryPDF = (
     ------------------------------------------------------- */
 
     autoTable(doc, {
-      startY: 27,
+      startY: 36,
 
       head: [
         [
@@ -307,69 +464,186 @@ export const exportPriceHistoryPDF = (
 
       theme: "grid",
 
+      tableWidth: "auto",
+
       styles: {
         font: "helvetica",
+
         fontSize: 8,
-        cellPadding: 2.5,
-        lineWidth: 0.1,
-        lineColor: [210, 214, 220],
-        textColor: [31, 41, 55],
+
+        cellPadding: {
+          top: 3,
+          right: 2.5,
+          bottom: 3,
+          left: 2.5,
+        },
+
+        lineWidth: 0.25,
+
+        lineColor: LIGHT_BORDER,
+
+        textColor: DARK_TEXT,
+
         valign: "middle",
+
+        halign: "center",
+
+        overflow: "linebreak",
+
+        cellWidth: "auto",
       },
 
       headStyles: {
+        font: "helvetica",
+
         fontStyle: "bold",
+
         fontSize: 8,
-        textColor: [255, 255, 255],
-        fillColor: [23, 105, 255],
+
+        textColor: WHITE,
+
+        fillColor: RED,
+
+        lineColor: DARK_RED,
+
+        lineWidth: 0.35,
+
         halign: "center",
+
         valign: "middle",
+
+        cellPadding: {
+          top: 3.5,
+          right: 2,
+          bottom: 3.5,
+          left: 2,
+        },
       },
 
       bodyStyles: {
-        halign: "left",
-      },
+        fontSize: 8,
 
-      columnStyles: {
-        0: {
-          cellWidth: 15,
-          halign: "center",
-        },
+        textColor: DARK_TEXT,
 
-        1: {
-          cellWidth: 75,
-          halign: "left",
-        },
+        halign: "center",
 
-        2: {
-          cellWidth: 45,
-          halign: "right",
-        },
+        valign: "middle",
 
-        3: {
-          cellWidth: 45,
-          halign: "right",
-        },
+        lineColor: LIGHT_BORDER,
 
-        4: {
-          cellWidth: 45,
-          halign: "right",
-        },
+        lineWidth: 0.2,
       },
 
       alternateRowStyles: {
         fillColor: [248, 250, 252],
       },
 
-      margin: {
-        left: 14,
-        right: 14,
+      columnStyles: {
+        /* SL */
+
+        0: {
+          cellWidth: 14,
+          halign: "center",
+        },
+
+        /* MODEL */
+
+        1: {
+          cellWidth: 65,
+          halign: "center",
+          fontStyle: "bold",
+        },
+
+        /* OLD PRICE */
+
+        2: {
+          cellWidth: 32,
+          halign: "center",
+        },
+
+        /* NEW PRICE */
+
+        3: {
+          cellWidth: 32,
+          halign: "center",
+        },
+
+        /* DIFFERENCE */
+
+        4: {
+          cellWidth: 43,
+          halign: "center",
+          fontStyle: "bold",
+        },
       },
+
+      didParseCell: (data) => {
+        /* ---------------------------------------------------
+           DIFFERENCE COLUMN
+        --------------------------------------------------- */
+
+        if (
+          data.section === "body" &&
+          data.column.index === 4
+        ) {
+          const value = Number(
+            data.cell.raw
+          );
+
+          if (value > 0) {
+            data.cell.styles.textColor = [
+              185,
+              28,
+              28,
+            ];
+
+            data.cell.styles.fillColor =
+              SOFT_RED;
+          }
+
+          if (value < 0) {
+            data.cell.styles.textColor = [
+              194,
+              65,
+              12,
+            ];
+
+            data.cell.styles.fillColor =
+              SOFT_ORANGE;
+          }
+        }
+
+        /* ---------------------------------------------------
+           SL COLUMN
+        --------------------------------------------------- */
+
+        if (
+          data.section === "body" &&
+          data.column.index === 0
+        ) {
+          data.cell.styles.textColor =
+            MUTED_TEXT;
+        }
+      },
+
+      margin: {
+        left: 12,
+        right: 12,
+        top: 36,
+        bottom: 18,
+      },
+
+      pageBreak: "auto",
+
+      showHead: "everyPage",
     });
 
     /* -------------------------------------------------------
-       FILE NAME
+       FOOTER ON ALL PAGES
     ------------------------------------------------------- */
+
+    const totalPages =
+      doc.internal.getNumberOfPages();
 
     const today = new Date();
 
@@ -381,7 +655,80 @@ export const exportPriceHistoryPDF = (
       today.getMonth() + 1
     ).padStart(2, "0");
 
-    const year = today.getFullYear();
+    const year =
+      today.getFullYear();
+
+    for (
+      let page = 1;
+      page <= totalPages;
+      page++
+    ) {
+      doc.setPage(page);
+
+      /* Footer line */
+
+      doc.setDrawColor(
+        LIGHT_BORDER[0],
+        LIGHT_BORDER[1],
+        LIGHT_BORDER[2]
+      );
+
+      doc.setLineWidth(0.25);
+
+      doc.line(
+        12,
+        pageHeight - 13,
+        pageWidth - 12,
+        pageHeight - 13
+      );
+
+      /* Left footer */
+
+      doc.setFont(
+        "helvetica",
+        "normal"
+      );
+
+      doc.setFontSize(7);
+
+      doc.setTextColor(
+        MUTED_TEXT[0],
+        MUTED_TEXT[1],
+        MUTED_TEXT[2]
+      );
+
+      doc.text(
+        "MAKPOWER • Price Management",
+        12,
+        pageHeight - 8
+      );
+
+      /* Center footer */
+
+      doc.text(
+        `${label} Price Report`,
+        centerX,
+        pageHeight - 8,
+        {
+          align: "center",
+        }
+      );
+
+      /* Right footer */
+
+      doc.text(
+        `Page ${page} of ${totalPages}`,
+        pageWidth - 12,
+        pageHeight - 8,
+        {
+          align: "right",
+        }
+      );
+    }
+
+    /* -------------------------------------------------------
+       FILE NAME
+    ------------------------------------------------------- */
 
     const fileName =
       `${label.toUpperCase()} PRICE DIFFERENCE LAST 7 DAYS ` +
