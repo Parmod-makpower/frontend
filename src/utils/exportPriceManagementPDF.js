@@ -44,6 +44,38 @@ const getMah = (product) =>
   "";
 
 /* =========================================================
+   SPECIAL PAGE-BREAK CATEGORIES
+   These categories ALWAYS start from a NEW PAGE.
+========================================================= */
+
+const NEW_PAGE_CATEGORIES = new Set([
+  "CHARGER",
+  "TWS EARBUDS",
+  "NECKBAND",
+  "SPEAKER",
+]);
+
+/* =========================================================
+   PRICE-BLANK CATEGORIES
+   Price must remain blank for these categories.
+========================================================= */
+
+const BLANK_PRICE_CATEGORIES = new Set([
+  "MEMORY CARD",
+  "PENDRIVE",
+]);
+
+const isNewPageCategory = (category) =>
+  NEW_PAGE_CATEGORIES.has(
+    normalize(category)
+  );
+
+const isBlankPriceCategory = (category) =>
+  BLANK_PRICE_CATEGORIES.has(
+    normalize(category)
+  );
+
+/* =========================================================
    SALE NAME
 ========================================================= */
 
@@ -346,6 +378,7 @@ const COLORS = {
   row: [250, 250, 250],
 
   /* CATEGORY BAR */
+
   categoryYellow: [
     254,
     249,
@@ -365,6 +398,7 @@ const COLORS = {
   ],
 
   /* PRICE CHANGE */
+
   priceUpText: [
     22,
     163,
@@ -620,7 +654,9 @@ const drawCategoryTitle = (
 
   if (centered) {
     doc.text(
-      String(title || "CATEGORY"),
+      String(
+        title || "CATEGORY"
+      ),
       x + tableWidth / 2,
       y + 4.7,
       {
@@ -629,7 +665,9 @@ const drawCategoryTitle = (
     );
   } else {
     doc.text(
-      String(title || "CATEGORY"),
+      String(
+        title || "CATEGORY"
+      ),
       x + 2,
       y + 4.7
     );
@@ -640,8 +678,6 @@ const drawCategoryTitle = (
 
 /* =========================================================
    TABLE HEIGHT ESTIMATION
-   Used only to decide whether a small category
-   should move to the next page.
 ========================================================= */
 
 const estimateSectionHeight = (
@@ -699,14 +735,6 @@ const shouldMoveSectionToNextPage = ({
   ) {
     return true;
   }
-
-  /*
-    If the complete table is small enough
-    and cannot fit, move the whole category.
-
-    Large tables are allowed to start here
-    and AutoTable will split them naturally.
-  */
 
   const estimated =
     estimateSectionHeight(
@@ -844,44 +872,88 @@ const addCategorySection = ({
   const priceField =
     getPriceField(priceType);
 
+  const normalizedTitle =
+    normalize(title);
+
   let y = startY;
 
-  /*
-    Prevent unnecessary blank space.
-    Only move if this category genuinely
-    cannot start in the remaining area.
-  */
+  /* =======================================================
+     SPECIAL CATEGORIES:
+     CHARGER / TWS EARBUDS / NECKBAND / SPEAKER
+
+     Always begin from a fresh page.
+  ======================================================= */
 
   if (
+    isNewPageCategory(
+      normalizedTitle
+    )
+  ) {
+    /*
+      Do not add another blank page when
+      this category is already starting
+      at the top of a fresh page.
+    */
+    const pageTop = 16;
+
+    if (
+      y > pageTop + 0.5
+    ) {
+      pageController.addPage();
+      y = pageTop;
+    }
+  } else if (
     shouldMoveSectionToNextPage({
       doc,
       currentY: y,
-      rowCount: products.length,
+      rowCount:
+        products.length,
     })
   ) {
     pageController.addPage();
     y = 16;
   }
 
-  const rows = products.map(
-    (product, index) => {
-      const guarantee =
-        calculateGuarantee(
-          getGuarantee(product),
-          priceType
-        );
+  const rows =
+    products.map(
+      (product, index) => {
+        const guarantee =
+          calculateGuarantee(
+            getGuarantee(
+              product
+            ),
+            priceType
+          );
 
-      return [
-        index + 1,
-        getModel(product),
-        useMah
-          ? getMah(product)
-          : getCartonSize(product),
-        guarantee,
-        product?.[priceField] ?? "",
-      ];
-    }
-  );
+        /*
+          MEMORY CARD / PENDRIVE
+          Price must remain blank.
+        */
+        const category =
+          getCategory(product);
+
+        const price =
+          isBlankPriceCategory(
+            category
+          )
+            ? ""
+            : product?.[
+                priceField
+              ] ?? "";
+
+        return [
+          index + 1,
+          getModel(product),
+          useMah
+            ? getMah(product)
+            : getCartonSize(
+                product
+              ),
+          guarantee,
+          price,
+        ];
+      }
+    );
 
   y = drawCategoryTitle(
     doc,
@@ -955,7 +1027,8 @@ const addCategorySection = ({
 
       halign: "center",
 
-      overflow: "linebreak",
+      overflow:
+        "linebreak",
     },
 
     headStyles: {
@@ -1039,6 +1112,29 @@ const addCategorySection = ({
         return;
       }
 
+      /*
+        MEMORY CARD / PENDRIVE:
+        Never apply price history
+        coloring because price itself
+        is intentionally blank.
+      */
+      const product =
+        products[data.row.index];
+
+      if (
+        product &&
+        isBlankPriceCategory(
+          getCategory(product)
+        )
+      ) {
+        data.cell.text = [""];
+        data.cell.styles.textColor =
+          COLORS.dark;
+        data.cell.styles.fillColor =
+          COLORS.white;
+        return;
+      }
+
       applyPriceHistoryStyle(
         data,
         products,
@@ -1089,14 +1185,16 @@ const addPolymerBatterySection = ({
 
   /*
     Polymer is intentionally kept as one
-    continuous table so serial numbers never reset.
+    continuous table so serial numbers
+    never reset.
   */
 
   if (
     shouldMoveSectionToNextPage({
       doc,
       currentY: y,
-      rowCount: products.length,
+      rowCount:
+        products.length,
     }) &&
     getAvailableHeight(
       doc,
@@ -1151,12 +1249,16 @@ const addPolymerBatterySection = ({
           (product) => {
             const productCategory =
               normalize(
-                getCategory(product)
+                getCategory(
+                  product
+                )
               );
 
             return aliases.some(
               (alias) =>
-                normalize(alias) ===
+                normalize(
+                  alias
+                ) ===
                 productCategory
             );
           }
@@ -1166,12 +1268,14 @@ const addPolymerBatterySection = ({
         (product) => {
           const productId =
             String(
-              getProductId(product)
+              getProductId(
+                product
+              )
             );
 
           /*
-            Avoid accidental duplicate rows
-            if aliases overlap.
+            Avoid accidental duplicate
+            rows if aliases overlap.
           */
 
           if (
@@ -1188,20 +1292,40 @@ const addPolymerBatterySection = ({
 
           rows.push([
             serial,
+
             getPolymerCategoryLabel(
-              getCategory(product)
+              getCategory(
+                product
+              )
             ),
+
             getModel(product),
+
             getMah(product),
+
             calculateGuarantee(
-              getGuarantee(product),
+              getGuarantee(
+                product
+              ),
               priceType
             ),
-            product?.[
-              getPriceField(
-                priceType
+
+            /*
+              MEMORY CARD / PENDRIVE
+              are not normally part of Polymer,
+              but keep the same safety rule.
+            */
+            isBlankPriceCategory(
+              getCategory(
+                product
               )
-            ] ?? "",
+            )
+              ? ""
+              : product?.[
+                  getPriceField(
+                    priceType
+                  )
+                ] ?? "",
           ]);
 
           serial += 1;
@@ -1219,7 +1343,9 @@ const addPolymerBatterySection = ({
     (product) => {
       const productId =
         String(
-          getProductId(product)
+          getProductId(
+            product
+          )
         );
 
       if (
@@ -1232,20 +1358,35 @@ const addPolymerBatterySection = ({
 
       rows.push([
         serial,
+
         getPolymerCategoryLabel(
-          getCategory(product)
+          getCategory(
+            product
+          )
         ),
+
         getModel(product),
+
         getMah(product),
+
         calculateGuarantee(
-          getGuarantee(product),
+          getGuarantee(
+            product
+          ),
           priceType
         ),
-        product?.[
-          getPriceField(
-            priceType
+
+        isBlankPriceCategory(
+          getCategory(
+            product
           )
-        ] ?? "",
+        )
+          ? ""
+          : product?.[
+              getPriceField(
+                priceType
+              )
+            ] ?? "",
       ]);
 
       usedProductIds.add(
@@ -1315,7 +1456,8 @@ const addPolymerBatterySection = ({
 
       halign: "center",
 
-      overflow: "linebreak",
+      overflow:
+        "linebreak",
     },
 
     headStyles: {
@@ -1423,9 +1565,28 @@ const addPolymerBatterySection = ({
         return;
       }
 
+      /*
+        MEMORY CARD / PENDRIVE:
+        Price stays blank.
+      */
+
+      if (
+        isBlankPriceCategory(
+          getCategory(product)
+        )
+      ) {
+        data.cell.text = [""];
+        data.cell.styles.textColor =
+          COLORS.dark;
+        data.cell.styles.fillColor =
+          COLORS.white;
+        return;
+      }
+
       applyPriceHistoryStyle(
         {
           ...data,
+
           table: {
             columns: [
               {},
@@ -1437,8 +1598,11 @@ const addPolymerBatterySection = ({
             ],
           },
         },
+
         products,
+
         priceType,
+
         priceHistoryMap
       );
     },
@@ -1476,7 +1640,9 @@ const addCombinedGroup = ({
   */
 
   if (
-    normalize(group.sheetName) ===
+    normalize(
+      group.sheetName
+    ) ===
     "POLYMER BATTERY"
   ) {
     return addPolymerBatterySection({
@@ -1521,34 +1687,47 @@ const addCombinedGroup = ({
           (product) => {
             const productCategory =
               normalize(
-                getCategory(product)
+                getCategory(
+                  product
+                )
               );
 
             return aliases.some(
               (alias) =>
-                normalize(alias) ===
+                normalize(
+                  alias
+                ) ===
                 productCategory
             );
           }
         );
 
-      if (!sectionProducts.length) {
+      if (
+        !sectionProducts.length
+      ) {
         return;
       }
 
       y = addCategorySection({
         doc,
+
         startY: y,
+
         title:
           section.title ||
           getCategory(
             sectionProducts[0]
           ),
+
         products:
           sectionProducts,
+
         priceType,
+
         useMah,
+
         priceHistoryMap,
+
         pageController,
       });
     }
@@ -1564,7 +1743,9 @@ const addCombinedGroup = ({
       (product) =>
         !usedCategories.has(
           normalize(
-            getCategory(product)
+            getCategory(
+              product
+            )
           )
         )
     );
@@ -1572,12 +1753,19 @@ const addCombinedGroup = ({
   if (remaining.length) {
     y = addCategorySection({
       doc,
+
       startY: y,
+
       title: "OTHER",
+
       products: remaining,
+
       priceType,
+
       useMah,
+
       priceHistoryMap,
+
       pageController,
     });
   }
@@ -1616,151 +1804,156 @@ export const exportPriceManagementPDF = (
 
   /* =======================================================
      PRICE HISTORY MAP
+     ONLY LAST 30 DAYS PRICE CHANGES ARE HIGHLIGHTED
   ======================================================= */
 
-  /* =======================================================
-   PRICE HISTORY MAP
-   ONLY LAST 30 DAYS PRICE CHANGES ARE HIGHLIGHTED
-======================================================= */
+  const selectedFields =
+    PRICE_HISTORY_FIELDS[
+      priceType
+    ] ||
+    PRICE_HISTORY_FIELDS.SS;
 
-const selectedFields =
-  PRICE_HISTORY_FIELDS[
-    priceType
-  ] ||
-  PRICE_HISTORY_FIELDS.SS;
+  const historyMap =
+    new Map();
 
-const historyMap =
-  new Map();
+  const now = Date.now();
 
-/*
-  Only price changes from the last
-  30 days are considered.
+  const ONE_MONTH_MS =
+    30 *
+    24 *
+    60 *
+    60 *
+    1000;
 
-  Anything older than 30 days
-  will NOT be highlighted.
-*/
-const now = Date.now();
+  const lastMonthTimestamp =
+    now - ONE_MONTH_MS;
 
-const ONE_MONTH_MS =
-  30 * 24 * 60 * 60 * 1000;
+  if (
+    Array.isArray(
+      priceHistory
+    )
+  ) {
+    priceHistory.forEach(
+      (item) => {
+        const productId =
+          String(
+            item?.product_id ??
+              ""
+          );
 
-const lastMonthTimestamp =
-  now - ONE_MONTH_MS;
+        if (!productId) {
+          return;
+        }
 
-if (
-  Array.isArray(priceHistory)
-) {
-  priceHistory.forEach(
-    (item) => {
-      const productId =
-        String(
-          item?.product_id ??
-            ""
-        );
+        const oldValue =
+          Number(
+            item?.[
+              selectedFields
+                .oldField
+            ]
+          );
 
-      if (!productId) {
-        return;
+        const newValue =
+          Number(
+            item?.[
+              selectedFields
+                .newField
+            ]
+          );
+
+        /*
+          No actual price change
+          = no highlight.
+        */
+
+        if (
+          !Number.isFinite(
+            oldValue
+          ) ||
+          !Number.isFinite(
+            newValue
+          ) ||
+          oldValue === newValue
+        ) {
+          return;
+        }
+
+        /*
+          changed_at is preferred.
+          If changed_at is not available,
+          applicable_from is used.
+        */
+
+        const timestamp =
+          new Date(
+            item?.changed_at ??
+              item?.applicable_from ??
+              0
+          ).getTime() || 0;
+
+        /*
+          Ignore invalid dates.
+        */
+
+        if (!timestamp) {
+          return;
+        }
+
+        /*
+          Ignore every price change older
+          than the last 30 days.
+        */
+
+        if (
+          timestamp <
+          lastMonthTimestamp
+        ) {
+          return;
+        }
+
+        /*
+          Ignore future-dated records.
+        */
+
+        if (
+          timestamp > now
+        ) {
+          return;
+        }
+
+        const existing =
+          historyMap.get(
+            productId
+          );
+
+        const existingTimestamp =
+          existing?.__timestamp ??
+          -1;
+
+        /*
+          If multiple price changes happened
+          within the last 30 days, only the
+          latest one is used.
+        */
+
+        if (
+          !existing ||
+          timestamp >=
+            existingTimestamp
+        ) {
+          historyMap.set(
+            productId,
+            {
+              ...item,
+              __timestamp:
+                timestamp,
+            }
+          );
+        }
       }
+    );
+  }
 
-      const oldValue =
-        Number(
-          item?.[
-            selectedFields.oldField
-          ]
-        );
-
-      const newValue =
-        Number(
-          item?.[
-            selectedFields.newField
-          ]
-        );
-
-      /*
-        No actual price change
-        = no highlight.
-      */
-      if (
-        !Number.isFinite(
-          oldValue
-        ) ||
-        !Number.isFinite(
-          newValue
-        ) ||
-        oldValue === newValue
-      ) {
-        return;
-      }
-
-      /*
-        changed_at is preferred.
-
-        If changed_at is not available,
-        applicable_from is used.
-      */
-      const timestamp =
-        new Date(
-          item?.changed_at ??
-            item?.applicable_from ??
-            0
-        ).getTime() || 0;
-
-      /*
-        Ignore invalid dates.
-      */
-      if (!timestamp) {
-        return;
-      }
-
-      /*
-        IMPORTANT:
-        Ignore every price change older
-        than the last 30 days.
-      */
-      if (
-        timestamp < lastMonthTimestamp
-      ) {
-        return;
-      }
-
-      /*
-        Ignore future-dated records.
-      */
-      if (timestamp > now) {
-        return;
-      }
-
-      const existing =
-        historyMap.get(
-          productId
-        );
-
-      const existingTimestamp =
-        existing?.__timestamp ??
-        -1;
-
-      /*
-        If multiple price changes happened
-        within the last 30 days, only the
-        latest one is used.
-      */
-      if (
-        !existing ||
-        timestamp >=
-          existingTimestamp
-      ) {
-        historyMap.set(
-          productId,
-          {
-            ...item,
-            __timestamp:
-              timestamp,
-          }
-        );
-      }
-    }
-  );
-}
   /* =======================================================
      GROUP PRODUCTS
   ======================================================= */
@@ -1849,14 +2042,22 @@ if (
       currentY =
         addCombinedGroup({
           doc,
-          startY: currentY,
+
+          startY:
+            currentY,
+
           group,
+
           products:
             groupProducts,
+
           categoryLookup,
+
           priceType,
+
           priceHistoryMap:
             historyMap,
+
           pageController,
         });
     }
@@ -1865,23 +2066,32 @@ if (
   /* =======================================================
      NORMAL GROUPS
      Continuous page flow
+
+     CHARGER / TWS EARBUDS /
+     NECKBAND / SPEAKER
+     are handled inside addCategorySection
+     and ALWAYS begin from a new page.
+
+     MEMORY CARD / PENDRIVE
+     are handled there with blank PRICE.
   ======================================================= */
 
-  const normalGroups = [
-    ...grouped.entries(),
-  ]
-    .filter(
-      ([groupKey]) =>
-        !configuredSheetNames.has(
-          groupKey
-        )
-    )
-    .sort(
-      ([a], [b]) =>
-        String(a).localeCompare(
-          String(b)
-        )
-    );
+  const normalGroups =
+    [
+      ...grouped.entries(),
+    ]
+      .filter(
+        ([groupKey]) =>
+          !configuredSheetNames.has(
+            groupKey
+          )
+      )
+      .sort(
+        ([a], [b]) =>
+          String(a).localeCompare(
+            String(b)
+          )
+      );
 
   normalGroups.forEach(
     ([category, categoryProducts]) => {
@@ -1894,14 +2104,23 @@ if (
       currentY =
         addCategorySection({
           doc,
-          startY: currentY,
-          title: category,
+
+          startY:
+            currentY,
+
+          title:
+            category,
+
           products:
             categoryProducts,
+
           priceType,
+
           useMah: false,
+
           priceHistoryMap:
             historyMap,
+
           pageController,
         });
     }
