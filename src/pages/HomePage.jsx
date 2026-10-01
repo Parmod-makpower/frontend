@@ -1127,12 +1127,6 @@ export default function HomePage() {
      MAHOTSAV / GOA BUTTON
   ======================================================= */
 
-  const mahotsavProduct = allProducts.find(
-    (product) => product.product_id === 10006
-  );
-
-  const showMahotsavButton = mahotsavProduct?.moq === 1;
-
   /* =======================================================
      SEARCH
   ======================================================= */
@@ -1730,8 +1724,7 @@ export default function HomePage() {
               FLOATING GOA BUTTON
           ================================================= */}
 
-          {showMahotsavButton && (
-            <button
+            {/* <button
               type="button"
               onClick={() =>
                 navigate("/goa-couple-trip-schemes")
@@ -1809,8 +1802,8 @@ export default function HomePage() {
               >
                 TRIP
               </span>
-            </button>
-          )}
+            </button> */}
+       
 
           {/* =================================================
               QUICK ACTIONS

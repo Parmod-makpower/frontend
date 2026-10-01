@@ -78,7 +78,7 @@ const COMBINED_CATEGORY_GROUPS = [
     sections: [
       { title: "I PHONE DATA CABLES", aliases: ["DATA CABLE I PHONE"] },
       { title: "3 IN 1 DATA CABLES", aliases: ["DATA CABLE 3 IN 1"] },
-      { title: "POWER BANK CABLES", aliases: ["DATA CABLE PB"] },
+      { title: "DATA CABLE PB", aliases: ["DATA CABLE PB"] },
       { title: "DATA CABLE C TO C", aliases: ["DATA CABLE C TO C"] },
       { title: "DATA CABLE C TO I", aliases: ["DATA CABLE C TO I"] },
     ],

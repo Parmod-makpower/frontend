@@ -29,11 +29,6 @@ export default function UserSchemesPage() {
   if (isLoading) return <div className="p-4">Loading schemes...</div>;
 
   const getProduct = (id) => allProducts.find((p) => p.product_id === id);
-  const mahotsavProduct = allProducts.find(
-  (p) => p.product_id === 10006
-);
-
-const showMahotsavButton = mahotsavProduct?.moq === 1;
 
   return (
     <div className="p-2 pb-20">
@@ -181,8 +176,8 @@ const showMahotsavButton = mahotsavProduct?.moq === 1;
           </div>
         )}
       </div>
-
-          {showMahotsavButton && (
+{/* 
+        
         <button
           onClick={() => navigate("/goa-couple-trip-schemes")}
           className="
@@ -203,8 +198,8 @@ const showMahotsavButton = mahotsavProduct?.moq === 1;
           <span className="text-[10px] font-bold leading-none">
             Goa Trip
           </span>
-        </button>
-      )}
+        </button> */}
+    
     
     </div>
   );

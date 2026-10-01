@@ -43,7 +43,7 @@ import DispatchEntriesPage from "./pages/ADMIN/DispatchEntriesPage";
 import OrderGoogleSheet from "./pages/CRM/OrderGoogleSheet";
 import NotInStockReportPage from "./pages/CRM/NotInStockReportPage";
 import TrackingOrdersPage from "./pages/CRM/TrackingOrdersPage";
-import GoaTrip from "./pages/GoaTrip";
+import OtherSchemePage from "./pages/OtherSchemePage";
 import AdminCRM_DS_ordersPage from "./pages/DS/AdminCRM_DS_ordersPage";
 import DSOrderDetailsPage from "./pages/DS/DSOrderDetailsPage";
 import CargoPage from "./pages/CargoPage";
@@ -132,7 +132,7 @@ export default function App() {
           <Route path="/order/:id/details" element={<ProtectedRoute ><CRMVerifiedDetailsPage /></ProtectedRoute>} />
 
           <Route path="/user-schemes" element={<ProtectedRoute ><UserSchemesPage /></ProtectedRoute>} />
-          <Route path="/goa-couple-trip-schemes" element={<ProtectedRoute ><GoaTrip /></ProtectedRoute>} />
+          <Route path="/goa-couple-trip-schemes" element={<ProtectedRoute ><OtherSchemePage /></ProtectedRoute>} />
           <Route path="/inactive" element={<ProtectedRoute ><InactiveProductsPage /></ProtectedRoute>} />
           <Route path="/google-sheet" element={<ProtectedRoute ><OrderGoogleSheet /></ProtectedRoute>} />
           <Route path="/not-in-stock-reports" element={<ProtectedRoute><NotInStockReportPage /></ProtectedRoute>} />

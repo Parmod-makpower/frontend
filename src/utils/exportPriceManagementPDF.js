@@ -44,7 +44,16 @@ const getMah = (product) =>
   "";
 
 /* =========================================================
+   DATA CABLE CATEGORY
+   ONLY DATA CABLE CATEGORIES USE CONTINUOUS SERIAL NUMBER
+========================================================= */
+
+const isDataCableCategory = (category) =>
+  normalize(category).includes("DATA CABLE");
+
+/* =========================================================
    SPECIAL PAGE-BREAK CATEGORIES
+
    These categories ALWAYS start from a NEW PAGE.
 ========================================================= */
 
@@ -57,6 +66,7 @@ const NEW_PAGE_CATEGORIES = new Set([
 
 /* =========================================================
    PRICE-BLANK CATEGORIES
+
    Price must remain blank for these categories.
 ========================================================= */
 
@@ -190,6 +200,79 @@ const getPriceLabel = (priceType) => {
 };
 
 /* =========================================================
+   PRICE SORTING
+
+   IMPORTANT:
+   - Category order is NOT changed.
+   - Only products INSIDE the category are sorted.
+   - Lowest price comes first.
+   - Highest price comes last.
+   - Empty / invalid prices go to bottom.
+   - Same prices keep their original order.
+========================================================= */
+
+const getSortablePrice = (
+  product,
+  priceType
+) => {
+  const priceField =
+    getPriceField(priceType);
+
+  const rawValue =
+    product?.[priceField];
+
+  if (
+    rawValue === null ||
+    rawValue === undefined ||
+    rawValue === ""
+  ) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const cleanedValue = String(
+    rawValue
+  )
+    .replace(/,/g, "")
+    .replace(/[₹$€£]/g, "")
+    .trim();
+
+  const numericValue =
+    Number(cleanedValue);
+
+  return Number.isFinite(numericValue)
+    ? numericValue
+    : Number.POSITIVE_INFINITY;
+};
+
+const sortProductsByPrice = (
+  products = [],
+  priceType
+) => {
+  return products
+    .map((product, index) => ({
+      product,
+      originalIndex: index,
+      price: getSortablePrice(
+        product,
+        priceType
+      ),
+    }))
+    .sort((a, b) => {
+      if (a.price !== b.price) {
+        return a.price - b.price;
+      }
+
+      return (
+        a.originalIndex -
+        b.originalIndex
+      );
+    })
+    .map(
+      ({ product }) => product
+    );
+};
+
+/* =========================================================
    GUARANTEE
 ========================================================= */
 
@@ -209,7 +292,8 @@ const calculateGuarantee = (
   value,
   priceType
 ) => {
-  const original = formatGuarantee(value);
+  const original =
+    formatGuarantee(value);
 
   if (!original) {
     return original;
@@ -260,12 +344,16 @@ const createCategoryLookup = (
   combinedCategoryGroups.forEach(
     ({ sheetName, sections = [] }) => {
       sections.forEach(
-        ({ title, aliases = [] }) => {
+        ({
+          title,
+          aliases = [],
+        }) => {
           [
             title,
             ...aliases,
           ].forEach((value) => {
-            const key = normalize(value);
+            const key =
+              normalize(value);
 
             if (key) {
               lookup.set(
@@ -364,17 +452,11 @@ const getDateText = () => {
 
 const COLORS = {
   red: [252, 37, 12],
-
   dark: [15, 23, 42],
-
   slate: [71, 85, 105],
-
   light: [248, 250, 252],
-
   border: [203, 213, 225],
-
   white: [255, 255, 255],
-
   row: [250, 250, 250],
 
   /* CATEGORY BAR */
@@ -459,11 +541,9 @@ const drawPageHeader = (
 
   doc.setFontSize(10.5);
 
-  // doc.text(
-  //   "MAKPOWER",
-  //   7,
-  //   6
-  // );
+  /*
+    MAKPOWER intentionally removed.
+  */
 
   doc.setFontSize(6.5);
 
@@ -571,7 +651,8 @@ const createPageController = (
 
   const drawHeaderOnce = () => {
     const pageNumber =
-      doc.internal.getCurrentPageInfo()
+      doc.internal
+        .getCurrentPageInfo()
         .pageNumber;
 
     if (
@@ -794,6 +875,19 @@ const applyPriceHistoryStyle = (
     return;
   }
 
+  /*
+    MEMORY CARD / PENDRIVE
+    have intentionally blank prices.
+  */
+
+  if (
+    isBlankPriceCategory(
+      getCategory(product)
+    )
+  ) {
+    return;
+  }
+
   const productId = String(
     getProductId(product)
   );
@@ -858,6 +952,14 @@ const addCategorySection = ({
   useMah = false,
   priceHistoryMap,
   pageController,
+
+  /*
+    DATA CABLE SERIAL REF
+    Only DATA CABLE categories use this
+    continuous serial counter.
+  */
+
+  dataCableSerialRef = null,
 }) => {
   if (!products.length) {
     return startY;
@@ -875,12 +977,16 @@ const addCategorySection = ({
   const normalizedTitle =
     normalize(title);
 
+  const dataCableCategory =
+    isDataCableCategory(
+      normalizedTitle
+    );
+
   let y = startY;
 
   /* =======================================================
      SPECIAL CATEGORIES:
      CHARGER / TWS EARBUDS / NECKBAND / SPEAKER
-
      Always begin from a fresh page.
   ======================================================= */
 
@@ -894,10 +1000,12 @@ const addCategorySection = ({
       this category is already starting
       at the top of a fresh page.
     */
+
     const pageTop = 16;
 
     if (
-      y > pageTop + 0.5
+      y >
+      pageTop + 0.5
     ) {
       pageController.addPage();
       y = pageTop;
@@ -914,8 +1022,29 @@ const addCategorySection = ({
     y = 16;
   }
 
+  /*
+    IMPORTANT:
+    Sort products BEFORE creating rows.
+
+    This fixes:
+    - price order
+    - serial order
+    - price-history row mapping
+  */
+
+  const sortedProducts =
+    sortProductsByPrice(
+      products,
+      priceType
+    );
+
+  /*
+    rows is initialized BEFORE map callback
+    and map uses sortedProducts.
+  */
+
   const rows =
-    products.map(
+    sortedProducts.map(
       (product, index) => {
         const guarantee =
           calculateGuarantee(
@@ -929,6 +1058,7 @@ const addCategorySection = ({
           MEMORY CARD / PENDRIVE
           Price must remain blank.
         */
+
         const category =
           getCategory(product);
 
@@ -941,8 +1071,32 @@ const addCategorySection = ({
                 priceField
               ] ?? "";
 
+        /*
+          DATA CABLE:
+          Continuous numbering across
+          all DATA CABLE categories.
+
+          Serial is assigned AFTER sorting.
+        */
+
+        let serialNumber;
+
+        if (
+          dataCableCategory &&
+          dataCableSerialRef
+        ) {
+          serialNumber =
+            dataCableSerialRef.current;
+
+          dataCableSerialRef.current +=
+            1;
+        } else {
+          serialNumber =
+            index + 1;
+        }
+
         return [
-          index + 1,
+          serialNumber,
           getModel(product),
           useMah
             ? getMah(product)
@@ -1113,13 +1267,19 @@ const addCategorySection = ({
       }
 
       /*
-        MEMORY CARD / PENDRIVE:
-        Never apply price history
-        coloring because price itself
-        is intentionally blank.
+        IMPORTANT:
+        Use sortedProducts here,
+        NOT original products.
+
+        This keeps price-history color
+        attached to the correct product
+        after sorting.
       */
+
       const product =
-        products[data.row.index];
+        sortedProducts[
+          data.row.index
+        ];
 
       if (
         product &&
@@ -1130,14 +1290,16 @@ const addCategorySection = ({
         data.cell.text = [""];
         data.cell.styles.textColor =
           COLORS.dark;
+
         data.cell.styles.fillColor =
           COLORS.white;
+
         return;
       }
 
       applyPriceHistoryStyle(
         data,
-        products,
+        sortedProducts,
         priceType,
         priceHistoryMap
       );
@@ -1156,10 +1318,15 @@ const addCategorySection = ({
 
 /* =========================================================
    POLYMER BATTERY
+
    ONE HEADING
    ONE TABLE
    CATEGORY COLUMN
    CONTINUOUS SERIAL NUMBER
+
+   Category order remains unchanged.
+   Products inside each category are
+   sorted by price ascending.
 ========================================================= */
 
 const addPolymerBatterySection = ({
@@ -1229,6 +1396,17 @@ const addPolymerBatterySection = ({
 
   const rows = [];
 
+  /*
+    IMPORTANT:
+    Keep product reference in exactly
+    the same order as rows.
+
+    This is required for correct
+    price-history highlighting.
+  */
+
+  const rowProducts = [];
+
   let serial = 1;
 
   const sections =
@@ -1236,6 +1414,11 @@ const addPolymerBatterySection = ({
 
   const usedProductIds =
     new Set();
+
+  /*
+    Category order is controlled ONLY
+    by sections.forEach().
+  */
 
   sections.forEach(
     (section) => {
@@ -1264,7 +1447,26 @@ const addPolymerBatterySection = ({
           }
         );
 
-      sectionProducts.forEach(
+      if (
+        !sectionProducts.length
+      ) {
+        return;
+      }
+
+      /*
+        IMPORTANT:
+        Sort ONLY this category.
+
+        Category order itself is untouched.
+      */
+
+      const sortedSectionProducts =
+        sortProductsByPrice(
+          sectionProducts,
+          priceType
+        );
+
+      sortedSectionProducts.forEach(
         (product) => {
           const productId =
             String(
@@ -1288,6 +1490,15 @@ const addPolymerBatterySection = ({
 
           usedProductIds.add(
             productId
+          );
+
+          /*
+            Keep exact same order in
+            rowProducts and rows.
+          */
+
+          rowProducts.push(
+            product
           );
 
           rows.push([
@@ -1315,6 +1526,7 @@ const addPolymerBatterySection = ({
               are not normally part of Polymer,
               but keep the same safety rule.
             */
+
             isBlankPriceCategory(
               getCategory(
                 product
@@ -1337,65 +1549,98 @@ const addPolymerBatterySection = ({
   /*
     Any Polymer product not matched
     by configured sections is still included.
+
+    Unmatched products are also sorted
+    by price ascending.
   */
 
-  products.forEach(
-    (product) => {
-      const productId =
-        String(
-          getProductId(
-            product
-          )
-        );
+  const remainingProducts =
+    products.filter(
+      (product) => {
+        const productId =
+          String(
+            getProductId(
+              product
+            )
+          );
 
-      if (
-        usedProductIds.has(
+        return !usedProductIds.has(
           productId
-        )
-      ) {
-        return;
+        );
       }
+    );
 
-      rows.push([
-        serial,
-
-        getPolymerCategoryLabel(
-          getCategory(
-            product
-          )
-        ),
-
-        getModel(product),
-
-        getMah(product),
-
-        calculateGuarantee(
-          getGuarantee(
-            product
-          ),
-          priceType
-        ),
-
-        isBlankPriceCategory(
-          getCategory(
-            product
-          )
-        )
-          ? ""
-          : product?.[
-              getPriceField(
-                priceType
-              )
-            ] ?? "",
-      ]);
-
-      usedProductIds.add(
-        productId
+  if (
+    remainingProducts.length
+  ) {
+    const sortedRemainingProducts =
+      sortProductsByPrice(
+        remainingProducts,
+        priceType
       );
 
-      serial += 1;
-    }
-  );
+    sortedRemainingProducts.forEach(
+      (product) => {
+        const productId =
+          String(
+            getProductId(
+              product
+            )
+          );
+
+        if (
+          usedProductIds.has(
+            productId
+          )
+        ) {
+          return;
+        }
+
+        usedProductIds.add(
+          productId
+        );
+
+        rowProducts.push(
+          product
+        );
+
+        rows.push([
+          serial,
+
+          getPolymerCategoryLabel(
+            getCategory(
+              product
+            )
+          ),
+
+          getModel(product),
+
+          getMah(product),
+
+          calculateGuarantee(
+            getGuarantee(
+              product
+            ),
+            priceType
+          ),
+
+          isBlankPriceCategory(
+            getCategory(
+              product
+            )
+          )
+            ? ""
+            : product?.[
+                getPriceField(
+                  priceType
+                )
+              ] ?? "",
+        ]);
+
+        serial += 1;
+      }
+    );
+  }
 
   autoTable(doc, {
     startY: y,
@@ -1558,8 +1803,19 @@ const addPolymerBatterySection = ({
         return;
       }
 
+      /*
+        IMPORTANT:
+        Use rowProducts instead of
+        original products.
+
+        rowProducts is in exactly the
+        same order as rows.
+      */
+
       const product =
-        products[data.row.index];
+        rowProducts[
+          data.row.index
+        ];
 
       if (!product) {
         return;
@@ -1578,31 +1834,17 @@ const addPolymerBatterySection = ({
         data.cell.text = [""];
         data.cell.styles.textColor =
           COLORS.dark;
+
         data.cell.styles.fillColor =
           COLORS.white;
+
         return;
       }
 
       applyPriceHistoryStyle(
-        {
-          ...data,
-
-          table: {
-            columns: [
-              {},
-              {},
-              {},
-              {},
-              {},
-              {},
-            ],
-          },
-        },
-
-        products,
-
+        data,
+        rowProducts,
         priceType,
-
         priceHistoryMap
       );
     },
@@ -1631,6 +1873,12 @@ const addCombinedGroup = ({
   priceType,
   priceHistoryMap,
   pageController,
+
+  /*
+    Shared DATA CABLE serial counter.
+  */
+
+  dataCableSerialRef = null,
 }) => {
   let y = startY;
 
@@ -1666,6 +1914,12 @@ const addCombinedGroup = ({
 
   const usedCategories =
     new Set();
+
+  /*
+    IMPORTANT:
+    sections.forEach() preserves
+    the configured category order.
+  */
 
   sections.forEach(
     (section) => {
@@ -1729,6 +1983,8 @@ const addCombinedGroup = ({
         priceHistoryMap,
 
         pageController,
+
+        dataCableSerialRef,
       });
     }
   );
@@ -1767,6 +2023,8 @@ const addCombinedGroup = ({
       priceHistoryMap,
 
       pageController,
+
+      dataCableSerialRef,
     });
   }
 
@@ -1804,7 +2062,9 @@ export const exportPriceManagementPDF = (
 
   /* =======================================================
      PRICE HISTORY MAP
-     ONLY LAST 30 DAYS PRICE CHANGES ARE HIGHLIGHTED
+
+     ONLY LAST 30 DAYS PRICE CHANGES
+     ARE HIGHLIGHTED
   ======================================================= */
 
   const selectedFields =
@@ -2022,8 +2282,22 @@ export const exportPriceManagementPDF = (
   let currentY = 16;
 
   /* =======================================================
+     DATA CABLE SERIAL COUNTER
+
+     ONLY DATA CABLE categories share
+     this continuous serial number.
+  ======================================================= */
+
+  const dataCableSerialRef = {
+    current: 1,
+  };
+
+  /* =======================================================
      COMBINED CATEGORY GROUPS
-     Continuous page flow
+
+     Continuous page flow.
+     Category order stays exactly as
+     combinedCategoryGroups.
   ======================================================= */
 
   combinedCategoryGroups.forEach(
@@ -2059,13 +2333,21 @@ export const exportPriceManagementPDF = (
             historyMap,
 
           pageController,
+
+          /*
+            Same DATA CABLE serial
+            counter is shared.
+          */
+
+          dataCableSerialRef,
         });
     }
   );
 
   /* =======================================================
      NORMAL GROUPS
-     Continuous page flow
+
+     Continuous page flow.
 
      CHARGER / TWS EARBUDS /
      NECKBAND / SPEAKER
@@ -2074,6 +2356,16 @@ export const exportPriceManagementPDF = (
 
      MEMORY CARD / PENDRIVE
      are handled there with blank PRICE.
+
+     DATA CABLE categories use one
+     continuous serial number.
+
+     Category order for normal groups
+     remains the existing alphabetical
+     group order.
+
+     Products inside each category
+     are sorted by price ascending.
   ======================================================= */
 
   const normalGroups =
@@ -2122,6 +2414,13 @@ export const exportPriceManagementPDF = (
             historyMap,
 
           pageController,
+
+          /*
+            DATA CABLE serial remains
+            continuous between categories.
+          */
+
+          dataCableSerialRef,
         });
     }
   );

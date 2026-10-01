@@ -32,6 +32,250 @@ const getProductKey = (item) => {
     .toLowerCase();
 };
 
+/* =========================================================
+   CATEGORY HELPERS
+========================================================= */
+
+const normalizeCategory = (value) => {
+  return String(value ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, " ");
+};
+
+const getProductCategory = (item) => {
+  return (
+    item?.sub_category ??
+    item?.subcategory ??
+    item?.subCategory ??
+    item?.category ??
+    item?.product_category ??
+    item?.productCategory ??
+    ""
+  )
+    .toString()
+    .trim();
+};
+
+const getCategoryKey = (item) => {
+  return normalizeCategory(
+    getProductCategory(item)
+  );
+};
+
+/* =========================================================
+   CATEGORY PRIORITY
+
+   1. SPEAKER
+   2. NECKBAND
+   3. ALL OTHER CATEGORIES
+========================================================= */
+
+const getCategoryPriority = (category) => {
+  const normalized =
+    normalizeCategory(category);
+
+  if (
+    normalized === "SPEAKER" ||
+    normalized.startsWith("SPEAKER ")
+  ) {
+    return 0;
+  }
+
+  if (
+    normalized === "NECKBAND" ||
+    normalized.startsWith("NECKBAND ")
+  ) {
+    return 1;
+  }
+
+  return 2;
+};
+
+/* =========================================================
+   CHANGE DIRECTION
+
+   INCREASE = 0
+   DECREASE = 1
+========================================================= */
+
+const getPriceChangePriority = (
+  item,
+  oldField,
+  newField
+) => {
+  const oldPrice = Number(
+    item?.[oldField]
+  );
+
+  const newPrice = Number(
+    item?.[newField]
+  );
+
+  if (
+    !Number.isFinite(oldPrice) ||
+    !Number.isFinite(newPrice)
+  ) {
+    return 2;
+  }
+
+  if (newPrice > oldPrice) {
+    return 0;
+  }
+
+  if (newPrice < oldPrice) {
+    return 1;
+  }
+
+  return 2;
+};
+
+/* =========================================================
+   ORDER PRICE HISTORY
+
+   CATEGORY ORDER:
+   SPEAKER
+   ↓
+   NECKBAND
+   ↓
+   OTHER CATEGORIES
+
+   INSIDE EACH CATEGORY:
+   PRICE INCREASE
+   ↓
+   PRICE DECREASE
+
+   Same category + same direction:
+   original order preserved.
+========================================================= */
+
+const sortPriceHistoryForPDF = (
+  history,
+  oldField,
+  newField
+) => {
+  if (!Array.isArray(history)) {
+    return [];
+  }
+
+  /*
+    Keep first appearance order of
+    normal categories.
+
+    Other categories are NOT
+    alphabetically sorted.
+  */
+
+  const categoryOrder =
+    new Map();
+
+  history.forEach((item) => {
+    const category =
+      getCategoryKey(item);
+
+    if (
+      !categoryOrder.has(category)
+    ) {
+      categoryOrder.set(
+        category,
+        categoryOrder.size
+      );
+    }
+  });
+
+  return history
+    .map((item, index) => {
+      const category =
+        getCategoryKey(item);
+
+      const categoryPriority =
+        getCategoryPriority(
+          category
+        );
+
+      const changePriority =
+        getPriceChangePriority(
+          item,
+          oldField,
+          newField
+        );
+
+      return {
+        item,
+        originalIndex: index,
+        category,
+        categoryPriority,
+        changePriority,
+        categoryOriginalOrder:
+          categoryOrder.get(
+            category
+          ) ?? 999999,
+      };
+    })
+    .sort((a, b) => {
+      /* -----------------------------------------------
+         SPEAKER -> NECKBAND -> OTHER
+      ----------------------------------------------- */
+
+      if (
+        a.categoryPriority !==
+        b.categoryPriority
+      ) {
+        return (
+          a.categoryPriority -
+          b.categoryPriority
+        );
+      }
+
+      /* -----------------------------------------------
+         OTHER CATEGORIES:
+         preserve first appearance order
+      ----------------------------------------------- */
+
+      if (
+        a.categoryPriority === 2 &&
+        a.categoryOriginalOrder !==
+          b.categoryOriginalOrder
+      ) {
+        return (
+          a.categoryOriginalOrder -
+          b.categoryOriginalOrder
+        );
+      }
+
+      /* -----------------------------------------------
+         SAME CATEGORY:
+         INCREASE -> DECREASE
+      ----------------------------------------------- */
+
+      if (
+        a.changePriority !==
+        b.changePriority
+      ) {
+        return (
+          a.changePriority -
+          b.changePriority
+        );
+      }
+
+      /* -----------------------------------------------
+         SAME CATEGORY + SAME DIRECTION
+      ----------------------------------------------- */
+
+      return (
+        a.originalIndex -
+        b.originalIndex
+      );
+    })
+    .map(
+      ({ item }) => item
+    );
+};
+
+/* =========================================================
+   LAST 7 DAYS
+========================================================= */
+
 const isWithinLast7Days = (value) => {
   const date = getDateValue(value);
 
@@ -49,7 +293,8 @@ const isWithinLast7Days = (value) => {
     0
   );
 
-  const sevenDaysAgo = new Date(todayStart);
+  const sevenDaysAgo =
+    new Date(todayStart);
 
   sevenDaysAgo.setDate(
     todayStart.getDate() - 6
@@ -75,36 +320,48 @@ const isWithinLast7Days = (value) => {
    GET LATEST RECORD PER PRODUCT
 ========================================================= */
 
-const getLatestHistoryPerProduct = (history) => {
+const getLatestHistoryPerProduct = (
+  history
+) => {
   const latestMap = new Map();
 
   history.forEach((item) => {
-    if (!isWithinLast7Days(item?.changed_at)) {
+    if (
+      !isWithinLast7Days(
+        item?.changed_at
+      )
+    ) {
       return;
     }
 
-    const productKey = getProductKey(item);
+    const productKey =
+      getProductKey(item);
 
     if (!productKey) {
       return;
     }
 
-    const currentDate = getDateValue(
-      item?.changed_at
-    );
+    const currentDate =
+      getDateValue(
+        item?.changed_at
+      );
 
-    const existing = latestMap.get(
-      productKey
-    );
+    const existing =
+      latestMap.get(productKey);
 
     if (!existing) {
-      latestMap.set(productKey, item);
+      latestMap.set(
+        productKey,
+        item
+      );
+
       return;
     }
 
-    const existingDate = getDateValue(
-      existing?.changed_at
-    );
+    const existingDate =
+      getDateValue(
+        existing?.changed_at
+      );
 
     if (
       currentDate &&
@@ -114,7 +371,10 @@ const getLatestHistoryPerProduct = (history) => {
           existingDate.getTime()
       )
     ) {
-      latestMap.set(productKey, item);
+      latestMap.set(
+        productKey,
+        item
+      );
     }
   });
 
@@ -125,20 +385,27 @@ const getLatestHistoryPerProduct = (history) => {
 
 /* =========================================================
    PRICE TYPE CONFIG
+
+   IMPORTANT:
+   Price type is still used internally to select
+   the correct old/new price fields.
+
+   It is NOT displayed in the PDF title,
+   footer or filename.
 ========================================================= */
 
-const getPriceFields = (priceType) => {
+const getPriceFields = (
+  priceType
+) => {
   switch (priceType) {
     case "DISTRIBUTER":
       return {
-        label: "Distributor",
         oldField: "old_ds_price",
         newField: "new_ds_price",
       };
 
     case "DEALER":
       return {
-        label: "Dealer",
         oldField: "old_dlr_price",
         newField: "new_dlr_price",
       };
@@ -146,7 +413,6 @@ const getPriceFields = (priceType) => {
     case "SS":
     default:
       return {
-        label: "SS",
         oldField: "old_price",
         newField: "new_price",
       };
@@ -162,9 +428,9 @@ export const exportPriceHistoryPDF = (
   priceType = "SS"
 ) => {
   try {
-    /* -------------------------------------------------------
+    /* =====================================================
        VALIDATION
-    ------------------------------------------------------- */
+    ===================================================== */
 
     if (
       !Array.isArray(history) ||
@@ -178,94 +444,149 @@ export const exportPriceHistoryPDF = (
     }
 
     const {
-      label,
       oldField,
       newField,
-    } = getPriceFields(priceType);
+    } = getPriceFields(
+      priceType
+    );
 
-    /* -------------------------------------------------------
+    /* =====================================================
        STEP 1:
        LAST 7 DAYS + LATEST RECORD PER PRODUCT
-    ------------------------------------------------------- */
+    ===================================================== */
 
     const latestHistory =
-      getLatestHistoryPerProduct(history);
+      getLatestHistoryPerProduct(
+        history
+      );
 
-    /* -------------------------------------------------------
+    /* =====================================================
        STEP 2:
-       REMOVE PRODUCTS WHERE SELECTED PRICE
-       DID NOT CHANGE
-    ------------------------------------------------------- */
+       ONLY PRODUCTS WHERE PRICE CHANGED
+    ===================================================== */
 
     const changedHistory =
-      latestHistory.filter((item) => {
-        const oldPrice = Number(
-          item?.[oldField]
-        );
+      latestHistory.filter(
+        (item) => {
+          const oldPrice =
+            Number(
+              item?.[oldField]
+            );
 
-        const newPrice = Number(
-          item?.[newField]
-        );
+          const newPrice =
+            Number(
+              item?.[newField]
+            );
 
-        if (
-          Number.isNaN(oldPrice) ||
-          Number.isNaN(newPrice)
-        ) {
-          return false;
+          if (
+            Number.isNaN(
+              oldPrice
+            ) ||
+            Number.isNaN(
+              newPrice
+            )
+          ) {
+            return false;
+          }
+
+          return (
+            oldPrice !==
+            newPrice
+          );
         }
+      );
 
-        return oldPrice !== newPrice;
-      });
+    /* =====================================================
+       NO DATA
+    ===================================================== */
 
-    /* -------------------------------------------------------
-       NO DATA AFTER PRICE CHANGE FILTER
-    ------------------------------------------------------- */
-
-    if (!changedHistory.length) {
+    if (
+      !changedHistory.length
+    ) {
       window.alert(
-        `No ${label} price changes found for the last 7 days.`
+        "No price changes found for the last 7 days."
       );
 
       return;
     }
 
-    /* -------------------------------------------------------
+    /* =====================================================
        STEP 3:
-       PREPARE TABLE DATA
-    ------------------------------------------------------- */
+       SORT DATA
 
-    const tableRows = changedHistory.map(
-      (item, index) => {
-        const oldPrice = Number(
-          item?.[oldField]
-        );
+       SPEAKER
+       ↓
+       NECKBAND
+       ↓
+       OTHER
 
-        const newPrice = Number(
-          item?.[newField]
-        );
+       INSIDE CATEGORY:
 
-        return [
-          index + 1,
+       INCREASE
+       ↓
+       DECREASE
+    ===================================================== */
 
-          item?.model ??
+    const orderedHistory =
+      sortPriceHistoryForPDF(
+        changedHistory,
+        oldField,
+        newField
+      );
+
+    /* =====================================================
+       STEP 4:
+       TABLE DATA
+
+       SL
+       CATEGORY
+       MODEL
+       OLD PRICE
+       NEW PRICE
+       DIFFERENCE
+    ===================================================== */
+
+    const tableRows =
+      orderedHistory.map(
+        (item, index) => {
+          const oldPrice =
+            Number(
+              item?.[oldField]
+            );
+
+          const newPrice =
+            Number(
+              item?.[newField]
+            );
+
+          const category =
+            getProductCategory(
+              item
+            ) || "OTHER";
+
+          const model =
+            item?.model ??
             item?.product_name ??
             item?.product_id ??
             item?.product_code ??
-            "",
+            "";
 
-          oldPrice,
+          return [
+            index + 1,
+            category,
+            model,
+            oldPrice,
+            newPrice,
+            newPrice -
+              oldPrice,
+          ];
+        }
+      );
 
-          newPrice,
-
-          newPrice - oldPrice,
-        ];
-      }
-    );
-
-    /* -------------------------------------------------------
-       STEP 4:
-       CREATE PORTRAIT PDF
-    ------------------------------------------------------- */
+    /* =====================================================
+       STEP 5:
+       CREATE PDF
+    ===================================================== */
 
     const doc = new jsPDF({
       orientation: "portrait",
@@ -273,9 +594,9 @@ export const exportPriceHistoryPDF = (
       format: "a4",
     });
 
-    /* -------------------------------------------------------
+    /* =====================================================
        PAGE DIMENSIONS
-    ------------------------------------------------------- */
+    ===================================================== */
 
     const pageWidth =
       doc.internal.pageSize.getWidth();
@@ -283,33 +604,94 @@ export const exportPriceHistoryPDF = (
     const pageHeight =
       doc.internal.pageSize.getHeight();
 
-    const centerX = pageWidth / 2;
+    const centerX =
+      pageWidth / 2;
 
-    /* -------------------------------------------------------
-       BRAND COLORS
-    ------------------------------------------------------- */
+    /* =====================================================
+       COLORS
+    ===================================================== */
 
-    const RED = [239, 68, 68];
+    const RED = [
+      239,
+      68,
+      68,
+    ];
 
-    const DARK_RED = [185, 28, 28];
+    const DARK_RED = [
+      185,
+      28,
+      28,
+    ];
 
-    const ORANGE = [249, 115, 22];
+    /* GREEN:
+       PRICE INCREASE
+    */
 
-    const DARK_TEXT = [30, 41, 59];
+    const GREEN = [
+      22,
+      163,
+      74,
+    ];
 
-    const MUTED_TEXT = [100, 116, 139];
+    const DARK_GREEN = [
+      21,
+      128,
+      61,
+    ];
 
-    const LIGHT_BORDER = [226, 232, 240];
+    /* RED:
+       PRICE DECREASE
+    */
 
-    const SOFT_RED = [254, 242, 242];
+    const DECREASE_RED = [
+      220,
+      38,
+      38,
+    ];
 
-    const SOFT_ORANGE = [255, 247, 237];
+    const DARK_TEXT = [
+      30,
+      41,
+      59,
+    ];
 
-    const WHITE = [255, 255, 255];
+    const MUTED_TEXT = [
+      100,
+      116,
+      139,
+    ];
 
-    /* -------------------------------------------------------
+    const LIGHT_BORDER = [
+      226,
+      232,
+      240,
+    ];
+
+    /* GREEN BACKGROUND */
+
+    const SOFT_GREEN = [
+      240,
+      253,
+      244,
+    ];
+
+    /* RED BACKGROUND */
+
+    const SOFT_RED = [
+      254,
+      242,
+      242,
+    ];
+
+    const WHITE = [
+      255,
+      255,
+      255,
+    ];
+
+    /* =====================================================
        TOP BRAND LINE
-    ------------------------------------------------------- */
+    ===================================================== */
 
     doc.setFillColor(
       RED[0],
@@ -325,9 +707,12 @@ export const exportPriceHistoryPDF = (
       "F"
     );
 
-    /* -------------------------------------------------------
+    /* =====================================================
        TITLE
-    ------------------------------------------------------- */
+
+       ONLY:
+       PRICE DIFFERENCE REPORT
+    ===================================================== */
 
     doc.setFont(
       "helvetica",
@@ -343,7 +728,7 @@ export const exportPriceHistoryPDF = (
     );
 
     doc.text(
-      `${label.toUpperCase()} PRICE DIFFERENCE REPORT`,
+      "PRICE DIFFERENCE",
       centerX,
       15,
       {
@@ -351,13 +736,13 @@ export const exportPriceHistoryPDF = (
       }
     );
 
-    /* -------------------------------------------------------
+    /* =====================================================
        REPORT INFO BADGE
-    ------------------------------------------------------- */
+    ===================================================== */
 
     const infoText =
-      `${changedHistory.length} ${
-        changedHistory.length === 1
+      `${orderedHistory.length} ${
+        orderedHistory.length === 1
           ? "Product"
           : "Products"
       }`;
@@ -367,7 +752,8 @@ export const exportPriceHistoryPDF = (
     const infoHeight = 7;
 
     const infoX =
-      centerX - infoWidth / 2;
+      centerX -
+      infoWidth / 2;
 
     const infoY = 20;
 
@@ -417,9 +803,15 @@ export const exportPriceHistoryPDF = (
       }
     );
 
-    /* -------------------------------------------------------
+    /* =====================================================
        TABLE
-    ------------------------------------------------------- */
+
+       TOTAL WIDTH:
+       10 + 45 + 35 + 30 + 30 + 36 = 186mm
+
+       A4 usable width:
+       210 - 24 = 186mm
+    ===================================================== */
 
     autoTable(doc, {
       startY: 32,
@@ -427,6 +819,7 @@ export const exportPriceHistoryPDF = (
       head: [
         [
           "SL",
+          "CATEGORY",
           "MODEL",
           "OLD PRICE",
           "NEW PRICE",
@@ -443,28 +836,29 @@ export const exportPriceHistoryPDF = (
       styles: {
         font: "helvetica",
 
-        /* INCREASED TABLE FONT */
-
-        fontSize: 9,
+        fontSize: 8.5,
 
         cellPadding: {
-          top: 3.2,
-          right: 2.5,
-          bottom: 3.2,
-          left: 2.5,
+          top: 3,
+          right: 2,
+          bottom: 3,
+          left: 2,
         },
 
         lineWidth: 0.25,
 
-        lineColor: LIGHT_BORDER,
+        lineColor:
+          LIGHT_BORDER,
 
-        textColor: DARK_TEXT,
+        textColor:
+          DARK_TEXT,
 
         valign: "middle",
 
         halign: "center",
 
-        overflow: "linebreak",
+        overflow:
+          "linebreak",
 
         cellWidth: "auto",
       },
@@ -472,15 +866,19 @@ export const exportPriceHistoryPDF = (
       headStyles: {
         font: "helvetica",
 
-        fontStyle: "bold",
+        fontStyle:
+          "bold",
 
-        fontSize: 9,
+        fontSize: 8.5,
 
-        textColor: WHITE,
+        textColor:
+          WHITE,
 
-        fillColor: RED,
+        fillColor:
+          RED,
 
-        lineColor: DARK_RED,
+        lineColor:
+          DARK_RED,
 
         lineWidth: 0.35,
 
@@ -497,108 +895,168 @@ export const exportPriceHistoryPDF = (
       },
 
       bodyStyles: {
-        fontSize: 9,
+        fontSize: 8.5,
 
-        textColor: DARK_TEXT,
+        textColor:
+          DARK_TEXT,
 
         halign: "center",
 
         valign: "middle",
 
-        lineColor: LIGHT_BORDER,
+        lineColor:
+          LIGHT_BORDER,
 
         lineWidth: 0.2,
       },
 
       alternateRowStyles: {
-        fillColor: [248, 250, 252],
+        fillColor: [
+          248,
+          250,
+          252,
+        ],
       },
 
       columnStyles: {
-        /* SL */
+        /* ---------------------------------------------
+           SL
+        --------------------------------------------- */
 
         0: {
-          cellWidth: 14,
+          cellWidth: 10,
           halign: "center",
         },
 
-        /* MODEL */
+        /* ---------------------------------------------
+           CATEGORY
+        --------------------------------------------- */
 
         1: {
-          cellWidth: 65,
-          halign: "center",
+          cellWidth: 45,
+          halign: "left",
           fontStyle: "bold",
         },
 
-        /* OLD PRICE */
+        /* ---------------------------------------------
+           MODEL
+        --------------------------------------------- */
 
         2: {
-          cellWidth: 32,
-          halign: "center",
+          cellWidth: 35,
+          halign: "left",
+          fontStyle: "bold",
         },
 
-        /* NEW PRICE */
+        /* ---------------------------------------------
+           OLD PRICE
+        --------------------------------------------- */
 
         3: {
-          cellWidth: 32,
+          cellWidth: 30,
           halign: "center",
         },
 
-        /* DIFFERENCE */
+        /* ---------------------------------------------
+           NEW PRICE
+        --------------------------------------------- */
 
         4: {
-          cellWidth: 43,
+          cellWidth: 30,
+          halign: "center",
+        },
+
+        /* ---------------------------------------------
+           DIFFERENCE
+        --------------------------------------------- */
+
+        5: {
+          cellWidth: 36,
           halign: "center",
           fontStyle: "bold",
         },
       },
 
+      /* =================================================
+         CELL FORMATTING
+      ================================================= */
+
       didParseCell: (data) => {
-        /* ---------------------------------------------------
+        /* ===============================================
            DIFFERENCE COLUMN
-        --------------------------------------------------- */
+        =============================================== */
 
         if (
-          data.section === "body" &&
-          data.column.index === 4
+          data.section ===
+            "body" &&
+          data.column.index === 5
         ) {
-          const value = Number(
-            data.cell.raw
-          );
+          const value =
+            Number(
+              data.cell.raw
+            );
+
+          /* ---------------------------------------------
+             PRICE INCREASE = GREEN
+          --------------------------------------------- */
 
           if (value > 0) {
-            data.cell.styles.textColor = [
-              185,
-              28,
-              28,
-            ];
+            data.cell.styles.textColor =
+              DARK_GREEN;
+
+            data.cell.styles.fillColor =
+              SOFT_GREEN;
+
+            data.cell.styles.fontStyle =
+              "bold";
+          }
+
+          /* ---------------------------------------------
+             PRICE DECREASE = RED
+          --------------------------------------------- */
+
+          if (value < 0) {
+            data.cell.styles.textColor =
+              DECREASE_RED;
 
             data.cell.styles.fillColor =
               SOFT_RED;
-          }
 
-          if (value < 0) {
-            data.cell.styles.textColor = [
-              194,
-              65,
-              12,
-            ];
-
-            data.cell.styles.fillColor =
-              SOFT_ORANGE;
+            data.cell.styles.fontStyle =
+              "bold";
           }
         }
 
-        /* ---------------------------------------------------
+        /* ===============================================
            SL COLUMN
-        --------------------------------------------------- */
+        =============================================== */
 
         if (
-          data.section === "body" &&
+          data.section ===
+            "body" &&
           data.column.index === 0
         ) {
           data.cell.styles.textColor =
             MUTED_TEXT;
+        }
+
+        /* ===============================================
+           CATEGORY COLUMN
+        =============================================== */
+
+        if (
+          data.section ===
+            "body" &&
+          data.column.index === 1
+        ) {
+          data.cell.styles.textColor = [
+            71,
+            85,
+            105,
+          ];
+
+          data.cell.styles.fontStyle =
+            "bold";
         }
       },
 
@@ -614,14 +1072,15 @@ export const exportPriceHistoryPDF = (
       showHead: "everyPage",
     });
 
-    /* -------------------------------------------------------
+    /* =====================================================
        FOOTER ON ALL PAGES
-    ------------------------------------------------------- */
+    ===================================================== */
 
     const totalPages =
       doc.internal.getNumberOfPages();
 
-    const today = new Date();
+    const today =
+      new Date();
 
     const day = String(
       today.getDate()
@@ -641,7 +1100,9 @@ export const exportPriceHistoryPDF = (
     ) {
       doc.setPage(page);
 
-      /* Footer line */
+      /* -----------------------------------------------
+         FOOTER LINE
+      ----------------------------------------------- */
 
       doc.setDrawColor(
         LIGHT_BORDER[0],
@@ -658,7 +1119,9 @@ export const exportPriceHistoryPDF = (
         pageHeight - 13
       );
 
-      /* Left footer */
+      /* -----------------------------------------------
+         FOOTER TEXT
+      ----------------------------------------------- */
 
       doc.setFont(
         "helvetica",
@@ -673,16 +1136,18 @@ export const exportPriceHistoryPDF = (
         MUTED_TEXT[2]
       );
 
+      /* LEFT */
+
       doc.text(
         "MAKPOWER • Price Management",
         12,
         pageHeight - 8
       );
 
-      /* Center footer */
+      /* CENTER */
 
       doc.text(
-        `${label} Price Report`,
+        "Price Difference Report",
         centerX,
         pageHeight - 8,
         {
@@ -690,7 +1155,7 @@ export const exportPriceHistoryPDF = (
         }
       );
 
-      /* Right footer */
+      /* RIGHT */
 
       doc.text(
         `Page ${page} of ${totalPages}`,
@@ -702,17 +1167,19 @@ export const exportPriceHistoryPDF = (
       );
     }
 
-    /* -------------------------------------------------------
+    /* =====================================================
        FILE NAME
-    ------------------------------------------------------- */
+
+       NO SS / DS / DEALER
+    ===================================================== */
 
     const fileName =
-      `${label.toUpperCase()} PRICE DIFFERENCE LAST 7 DAYS ` +
+      `PRICE DIFFERENCE ` +
       `${day}-${month}-${year}.pdf`;
 
-    /* -------------------------------------------------------
+    /* =====================================================
        DOWNLOAD
-    ------------------------------------------------------- */
+    ===================================================== */
 
     doc.save(fileName);
   } catch (error) {
