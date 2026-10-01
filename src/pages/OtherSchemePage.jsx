@@ -473,9 +473,6 @@
 //     </div>
 //   );
 // }
-
-
-
 import { useMahotsavSheet } from "../hooks/CRM/useMahotsav";
 import { useMemo, useState } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
@@ -483,35 +480,33 @@ import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-import thailand from "../assets/images/thailand.png";
-import malaysia from "../assets/images/malaysia.png";
-import singapore from "../assets/images/singapore.png";
-
 import {
-  FaArrowLeft,
   FaPlaneDeparture,
-  FaGlobeAsia,
-  FaTrophy,
+  FaInfoCircle,
   FaGift,
-  FaShoppingCart,
-  FaSearch,
+  FaCalendarAlt,
+  FaGlobeAsia,
   FaFilePdf,
   FaDownload,
-  FaInfoCircle,
-  FaCog,
+  FaArrowRight,
+  FaMoon,
+  FaSun,
+  FaTrophy,
+  FaBullseye,
+  FaCheckCircle,
+  FaClock,
 } from "react-icons/fa";
 
 import MobilePageHeader from "../components/MobilePageHeader";
 import ProductCard from "../components/ProductCard";
 import BackButton from "../Layout/BackButton";
-
 import exportSchemePricePDF from "../utils/exportSchemePricePDF";
 
 /* =========================================================
    CONSTANTS
 ========================================================= */
 
-const TARGET_QTY = 3000;
+const TARGET_QTY = 4500;
 
 const PRODUCT_IDS = [
   1335,
@@ -550,43 +545,39 @@ const PRODUCT_IDS = [
   1873,
 ];
 
-/* =========================================================
-   INTERNATIONAL REWARDS
-========================================================= */
-
-const TRIP_REWARDS = [
+const DESTINATIONS = [
   {
     id: "thailand",
-    country: "THAILAND",
+    name: "THAILAND",
     subtitle: "Thailand International Trip",
     target: "2,500",
-    nights: "3",
-    days: "4",
-    discount: "₹42,000",
-    image: thailand,
+    reward: "₹42,000",
     badge: "STARTER REWARD",
+    icon: "🇹🇭",
+    gradient:
+      "from-sky-500 via-blue-600 to-indigo-700",
   },
   {
     id: "malaysia",
-    country: "MALAYSIA",
+    name: "MALAYSIA",
     subtitle: "Malaysia International Trip",
     target: "4,000",
-    nights: "3",
-    days: "4",
-    discount: "₹65,000",
-    image: malaysia,
+    reward: "₹65,000",
     badge: "PREMIUM REWARD",
+    icon: "🇲🇾",
+    gradient:
+      "from-orange-400 via-orange-500 to-red-600",
   },
   {
     id: "singapore",
-    country: "SINGAPORE",
+    name: "SINGAPORE",
     subtitle: "Singapore International Trip",
     target: "4,500",
-    nights: "3",
-    days: "4",
-    discount: "₹75,000",
-    image: singapore,
+    reward: "₹75,000",
     badge: "ELITE REWARD",
+    icon: "🇸🇬",
+    gradient:
+      "from-violet-500 via-indigo-600 to-purple-700",
   },
 ];
 
@@ -594,104 +585,355 @@ const TRIP_REWARDS = [
    HELPERS
 ========================================================= */
 
-const getProductId = (product) =>
-  product?.product_id ?? product?.id ?? "";
+const formatNumber = (value) =>
+  Number(value || 0).toLocaleString("en-IN");
 
-const getProductPrice = (product) => {
-  const price = Number(product?.price ?? 0);
+/* =========================================================
+   PROGRESS CARD
+========================================================= */
 
-  return Number.isFinite(price) ? price : 0;
-};
+function ProgressCard({
+  achievedQty,
+  progressPercent,
+  remainingQty,
+}) {
+  return (
+    <div
+      className="
+        w-full
+        rounded-2xl
+        border
+        border-white/15
+        bg-white/10
+        p-4
+        shadow-sm
+        backdrop-blur-sm
+        sm:p-5
+      "
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p
+            className="
+              text-[9px]
+              font-black
+              uppercase
+              tracking-[0.16em]
+              text-white/65
+            "
+          >
+            Your Progress
+          </p>
+
+          <div className="mt-1 flex items-baseline gap-1">
+            <span className="text-2xl font-black text-white sm:text-3xl">
+              {formatNumber(achievedQty)}
+            </span>
+
+            <span className="text-sm font-semibold text-white/45">
+              / {formatNumber(TARGET_QTY)}
+            </span>
+          </div>
+        </div>
+
+        <div
+          className="
+            flex
+            h-11
+            w-11
+            shrink-0
+            items-center
+            justify-center
+            rounded-xl
+            bg-white/15
+            text-yellow-200
+            transition-transform
+            duration-300
+            hover:scale-105
+          "
+        >
+          <FaTrophy size={17} />
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-[9px] font-semibold text-white/65">
+            Target Progress
+          </span>
+
+          <span className="text-[10px] font-black text-white">
+            {progressPercent}%
+          </span>
+        </div>
+
+        <div className="h-2 overflow-hidden rounded-full bg-black/10">
+          <div
+            className="
+              h-full
+              rounded-full
+              bg-white
+              shadow-[0_0_10px_rgba(255,255,255,0.35)]
+              transition-[width]
+              duration-700
+              ease-out
+            "
+            style={{
+              width: `${progressPercent}%`,
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="mt-2.5 flex items-center justify-between text-[9px] text-white/60">
+        <span>
+          {remainingQty > 0
+            ? `${formatNumber(remainingQty)} qty remaining`
+            : "Target achieved"}
+        </span>
+
+        <span className="font-semibold text-white/75">
+          1 trip / target
+        </span>
+      </div>
+    </div>
+  );
+}
 
 /* =========================================================
    DESTINATION CARD
 ========================================================= */
 
-function TripRewardCard({ trip }) {
+function DestinationCard({ destination }) {
   return (
     <article
-      className="
+      className={`
         group
+        relative
         overflow-hidden
         rounded-2xl
-        border
-        border-slate-200
-        bg-white
+        bg-gradient-to-br
+        ${destination.gradient}
+        p-3
+        text-white
         shadow-sm
         transition-all
         duration-300
+        ease-out
         hover:-translate-y-1
-        hover:shadow-lg
-      "
+        hover:shadow-xl
+        active:scale-[0.985]
+        sm:p-3.5
+      `}
     >
-      {/* IMAGE */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -right-8
+          -top-8
+          h-24
+          w-24
+          rounded-full
+          bg-white/10
+          transition-transform
+          duration-500
+          group-hover:scale-150
+        "
+      />
 
-      <div className="relative overflow-hidden bg-slate-100">
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -bottom-10
+          left-1/2
+          h-20
+          w-20
+          rounded-full
+          bg-white/[0.06]
+          transition-transform
+          duration-500
+          group-hover:scale-125
+        "
+      />
+
+      <div className="relative">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <span
+              className="
+                inline-flex
+                rounded-full
+                bg-white/15
+                px-2
+                py-1
+                text-[7px]
+                font-black
+                tracking-[0.08em]
+                backdrop-blur-sm
+                sm:text-[8px]
+              "
+            >
+              {destination.badge}
+            </span>
+
+            <h3
+              className="
+                mt-1.5
+                text-lg
+                font-black
+                tracking-wide
+                sm:text-xl
+              "
+            >
+              {destination.name}
+            </h3>
+
+            <p className="truncate text-[9px] text-white/75 sm:text-[10px]">
+              {destination.subtitle}
+            </p>
+          </div>
+
+          <span
+            className="
+              flex
+              h-9
+              w-9
+              shrink-0
+              items-center
+              justify-center
+              rounded-full
+              bg-white/15
+              text-lg
+              backdrop-blur-sm
+              transition-transform
+              duration-300
+              group-hover:rotate-6
+              group-hover:scale-110
+            "
+          >
+            {destination.icon}
+          </span>
+        </div>
+
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          <span
+            className="
+              inline-flex
+              items-center
+              gap-1
+              rounded-full
+              bg-black/15
+              px-2
+              py-1
+              text-[8px]
+              font-bold
+            "
+          >
+            <FaMoon size={7} />
+            3 Nights
+          </span>
+
+          <span
+            className="
+              inline-flex
+              items-center
+              gap-1
+              rounded-full
+              bg-black/15
+              px-2
+              py-1
+              text-[8px]
+              font-bold
+            "
+          >
+            <FaSun size={7} />
+            4 Days
+          </span>
+        </div>
+
         <div
           className="
-            relative
-            w-full
-            aspect-[16/9]
-            sm:aspect-[16/9]
-            overflow-hidden
+            mt-2.5
+            rounded-xl
+            bg-white
+            p-2.5
+            text-slate-800
+            shadow-sm
+            transition-transform
+            duration-300
+            group-hover:scale-[1.01]
           "
         >
-          <img
-            src={trip.image}
-            alt={`${trip.country} International Trip`}
-            loading="lazy"
-            className="
-              absolute
-              inset-0
-              w-full
-              h-full
-              object-cover
-              object-center
-              transition-transform
-              duration-500
-              ease-out
-              group-hover:scale-[1.04]
-            "
-          />
+          <div className="grid grid-cols-2 divide-x divide-slate-200">
+            <div className="pr-2">
+              <p
+                className="
+                  text-[7px]
+                  font-bold
+                  uppercase
+                  tracking-wide
+                  text-slate-400
+                "
+              >
+                Required Purchase
+              </p>
 
-         
+              <p className="mt-0.5 text-base font-black text-slate-900 sm:text-lg">
+                {destination.target}
+                <span className="ml-1 text-[8px] font-bold text-slate-400">
+                  PCS
+                </span>
+              </p>
+            </div>
 
+            <div className="pl-2">
+              <p
+                className="
+                  text-[7px]
+                  font-bold
+                  uppercase
+                  tracking-wide
+                  text-slate-400
+                "
+              >
+                OR GET
+              </p>
+
+              <p className="mt-0.5 text-base font-black text-[#fc250c] sm:text-lg">
+                {destination.reward}
+              </p>
+
+              <p className="text-[7px] text-slate-400">
+                Discount
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* CONTENT */}
+        <div className="mt-2 flex items-center justify-between">
+          <span className="text-[8px] font-semibold text-white/70">
+            View scheme
+          </span>
 
-      <div className="p-3 sm:p-3.5">
-        <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-lg bg-slate-50 px-2 py-2 text-center">
-            <p className="text-[8px] uppercase font-bold text-slate-400">
-              Target
-            </p>
-
-            <p className="mt-0.5 text-xs sm:text-sm font-black text-slate-800">
-              {trip.target}
-            </p>
-          </div>
-
-          <div className="rounded-lg bg-slate-50 px-2 py-2 text-center">
-            <p className="text-[8px] uppercase font-bold text-slate-400">
-              Stay
-            </p>
-
-            <p className="mt-0.5 text-xs sm:text-sm font-black text-slate-800">
-              {trip.nights}N / {trip.days}D
-            </p>
-          </div>
-
-          <div className="rounded-lg bg-red-50 px-2 py-2 text-center">
-            <p className="text-[8px] uppercase font-bold text-[#fc250c]">
-              Value
-            </p>
-
-            <p className="mt-0.5 text-xs sm:text-sm font-black text-[#fc250c]">
-              {trip.discount}
-            </p>
-          </div>
+          <span
+            className="
+              flex
+              h-6
+              w-6
+              items-center
+              justify-center
+              rounded-full
+              bg-white/15
+              transition-all
+              duration-300
+              group-hover:translate-x-0.5
+              group-hover:bg-white/25
+            "
+          >
+            <FaArrowRight size={8} />
+          </span>
         </div>
       </div>
     </article>
@@ -702,10 +944,7 @@ function TripRewardCard({ trip }) {
    MAIN PAGE
 ========================================================= */
 
-export default function InternationalSchemeTemplate() {
-  const [search, setSearch] = useState("");
-  const [pdfPriceType, setPdfPriceType] = useState("SS");
-
+export default function OtherSchemePage() {
   const {
     data: allProducts = [],
     isLoading,
@@ -720,21 +959,25 @@ export default function InternationalSchemeTemplate() {
   } = useSelectedProducts();
 
   const { user } = useAuth();
+
   const navigate = useNavigate();
 
-  const {
-    data: samplingData = [],
-  } = useMahotsavSheet();
+  const { data: samplingData = [] } =
+    useMahotsavSheet();
+
+  const [pdfPriceType, setPdfPriceType] =
+    useState("SS");
 
   /* =========================================================
      ROLE
   ========================================================= */
 
-  const role = String(user?.role ?? "").toUpperCase();
+  const role = String(
+    user?.role ?? ""
+  ).toUpperCase();
 
   const isAdminOrCRM =
-    role === "ADMIN" ||
-    role === "CRM";
+    role === "ADMIN" || role === "CRM";
 
   const isSS = role === "SS";
   const isDS = role === "DS";
@@ -746,7 +989,7 @@ export default function InternationalSchemeTemplate() {
     : pdfPriceType;
 
   /* =========================================================
-     PARTY DATA
+     PARTY PROGRESS
   ========================================================= */
 
   const partyMahotsavData = useMemo(() => {
@@ -756,9 +999,7 @@ export default function InternationalSchemeTemplate() {
       .trim()
       .toLowerCase();
 
-    if (!partyName) {
-      return null;
-    }
+    if (!partyName) return null;
 
     return samplingData.find(
       (row) =>
@@ -771,20 +1012,12 @@ export default function InternationalSchemeTemplate() {
     user?.party_name,
   ]);
 
-  /* =========================================================
-     PROGRESS
-  ========================================================= */
-
   const achievedQty = Number(
-    partyMahotsavData
-      ?.mahotsav_dispatch_quantity || 0
+    // partyMahotsavData?.mahotsav_dispatch_quantity ||
+    //   0
   );
 
-  const earnedTrips = Math.floor(
-    achievedQty / TARGET_QTY
-  );
-
-  const progress = Math.min(
+  const progressPercent = Math.min(
     Math.round(
       (achievedQty / TARGET_QTY) * 100
     ),
@@ -796,15 +1029,15 @@ export default function InternationalSchemeTemplate() {
     0
   );
 
+  const earnedTrips = Math.floor(
+    achievedQty / TARGET_QTY
+  );
+
   /* =========================================================
      PRODUCTS
   ========================================================= */
 
   const products = useMemo(() => {
-    const query = search
-      .trim()
-      .toLowerCase();
-
     return allProducts
       .filter(
         (product) =>
@@ -815,66 +1048,12 @@ export default function InternationalSchemeTemplate() {
           Number(product?.product_id)
         )
       )
-      .filter((product) => {
-        if (!query) {
-          return true;
-        }
-
-        const productName = String(
-          product?.product_name ??
-            product?.name ??
-            ""
-        ).toLowerCase();
-
-        const productId = String(
-          getProductId(product)
-        ).toLowerCase();
-
-        const category = String(
-          product?.sub_category ??
-            product?.category ??
-            ""
-        ).toLowerCase();
-
-        return (
-          productName.includes(query) ||
-          productId.includes(query) ||
-          category.includes(query)
-        );
-      })
       .sort(
         (a, b) =>
-          getProductPrice(a) -
-          getProductPrice(b)
+          Number(a?.price || 0) -
+          Number(b?.price || 0)
       );
-  }, [
-    allProducts,
-    search,
-  ]);
-
-  /* =========================================================
-     TRIP SEARCH
-  ========================================================= */
-
-  const filteredTrips = useMemo(() => {
-    const query = search
-      .trim()
-      .toLowerCase();
-
-    if (!query) {
-      return TRIP_REWARDS;
-    }
-
-    return TRIP_REWARDS.filter(
-      (trip) =>
-        trip.country
-          .toLowerCase()
-          .includes(query) ||
-        trip.subtitle
-          .toLowerCase()
-          .includes(query)
-    );
-  }, [search]);
+  }, [allProducts]);
 
   /* =========================================================
      PDF
@@ -907,32 +1086,23 @@ export default function InternationalSchemeTemplate() {
 
   if (isLoading) {
     return (
-      <div
-        className="
-          min-h-screen
-          bg-[#f7f8fa]
-          flex
-          items-center
-          justify-center
-        "
-      >
+      <div className="flex min-h-screen items-center justify-center bg-[#f6f8fb]">
         <div className="text-center">
           <div
             className="
-              w-8
-              h-8
               mx-auto
-              mb-2
+              h-7
+              w-7
+              animate-spin
               rounded-full
               border-2
               border-slate-200
-              border-t-[#fc250c]
-              animate-spin
+              border-t-[#d20b25]
             "
           />
 
-          <p className="text-xs text-slate-500">
-            Loading International Scheme...
+          <p className="mt-2 text-xs font-medium text-slate-500">
+            Loading scheme...
           </p>
         </div>
       </div>
@@ -940,132 +1110,912 @@ export default function InternationalSchemeTemplate() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f8fa] pb-20">
+    <div className="min-h-screen bg-[#f6f8fb] pb-20">
 
       {/* =====================================================
           MOBILE PAGE HEADER
       ===================================================== */}
 
-      <MobilePageHeader
-        title="International Trip"
-      />
+      <MobilePageHeader title="International Scheme" />
 
       {/* =====================================================
           DESKTOP HEADER
       ===================================================== */}
 
-      <header
+      <div
         className="
-          hidden
-          md:block
           sticky
           top-0
-          z-40
-          bg-white
+          z-30
+          hidden
           border-b
-          border-slate-200
+          border-slate-200/80
+          bg-white/95
+          backdrop-blur-md
+          md:block
         "
       >
         <div
           className="
-            max-w-[1400px]
             mx-auto
+            flex
+            max-w-[1500px]
+            items-center
+            justify-between
+            gap-4
             px-5
-            lg:px-8
+            py-3
+          "
+        >
+          <div className="flex items-center gap-3">
+            <BackButton fallback="/" />
+
+            <div>
+              <h1 className="text-sm font-bold text-slate-800">
+                International Rewards
+              </h1>
+
+              <p className="text-[10px] text-slate-400">
+                Explore your international trip scheme
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+
+            {isAdminOrCRM && (
+              <select
+                value={pdfPriceType}
+                onChange={(e) =>
+                  setPdfPriceType(
+                    e.target.value
+                  )
+                }
+                className="
+                  h-9
+                  rounded-lg
+                  border
+                  border-slate-200
+                  bg-white
+                  px-3
+                  text-[10px]
+                  font-bold
+                  text-slate-700
+                  outline-none
+                  transition
+                  focus:border-[#d20b25]
+                  focus:ring-2
+                  focus:ring-red-100
+                "
+              >
+                <option value="SS">
+                  SS PRICE
+                </option>
+
+                <option value="DS">
+                  DISTRIBUTOR PRICE
+                </option>
+
+                <option value="DLR">
+                  DEALER PRICE
+                </option>
+              </select>
+            )}
+
+            {(isAdminOrCRM ||
+              isSS ||
+              isDS) && (
+              <button
+                type="button"
+                onClick={
+                  handleDownloadSchemePDF
+                }
+                disabled={!products.length}
+                className="
+                  flex
+                  h-9
+                  items-center
+                  gap-1.5
+                  rounded-lg
+                  bg-[#d20b25]
+                  px-3
+                  text-[10px]
+                  font-bold
+                  text-white
+                  shadow-sm
+                  transition-all
+                  duration-200
+                  hover:-translate-y-0.5
+                  hover:bg-[#b9081f]
+                  active:scale-95
+                  disabled:cursor-not-allowed
+                  disabled:bg-slate-300
+                "
+              >
+                <FaDownload size={10} />
+                PDF
+              </button>
+            )}
+
+            {isAdminOrCRM && (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    "/goa-trip-data"
+                  )
+                }
+                className="
+                  h-9
+                  rounded-lg
+                  border
+                  border-slate-200
+                  bg-white
+                  px-3
+                  text-[10px]
+                  font-bold
+                  text-slate-600
+                  transition
+                  hover:border-red-200
+                  hover:text-[#d20b25]
+                "
+              >
+                Manage
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* =====================================================
+          MOBILE ACTION BAR
+      ===================================================== */}
+
+      {/* <div
+        className="
+          sticky
+          top-[60px]
+          z-30
+          border-b
+          border-slate-200
+          bg-white/95
+          px-3
+          py-2
+          backdrop-blur-md
+          md:hidden
+        "
+      >
+        <div className="flex items-center gap-2">
+
+          {isAdminOrCRM && (
+            <select
+              value={pdfPriceType}
+              onChange={(e) =>
+                setPdfPriceType(
+                  e.target.value
+                )
+              }
+              className="
+                h-9
+                min-w-0
+                flex-1
+                rounded-lg
+                border
+                border-slate-200
+                bg-slate-50
+                px-2
+                text-[9px]
+                font-bold
+                text-slate-700
+                outline-none
+              "
+            >
+              <option value="SS">
+                SS PRICE
+              </option>
+
+              <option value="DS">
+                DISTRIBUTOR PRICE
+              </option>
+
+              <option value="DLR">
+                DEALER PRICE
+              </option>
+            </select>
+          )}
+
+          {(isAdminOrCRM ||
+            isSS ||
+            isDS) && (
+            <button
+              type="button"
+              onClick={
+                handleDownloadSchemePDF
+              }
+              disabled={!products.length}
+              className="
+                flex
+                h-9
+                items-center
+                justify-center
+                gap-1.5
+                rounded-lg
+                bg-[#d20b25]
+                px-3
+                text-[9px]
+                font-bold
+                text-white
+                transition
+                active:scale-95
+                disabled:bg-slate-300
+              "
+            >
+              <FaFilePdf size={11} />
+              PDF
+            </button>
+          )}
+
+          {isAdminOrCRM && (
+            <button
+              type="button"
+              onClick={() =>
+                navigate(
+                  "/goa-trip-data"
+                )
+              }
+              className="
+                h-9
+                rounded-lg
+                border
+                border-slate-200
+                bg-white
+                px-3
+                text-[9px]
+                font-bold
+                text-slate-600
+                active:scale-95
+              "
+            >
+              Manage
+            </button>
+          )}
+        </div>
+      </div> */}
+
+      <main className="mx-auto max-w-[1500px]">
+
+        {/* ===================================================
+            HERO
+        =================================================== */}
+
+        <section
+          className="
+            relative
+            mt-0
+            overflow-hidden
+            bg-gradient-to-br
+            from-[#9e071c]
+            via-[#d20b25]
+            to-[#f2631f]
+            md:mx-auto
+            md:mt-5
+            md:max-w-[1500px]
+            md:rounded-2xl
+            md:shadow-[0_16px_45px_rgba(159,7,28,0.18)]
           "
         >
           <div
             className="
-              min-h-[66px]
-              flex
+              pointer-events-none
+              absolute
+              -right-24
+              -top-24
+              h-64
+              w-64
+              rounded-full
+              bg-white/[0.08]
+            "
+          />
+
+          <div
+            className="
+              pointer-events-none
+              absolute
+              -bottom-28
+              left-[35%]
+              h-72
+              w-72
+              rounded-full
+              bg-orange-200/[0.08]
+            "
+          />
+
+          <div
+            className="
+              relative
+              grid
               items-center
-              justify-between
-              gap-4
+              gap-7
+              px-4
+              py-7
+              sm:px-6
+              sm:py-9
+              lg:grid-cols-[1.1fr_0.9fr]
+              lg:gap-12
+              lg:px-9
+              lg:py-10
             "
           >
 
-            {/* LEFT */}
+            {/* HERO CONTENT */}
 
-            <div className="flex items-center gap-3 shrink-0">
-              <BackButton fallback="/" />
+            <div className="max-w-2xl">
 
               <div
                 className="
-                  w-9
-                  h-9
-                  rounded-xl
-                  bg-red-50
-                  text-[#fc250c]
-                  flex
+                  inline-flex
                   items-center
-                  justify-center
+                  gap-2
+                  rounded-full
+                  border
+                  border-white/15
+                  bg-white/10
+                  px-3
+                  py-1.5
+                  backdrop-blur-sm
                 "
               >
-                <FaGlobeAsia size={16} />
+                <FaPlaneDeparture
+                  size={10}
+                  className="text-orange-100"
+                />
+
+                <span
+                  className="
+                    text-[8px]
+                    font-black
+                    uppercase
+                    tracking-[0.18em]
+                    text-white/80
+                    sm:text-[9px]
+                  "
+                >
+                  International Trip Scheme
+                </span>
               </div>
 
-              <div>
-                <h1 className="text-sm font-extrabold text-slate-900">
-                  International Trip
-                </h1>
+              <h2
+                className="
+                  mt-4
+                  max-w-[650px]
+                  text-[34px]
+                  font-black
+                  leading-[1.02]
+                  tracking-[-0.045em]
+                  text-white
+                  sm:text-5xl
+                  lg:text-[54px]
+                "
+              >
+                Explore the
+                <br />
 
-                <p className="text-[9px] text-slate-400">
-                  International Rewards Program
-                </p>
+                <span className="text-orange-100">
+                  World.
+                </span>
+              </h2>
+
+              <p
+                className="
+                  mt-3
+                  max-w-xl
+                  text-xs
+                  leading-5
+                  text-white/70
+                  sm:text-sm
+                  sm:leading-6
+                "
+              >
+                Turn your eligible purchases into
+                unforgettable international travel
+                experiences with MAKPOWER.
+              </p>
+
+              {/* DATE INSIDE HERO */}
+
+              <div
+                className="
+                  mt-4
+                  inline-flex
+                  items-center
+                  gap-2
+                  rounded-full
+                  border
+                  border-white/10
+                  bg-white/10
+                  px-3
+                  py-2
+                  text-[9px]
+                  font-bold
+                  text-white
+                  backdrop-blur-sm
+                "
+              >
+                <FaCalendarAlt
+                  size={9}
+                  className="text-orange-100"
+                />
+
+                <span>
+                  1 October 2026 – 31 December 2026
+                </span>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+
+                <div
+                  className="
+                    inline-flex
+                    items-center
+                    gap-1.5
+                    rounded-full
+                    bg-black/10
+                    px-3
+                    py-1.5
+                    text-[9px]
+                    font-bold
+                    text-white
+                    backdrop-blur-sm
+                  "
+                >
+                  <FaClock size={9} />
+                  3 Nights
+                </div>
+
+                <div
+                  className="
+                    inline-flex
+                    items-center
+                    gap-1.5
+                    rounded-full
+                    bg-black/10
+                    px-3
+                    py-1.5
+                    text-[9px]
+                    font-bold
+                    text-white
+                    backdrop-blur-sm
+                  "
+                >
+                  <FaSun size={9} />
+                  4 Days
+                </div>
+
+                <div
+                  className="
+                    inline-flex
+                    items-center
+                    gap-1.5
+                    rounded-full
+                    bg-black/10
+                    px-3
+                    py-1.5
+                    text-[9px]
+                    font-bold
+                    text-white
+                    backdrop-blur-sm
+                  "
+                >
+                  <FaGlobeAsia size={9} />
+                  Global Destinations
+                </div>
               </div>
             </div>
 
-            {/* SEARCH */}
+            {/* PROGRESS */}
 
-            <div className="flex-1 max-w-[400px]">
-              <div className="relative">
-                <FaSearch
-                  size={12}
+            <div className="lg:justify-self-end lg:w-full lg:max-w-[410px]">
+              <ProgressCard
+                achievedQty={achievedQty}
+                progressPercent={progressPercent}
+                remainingQty={remainingQty}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ===================================================
+            STATS
+        =================================================== */}
+
+        <section
+          className="
+            mx-auto
+            max-w-[1500px]
+            px-3
+            pt-4
+            sm:px-5
+            lg:px-7
+          "
+        >
+          <div
+            className="
+              grid
+              grid-cols-2
+              gap-2
+              sm:grid-cols-4
+              sm:gap-3
+            "
+          >
+
+            {/* TARGET */}
+
+            <div
+              className="
+                rounded-xl
+                border
+                border-blue-100
+                bg-blue-50/60
+                p-3
+                transition-all
+                duration-200
+                hover:-translate-y-0.5
+                hover:shadow-sm
+              "
+            >
+              <div className="flex items-center gap-2">
+                <div
                   className="
-                    absolute
-                    left-3
-                    top-1/2
-                    -translate-y-1/2
-                    text-slate-400
+                    flex
+                    h-8
+                    w-8
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-lg
+                    bg-white
+                    text-blue-600
+                    shadow-sm
                   "
-                />
+                >
+                  <FaBullseye size={13} />
+                </div>
 
-                <input
-                  value={search}
-                  onChange={(e) =>
-                    setSearch(e.target.value)
-                  }
-                  placeholder="Search destination or product..."
+                <div className="min-w-0">
+                  <p
+                    className="
+                      text-[8px]
+                      font-bold
+                      uppercase
+                      tracking-wider
+                      text-blue-500
+                    "
+                  >
+                    Total Target
+                  </p>
+
+                  <p
+                    className="
+                      text-lg
+                      font-black
+                      text-blue-900
+                    "
+                  >
+                    {formatNumber(
+                      TARGET_QTY
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ACHIEVED */}
+
+            <div
+              className="
+                rounded-xl
+                border
+                border-emerald-100
+                bg-emerald-50/60
+                p-3
+                transition-all
+                duration-200
+                hover:-translate-y-0.5
+                hover:shadow-sm
+              "
+            >
+              <div className="flex items-center gap-2">
+                <div
                   className="
-                    w-full
+                    flex
+                    h-8
+                    w-8
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-lg
+                    bg-white
+                    text-emerald-600
+                    shadow-sm
+                  "
+                >
+                  <FaCheckCircle size={13} />
+                </div>
+
+                <div className="min-w-0">
+                  <p
+                    className="
+                      text-[8px]
+                      font-bold
+                      uppercase
+                      tracking-wider
+                      text-emerald-500
+                    "
+                  >
+                    Achieved
+                  </p>
+
+                  <p
+                    className="
+                      text-lg
+                      font-black
+                      text-emerald-900
+                    "
+                  >
+                    {formatNumber(
+                      achievedQty
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* TRIPS */}
+
+            <div
+              className="
+                rounded-xl
+                border
+                border-purple-100
+                bg-purple-50/60
+                p-3
+                transition-all
+                duration-200
+                hover:-translate-y-0.5
+                hover:shadow-sm
+              "
+            >
+              <div className="flex items-center gap-2">
+                <div
+                  className="
+                    flex
+                    h-8
+                    w-8
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-lg
+                    bg-white
+                    text-purple-600
+                    shadow-sm
+                  "
+                >
+                  <FaGift size={13} />
+                </div>
+
+                <div className="min-w-0">
+                  <p
+                    className="
+                      text-[8px]
+                      font-bold
+                      uppercase
+                      tracking-wider
+                      text-purple-500
+                    "
+                  >
+                    Trips Earned
+                  </p>
+
+                  <p
+                    className="
+                      text-lg
+                      font-black
+                      text-purple-900
+                    "
+                  >
+                    {earnedTrips}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* PROGRESS */}
+
+            <div
+              className="
+                rounded-xl
+                border
+                border-orange-100
+                bg-orange-50/60
+                p-3
+                transition-all
+                duration-200
+                hover:-translate-y-0.5
+                hover:shadow-sm
+              "
+            >
+              <div className="flex items-center gap-2">
+                <div
+                  className="
+                    flex
+                    h-8
+                    w-8
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-lg
+                    bg-white
+                    text-orange-500
+                    shadow-sm
+                  "
+                >
+                  %
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <p
+                      className="
+                        text-[8px]
+                        font-bold
+                        uppercase
+                        tracking-wider
+                        text-orange-500
+                      "
+                    >
+                      Progress
+                    </p>
+
+                    <p
+                      className="
+                        text-[9px]
+                        font-black
+                        text-orange-700
+                      "
+                    >
+                      {progressPercent}%
+                    </p>
+                  </div>
+
+                  <div
+                    className="
+                      mt-1.5
+                      h-1.5
+                      overflow-hidden
+                      rounded-full
+                      bg-orange-100
+                    "
+                  >
+                    <div
+                      className="
+                        h-full
+                        rounded-full
+                        bg-orange-500
+                        transition-[width]
+                        duration-700
+                        ease-out
+                      "
+                      style={{
+                        width: `${progressPercent}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===================================================
+            DESTINATIONS
+        =================================================== */}
+
+        <section className="mt-6 px-3 sm:px-5 lg:px-7">
+          <div className="mb-3 flex items-end justify-between">
+            <div>
+              <p
+                className="
+                  text-[9px]
+                  font-black
+                  uppercase
+                  tracking-[0.15em]
+                  text-[#d20b25]
+                "
+              >
+                Choose Your Destination
+              </p>
+
+              <h2 className="mt-0.5 text-base font-black text-slate-800 sm:text-lg">
+                International Rewards
+              </h2>
+            </div>
+
+            <span
+              className="
+                rounded-full
+                bg-slate-100
+                px-2.5
+                py-1
+                text-[8px]
+                font-bold
+                text-slate-500
+              "
+            >
+              3 Destinations
+            </span>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-3">
+            {DESTINATIONS.map(
+              (destination) => (
+                <DestinationCard
+                  key={destination.id}
+                  destination={destination}
+                />
+              )
+            )}
+          </div>
+        </section>
+
+        {/* ===================================================
+            PDF
+        =================================================== */}
+
+        <section className="mt-6 px-3 sm:px-5 lg:px-7">
+          <div
+            className="
+              rounded-2xl
+              border
+              border-slate-200
+              bg-white
+              p-3.5
+              shadow-sm
+              sm:p-4
+            "
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+              <div className="flex items-center gap-3">
+                <div
+                  className="
+                    flex
                     h-10
-                    pl-9
-                    pr-3
+                    w-10
+                    shrink-0
+                    items-center
+                    justify-center
                     rounded-xl
-                    border
-                    border-slate-200
-                    bg-slate-50
-                    text-xs
-                    text-slate-700
-                    outline-none
-                    transition
-                    focus:bg-white
-                    focus:border-[#fc250c]
-                    focus:ring-2
-                    focus:ring-red-100
+                    bg-red-50
+                    text-[#d20b25]
                   "
-                />
+                >
+                  <FaFilePdf size={16} />
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-bold text-slate-800">
+                    Scheme Price PDF
+                  </h3>
+
+                  <p className="mt-0.5 text-[9px] text-slate-400">
+                    Download eligible scheme product prices
+                  </p>
+                </div>
               </div>
-            </div>
 
-            {/* RIGHT ACTIONS */}
+              <div className="flex items-center gap-2">
 
-            <div className="flex items-center gap-2 shrink-0">
-
-              {/* PDF ONLY ADMIN / CRM */}
-
-              {isAdminOrCRM && (
-                <>
+                {isAdminOrCRM && (
                   <select
                     value={pdfPriceType}
                     onChange={(e) =>
@@ -1074,21 +2024,18 @@ export default function InternationalSchemeTemplate() {
                       )
                     }
                     className="
-                      h-10
-                      w-[150px]
-                      rounded-xl
+                      h-9
+                      flex-1
+                      rounded-lg
                       border
                       border-slate-200
                       bg-slate-50
-                      px-3
-                      text-[10px]
+                      px-2
+                      text-[9px]
                       font-bold
-                      text-slate-700
+                      text-slate-600
                       outline-none
-                      cursor-pointer
-                      focus:border-[#fc250c]
-                      focus:ring-2
-                      focus:ring-red-100
+                      sm:flex-none
                     "
                   >
                     <option value="SS">
@@ -1103,1037 +2050,131 @@ export default function InternationalSchemeTemplate() {
                       DEALER PRICE
                     </option>
                   </select>
+                )}
 
+                {(isAdminOrCRM ||
+                  isSS ||
+                  isDS) && (
                   <button
                     type="button"
                     onClick={
                       handleDownloadSchemePDF
                     }
-                    disabled={!products.length}
-                    className="
-                      h-10
-                      px-3
-                      rounded-xl
-                      bg-[#fc250c]
-                      hover:bg-[#e51f09]
-                      disabled:bg-slate-300
-                      text-white
-                      text-[10px]
-                      font-extrabold
-                      flex
-                      items-center
-                      gap-1.5
-                      transition
-                      active:scale-[0.98]
-                    "
-                  >
-                    <FaFilePdf size={11} />
-                    PDF
-                  </button>
-                </>
-              )}
-
-              {/* SS DIRECT PDF */}
-
-              {isSS && (
-                <button
-                  type="button"
-                  onClick={
-                    handleDownloadSchemePDF
-                  }
-                  disabled={!products.length}
-                  className="
-                    h-10
-                    px-3.5
-                    rounded-xl
-                    bg-[#fc250c]
-                    hover:bg-[#e51f09]
-                    disabled:bg-slate-300
-                    text-white
-                    text-[10px]
-                    font-extrabold
-                    flex
-                    items-center
-                    gap-1.5
-                    transition
-                    active:scale-[0.98]
-                  "
-                >
-                  <FaDownload size={10} />
-                  SS PDF
-                </button>
-              )}
-
-              {/* DS DIRECT PDF */}
-
-              {isDS && (
-                <button
-                  type="button"
-                  onClick={
-                    handleDownloadSchemePDF
-                  }
-                  disabled={!products.length}
-                  className="
-                    h-10
-                    px-3.5
-                    rounded-xl
-                    bg-[#fc250c]
-                    hover:bg-[#e51f09]
-                    disabled:bg-slate-300
-                    text-white
-                    text-[10px]
-                    font-extrabold
-                    flex
-                    items-center
-                    gap-1.5
-                    transition
-                    active:scale-[0.98]
-                  "
-                >
-                  <FaDownload size={10} />
-                  DS PDF
-                </button>
-              )}
-
-              {/* MANAGE */}
-
-              {isAdminOrCRM && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate(
-                      "/international-scheme-data"
-                    )
-                  }
-                  className="
-                    h-10
-                    px-3
-                    rounded-xl
-                    border
-                    border-slate-200
-                    bg-white
-                    text-slate-700
-                    text-[10px]
-                    font-bold
-                    flex
-                    items-center
-                    gap-1.5
-                    hover:bg-slate-50
-                    transition
-                  "
-                >
-                  <FaCog
-                    size={11}
-                    className="text-[#fc250c]"
-                  />
-
-                  Manage
-                </button>
-              )}
-
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* =====================================================
-          MOBILE HEADER ACTION BAR
-      ===================================================== */}
-
-      <div
-        className="
-          md:hidden
-          sticky
-          top-[60px]
-          z-30
-          bg-white
-          border-b
-          border-slate-200
-        "
-      >
-        <div className="px-2.5 py-2 flex items-center gap-2">
-
-          {/* BACK */}
-
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="
-              w-9
-              h-9
-              shrink-0
-              rounded-xl
-              border
-              border-slate-200
-              bg-white
-              text-slate-600
-              flex
-              items-center
-              justify-center
-              active:scale-95
-            "
-          >
-            <FaArrowLeft size={12} />
-          </button>
-
-          {/* SEARCH */}
-
-          <div className="relative flex-1 min-w-0">
-            <FaSearch
-              size={11}
-              className="
-                absolute
-                left-3
-                top-1/2
-                -translate-y-1/2
-                text-slate-400
-              "
-            />
-
-            <input
-              value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              placeholder="Search..."
-              className="
-                w-full
-                h-9
-                pl-8
-                pr-2
-                rounded-xl
-                border
-                border-slate-200
-                bg-slate-50
-                text-[11px]
-                text-slate-700
-                outline-none
-                focus:bg-white
-                focus:border-[#fc250c]
-              "
-            />
-          </div>
-
-          {/* ADMIN / CRM PDF */}
-
-          {isAdminOrCRM && (
-            <div className="flex items-center gap-1.5 shrink-0">
-
-              <select
-                value={pdfPriceType}
-                onChange={(e) =>
-                  setPdfPriceType(
-                    e.target.value
-                  )
-                }
-                className="
-                  h-9
-                  max-w-[92px]
-                  rounded-xl
-                  border
-                  border-slate-200
-                  bg-slate-50
-                  px-2
-                  text-[9px]
-                  font-bold
-                  text-slate-700
-                  outline-none
-                "
-              >
-                <option value="SS">
-                  SS
-                </option>
-
-                <option value="DS">
-                  DISTRIBUTOR
-                </option>
-
-                <option value="DLR">
-                  DEALER
-                </option>
-              </select>
-
-              <button
-                type="button"
-                onClick={
-                  handleDownloadSchemePDF
-                }
-                disabled={!products.length}
-                className="
-                  h-9
-                  w-9
-                  shrink-0
-                  rounded-xl
-                  bg-[#fc250c]
-                  disabled:bg-slate-300
-                  text-white
-                  flex
-                  items-center
-                  justify-center
-                  active:scale-95
-                "
-                title="Download PDF"
-              >
-                <FaDownload size={11} />
-              </button>
-
-            </div>
-          )}
-
-          {/* SS PDF */}
-
-          {isSS && (
-            <button
-              type="button"
-              onClick={
-                handleDownloadSchemePDF
-              }
-              disabled={!products.length}
-              className="
-                h-9
-                px-2.5
-                shrink-0
-                rounded-xl
-                bg-[#fc250c]
-                disabled:bg-slate-300
-                text-white
-                text-[9px]
-                font-extrabold
-                flex
-                items-center
-                gap-1
-              "
-            >
-              <FaDownload size={9} />
-              SS
-            </button>
-          )}
-
-          {/* DS PDF */}
-
-          {isDS && (
-            <button
-              type="button"
-              onClick={
-                handleDownloadSchemePDF
-              }
-              disabled={!products.length}
-              className="
-                h-9
-                px-2.5
-                shrink-0
-                rounded-xl
-                bg-[#fc250c]
-                disabled:bg-slate-300
-                text-white
-                text-[9px]
-                font-extrabold
-                flex
-                items-center
-                gap-1
-              "
-            >
-              <FaDownload size={9} />
-              DS
-            </button>
-          )}
-
-          {/* MANAGE */}
-
-          {isAdminOrCRM && (
-            <button
-              type="button"
-              onClick={() =>
-                navigate(
-                  "/international-scheme-data"
-                )
-              }
-              className="
-                w-9
-                h-9
-                shrink-0
-                rounded-xl
-                border
-                border-slate-200
-                bg-white
-                text-[#fc250c]
-                flex
-                items-center
-                justify-center
-                active:scale-95
-              "
-              title="Manage"
-            >
-              <FaCog size={12} />
-            </button>
-          )}
-
-        </div>
-      </div>
-
-      {/* =====================================================
-          MAIN
-      ===================================================== */}
-
-      <main
-        className="
-          max-w-[1400px]
-          mx-auto
-          px-2.5
-          sm:px-4
-          md:px-6
-          lg:px-8
-          pt-3
-          md:pt-6
-        "
-      >
-
-        {/* ===================================================
-            HERO
-        =================================================== */}
-
-        <section
-          className="
-            relative
-            overflow-hidden
-            rounded-[22px]
-            bg-gradient-to-br
-            from-[#071a45]
-            via-[#0b57d0]
-            to-[#5b25d8]
-            text-white
-            shadow-lg
-          "
-        >
-
-          {/* DECORATION */}
-
-          <div
-            className="
-              absolute
-              -right-20
-              -top-24
-              w-72
-              h-72
-              rounded-full
-              bg-white/5
-            "
-          />
-
-          <div
-            className="
-              absolute
-              right-10
-              -bottom-32
-              w-72
-              h-72
-              rounded-full
-              bg-cyan-300/10
-            "
-          />
-
-          <div
-            className="
-              absolute
-              left-1/2
-              -bottom-28
-              w-72
-              h-72
-              rounded-full
-              bg-indigo-300/10
-            "
-          />
-
-          <div
-            className="
-              relative
-              z-10
-              p-4
-              sm:p-6
-              md:p-8
-              lg:p-10
-            "
-          >
-
-            <div
-              className="
-                grid
-                lg:grid-cols-[1.15fr_.85fr]
-                gap-6
-                lg:gap-10
-                items-center
-              "
-            >
-
-              {/* HERO LEFT */}
-
-              <div>
-
-                <div
-                  className="
-                    inline-flex
-                    items-center
-                    gap-2
-                    rounded-full
-                    bg-white/10
-                    border
-                    border-white/10
-                    px-3
-                    py-1.5
-                    mb-4
-                  "
-                >
-                  <FaPlaneDeparture size={11} />
-
-                  <span
-                    className="
-                      text-[9px]
-                      sm:text-xs
-                      font-bold
-                      tracking-wide
-                    "
-                  >
-                    INTERNATIONAL REWARDS PROGRAM
-                  </span>
-                </div>
-
-                <h2
-                  className="
-                    text-[27px]
-                    sm:text-[36px]
-                    lg:text-[46px]
-                    leading-[1.04]
-                    font-black
-                    tracking-tight
-                  "
-                >
-                  Buy More.
-                  <br />
-
-                  <span className="text-cyan-200">
-                    Travel International.
-                  </span>
-                </h2>
-
-                <p
-                  className="
-                    mt-3
-                    sm:mt-4
-                    text-xs
-                    sm:text-sm
-                    lg:text-base
-                    leading-relaxed
-                    text-white/75
-                    max-w-xl
-                  "
-                >
-                  Achieve your purchase target
-                  with eligible MAKPOWER products
-                  and unlock exciting international
-                  destinations.
-                </p>
-
-                <div className="flex flex-wrap gap-2.5 mt-5">
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      document
-                        .getElementById(
-                          "international-rewards"
-                        )
-                        ?.scrollIntoView({
-                          behavior: "smooth",
-                          block: "start",
-                        })
+                    disabled={
+                      !products.length
                     }
                     className="
-                      h-10
-                      px-4
-                      rounded-xl
-                      bg-white
-                      text-slate-900
-                      text-xs
-                      font-extrabold
                       flex
-                      items-center
-                      gap-2
-                      shadow-sm
-                      active:scale-[0.98]
-                      transition
-                    "
-                  >
-                    <FaGift size={12} />
-                    Explore Rewards
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      document
-                        .getElementById(
-                          "eligible-products"
-                        )
-                        ?.scrollIntoView({
-                          behavior: "smooth",
-                          block: "start",
-                        })
-                    }
-                    className="
-                      h-10
-                      px-4
-                      rounded-xl
-                      bg-white/10
-                      border
-                      border-white/15
-                      text-white
-                      text-xs
-                      font-bold
-                      flex
-                      items-center
-                      gap-2
-                      active:scale-[0.98]
-                      transition
-                    "
-                  >
-                    <FaInfoCircle size={12} />
-                    Scheme Details
-                  </button>
-
-                </div>
-              </div>
-
-              {/* HERO RIGHT - CLEAN PROGRESS ONLY */}
-
-              <div
-                className="
-                  rounded-2xl
-                  bg-white/10
-                  border
-                  border-white/15
-                  backdrop-blur-md
-                  p-4
-                  sm:p-5
-                "
-              >
-
-                <div className="flex items-center justify-between mb-4">
-
-                  <p
-                    className="
-                      text-[10px]
-                      sm:text-xs
-                      text-white/70
-                      uppercase
-                      tracking-[0.12em]
-                      font-bold
-                    "
-                  >
-                    Your Progress
-                  </p>
-
-                  <div
-                    className="
-                      w-9
                       h-9
-                      rounded-xl
-                      bg-white/10
-                      flex
                       items-center
                       justify-center
+                      gap-1.5
+                      rounded-lg
+                      bg-[#d20b25]
+                      px-3
+                      text-[9px]
+                      font-bold
+                      text-white
+                      transition-all
+                      hover:bg-[#b9081f]
+                      active:scale-95
+                      disabled:bg-slate-300
                     "
                   >
-                    <FaTrophy size={15} />
-                  </div>
-
-                </div>
-
-                <div className="flex items-end justify-between mb-2">
-
-                  <div>
-                    <p className="text-[10px] text-white/60">
-                      Achieved
-                    </p>
-
-                    <p className="text-2xl sm:text-3xl font-black">
-                      {achievedQty.toLocaleString(
-                        "en-IN"
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="text-[10px] text-white/60">
-                      Target
-                    </p>
-
-                    <p className="text-lg sm:text-xl font-black">
-                      {TARGET_QTY.toLocaleString(
-                        "en-IN"
-                      )}{" "}
-                      PCS
-                    </p>
-                  </div>
-
-                </div>
-
-                <div
-                  className="
-                    h-2.5
-                    rounded-full
-                    bg-white/10
-                    overflow-hidden
-                  "
-                >
-                  <div
-                    className="
-                      h-full
-                      rounded-full
-                      bg-gradient-to-r
-                      from-cyan-300
-                      to-white
-                      transition-all
-                      duration-500
-                    "
-                    style={{
-                      width: `${progress}%`,
-                    }}
-                  />
-                </div>
-
-                <div
-                  className="
-                    flex
-                    justify-between
-                    gap-2
-                    mt-2
-                    text-[9px]
-                    sm:text-[10px]
-                    text-white/60
-                  "
-                >
-                  <span>
-                    {progress}% completed
-                  </span>
-
-                  <span className="text-right">
-                    {remainingQty.toLocaleString(
-                      "en-IN"
-                    )}{" "}
-                    PCS remaining
-                  </span>
-                </div>
-
-                <div
-                  className="
-                    mt-4
-                    rounded-xl
-                    bg-white/10
-                    px-3
-                    py-2.5
-                    flex
-                    items-center
-                    justify-between
-                  "
-                >
-                  <span className="text-[10px] text-white/65">
-                    Trips Earned
-                  </span>
-
-                  <span className="text-lg font-black">
-                    {earnedTrips}
-                  </span>
-                </div>
-
+                    <FaDownload size={10} />
+                    Download PDF
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </section>
 
         {/* ===================================================
-            DESTINATIONS
+            PRODUCTS
         =================================================== */}
 
-        <section
-          id="international-rewards"
-          className="mt-6 sm:mt-7"
-        >
-
-          <div className="mb-4">
-
-            <div className="flex items-center gap-2 mb-1.5">
-
-              <div
-                className="
-                  w-7
-                  h-7
-                  rounded-lg
-                  bg-red-50
-                  text-[#fc250c]
-                  flex
-                  items-center
-                  justify-center
-                "
-              >
-                <FaGlobeAsia size={13} />
-              </div>
-
-              <span
-                className="
-                  text-[9px]
-                  sm:text-[10px]
-                  font-bold
-                  uppercase
-                  tracking-[0.12em]
-                  text-[#fc250c]
-                "
-              >
-                Choose Your Reward
-              </span>
-
-            </div>
-
-            <h2
-              className="
-                text-lg
-                sm:text-2xl
-                font-black
-                text-slate-900
-                tracking-tight
-              "
-            >
-              International Destinations
-            </h2>
-
-            <p
-              className="
-                mt-1
-                text-[10px]
-                sm:text-xs
-                text-slate-500
-              "
-            >
-              Complete the applicable purchase target
-              and unlock your international reward.
-            </p>
-
-          </div>
-
-          {filteredTrips.length ? (
-            <div
-              className="
-                grid
-                grid-cols-1
-                sm:grid-cols-2
-                xl:grid-cols-3
-                gap-3
-                sm:gap-5
-              "
-            >
-              {filteredTrips.map((trip) => (
-                <TripRewardCard
-                  key={trip.id}
-                  trip={trip}
-                />
-              ))}
-            </div>
-          ) : (
-            <div
-              className="
-                rounded-2xl
-                border
-                border-dashed
-                border-slate-300
-                bg-white
-                py-10
-                text-center
-              "
-            >
-              <FaSearch
-                size={18}
-                className="mx-auto text-slate-300"
-              />
-
-              <p className="mt-2 text-sm font-bold text-slate-600">
-                No destination found
-              </p>
-            </div>
-          )}
-
-        </section>
-
-        {/* ===================================================
-            ELIGIBLE PRODUCTS
-        =================================================== */}
-
-        <section
-          id="eligible-products"
-          className="mt-7"
-        >
-
-          <div
-            className="
-              flex
-              items-end
-              justify-between
-              gap-3
-              mb-3
-            "
-          >
-
+        <section className="mt-6 px-3 sm:px-5 lg:px-7">
+          <div className="mb-3 flex items-end justify-between">
             <div>
-              <div className="flex items-center gap-2">
-
-                <div
-                  className="
-                    w-7
-                    h-7
-                    rounded-lg
-                    bg-red-50
-                    text-[#fc250c]
-                    flex
-                    items-center
-                    justify-center
-                  "
-                >
-                  <FaShoppingCart size={12} />
-                </div>
-
-                <h2
-                  className="
-                    text-base
-                    sm:text-lg
-                    font-black
-                    text-slate-900
-                  "
-                >
-                  Eligible Products
-                </h2>
-
-              </div>
-
               <p
                 className="
-                  mt-1
                   text-[9px]
-                  sm:text-[10px]
-                  text-slate-500
+                  font-black
+                  uppercase
+                  tracking-[0.15em]
+                  text-[#d20b25]
                 "
               >
-                Products counted towards the international scheme.
+                Eligible Products
               </p>
+
+              <h2 className="mt-0.5 text-base font-black text-slate-800 sm:text-lg">
+                Available Products
+              </h2>
             </div>
 
             <span
               className="
-                shrink-0
                 rounded-full
                 bg-slate-100
                 px-2.5
                 py-1
-                text-[9px]
-                sm:text-[10px]
+                text-[8px]
                 font-bold
-                text-slate-600
+                text-slate-500
               "
             >
               {products.length} Products
             </span>
-
           </div>
 
-          {/* PRODUCT SEARCH - MOBILE */}
-
-          <div className="md:hidden mb-3">
-            <div className="relative">
-
-              <FaSearch
-                size={12}
+          <div
+            className="
+              grid
+              grid-cols-2
+              gap-2.5
+              sm:grid-cols-3
+              sm:gap-3
+              lg:grid-cols-5
+              xl:grid-cols-6
+            "
+          >
+            {products.map((prod) => (
+              <div
+                key={prod.product_id}
                 className="
-                  absolute
-                  left-3
-                  top-1/2
-                  -translate-y-1/2
-                  text-slate-400
+                  transition-transform
+                  duration-200
+                  hover:-translate-y-0.5
                 "
-              />
-
-              <input
-                value={search}
-                onChange={(e) =>
-                  setSearch(e.target.value)
-                }
-                placeholder="Search product or category..."
-                className="
-                  w-full
-                  h-10
-                  pl-9
-                  pr-3
-                  rounded-xl
-                  border
-                  border-slate-200
-                  bg-white
-                  text-xs
-                  outline-none
-                  focus:border-[#fc250c]
-                  focus:ring-2
-                  focus:ring-red-100
-                "
-              />
-
-            </div>
+              >
+                <ProductCard
+                  prod={prod}
+                  user={user}
+                  selectedProducts={
+                    selectedProducts
+                  }
+                  addProduct={
+                    addProduct
+                  }
+                  updateQuantity={
+                    updateQuantity
+                  }
+                  updateCartoon={
+                    updateCartoon
+                  }
+                  cartoonSelection={
+                    cartoonSelection
+                  }
+                  hasScheme={() => true}
+                  cardWidth="w-full"
+                />
+              </div>
+            ))}
           </div>
 
-          {/* PRODUCTS */}
-
-          {products.length ? (
-            <div
-              className="
-                grid
-                grid-cols-2
-                sm:grid-cols-3
-                lg:grid-cols-5
-                xl:grid-cols-6
-                gap-2.5
-                sm:gap-4
-              "
-            >
-              {products.map((prod) => (
-                <div
-                  key={prod.product_id}
-                  className="
-                    relative
-                    min-w-0
-                    transition-transform
-                    duration-200
-                    hover:-translate-y-0.5
-                  "
-                >
-                  <ProductCard
-                    prod={prod}
-                    user={user}
-                    selectedProducts={
-                      selectedProducts
-                    }
-                    addProduct={
-                      addProduct
-                    }
-                    updateQuantity={
-                      updateQuantity
-                    }
-                    updateCartoon={
-                      updateCartoon
-                    }
-                    cartoonSelection={
-                      cartoonSelection
-                    }
-                    hasScheme={() => true}
-                    cardWidth="w-full"
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
+          {!products.length && (
             <div
               className="
                 rounded-2xl
@@ -2145,23 +2186,17 @@ export default function InternationalSchemeTemplate() {
                 text-center
               "
             >
-              <FaSearch
-                size={20}
+              <FaGift
                 className="mx-auto text-slate-300"
+                size={22}
               />
 
-              <p className="mt-2 text-sm font-bold text-slate-600">
-                No products found
-              </p>
-
-              <p className="mt-1 text-[10px] text-slate-400">
-                Try another product name or category.
+              <p className="mt-2 text-xs font-semibold text-slate-500">
+                No scheme products available
               </p>
             </div>
           )}
-
         </section>
-
       </main>
     </div>
   );
