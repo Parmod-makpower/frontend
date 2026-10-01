@@ -473,8 +473,11 @@
 //     </div>
 //   );
 // }
+
+
+
 import { useMahotsavSheet } from "../hooks/CRM/useMahotsav";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useAuth } from "../context/AuthContext";
@@ -704,9 +707,16 @@ function ProgressCard({
    DESTINATION CARD
 ========================================================= */
 
-function DestinationCard({ destination }) {
+function DestinationCard({
+  destination,
+  delay = 0,
+}) {
   return (
     <article
+      data-scheme-reveal
+      style={{
+        transitionDelay: `${delay}ms`,
+      }}
       className={`
         group
         relative
@@ -795,6 +805,7 @@ function DestinationCard({ destination }) {
             </p>
           </div>
 
+          {/* FLAGS PRESERVED */}
           <span
             className="
               flex
@@ -882,6 +893,7 @@ function DestinationCard({ destination }) {
 
               <p className="mt-0.5 text-base font-black text-slate-900 sm:text-lg">
                 {destination.target}
+
                 <span className="ml-1 text-[8px] font-bold text-slate-400">
                   PCS
                 </span>
@@ -967,6 +979,58 @@ export default function OtherSchemePage() {
 
   const [pdfPriceType, setPdfPriceType] =
     useState("SS");
+
+  /* =========================================================
+     LIGHTWEIGHT SCROLL REVEAL
+  ========================================================= */
+
+  useEffect(() => {
+    const nodes = document.querySelectorAll(
+      "[data-scheme-reveal]"
+    );
+
+    if (!nodes.length) return;
+
+    if (
+      typeof window === "undefined" ||
+      !("IntersectionObserver" in window)
+    ) {
+      nodes.forEach((node) =>
+        node.classList.add("scheme-visible")
+      );
+
+      return;
+    }
+
+    const observer =
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add(
+                "scheme-visible"
+              );
+
+              observer.unobserve(
+                entry.target
+              );
+            }
+          });
+        },
+        {
+          threshold: 0.06,
+          rootMargin:
+            "0px 0px -24px 0px",
+        }
+      );
+
+    nodes.forEach((node) =>
+      observer.observe(node)
+    );
+
+    return () =>
+      observer.disconnect();
+  }, [allProducts.length]);
 
   /* =========================================================
      ROLE
@@ -1111,6 +1175,33 @@ export default function OtherSchemePage() {
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] pb-20">
+
+      {/* =====================================================
+          LIGHTWEIGHT ANIMATION ONLY
+      ===================================================== */}
+
+      <style>{`
+        [data-scheme-reveal] {
+          opacity: 0;
+          translate: 0 10px;
+          transition:
+            opacity 380ms cubic-bezier(.22,1,.36,1),
+            translate 380ms cubic-bezier(.22,1,.36,1);
+        }
+
+        [data-scheme-reveal].scheme-visible {
+          opacity: 1;
+          translate: 0 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          [data-scheme-reveal] {
+            opacity: 1 !important;
+            translate: none !important;
+            transition: none !important;
+          }
+        }
+      `}</style>
 
       {/* =====================================================
           MOBILE PAGE HEADER
@@ -1389,6 +1480,7 @@ export default function OtherSchemePage() {
         =================================================== */}
 
         <section
+          data-scheme-reveal
           className="
             relative
             mt-0
@@ -1629,6 +1721,7 @@ export default function OtherSchemePage() {
         =================================================== */}
 
         <section
+          data-scheme-reveal
           className="
             mx-auto
             max-w-[1500px]
@@ -1651,6 +1744,10 @@ export default function OtherSchemePage() {
             {/* TARGET */}
 
             <div
+              data-scheme-reveal
+              style={{
+                transitionDelay: "0ms",
+              }}
               className="
                 rounded-xl
                 border
@@ -1712,6 +1809,10 @@ export default function OtherSchemePage() {
             {/* ACHIEVED */}
 
             <div
+              data-scheme-reveal
+              style={{
+                transitionDelay: "50ms",
+              }}
               className="
                 rounded-xl
                 border
@@ -1773,6 +1874,10 @@ export default function OtherSchemePage() {
             {/* TRIPS */}
 
             <div
+              data-scheme-reveal
+              style={{
+                transitionDelay: "100ms",
+              }}
               className="
                 rounded-xl
                 border
@@ -1832,6 +1937,10 @@ export default function OtherSchemePage() {
             {/* PROGRESS */}
 
             <div
+              data-scheme-reveal
+              style={{
+                transitionDelay: "150ms",
+              }}
               className="
                 rounded-xl
                 border
@@ -1920,7 +2029,10 @@ export default function OtherSchemePage() {
             DESTINATIONS
         =================================================== */}
 
-        <section className="mt-6 px-3 sm:px-5 lg:px-7">
+        <section
+          data-scheme-reveal
+          className="mt-6 px-3 sm:px-5 lg:px-7"
+        >
           <div className="mb-3 flex items-end justify-between">
             <div>
               <p
@@ -1957,10 +2069,11 @@ export default function OtherSchemePage() {
 
           <div className="grid gap-3 md:grid-cols-3">
             {DESTINATIONS.map(
-              (destination) => (
+              (destination, index) => (
                 <DestinationCard
                   key={destination.id}
                   destination={destination}
+                  delay={index * 60}
                 />
               )
             )}
@@ -1971,7 +2084,13 @@ export default function OtherSchemePage() {
             PDF
         =================================================== */}
 
-        <section className="mt-6 px-3 sm:px-5 lg:px-7">
+        <section
+          data-scheme-reveal
+          className="mt-6 px-3 sm:px-5 lg:px-7"
+          style={{
+            transitionDelay: "60ms",
+          }}
+        >
           <div
             className="
               rounded-2xl
@@ -2094,7 +2213,13 @@ export default function OtherSchemePage() {
             PRODUCTS
         =================================================== */}
 
-        <section className="mt-6 px-3 sm:px-5 lg:px-7">
+        <section
+          data-scheme-reveal
+          className="mt-6 px-3 sm:px-5 lg:px-7"
+          style={{
+            transitionDelay: "80ms",
+          }}
+        >
           <div className="mb-3 flex items-end justify-between">
             <div>
               <p
@@ -2140,9 +2265,16 @@ export default function OtherSchemePage() {
               xl:grid-cols-6
             "
           >
-            {products.map((prod) => (
+            {products.map((prod, index) => (
               <div
                 key={prod.product_id}
+                data-scheme-reveal
+                style={{
+                  transitionDelay: `${Math.min(
+                    index * 25,
+                    180
+                  )}ms`,
+                }}
                 className="
                   transition-transform
                   duration-200
