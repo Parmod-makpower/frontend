@@ -17,6 +17,7 @@ import {
 import makpower_image from "../assets/images/makpower_image.webp";
 import MobilePageHeader from "../components/MobilePageHeader";
 import BackButton from "../Layout/BackButton";
+import OtherSchemePage from "./OtherSchemePage";
 
 export default function UserSchemesPage() {
   const { data: schemes = [], isLoading } = useSchemes();
@@ -34,15 +35,10 @@ export default function UserSchemesPage() {
     <div className="p-2 pb-20">
       <MobilePageHeader title="Available Schemes" />
 
-      <div className="hidden items-center gap-3 pb-3 pt-2 md:flex">
-    <BackButton fallback="/" />
-    <h1 className="text-sm font-semibold text-slate-700">
-      Available Schemes
-    </h1>
-  </div>
       <div className="pt-[60px] sm:pt-0">
         {schemes.length === 0 ? (
-          <p className="text-gray-500 text-center">No schemes available.</p>
+          // <p className="text-gray-500 text-center">No schemes available.</p>
+          <p></p>
         ) : (
           <div className="grid gap-2 sm:gap-6 grid-cols-2 lg:grid-cols-5">
             {schemes.map((scheme) => (
@@ -176,30 +172,9 @@ export default function UserSchemesPage() {
           </div>
         )}
       </div>
-{/* 
-        
-        <button
-          onClick={() => navigate("/goa-couple-trip-schemes")}
-          className="
-            fixed right-3 top-1/2 -translate-y-1/2 z-50
-            bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700
-            text-white
-            px-3 py-3
-            rounded-xl
-            shadow-xl
-            flex flex-col items-center
-            gap-1
-            animate-pulse
-            hover:scale-105
-            transition-all duration-300
-          "
-        >
-          <FaPlaneDeparture className="text-lg" />
-          <span className="text-[10px] font-bold leading-none">
-            Goa Trip
-          </span>
-        </button> */}
-    
+
+
+        <OtherSchemePage/>
     
     </div>
   );
