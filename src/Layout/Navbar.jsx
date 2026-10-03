@@ -234,10 +234,10 @@ export default function Navbar({
         product.sale_names
       )
         ? product.sale_names.find((name) =>
-            String(name)
-              .toLowerCase()
-              .includes(lowerSearch)
-          )
+          String(name)
+            .toLowerCase()
+            .includes(lowerSearch)
+        )
         : null;
 
       const productNameMatch =
@@ -318,8 +318,8 @@ export default function Navbar({
       ? 1
       : product.cartoon_size &&
         product.cartoon_size > 1
-      ? product.cartoon_size
-      : moq;
+        ? product.cartoon_size
+        : moq;
 
     addProduct({
       ...product,
@@ -475,7 +475,7 @@ export default function Navbar({
           path: "/price-management",
           icon: <Tags />,
         },
-       
+
         {
           label: "Sale Name",
           path: "/sale-name",
@@ -753,10 +753,9 @@ export default function Navbar({
 
           shadow-[8px_0_30px_rgba(15,23,42,0.10)]
 
-          ${
-            sidebarReady
-              ? "transition-[width] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[width]"
-              : "transition-none"
+          ${sidebarReady
+            ? "transition-[width] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[width]"
+            : "transition-none"
           }
         `}
         style={{
@@ -778,10 +777,9 @@ export default function Navbar({
             border-b
             border-white/[0.07]
 
-            ${
-              sidebarCollapsed
-                ? "justify-center"
-                : "px-5"
+            ${sidebarCollapsed
+              ? "justify-center"
+              : "px-5"
             }
           `}
         >
@@ -817,10 +815,9 @@ export default function Navbar({
 
               hover:scale-[1.02]
 
-              ${
-                sidebarCollapsed
-                  ? "h-auto w-[40px]"
-                  : "h-auto w-[136px]"
+              ${sidebarCollapsed
+                ? "h-auto w-[40px]"
+                : "h-auto w-[136px]"
               }
             `}
           />
@@ -874,10 +871,9 @@ export default function Navbar({
             duration-200
             ease-out
 
-            ${
-              isAlwaysExpandedPage
-                ? "cursor-not-allowed opacity-50"
-                : `
+            ${isAlwaysExpandedPage
+              ? "cursor-not-allowed opacity-50"
+              : `
                   cursor-pointer
                   hover:scale-105
                   hover:border-red-300
@@ -948,15 +944,13 @@ export default function Navbar({
                     duration-150
                     ease-out
 
-                    ${
-                      sidebarCollapsed
-                        ? "justify-center px-2 py-3"
-                        : "gap-3 px-3 py-2.5"
-                    }
+                    ${sidebarCollapsed
+                    ? "justify-center px-2 py-3"
+                    : "gap-3 px-3 py-2.5"
+                  }
 
-                    ${
-                      isActive
-                        ? `
+                    ${isActive
+                    ? `
                           bg-gradient-to-r
                           from-red-500
                           to-orange-500
@@ -973,7 +967,7 @@ export default function Navbar({
                           before:rounded-r-full
                           before:bg-white
                         `
-                        : `
+                    : `
                           text-slate-300
 
                           hover:bg-white/[0.065]
@@ -981,7 +975,7 @@ export default function Navbar({
 
                           hover:translate-x-[1px]
                         `
-                    }
+                  }
                   `
                 }
               >
@@ -1089,10 +1083,9 @@ export default function Navbar({
 
           md:flex
 
-          ${
-            sidebarReady
-              ? "transition-[left] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[left]"
-              : "transition-none"
+          ${sidebarReady
+            ? "transition-[left] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[left]"
+            : "transition-none"
           }
         `}
         style={{
@@ -1329,10 +1322,9 @@ export default function Navbar({
                                   text-[8px]
                                   font-bold
 
-                                  ${
-                                    outOfStock
-                                      ? "bg-red-50 text-red-600"
-                                      : "bg-emerald-50 text-emerald-600"
+                                  ${outOfStock
+                                    ? "bg-red-50 text-red-600"
+                                    : "bg-emerald-50 text-emerald-600"
                                   }
                                 `}
                               >
@@ -1344,8 +1336,8 @@ export default function Navbar({
                               {hasScheme(
                                 product.id
                               ) && (
-                                <FaGift className="shrink-0 text-[10px] text-orange-500" />
-                              )}
+                                  <FaGift className="shrink-0 text-[10px] text-orange-500" />
+                                )}
                             </div>
 
                             <p className="mt-1 truncate text-[9px] font-medium text-slate-400">
@@ -1357,28 +1349,28 @@ export default function Navbar({
 
                           {(user?.role === "SS" ||
                             user?.role === "DS") && (
-                            <div className="shrink-0">
-                              {isAdded(
-                                product.id
-                              ) ? (
-                                product.quantity_type ===
-                                  "CARTOON" &&
-                                user?.role !== "DS" ? (
-                                  <select
-                                    value={
-                                      cartoonSelection[
+                              <div className="shrink-0">
+                                {isAdded(
+                                  product.id
+                                ) ? (
+                                  product.quantity_type ===
+                                    "CARTOON" &&
+                                    user?.role !== "DS" ? (
+                                    <select
+                                      value={
+                                        cartoonSelection[
                                         product.id
-                                      ] || 1
-                                    }
-                                    onChange={(e) =>
-                                      updateCartoon(
-                                        product.id,
-                                        parseInt(
-                                          e.target.value
+                                        ] || 1
+                                      }
+                                      onChange={(e) =>
+                                        updateCartoon(
+                                          product.id,
+                                          parseInt(
+                                            e.target.value
+                                          )
                                         )
-                                      )
-                                    }
-                                    className="
+                                      }
+                                      className="
                                       rounded-lg
                                       border
                                       border-slate-200
@@ -1393,65 +1385,65 @@ export default function Navbar({
                                       focus:ring-2
                                       focus:ring-red-500/10
                                     "
-                                  >
-                                    {Array.from(
-                                      {
-                                        length: 100,
-                                      },
-                                      (_, index) =>
-                                        index + 1
-                                    ).map(
-                                      (number) => (
-                                        <option
-                                          key={number}
-                                          value={number}
-                                        >
-                                          {number} CTN
-                                        </option>
-                                      )
-                                    )}
-                                  </select>
-                                ) : (
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={
-                                      selectedProducts.find(
-                                        (item) =>
-                                          item.id ===
-                                          product.id
-                                      )?.quantity ||
-                                      ""
-                                    }
-                                    onChange={(e) => {
-                                      const value =
-                                        e.target.value;
-
-                                      if (
-                                        value === ""
-                                      ) {
-                                        updateQuantity(
-                                          product.id,
-                                          ""
-                                        );
-                                        return;
+                                    >
+                                      {Array.from(
+                                        {
+                                          length: 100,
+                                        },
+                                        (_, index) =>
+                                          index + 1
+                                      ).map(
+                                        (number) => (
+                                          <option
+                                            key={number}
+                                            value={number}
+                                          >
+                                            {number} CTN
+                                          </option>
+                                        )
+                                      )}
+                                    </select>
+                                  ) : (
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      value={
+                                        selectedProducts.find(
+                                          (item) =>
+                                            item.id ===
+                                            product.id
+                                        )?.quantity ||
+                                        ""
                                       }
+                                      onChange={(e) => {
+                                        const value =
+                                          e.target.value;
 
-                                      const parsed =
-                                        parseInt(
-                                          value
-                                        );
+                                        if (
+                                          value === ""
+                                        ) {
+                                          updateQuantity(
+                                            product.id,
+                                            ""
+                                          );
+                                          return;
+                                        }
 
-                                      if (
-                                        !isNaN(parsed)
-                                      ) {
-                                        updateQuantity(
-                                          product.id,
-                                          parsed
-                                        );
-                                      }
-                                    }}
-                                    className="
+                                        const parsed =
+                                          parseInt(
+                                            value
+                                          );
+
+                                        if (
+                                          !isNaN(parsed)
+                                        ) {
+                                          updateQuantity(
+                                            product.id,
+                                            parsed
+                                          );
+                                        }
+                                      }}
+                                      className="
                                       w-16
                                       rounded-lg
                                       border
@@ -1466,19 +1458,19 @@ export default function Navbar({
                                       focus:ring-2
                                       focus:ring-red-500/10
                                     "
-                                  />
-                                )
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
+                                    />
+                                  )
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
 
-                                    handleAddProduct(
-                                      product
-                                    );
-                                  }}
-                                  className="
+                                      handleAddProduct(
+                                        product
+                                      );
+                                    }}
+                                    className="
                                     flex
                                     h-8
                                     w-8
@@ -1498,12 +1490,12 @@ export default function Navbar({
                                     hover:text-red-600
                                     active:scale-95
                                   "
-                                >
-                                  <FaPlus size={10} />
-                                </button>
-                              )}
-                            </div>
-                          )}
+                                  >
+                                    <FaPlus size={10} />
+                                  </button>
+                                )}
+                              </div>
+                            )}
                         </div>
                       );
                     }
@@ -1524,10 +1516,10 @@ export default function Navbar({
 
           {(user?.role === "SS" ||
             user?.role === "DS") && (
-            <NavLink
-              to="/cart"
-              title="Cart"
-              className="
+              <NavLink
+                to="/cart"
+                title="Cart"
+                className="
                 group
                 relative
 
@@ -1548,19 +1540,19 @@ export default function Navbar({
                 hover:text-red-500
                 active:scale-95
               "
-            >
-              <FaShoppingCart
-                size={15}
-                className="
+              >
+                <FaShoppingCart
+                  size={15}
+                  className="
                   transition-transform
                   duration-150
                   group-hover:scale-110
                 "
-              />
+                />
 
-              {cartCount > 0 && (
-                <span
-                  className="
+                {cartCount > 0 && (
+                  <span
+                    className="
                     absolute
                     right-0.5
                     top-0.5
@@ -1585,19 +1577,19 @@ export default function Navbar({
 
                     animate-[badgePop_.18s_ease-out]
                   "
-                >
-                  {cartCount}
-                </span>
-              )}
-            </NavLink>
-          )}
+                  >
+                    {cartCount}
+                  </span>
+                )}
+              </NavLink>
+            )}
 
           {/* =================================================
               NOTIFICATION
           ================================================= */}
-
-        <InactiveStockNotification user={user} />
-
+          {(user?.role === "ADMIN" || user?.role === "CRM" || user?.role === "HR") && (
+            <InactiveStockNotification />
+          )}
           {/* =================================================
               PROFILE
           ================================================= */}
