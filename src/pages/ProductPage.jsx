@@ -365,6 +365,7 @@ import {
   FiEdit,
   FiFileText,
   FiPackage,
+  FiPower,
   FiSearch,
   FiUpload,
 } from "react-icons/fi";
@@ -380,6 +381,7 @@ import {
   bulkUploadProducts,
   exportProductsExcel,
 } from "../api/productApi";
+import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 17;
 
@@ -397,6 +399,7 @@ const EMPTY_FORM = {
 export default function ProductPage() {
   const { data: allProducts = [], isLoading } =
     useAdminAllProducts();
+     const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -863,7 +866,32 @@ export default function ProductPage() {
             Add
           </button>
 
-
+<button
+  type="button"
+  onClick={() => navigate("/inactive")}
+  className="
+    inline-flex
+    h-7
+    items-center
+    gap-1
+    rounded
+    border
+    border-red-200
+    bg-red-50
+    px-2
+    text-[12px]
+    font-semibold
+    text-red-600
+    transition
+    hover:border-red-300
+    hover:bg-red-100
+    hover:text-red-700
+  "
+  title="View inactive products"
+>
+  <FiPower size={12} />
+  Inactive
+</button>
           <button
             type="button"
             onClick={exportProductsExcel}
@@ -1117,7 +1145,7 @@ export default function ProductPage() {
                   Code
                 </th>
 
-                <th className="w-18 min-w-18 border border-slate-300 px-1 text-center font-bold text-slate-800">
+                <th className="w-15 min-w-15 border border-slate-300 px-1 text-center font-bold text-slate-800">
                   Category
                 </th>
 
@@ -1129,7 +1157,7 @@ export default function ProductPage() {
                   CTN
                 </th>
 
-                <th className="w-9 min-w-9 border border-slate-300 px-1 text-center font-bold text-slate-800">
+                <th className="w-9 min-w-9 border border-slate-300 text-center font-bold text-slate-800">
                   Guarantee
                 </th>
 
@@ -1300,7 +1328,7 @@ export default function ProductPage() {
 
                         <td
                           className="
-                            max-w-18
+                            max-w-15
                             truncate
                             border border-slate-300
                             px-1

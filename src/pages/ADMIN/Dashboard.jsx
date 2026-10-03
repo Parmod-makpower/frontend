@@ -546,13 +546,13 @@ export default function CRMDashboard() {
           accent: "red",
         },
 
-        {
-          title: "Goa Trip",
-          desc: "View Goa couple trip scheme progress.",
-          icon: <FaUmbrellaBeach />,
-          url: "/goa-couple-trip-schemes",
-          accent: "orange",
-        },
+        // {
+        //   title: "Goa Trip",
+        //   desc: "View Goa couple trip scheme progress.",
+        //   icon: <FaUmbrellaBeach />,
+        //   url: "/goa-couple-trip-schemes",
+        //   accent: "orange",
+        // },
 
         {
           title: "Catalogue",
@@ -611,13 +611,7 @@ export default function CRMDashboard() {
           accent: "orange",
         },
 
-        {
-          title: "Inactive",
-          desc: "View and manage inactive products.",
-          icon: <FaBan />,
-          url: "/inactive",
-          accent: "red",
-        },
+       
 
         {
           title: "Sale Name",
@@ -675,13 +669,13 @@ export default function CRMDashboard() {
           accent: "orange",
         },
 
-        {
-          title: "Goa Trip",
-          desc: "View Goa couple trip scheme progress.",
-          icon: <FaUmbrellaBeach />,
-          url: "/goa-couple-trip-schemes",
-          accent: "red",
-        },
+        // {
+        //   title: "Goa Trip",
+        //   desc: "View Goa couple trip scheme progress.",
+        //   icon: <FaUmbrellaBeach />,
+        //   url: "/goa-couple-trip-schemes",
+        //   accent: "red",
+        // },
 
         {
           title: "Catalogue",

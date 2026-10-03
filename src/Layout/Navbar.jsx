@@ -34,7 +34,7 @@ import {
 } from "react-icons/fa";
 
 import {
-  Bell,
+
   MoreVertical,
   Tags,
   PanelLeftClose,
@@ -58,6 +58,7 @@ import expandedLogo from "../assets/images/sidebar_logo.webp";
 
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
 import { useStock } from "../context/StockContext";
+import InactiveStockNotification from "./InactiveStockNotification";
 
 /* =========================================================
    CONSTANTS
@@ -474,11 +475,7 @@ export default function Navbar({
           path: "/price-management",
           icon: <Tags />,
         },
-        {
-          label: "Inactive",
-          path: "/inactive",
-          icon: <FaBan />,
-        },
+       
         {
           label: "Sale Name",
           path: "/sale-name",
@@ -514,11 +511,11 @@ export default function Navbar({
           path: "/orders-tracking",
           icon: <FaRoute />,
         },
-        {
-          label: "Goa Trip",
-          path: "/goa-couple-trip-schemes",
-          icon: <FaUmbrellaBeach />,
-        },
+        // {
+        //   label: "Goa Trip",
+        //   path: "/goa-couple-trip-schemes",
+        //   icon: <FaUmbrellaBeach />,
+        // },
         {
           label: "Catalogue",
           path: "/product-images-pdf",
@@ -578,11 +575,11 @@ export default function Navbar({
           path: "/not-in-stock-reports",
           icon: <FaChartLine />,
         },
-        {
-          label: "Goa Trip",
-          path: "/goa-couple-trip-schemes",
-          icon: <FaUmbrellaBeach />,
-        },
+        // {
+        //   label: "Goa Trip",
+        //   path: "/goa-couple-trip-schemes",
+        //   icon: <FaUmbrellaBeach />,
+        // },
         {
           label: "Catalogue",
           path: "/product-images-pdf",
@@ -1599,58 +1596,7 @@ export default function Navbar({
               NOTIFICATION
           ================================================= */}
 
-          <button
-            type="button"
-            className="
-              group
-              relative
-
-              flex
-              h-10
-              w-10
-              items-center
-              justify-center
-
-              rounded-lg
-
-              text-slate-500
-
-              transition-all
-              duration-150
-
-              hover:bg-orange-50
-              hover:text-orange-500
-              active:scale-95
-            "
-          >
-            <Bell
-              size={17}
-              className="
-                transition-transform
-                duration-150
-                group-hover:scale-110
-                group-hover:-rotate-6
-              "
-            />
-
-            <span
-              className="
-                absolute
-                right-2
-                top-2
-
-                h-1.5
-                w-1.5
-
-                rounded-full
-
-                bg-red-500
-
-                ring-2
-                ring-white
-              "
-            />
-          </button>
+        <InactiveStockNotification user={user} />
 
           {/* =================================================
               PROFILE
