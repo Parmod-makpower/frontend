@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import {
   FaSearch,
-  FaPlaneDeparture,
+  
   FaRocket,
   FaFireAlt,
   FaFilePdf,
@@ -1177,17 +1177,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <span
-                className="
-                  text-[8px]
-                  font-medium
-                  text-slate-400
-
-                  sm:text-[9px]
-                "
-              >
-                10 products
-              </span>
+             
             </div>
 
             {/* Existing product component */}
