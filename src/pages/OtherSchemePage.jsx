@@ -1100,24 +1100,56 @@ export default function OtherSchemePage() {
   /* =========================================================
      PRODUCTS
   ========================================================= */
+const products = useMemo(() => {
+  return allProducts
+    .filter(
+      (product) =>
+        product?.is_active
+    )
+    .filter((product) =>
+      PRODUCT_IDS.includes(
+        Number(product?.product_id)
+      )
+    )
+    .sort((a, b) => {
+      // First: category wise
+      const categoryA = String(
+        a?.sub_category ||
+          a?.category ||
+          ""
+      )
+        .trim()
+        .toLowerCase();
 
-  const products = useMemo(() => {
-    return allProducts
-      .filter(
-        (product) =>
-          product?.is_active
+      const categoryB = String(
+        b?.sub_category ||
+          b?.category ||
+          ""
       )
-      .filter((product) =>
-        PRODUCT_IDS.includes(
-          Number(product?.product_id)
-        )
-      )
-      .sort(
-        (a, b) =>
-          Number(a?.price || 0) -
-          Number(b?.price || 0)
+        .trim()
+        .toLowerCase();
+
+      const categoryCompare =
+        categoryA.localeCompare(
+          categoryB,
+          undefined,
+          {
+            numeric: true,
+            sensitivity: "base",
+          }
+        );
+
+      if (categoryCompare !== 0) {
+        return categoryCompare;
+      }
+
+      // Second: price wise inside same category
+      return (
+        Number(a?.price || 0) -
+        Number(b?.price || 0)
       );
-  }, [allProducts]);
+    });
+}, [allProducts]);
 
   /* =========================================================
      PDF
