@@ -19,7 +19,6 @@ import {
 
 import { FaIndianRupeeSign } from "react-icons/fa6";
 
-import ConfirmOrderPDFButton from "../../components/ConfirmOrderPDFButton";
 import MobilePageHeader from "../../components/MobilePageHeader";
 
 export default function ConfirmOrderPage() {

@@ -2,22 +2,11 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import BottomNav from "./BottomNav";
 import Navbar from "./Navbar";
-import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import {  useState } from "react";
+
 
 export default function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // ---------------------------------------------------------
-  // BACK BUTTON
-  // ---------------------------------------------------------
-  const handleBack = () => {
-    // Browser/React Router ki previous history par jayega
-    navigate(-1);
-  };
 
   return (
     <div className="min-h-screen bg-[#f5f7fb]">
