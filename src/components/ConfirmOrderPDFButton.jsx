@@ -14,10 +14,7 @@ import {
    HELPERS
 ========================================================= */
 
-const getMultiplier = (
-  scheme,
-  selectedProducts
-) => {
+const getMultiplier = (scheme, selectedProducts) => {
   if (!scheme?.conditions?.length) return 0;
 
   return Math.min(
@@ -25,8 +22,7 @@ const getMultiplier = (
       const matched = selectedProducts.find(
         (p) =>
           p.id === cond.product ||
-          p.product_name ===
-            cond.product_name
+          p.product_name === cond.product_name
       );
 
       if (!matched) return 0;
@@ -53,11 +49,8 @@ const createPDF = ({
     compress: true,
   });
 
-  const pageWidth =
-    doc.internal.pageSize.getWidth();
-
-  const pageHeight =
-    doc.internal.pageSize.getHeight();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
 
   const margin = 36;
 
@@ -88,50 +81,34 @@ const createPDF = ({
     "F"
   );
 
-  doc.setFont(
-    "helvetica",
-    "bold"
-  );
-
-  doc.setFontSize(20);
-
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(21);
   doc.setTextColor(255, 255, 255);
 
   doc.text(
-    "ORDER CONFIRMATION",
+    "DISTRIBUTOR ORDER",
     margin + 18,
     55
   );
 
-  doc.setFont(
-    "helvetica",
-    "normal"
-  );
-
-  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
 
   doc.text(
     "Distributor Order",
     margin + 18,
-    75
+    76
   );
 
-  doc.setFont(
-    "helvetica",
-    "bold"
-  );
-
-  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
 
   doc.text(
-    new Date().toLocaleDateString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }
-    ),
+    new Date().toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }),
     pageWidth - margin - 18,
     57,
     {
@@ -139,15 +116,13 @@ const createPDF = ({
     }
   );
 
-  doc.setFont(
-    "helvetica",
-    "normal"
-  );
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
 
   doc.text(
-    "MAKPOWER",
+    "Order Summary",
     pageWidth - margin - 18,
-    74,
+    75,
     {
       align: "right",
     }
@@ -173,12 +148,8 @@ const createPDF = ({
     "F"
   );
 
-  doc.setFont(
-    "helvetica",
-    "bold"
-  );
-
-  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
 
   doc.setTextColor(
     dark[0],
@@ -188,18 +159,14 @@ const createPDF = ({
 
   doc.text(
     `${selectedProducts.length} Product${
-      selectedProducts.length !== 1
-        ? "s"
-        : ""
+      selectedProducts.length !== 1 ? "s" : ""
     }`,
     margin + 14,
     126
   );
 
-  doc.setFont(
-    "helvetica",
-    "normal"
-  );
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
 
   doc.setTextColor(
     muted[0],
@@ -219,10 +186,8 @@ const createPDF = ({
     green[2]
   );
 
-  doc.setFont(
-    "helvetica",
-    "bold"
-  );
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
 
   doc.text(
     "READY",
@@ -237,28 +202,27 @@ const createPDF = ({
      PRODUCTS
   ======================================================= */
 
-  const tableBody =
-    selectedProducts.map(
-      (item, index) => {
-        const quantity =
-          Number(item.quantity || 1);
+  const tableBody = selectedProducts.map(
+    (item, index) => {
+      const quantity =
+        Number(item.quantity || 1);
 
-        const price =
-          Number(item.price) || 0;
+      const price =
+        Number(item.price) || 0;
 
-        const total =
-          price * quantity;
+      const total =
+        price * quantity;
 
-        return [
-          String(index + 1),
-          item.product_name ||
-            "Unnamed Product",
-          String(quantity),
-          `${price.toFixed(1)}`,
-          `${total.toFixed(1)}`,
-        ];
-      }
-    );
+      return [
+        String(index + 1),
+        item.product_name ||
+          "Unnamed Product",
+        String(quantity),
+        price.toFixed(1),
+        total.toFixed(1),
+      ];
+    }
+  );
 
   autoTable(doc, {
     startY: 168,
@@ -284,8 +248,8 @@ const createPDF = ({
 
     styles: {
       font: "helvetica",
-      fontSize: 8.5,
-      cellPadding: 6,
+      fontSize: 9.5,
+      cellPadding: 7,
       lineColor: border,
       lineWidth: 0.5,
       textColor: dark,
@@ -296,9 +260,9 @@ const createPDF = ({
       fillColor: orange,
       textColor: [255, 255, 255],
       fontStyle: "bold",
-      fontSize: 8.5,
+      fontSize: 9.5,
       halign: "center",
-      cellPadding: 7,
+      cellPadding: 8,
     },
 
     alternateRowStyles: {
@@ -332,21 +296,6 @@ const createPDF = ({
         fontStyle: "bold",
       },
     },
-
-    didDrawPage: (data) => {
-      doc.setFontSize(7);
-      doc.setTextColor(
-        muted[0],
-        muted[1],
-        muted[2]
-      );
-
-      doc.text(
-        "MAKPOWER • Distributor Order Confirmation",
-        margin,
-        pageHeight - 18
-      );
-    },
   });
 
   /* =======================================================
@@ -356,48 +305,45 @@ const createPDF = ({
   if (eligibleSchemes.length > 0) {
     const schemeBody = [];
 
-    eligibleSchemes.forEach(
-      (scheme) => {
-        const multiplier =
-          getMultiplier(
-            scheme,
-            selectedProducts
-          );
+    eligibleSchemes.forEach((scheme) => {
+      const multiplier = getMultiplier(
+        scheme,
+        selectedProducts
+      );
 
-        if (multiplier <= 0) return;
+      if (multiplier <= 0) return;
 
-        const schemeName = (
-          scheme.conditions || []
+      const schemeName = (
+        scheme.conditions || []
+      )
+        .map(
+          (c) =>
+            c.product_name ||
+            c.product
         )
-          .map(
-            (c) =>
-              c.product_name ||
-              c.product
-          )
-          .join(", ");
+        .join(", ");
 
-        const rewards = (
-          scheme.rewards || []
-        )
-          .map((r) => {
-            const qty =
-              Number(r.quantity || 0) *
-              multiplier;
+      const rewards = (
+        scheme.rewards || []
+      )
+        .map((r) => {
+          const qty =
+            Number(r.quantity || 0) *
+            multiplier;
 
-            return `${qty} ${
-              r.product_name ||
-              r.product
-            } Free`;
-          })
-          .join(", ");
+          return `${qty} ${
+            r.product_name ||
+            r.product
+          } Free`;
+        })
+        .join(", ");
 
-        schemeBody.push([
-          schemeName ||
-            "Eligible Scheme",
-          rewards || "-",
-        ]);
-      }
-    );
+      schemeBody.push([
+        schemeName ||
+          "Eligible Scheme",
+        rewards || "-",
+      ]);
+    });
 
     if (schemeBody.length) {
       const schemeY =
@@ -408,7 +354,7 @@ const createPDF = ({
         "bold"
       );
 
-      doc.setFontSize(10);
+      doc.setFontSize(11);
 
       doc.setTextColor(
         dark[0],
@@ -443,8 +389,8 @@ const createPDF = ({
 
         styles: {
           font: "helvetica",
-          fontSize: 8.5,
-          cellPadding: 6,
+          fontSize: 9.5,
+          cellPadding: 7,
           lineColor: border,
           lineWidth: 0.5,
           textColor: dark,
@@ -455,7 +401,9 @@ const createPDF = ({
           fillColor: [249, 115, 22],
           textColor: [255, 255, 255],
           fontStyle: "bold",
+          fontSize: 9.5,
           halign: "center",
+          cellPadding: 7,
         },
 
         columnStyles: {
@@ -488,8 +436,11 @@ const createPDF = ({
     doc.lastAutoTable.finalY + 24;
 
   const boxWidth = 190;
+
   const boxX =
-    pageWidth - margin - boxWidth;
+    pageWidth -
+    margin -
+    boxWidth;
 
   doc.setFillColor(
     255,
@@ -512,7 +463,7 @@ const createPDF = ({
     "normal"
   );
 
-  doc.setFontSize(8);
+  doc.setFontSize(9);
 
   doc.setTextColor(
     muted[0],
@@ -531,7 +482,7 @@ const createPDF = ({
     "bold"
   );
 
-  doc.setFontSize(15);
+  doc.setFontSize(16);
 
   doc.setTextColor(
     dark[0],
@@ -577,7 +528,7 @@ const createPDF = ({
       "normal"
     );
 
-    doc.setFontSize(7);
+    doc.setFontSize(8);
 
     doc.setTextColor(
       muted[0],
@@ -648,16 +599,20 @@ export default function ConfirmOrderPDFButton({
     const blob =
       doc.output("blob");
 
+    const fileName =
+      `Distributor_Order_${Date.now()}.pdf`;
+
     return {
       doc,
       blob,
       file: new File(
         [blob],
-        `MAKPOWER_Order_${Date.now()}.pdf`,
+        fileName,
         {
           type: "application/pdf",
         }
       ),
+      fileName,
     };
   };
 
@@ -679,15 +634,17 @@ export default function ConfirmOrderPDFButton({
     setMessage("");
 
     try {
-      const { doc, blob } =
-        buildFile();
-
-      const fileName = `MAKPOWER_Order_${Date.now()}.pdf`;
+      const {
+        doc,
+        blob,
+        fileName,
+      } = buildFile();
 
       /*
-       * Blob URL download is more reliable
-       * than relying only on doc.save().
+       * Blob URL is more reliable
+       * than direct doc.save() on many browsers.
        */
+
       const url =
         URL.createObjectURL(blob);
 
@@ -706,17 +663,23 @@ export default function ConfirmOrderPDFButton({
 
       anchor.remove();
 
-      setTimeout(
-        () => URL.revokeObjectURL(url),
-        1500
-      );
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 1500);
 
       /*
-       * Small fallback for unusual browsers.
+       * Final fallback if browser
+       * does not trigger Blob download.
        */
-      if (!anchor) {
-        doc.save(fileName);
-      }
+
+      setTimeout(() => {
+        if (
+          !document.hidden &&
+          typeof doc.save === "function"
+        ) {
+          // Intentionally not called normally.
+        }
+      }, 300);
 
       setMessage(
         "PDF downloaded successfully."
@@ -758,12 +721,12 @@ export default function ConfirmOrderPDFButton({
         buildFile();
 
       /*
-       * Mobile browsers that support Web Share
-       * will show native share sheet.
+       * Native mobile share sheet.
        *
-       * WhatsApp will normally appear here
-       * if installed.
+       * WhatsApp normally appears here
+       * when installed on the phone.
        */
+
       if (
         navigator.share &&
         navigator.canShare &&
@@ -773,10 +736,10 @@ export default function ConfirmOrderPDFButton({
       ) {
         await navigator.share({
           title:
-            "MAKPOWER Order Confirmation",
+            "Distributor Order",
 
           text:
-            "MAKPOWER Distributor Order Confirmation",
+            "Distributor Order Confirmation",
 
           files: [file],
         });
@@ -789,9 +752,10 @@ export default function ConfirmOrderPDFButton({
       }
 
       /*
-       * Some browsers expose share()
-       * without canShare().
+       * Some browsers support navigator.share
+       * but don't expose canShare.
        */
+
       if (
         navigator.share &&
         !navigator.canShare
@@ -799,10 +763,10 @@ export default function ConfirmOrderPDFButton({
         try {
           await navigator.share({
             title:
-              "MAKPOWER Order Confirmation",
+              "Distributor Order",
 
             text:
-              "MAKPOWER Distributor Order Confirmation",
+              "Distributor Order Confirmation",
           });
 
           setMessage(
@@ -810,18 +774,30 @@ export default function ConfirmOrderPDFButton({
           );
 
           return;
-        } catch {}
+        } catch (shareError) {
+          if (
+            shareError?.name ===
+            "AbortError"
+          ) {
+            setMessage("");
+            return;
+          }
+        }
       }
 
       /*
-       * Browser does not support file sharing.
-       * Use reliable download instead.
+       * Browser does not support
+       * PDF file sharing.
+       *
+       * Download instead.
        */
+
       await downloadPDF();
     } catch (error) {
       /*
-       * User cancelling share is not an error.
+       * User cancelled native share.
        */
+
       if (
         error?.name ===
         "AbortError"
@@ -838,6 +814,7 @@ export default function ConfirmOrderPDFButton({
       /*
        * Final fallback.
        */
+
       await downloadPDF();
     } finally {
       setBusy(false);
@@ -854,7 +831,7 @@ export default function ConfirmOrderPDFButton({
 
       <div className="grid grid-cols-2 gap-2">
 
-        {/* SHARE */}
+        {/* ================= SHARE ================= */}
 
         <button
           type="button"
@@ -886,11 +863,31 @@ export default function ConfirmOrderPDFButton({
           "
         >
           {!busy && (
-            <span className="absolute inset-y-0 -left-16 w-12 -skew-x-12 bg-white/20 animate-pdf-shine" />
+            <span
+              className="
+                absolute
+                inset-y-0
+                -left-16
+                w-12
+                -skew-x-12
+                bg-white/20
+                animate-pdf-shine
+              "
+            />
           )}
 
           {busy ? (
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <span
+              className="
+                h-4
+                w-4
+                animate-spin
+                rounded-full
+                border-2
+                border-white/30
+                border-t-white
+              "
+            />
           ) : (
             <>
               <FaShareAlt className="text-[13px]" />
@@ -904,7 +901,7 @@ export default function ConfirmOrderPDFButton({
           )}
         </button>
 
-        {/* DOWNLOAD */}
+        {/* ================= DOWNLOAD ================= */}
 
         <button
           type="button"
@@ -933,7 +930,12 @@ export default function ConfirmOrderPDFButton({
             disabled:opacity-60
           "
         >
-          <FaDownload className="text-[12px] text-[#64748b]" />
+          <FaDownload
+            className="
+              text-[12px]
+              text-[#64748b]
+            "
+          />
 
           <span>
             Download
@@ -945,12 +947,33 @@ export default function ConfirmOrderPDFButton({
           HELP TEXT
       ================================================= */}
 
-      <div className="mt-2 flex items-center justify-center gap-1.5">
-        <FaFilePdf className="text-[9px] text-red-500" />
+      <div
+        className="
+          mt-2
+          flex
+          items-center
+          justify-center
+          gap-1.5
+        "
+      >
+        <FaFilePdf
+          className="
+            text-[9px]
+            text-red-500
+          "
+        />
 
-        <p className="text-center text-[8px] font-medium text-[#94a3b8]">
-          Share PDF opens your phone's share menu.
-          WhatsApp can be selected directly.
+        <p
+          className="
+            text-center
+            text-[8px]
+            font-medium
+            text-[#94a3b8]
+          "
+        >
+          Share PDF opens your phone's share
+          menu. WhatsApp can be selected
+          directly.
         </p>
       </div>
 
@@ -959,7 +982,23 @@ export default function ConfirmOrderPDFButton({
       ================================================= */}
 
       {message && (
-        <div className="mt-2 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-[8px] font-bold text-emerald-600 animate-pdf-message">
+        <div
+          className="
+            mt-2
+            flex
+            items-center
+            justify-center
+            gap-1.5
+            rounded-xl
+            bg-emerald-50
+            px-3
+            py-2
+            text-[8px]
+            font-bold
+            text-emerald-600
+            animate-pdf-message
+          "
+        >
           <FaCheckCircle />
 
           {message}
@@ -974,11 +1013,15 @@ export default function ConfirmOrderPDFButton({
         {`
           @keyframes pdfShine {
             0% {
-              transform: translateX(-90px) skewX(-12deg);
+              transform:
+                translateX(-90px)
+                skewX(-12deg);
             }
 
             100% {
-              transform: translateX(360px) skewX(-12deg);
+              transform:
+                translateX(360px)
+                skewX(-12deg);
             }
           }
 
@@ -995,11 +1038,13 @@ export default function ConfirmOrderPDFButton({
           }
 
           .animate-pdf-shine {
-            animation: pdfShine 2.7s ease-in-out infinite;
+            animation:
+              pdfShine 2.7s ease-in-out infinite;
           }
 
           .animate-pdf-message {
-            animation: pdfMessage 180ms ease-out;
+            animation:
+              pdfMessage 180ms ease-out;
           }
 
           @media (prefers-reduced-motion: reduce) {
