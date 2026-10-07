@@ -42,6 +42,7 @@ import { useAuth } from "../../context/AuthContext";
 const PRICE_MANAGEMENT_ALLOWED_USERS = new Set([
   "AD0001",
   "CRM0002",
+  "CRM0003",
 ]);
 
 /* =========================================================
