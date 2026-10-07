@@ -720,7 +720,7 @@ export default function SubCategoryPage() {
     // =====================================================
 
     if (isManualTwister) {
-      return "https://res.cloudinary.com/djyr368zj/image/upload/v1757908154/eg8xi3afjpp5jnz01ola.png";
+      return "https://res.cloudinary.com/djyr368zj/image/upload/v1791348804/tqu6cfwfjvswi8qach6k.webp";
     }
 
     // =====================================================
