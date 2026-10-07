@@ -20,6 +20,15 @@ export default function NewLaunchingPage() {
 
   // ✅ New Launch Product IDs
   const NEW_LAUNCH_IDS = [
+    1273,
+    1737,
+    1308,
+    1365,
+    1939,
+    1940,
+    1930,
+    1941,
+    1942,
     560,
     1321,
     1358,
