@@ -97,7 +97,7 @@ export default function NewLaunchingPage() {
                   cartoonSelection={cartoonSelection}
                   hasScheme={() => false} // yaha schemes nahi use ho rahi
                   cardWidth="w-full"
-                  fallbackImage="https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
+                  // fallbackImage="https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
                 />
               </div>
             ))}
