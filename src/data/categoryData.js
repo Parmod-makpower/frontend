@@ -274,6 +274,12 @@ const categories = [
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1780477536/ndkqtaokr6xgajis4nro.webp",
     subcategories: []
   },
+  {
+    label: "RACKET",
+    keyword: "MOSQUITO RACKET",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1791360696/byxdasqmah0vqmgsajyz.webp",
+    subcategories: []
+  },
    {
     label: "Gift items",
     keyword: "GIFT ITEM",
