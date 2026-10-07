@@ -14,7 +14,7 @@ const categories = [
   {
     label: "Speakers",
     keyword: "SPEAKER",
-    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757908154/eg8xi3afjpp5jnz01ola.png",
+    image: "https://res.cloudinary.com/djyr368zj/image/upload/v1757565509/oganejn54q49nadlxrig.webp",
     subcategories: []
   },
     // =========================================================
