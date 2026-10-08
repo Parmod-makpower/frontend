@@ -208,26 +208,40 @@ export default function SSPDF({
      SAME AVAILABILITY LOGIC AS TABLE
   ========================================================= */
 
-  const getAvailability = (
-    product,
-    item,
-    city
-  ) => {
-    if (!product) return false;
+ const getAvailability = (product, item, city) => {
+  if (!product) return false;
 
-    const qty =
-      Number(item.quantity) || 0;
+  const qty = Number(item.quantity) || 0;
 
-    if (city === "Mumbai") {
-      return (
-        (product.mumbai_stock ?? 0) >= qty
-      );
-    }
-
-    return (
-      (item.ss_virtual_stock ?? 0) >= qty
+  // Mumbai: Only Mumbai stock will be checked.
+  // SS stock will not be included.
+  if (city === "Mumbai") {
+    const mumbaiStock = Math.max(
+      0,
+      Number(product.mumbai_stock) || 0
     );
-  };
+
+    return mumbaiStock >= qty;
+  }
+
+  // Delhi: SS stock + Delhi stock.
+  const ssStock = Math.max(
+    0,
+    Number(item.ss_virtual_stock) || 0
+  );
+
+  const delhiStock = Math.max(
+    0,
+    Number(product.virtual_stock) || 0
+  );
+
+  const totalAvailableStock =
+    ssStock > 0
+      ? ssStock + delhiStock
+      : delhiStock;
+
+  return totalAvailableStock >= qty;
+};
 
   const getFinalAvailability = (item) => {
     const productData =
