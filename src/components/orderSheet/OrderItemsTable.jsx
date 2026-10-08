@@ -3772,33 +3772,39 @@ export default function OrderItemsTable({
   }, [editedItems.length]);
 
   /* ================= AVAILABILITY ================= */
-  const getAvailability = (product, item, city) => {
-    if (!product) return false;
+const getAvailability = (product, item, city) => {
+  if (!product) return false;
 
-    const qty = Number(item.quantity) || 0;
+  const qty = Number(item.quantity) || 0;
 
-    const rawSSStock = Number(item.ss_virtual_stock);
-    const ssStock =
-      Number.isFinite(rawSSStock) && rawSSStock > 0
-        ? rawSSStock
-        : 0;
-
-    const rawCityStock = Number(
-      city === "Mumbai"
-        ? product.mumbai_stock
-        : product.virtual_stock
+  // Mumbai: Only Mumbai stock check hoga, SS stock nahi.
+  if (city === "Mumbai") {
+    const mumbaiStock = Math.max(
+      0,
+      Number(product.mumbai_stock) || 0
     );
 
-    const cityStock =
-      Number.isFinite(rawCityStock) && rawCityStock > 0
-        ? rawCityStock
-        : 0;
+    return mumbaiStock >= qty;
+  }
 
-    const totalAvailableStock =
-      ssStock > 0 ? ssStock + cityStock : cityStock;
+  // Delhi: Existing SS + Delhi stock logic same rahega.
+  const ssStock = Math.max(
+    0,
+    Number(item.ss_virtual_stock) || 0
+  );
 
-    return totalAvailableStock >= qty;
-  };
+  const delhiStock = Math.max(
+    0,
+    Number(product.virtual_stock) || 0
+  );
+
+  const totalAvailableStock =
+    ssStock > 0
+      ? ssStock + delhiStock
+      : delhiStock;
+
+  return totalAvailableStock >= qty;
+};
 
   const getFinalAvailability = (item, productData) => {
     const manualAvailability =
