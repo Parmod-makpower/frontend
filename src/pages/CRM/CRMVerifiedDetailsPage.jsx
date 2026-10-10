@@ -716,7 +716,7 @@ export default function CRMVerifiedDetailsPage() {
     "Rahul Kumar": "RK-AP",
     "Vivek Sharma": "VS-AP",
     "Aarti Singh": "AS-AP",
-    "Kanak Maurya": "KM-AP",
+    "Kritika Jha": "KJ-AP",
   };
 
   const orderCode = crmMapping[order?.crm_name]

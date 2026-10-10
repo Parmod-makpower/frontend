@@ -291,7 +291,7 @@ const CRM_MAPPING = {
   "Rahul Kumar": "RK-AP",
   "Vivek Sharma": "VS-AP",
   "Aarti Singh": "AS-AP",
-  "Kanak Maurya": "KM-AP",
+  "Kritika Jha": "KJ-AP",
 };
 
 /* ============================================================================
