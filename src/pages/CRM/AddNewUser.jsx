@@ -546,6 +546,7 @@
 
 
 import { useState, useMemo } from "react";
+
 import {
   createSSUser,
   updateSSUser,
@@ -585,13 +586,18 @@ export default function AddNewUser() {
 
   // =========================
   // REACT SELECT OPTIONS
+  // ADMIN: CRM, SS, EMP
+  // CRM: EMP
   // =========================
   const roleOptions = [
     ...(user?.role === "ADMIN"
       ? [
           { value: "CRM", label: "CRM" },
           { value: "SS", label: "Super Stockist" },
+          { value: "EMP", label: "Office Employee" },
         ]
+      : user?.role === "CRM"
+      ? [{ value: "EMP", label: "Office Employee" }]
       : []),
     { value: "ASM", label: "ASM" },
     { value: "DS", label: "Distributor" },
@@ -636,7 +642,7 @@ export default function AddNewUser() {
   const showSSField = form.role === "DS";
 
   const showPartyField =
-    form.role === "SS" || form.role === "DS";
+    ["SS", "DS", "EMP"].includes(form.role);
 
   const showPasswordField = !form.id;
 
@@ -701,7 +707,14 @@ export default function AddNewUser() {
 
     setErrors({});
 
-    const requiredFields = ["role", "name", "mobile"];
+    const requiredFields = ["role", "mobile"];
+
+    // EMP uses party_name as the visible name field
+    if (form.role === "EMP") {
+      requiredFields.push("party_name");
+    } else {
+      requiredFields.push("name");
+    }
 
     if (showCRMField) {
       requiredFields.push("crm");
@@ -711,11 +724,11 @@ export default function AddNewUser() {
       requiredFields.push("ss");
     }
 
-    if (showPartyField) {
+    if (showPartyField && form.role !== "EMP") {
       requiredFields.push("party_name");
     }
 
-    let newErrors = {};
+    const newErrors = {};
 
     requiredFields.forEach((field) => {
       if (isEmpty(form[field])) {
@@ -735,11 +748,21 @@ export default function AddNewUser() {
     setLoading(true);
 
     try {
-      let payload = { ...form };
+      const payload = { ...form };
 
       // REMOVE EMPTY PASSWORD
       if (!payload.password?.trim()) {
         delete payload.password;
+      }
+
+      // EMP ROLE
+      // Use the office/party name for both fields to support
+      // existing backend validation that may require name.
+      if (form.role === "EMP") {
+        payload.name = form.party_name.trim();
+        payload.party_name = form.party_name.trim();
+        payload.crm = null;
+        payload.ss = null;
       }
 
       // CRM ROLE
@@ -757,7 +780,7 @@ export default function AddNewUser() {
       // NON ADMIN
       if (
         (form.role === "ASM" || form.role === "DS") &&
-        user.role !== "ADMIN"
+        user?.role !== "ADMIN"
       ) {
         delete payload.crm;
       }
@@ -846,7 +869,6 @@ export default function AddNewUser() {
 
   return (
     <div className="min-h-screen bg-gray-100 sm:p-4">
-
       {/* MOBILE HEADER */}
       <div className="sm:hidden">
         <MobilePageHeader
@@ -855,17 +877,10 @@ export default function AddNewUser() {
       </div>
 
       <div className="mx-auto max-w-7xl pt-[70px] sm:pt-0">
-
-        {/* =================================================
-            DESKTOP PAGE HEADER
-        ================================================= */}
-
+        {/* DESKTOP PAGE HEADER */}
         <div className="mb-4 border border-slate-200 bg-white shadow-sm">
-
           <div className="flex min-h-[58px] items-center gap-3 px-3 py-2.5 sm:px-4">
-
             {/* BACK */}
-
             <div className="hidden sm:block">
               <BackButton fallback="/all-users/list" />
             </div>
@@ -873,17 +888,13 @@ export default function AddNewUser() {
             <div className="hidden h-7 w-px bg-slate-200 sm:block" />
 
             {/* ICON */}
-
             <div className="hidden h-8 w-8 shrink-0 items-center justify-center bg-blue-50 text-blue-600 sm:flex">
               <FaUserPlus size={16} />
             </div>
 
             {/* TITLE */}
-
             <div className="min-w-0">
-
               <div className="flex items-center gap-2">
-
                 <h1 className="text-sm font-bold text-slate-800 sm:text-base">
                   {form.id ? "Edit User" : "Create New User"}
                 </h1>
@@ -891,44 +902,31 @@ export default function AddNewUser() {
                 <span className="bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-blue-600">
                   {form.id ? "EDIT" : "NEW"}
                 </span>
-
               </div>
 
               <p className="hidden text-[10px] text-slate-400 sm:block">
-                Manage CRM, SS, ASM and Distributor users
+                Manage CRM, SS, ASM, Distributor and Office Employee users
               </p>
-
             </div>
 
             {/* RIGHT SIDE */}
-
             <div className="ml-auto hidden items-center gap-2 sm:flex">
-
               <span className="text-[10px] text-slate-400">
                 {form.id
                   ? "Update existing user details"
                   : "Create a new system user"}
               </span>
-
             </div>
-
           </div>
-
         </div>
 
-        {/* =================================================
-            FORM
-        ================================================= */}
-
+        {/* FORM */}
         <form
           onSubmit={handleSubmit}
           className="border border-slate-200 bg-white shadow-sm"
         >
-
           {/* FORM HEADER */}
-
           <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3">
-
             <div>
               <h2 className="text-sm font-bold text-slate-700">
                 User Details
@@ -942,15 +940,11 @@ export default function AddNewUser() {
             <div className="hidden text-[10px] font-medium text-slate-400 sm:block">
               * Required fields
             </div>
-
           </div>
 
           <div className="p-4 sm:p-5">
-
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-
               {/* ROLE */}
-
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
                   Select Role
@@ -964,9 +958,11 @@ export default function AddNewUser() {
                     ) || null
                   }
                   onChange={(selected) => {
+                    const newRole = selected ? selected.value : "";
+
                     setForm({
                       ...form,
-                      role: selected ? selected.value : "",
+                      role: newRole,
                     });
 
                     setErrors({
@@ -987,7 +983,6 @@ export default function AddNewUser() {
               </div>
 
               {/* CRM */}
-
               {showCRMField && (
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -1026,7 +1021,6 @@ export default function AddNewUser() {
               )}
 
               {/* SS */}
-
               {showSSField && (
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -1064,31 +1058,52 @@ export default function AddNewUser() {
                 </div>
               )}
 
-              {/* NAME */}
+              {/* NAME / EMP PARTY NAME */}
+              {form.role !== "EMP" ? (
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Owner Name
+                  </label>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Owner Name
-                </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    placeholder="Enter owner name"
+                    className={inputClass}
+                  />
 
-                <input
-                  type="text"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  placeholder="Enter owner name"
-                  className={inputClass}
-                />
+                  {errors.name && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.name[0]}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Party / Office Name
+                  </label>
 
-                {errors.name && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {errors.name[0]}
-                  </p>
-                )}
-              </div>
+                  <input
+                    type="text"
+                    name="party_name"
+                    value={form.party_name}
+                    onChange={handleChange}
+                    placeholder="Enter party / office name"
+                    className={inputClass}
+                  />
+
+                  {errors.party_name && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.party_name[0]}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* MOBILE */}
-
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
                   Mobile Number
@@ -1110,9 +1125,8 @@ export default function AddNewUser() {
                 )}
               </div>
 
-              {/* PARTY NAME */}
-
-              {showPartyField && (
+              {/* PARTY NAME - EXISTING SS / DS */}
+              {showPartyField && form.role !== "EMP" && (
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Party / Shop Name
@@ -1136,7 +1150,6 @@ export default function AddNewUser() {
               )}
 
               {/* PASSWORD */}
-
               {showPasswordField && (
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -1159,15 +1172,10 @@ export default function AddNewUser() {
                   )}
                 </div>
               )}
-
             </div>
 
-            {/* =================================================
-                ACTION BAR
-            ================================================= */}
-
+            {/* ACTION BAR */}
             <div className="mt-7 flex items-center justify-end border-t border-slate-100 pt-4">
-
               <button
                 type="submit"
                 disabled={loading}
@@ -1190,7 +1198,6 @@ export default function AddNewUser() {
                   disabled:opacity-70
                 "
               >
-
                 <FaSave size={14} />
 
                 {loading
@@ -1198,15 +1205,10 @@ export default function AddNewUser() {
                   : form.id
                   ? "Update User"
                   : "Create User"}
-
               </button>
-
             </div>
-
           </div>
-
         </form>
-
       </div>
     </div>
   );
