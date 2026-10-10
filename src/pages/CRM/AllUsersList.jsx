@@ -209,7 +209,7 @@ import {
   UserX,
 } from "lucide-react";
 
-const ROLE_OPTIONS = ["SS", "DS", "ASM", "CRM", ""];
+const ROLE_OPTIONS = ["SS", "DS", "ASM", "CRM", "EMP"];
 const ROLE_STORAGE_KEY = "users_selected_role";
 
 export default function AllUsersList() {
