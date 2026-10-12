@@ -601,8 +601,8 @@ export default function OtherSchemePage() {
   ]);
 
   const achievedQty = Number(
-    // partyMahotsavData?.mahotsav_dispatch_quantity ||
-    //   0
+    partyMahotsavData?.mahotsav_dispatch_quantity ||
+      0
   );
 
   const progressPercent = Math.min(
