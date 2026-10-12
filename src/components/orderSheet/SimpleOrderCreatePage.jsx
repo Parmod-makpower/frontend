@@ -20,19 +20,29 @@ export default function SimpleOrderCreateModal({ showModal, setShowModal }) {
     const listRef = useRef(null);
 
     // 🔍 Filter only when user is typing
-    useEffect(() => {
-        if (!searchTerm || isSelecting) {
-            setFilteredUsers([]);
-            return;
-        }
+   
+useEffect(() => {
+    if (!searchTerm || isSelecting) {
+        setFilteredUsers([]);
+        return;
+    }
 
-        const filtered = ssUsers.filter((ss) =>
-            ss.party_name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+    const term = searchTerm.trim().toLowerCase();
 
-        setFilteredUsers(filtered);
-        setHighlightIndex(0);
-    }, [searchTerm, ssUsers, isSelecting]);
+    const filtered = ssUsers.filter((ss) => {
+        // Only SS users should appear in the party selector.
+        if (ss.role !== "SS") return false;
+
+        const partyName = String(ss.party_name ?? ss.name ?? "")
+            .toLowerCase();
+
+        return partyName.includes(term);
+    });
+
+    setFilteredUsers(filtered);
+    setHighlightIndex(0);
+}, [searchTerm, ssUsers, isSelecting]);
+
 
     if (!showModal) return null;
 
@@ -60,12 +70,12 @@ export default function SimpleOrderCreateModal({ showModal, setShowModal }) {
     };
 
     // ✅ Proper select handler
-    const handleSelectSS = (ss) => {
-        setIsSelecting(true);
-        setSelectedSS(ss);
-        setSearchTerm(ss.party_name);
-        setFilteredUsers([]);
-    };
+   const handleSelectSS = (ss) => {
+    setIsSelecting(true);
+    setSelectedSS(ss);
+    setSearchTerm(String(ss.party_name ?? ss.name ?? ""));
+    setFilteredUsers([]);
+};
 
     // ✍️ When user starts typing again
     const handleChange = (e) => {
@@ -147,7 +157,7 @@ export default function SimpleOrderCreateModal({ showModal, setShowModal }) {
                                             : "hover:bg-gray-100"
                                         }`}
                                 >
-                                    {ss.party_name}
+                                   {ss.party_name ?? ss.name ?? "Unnamed Party"}
                                 </div>
                             ))}
                         </div>
