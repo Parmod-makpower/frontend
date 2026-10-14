@@ -590,10 +590,10 @@ export default function ProductDetailPage() {
   const isDS = user?.role === "DS";
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-8 text-slate-900">
+    <div className="min-h-screen pb-8 text-slate-900">
       <MobilePageHeader title={product.product_name} />
 
-      <main className="mx-auto w-full max-w-6xl px-3 pb-6 pt-[68px] sm:px-5 sm:pt-5 md:px-6">
+      <main className="px-3 pb-6 pt-[68px] sm:pt-5">
         <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 md:gap-6">
           {/* Product gallery */}
           <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5">
@@ -709,7 +709,7 @@ export default function ProductDetailPage() {
             </h1>
 
             <p className="mt-2 text-xs text-slate-500">
-              Category:{" "}
+             
               <span className="font-semibold text-slate-700">
                 {product.sub_category || "N/A"}
               </span>
