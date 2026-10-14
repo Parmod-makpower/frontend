@@ -102,7 +102,7 @@ export default function PartyItemSheetPage() {
 
             <div>
               <h1 className="text-xs font-semibold text-gray-800">
-                Goa Couple Trip Sheet
+               International Scheme
               </h1>
 
               <p className="text-[10px] text-gray-500">
@@ -159,7 +159,7 @@ export default function PartyItemSheetPage() {
       {/* Table */}
       <div className="bg-white border rounded shadow-sm overflow-hidden">
 
-        <div className="max-h-[70vh] overflow-auto">
+        <div className="max-h-[66vh] overflow-auto">
 
           <table className="w-full border-collapse text-[10px]">
 
@@ -167,11 +167,11 @@ export default function PartyItemSheetPage() {
 
               <tr className="text-gray-700">
 
-                <th className="border-b px-2 py-2 text-left font-semibold">
+                <th className="border-b px-2 py-2 text-center font-semibold">
                   CRM
                 </th>
 
-                <th className="border-b px-2 py-2 text-left font-semibold">
+                <th className="border-b px-2 py-2 text-center font-semibold">
                   Party Name
                 </th>
 
@@ -208,15 +208,15 @@ export default function PartyItemSheetPage() {
                       transition-colors
                     "
                   >
-                    <td className="px-2 py-2 font-medium text-gray-700 whitespace-nowrap">
+                    <td className="px-2 py-2 font-medium text-center border-r text-gray-700 whitespace-nowrap">
                       {row.crm_name}
                     </td>
 
-                    <td className="px-2 py-2 text-gray-800">
+                    <td className="px-2 py-2 text-center border-r text-gray-800">
                       {row.party_name}
                     </td>
 
-                    <td className="px-2 py-2 text-center font-semibold text-green-700">
+                    <td className="px-2 py-2 text-center border-r font-semibold text-green-700">
                       {Number(
                         row.mahotsav_dispatch_quantity || 0
                       ).toLocaleString()}
