@@ -280,6 +280,12 @@ const categories = [
     image: "https://res.cloudinary.com/djyr368zj/image/upload/v1791360696/byxdasqmah0vqmgsajyz.webp",
     subcategories: []
   },
+  {
+    label: "EXTENSION BOARD",
+    keyword: "EXTENSION BOARD",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPB5gZUs4Pf1slkCS2dvpOh6H5lqoLLX6hQfTQ8S9dzw&s=10",
+    subcategories: []
+  },
    {
     label: "Gift items",
     keyword: "GIFT ITEM",
