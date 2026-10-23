@@ -297,8 +297,14 @@ export default function ProductImagesPDF() {
       null
     );
 
-  const getPosterImage = (product) =>
-    getCloudinaryUrl(product?.image2);
+  const getPosterImage = (product) => {
+    // GIFT ITEM posters use Image 1; all other products keep using Image 2.
+    if (normalizeCategory(product?.sub_category) === "GIFT ITEM") {
+      return getProductImage(product);
+    }
+
+    return getCloudinaryUrl(product?.image2);
+  };
 
   /* =======================================================
      IMAGE TO JPEG
@@ -636,7 +642,11 @@ export default function ProductImagesPDF() {
 
       for (let i = 0; i < selectedProducts.length; i++) {
         const product = selectedProducts[i];
-        const image = getPosterImage(product);
+        const isGiftItem =
+          normalizeCategory(product?.sub_category) === "GIFT ITEM";
+        const image = isGiftItem
+          ? getProductImage(product)
+          : getPosterImage(product);
 
         if (!image) {
           console.warn(
@@ -669,24 +679,31 @@ export default function ProductImagesPDF() {
         }
 
         const imgRatio = imgWidth / imgHeight;
-        const pageRatio = pageWidth / pageHeight;
+        const margin = isGiftItem ? 8 : 0;
+        const headerHeight = isGiftItem ? 28 : 0;
+        const footerHeight = isGiftItem ? 14 : 0;
+        const availableWidth = pageWidth - margin * 2;
+        const availableHeight =
+          pageHeight - margin * 2 - headerHeight - footerHeight;
+        const boxRatio = availableWidth / availableHeight;
 
         let renderWidth;
         let renderHeight;
         let x;
         let y;
 
-        if (imgRatio > pageRatio) {
-          renderHeight = pageHeight;
-          renderWidth = renderHeight * imgRatio;
-          x = (pageWidth - renderWidth) / 2;
-          y = 0;
-        } else {
-          renderWidth = pageWidth;
+        // Gift Item Image 1 is contained inside the page with whitespace,
+        // rather than enlarged/cropped to fill the whole page.
+        if (imgRatio > boxRatio) {
+          renderWidth = availableWidth;
           renderHeight = renderWidth / imgRatio;
-          x = 0;
-          y = (pageHeight - renderHeight) / 2;
+        } else {
+          renderHeight = availableHeight;
+          renderWidth = renderHeight * imgRatio;
         }
+
+        x = (pageWidth - renderWidth) / 2;
+        y = margin + headerHeight + (availableHeight - renderHeight) / 2;
 
         doc.addImage(
           base64,
@@ -698,6 +715,46 @@ export default function ProductImagesPDF() {
           undefined,
           "FAST"
         );
+
+        // Only GIFT ITEM posters get product name and price printed on Image 1.
+        if (isGiftItem) {
+          const horizontalPadding = 8;
+          const footerY = pageHeight - 11;
+          const productName = String(
+            product?.product_name || "Unnamed Product"
+          ).trim();
+          const priceText = `Price: ${product?.price ?? "-"}`;
+
+          // Large, centered title inspired by the existing Image 2 poster style.
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(20);
+          doc.setTextColor(38, 38, 38);
+          const titleLines = doc.splitTextToSize(
+            productName.toUpperCase(),
+            pageWidth - horizontalPadding * 2
+          );
+          const visibleTitleLines = titleLines.slice(0, 2);
+          doc.text(visibleTitleLines, pageWidth / 2, 17, {
+            align: "center",
+            maxWidth: pageWidth - horizontalPadding * 2,
+          });
+
+          // Small red accent line below the title.
+          doc.setDrawColor(239, 68, 68);
+          doc.setLineWidth(0.8);
+          const accentY = 21 + (visibleTitleLines.length - 1) * 7;
+          doc.line(pageWidth / 2 - 16, accentY, pageWidth / 2 + 16, accentY);
+
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(8);
+          doc.setTextColor(37, 99, 235);
+          doc.text(
+            priceText,
+            pageWidth - horizontalPadding,
+            footerY,
+            { align: "right" }
+          );
+        }
 
         addedPages++;
       }
