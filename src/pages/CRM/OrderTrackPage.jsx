@@ -316,6 +316,7 @@
 
 
 
+
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -336,6 +337,8 @@ export default function OrderTrackPage() {
 
   useEffect(() => {
     if (orderId) fetchOrder();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId]);
 
   const fetchOrder = async () => {
@@ -490,11 +493,22 @@ export default function OrderTrackPage() {
         (item) => item.product === name
       );
 
+      // Check both possible field naming conventions.
+      const rejected =
+        crmItem?.is_rejected === true ||
+        crmItem?.isRejected === true;
+
       return {
         name,
         ordered: ssItem?.quantity,
-        approved: crmItem?.quantity,
-        dispatched: dispatchItem?.quantity,
+
+        // Rejected items must not show approved quantity.
+        approved: rejected ? null : crmItem?.quantity,
+
+        // Rejected items must not show dispatched quantity.
+        dispatched: rejected ? null : dispatchItem?.quantity,
+
+        rejected,
       };
     });
   }, [orderData]);
@@ -515,7 +529,7 @@ export default function OrderTrackPage() {
 
               <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-blue-600" />
 
-              <FaBoxOpen className="text-xl text-blue-600 animate-pulse" />
+              <FaBoxOpen className="animate-pulse text-xl text-blue-600" />
             </div>
 
             <p className="mt-4 text-sm font-medium text-gray-600">
@@ -756,7 +770,6 @@ export default function OrderTrackPage() {
                           )}ms`,
                         }}
                       >
-
                         {/* Product */}
 
                         <td className="px-3 py-3.5 sm:px-4">
@@ -780,31 +793,59 @@ export default function OrderTrackPage() {
                               {item.ordered}
                             </span>
                           ) : (
-                            <span className="text-gray-300">--</span>
+                            <span className="text-gray-300">
+                              --
+                            </span>
                           )}
                         </td>
 
                         {/* Approved */}
 
                         <td className="px-2 py-3 text-center">
-                          {item.approved != null ? (
+                          {item.rejected ? (
+                            <span
+                              title="Not Verified - Item Rejected"
+                              aria-label="Not Verified"
+                              className="inline-flex items-center justify-center gap-1"
+                            >
+                              <FaTimesCircle className="text-sm text-red-600" />
+
+                              <span className="hidden text-[10px] font-semibold text-red-600 sm:inline">
+                                
+                              </span>
+                            </span>
+                          ) : item.approved != null ? (
                             <span className="inline-flex min-w-[30px] items-center justify-center rounded-lg bg-yellow-50 px-2 py-1 font-bold text-yellow-600">
                               {item.approved}
                             </span>
                           ) : (
-                            <span className="text-gray-300">--</span>
+                            <span className="text-gray-300">
+                              --
+                            </span>
                           )}
                         </td>
 
                         {/* Dispatched */}
 
                         <td className="px-2 py-3 text-center">
-                          {item.dispatched != null ? (
+                          {item.rejected ? (
+                            <span
+                              title="Item Rejected - Dispatch Quantity Not Displayed"
+                              className="inline-flex items-center justify-center"
+                            >
+                              <FaTimesCircle
+                                className="text-sm text-red-600"
+                                aria-label="Rejected item"
+                              />
+                            </span>
+                          ) : item.dispatched != null ? (
                             <span className="inline-flex min-w-[30px] items-center justify-center rounded-lg bg-green-50 px-2 py-1 font-bold text-green-600">
                               {item.dispatched}
                             </span>
                           ) : (
-                            <span className="text-gray-300">--</span>
+                            <span className="text-gray-300">
+                              --
+                            </span>
                           )}
                         </td>
                       </tr>
