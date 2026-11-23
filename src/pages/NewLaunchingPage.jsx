@@ -1,4 +1,4 @@
-// 📁 src/pages/NewLaunchingPage.jsx
+
 import { useMemo } from "react";
 import { useCachedProducts } from "../hooks/useCachedProducts";
 import { useSelectedProducts } from "../hooks/useSelectedProducts";
@@ -8,6 +8,7 @@ import ProductCard from "../components/ProductCard";
 
 export default function NewLaunchingPage() {
   const { data: allProducts = [], isLoading } = useCachedProducts();
+
   const {
     selectedProducts,
     addProduct,
@@ -18,46 +19,42 @@ export default function NewLaunchingPage() {
 
   const { user } = useAuth();
 
-  // ✅ New Launch Product IDs
+  // Product IDs - Display order will remain exactly the same
   const NEW_LAUNCH_IDS = [
-   1952,
-   1953,
-   1954,
-   1955,
-   1956,
-   1957,
-   1529,
-   1950,
-   1948,
-   1949,
-   1519,
-   1517,
-   1366,
-   1312,
-   1941,
-   1942,
-   1308,
-   1365,
-   1939,
-   1940,
-   1930,
-   1737,
-   1273,
-   ];
+    1952,
+    1953,
+    1954,
+    1955,
+    1956,
+    1957,
+    1529,
+    1950,
+    1948,
+    1949,
+    1519,
+    1517,
+    1366,
+    1312,
+    1941,
+    1942,
+    1308,
+    1365,
+    1939,
+    1940,
+    1930,
+    1737,
+    1273,
+  ];
 
-  // ✅ Filter + Sort
+  // Filter active products and maintain NEW_LAUNCH_IDS order
   const products = useMemo(() => {
-    return allProducts
-      .filter((p) => p.is_active)
-      .filter((p) => NEW_LAUNCH_IDS.includes(p.product_id))
-      .sort((a, b) => {
-        const subCompare = (a.sub_category || "")
-          .localeCompare(b.sub_category || "");
-        if (subCompare !== 0) return subCompare;
-
-        return (a.product_name || "")
-          .localeCompare(b.product_name || "");
-      });
+    return NEW_LAUNCH_IDS
+      .map((id) =>
+        allProducts.find(
+          (p) => Number(p.product_id) === id && p.is_active
+        )
+      )
+      .filter(Boolean);
   }, [allProducts]);
 
   if (isLoading) {
@@ -80,16 +77,16 @@ export default function NewLaunchingPage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6">
             {products.map((prod) => (
-
-              // ✅ Wrapper for NEW badge
-              <div key={prod.product_id} className="relative">
-
-                {/* 🔴 NEW Badge */}
+              <div
+                key={prod.product_id}
+                className="relative"
+              >
+                {/* NEW Badge */}
                 <span className="absolute z-10 top-2 left-2 bg-red-600 text-white text-[10px] px-2 py-[2px] rounded-full">
                   NEW
                 </span>
 
-                {/* ✅ Reusable Product Card */}
+                {/* Product Card */}
                 <ProductCard
                   prod={prod}
                   user={user}
@@ -98,9 +95,8 @@ export default function NewLaunchingPage() {
                   updateQuantity={updateQuantity}
                   updateCartoon={updateCartoon}
                   cartoonSelection={cartoonSelection}
-                  hasScheme={() => false} // yaha schemes nahi use ho rahi
+                  hasScheme={() => false}
                   cardWidth="w-full"
-                  // fallbackImage="https://res.cloudinary.com/djyr368zj/image/upload/v1777007022/veimpnfjfsblvsa2i9z9.webp"
                 />
               </div>
             ))}
