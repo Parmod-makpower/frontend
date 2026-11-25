@@ -21,6 +21,10 @@ export default function NewLaunchingPage() {
 
   // Product IDs - Display order will remain exactly the same
   const NEW_LAUNCH_IDS = [
+    469,
+    1330,
+    1326,
+    1360,
     1952,
     1953,
     1954,
